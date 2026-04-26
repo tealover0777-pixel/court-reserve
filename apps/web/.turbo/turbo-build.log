@@ -15,22 +15,26 @@ Exports made by CommonJs syntax will lead to a runtime error, since the module i
 
 
 [32m[1m✓[22m[39m Compiled successfully in 2.6s
-[?25l[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[?25h[?25l[37m[1m [22m[39m Finished TypeScript in 1576ms  [36m.[39m[2K[1G[?25h[37m[1m [22m[39m Finished TypeScript in 1576ms    [32m[1m✓[22m[39m Finished TypeScript in 1576ms 
-[?25l[37m[1m [22m[39m Collecting page data using 5 workers  [36m.[39m[2K[1G[37m[1m [22m[39m Collecting page data using 5 workers  [36m..[39m[2K[1G[?25h[37m[1m [22m[39m Collecting page data using 5 workers in 267ms    [32m[1m✓[22m[39m Collecting page data using 5 workers in 267ms 
-[?25l[37m[1m [22m[39m Generating static pages using 5 workers (0/4)  [36m[    ][39m[2K[1G[37m[1m [22m[39m Generating static pages using 5 workers (0/4)  [36m[=   ][39m[2K[1G[37m[1m [22m[39m Generating static pages using 5 workers (0/4)  [36m[==  ][39m[2K[1G[?25h[32m[1m✓[22m[39m Generating static pages using 5 workers (4/4) in 413ms
+[?25l[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[?25h[?25l[37m[1m [22m[39m Finished TypeScript in 1510ms  [36m.[39m[2K[1G[?25h[37m[1m [22m[39m Finished TypeScript in 1510ms    [32m[1m✓[22m[39m Finished TypeScript in 1510ms 
+[?25l[37m[1m [22m[39m Collecting page data using 6 workers  [36m.[39m[2K[1G[37m[1m [22m[39m Collecting page data using 6 workers  [36m..[39m[2K[1G[?25h[37m[1m [22m[39m Collecting page data using 6 workers in 290ms    [32m[1m✓[22m[39m Collecting page data using 6 workers in 290ms 
+[?25l[37m[1m [22m[39m Generating static pages using 6 workers (0/6)  [36m[    ][39m[2K[1G[37m[1m [22m[39m Generating static pages using 6 workers (0/6)  [36m[=   ][39m[2K[1G[?25h[32m[1m✓[22m[39m Generating static pages using 6 workers (6/6) in 396ms
 [?25l[37m[1m [22m[39m Finalizing page optimization  [36m.[39m[2K[1G[?25h[33m[1m⚠[22m[39m [33mStatically exporting a Next.js application via `next export` disables API routes and middleware.[39m
 [33mThis command is meant for static-only hosts, and is [1mnot necessary to make your application static.[22m[39m
 [33mPages in your application without server-side data dependencies will be automatically statically exported by `next build`, including pages powered by `getStaticProps`.[39m
 [33mLearn more: https://nextjs.org/docs/messages/api-routes-static-export[39m
-[?25l [36m.[39m [2K[1G [36m..[39m [2K[1G [36m...[39m [2K[1G[?25h[37m[1m [22m[39m Finalizing page optimization in 530ms    [32m[1m✓[22m[39m Finalizing page optimization in 530ms 
+[?25l [36m.[39m [2K[1G [36m..[39m [2K[1G [36m...[39m [2K[1G[?25h[37m[1m [22m[39m Finalizing page optimization in 522ms    [32m[1m✓[22m[39m Finalizing page optimization in 522ms 
 
 [4mRoute (app)[24m
 ┌ ○ /
-└ ○ /_not-found
+├ ○ /_not-found
+└ ● /[tenantId]
+  ├ /kinetic
+  └ /flraquet
 
 
 ƒ Proxy (Middleware)
 
 ○  (Static)  prerendered as static content
+●  (SSG)     prerendered as static HTML (uses [36mgenerateStaticParams[39m)
 
 [?25h⠙[1G[0K
