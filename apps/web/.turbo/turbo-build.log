@@ -13,26 +13,17 @@ The EcmaScript module format was specified in the package.json that is affecting
 Exports made by CommonJs syntax will lead to a runtime error, since the module is in EcmaScript mode. Either change the "type" field in the package.json or replace CommonJs syntax with EcmaScript import/export syntax in the source file.
 
 
-[32m[1m✓[22m[39m Compiled successfully in 2.8s
-[?25l[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m.[39m[31mFailed to type check.
-[39m
-[36m./components/DashboardClient.tsx[39m:[33m275[39m:[33m27[39m
-[31m[1mType error[22m[39m: Type 'string | null' is not assignable to type 'string'.
-  Type 'null' is not assignable to type 'string'.
+[32m[1m✓[22m[39m Compiled successfully in 2.9s
+[?25l[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[?25h[?25l[37m[1m [22m[39m Finished TypeScript in 1836ms  [36m.[39m[2K[1G[?25h[37m[1m [22m[39m Finished TypeScript in 1836ms    [32m[1m✓[22m[39m Finished TypeScript in 1836ms 
+[?25l[37m[1m [22m[39m Collecting page data using 5 workers  [36m.[39m[2K[1G[37m[1m [22m[39m Collecting page data using 5 workers  [36m..[39m[2K[1G[?25h[37m[1m [22m[39m Collecting page data using 5 workers in 275ms    [32m[1m✓[22m[39m Collecting page data using 5 workers in 275ms 
+[?25l[37m[1m [22m[39m Generating static pages using 5 workers (0/4)  [36m[    ][39m[2K[1G[37m[1m [22m[39m Generating static pages using 5 workers (0/4)  [36m[=   ][39m[2K[1G[37m[1m [22m[39m Generating static pages using 5 workers (0/4)  [36m[==  ][39m[2K[1G[?25h[32m[1m✓[22m[39m Generating static pages using 5 workers (4/4) in 447ms
+[?25l[37m[1m [22m[39m Finalizing page optimization  [36m.[39m[2K[1G[37m[1m [22m[39m Finalizing page optimization  [36m..[39m[2K[1G[37m[1m [22m[39m Finalizing page optimization  [36m...[39m[2K[1G[?25h[37m[1m [22m[39m Finalizing page optimization in 527ms    [32m[1m✓[22m[39m Finalizing page optimization in 527ms 
 
-  [90m273 |[0m           <[33mPlaceholderView[0m title=[32m"AI Admin"[0m icon=[32m"psychology"[0m />
-  [90m274 |[0m         ) : activeView === [32m"DIMENSIONS"[0m ? (
-[31m[1m>[0m [90m275 |[0m           <[33mDimensionsView[0m tenantId={tenantId} />
-  [90m    |[0m                           [31m[1m^[0m
-  [90m276 |[0m         ) : activeView === [32m"USER_ADMIN"[0m ? (
-  [90m277 |[0m           <[33mPlaceholderView[0m title=[32m"User Admin"[0m icon=[32m"person_search"[0m />
-  [90m278 |[0m         ) : activeView === [32m"PLATFORM_TENANT_ADMIN"[0m ? (
-[2K[1G[?25hNext.js build worker exited with code: 1 and signal: null
-[?25l [36m.[39m [?25h⠙[1G[0K[1mnpm[22m [31merror[39m Lifecycle script `build` failed with error:
-⠙[1G[0K[1mnpm[22m [31merror[39m [94mcode[39m [33m1[39m
-⠙[1G[0K[1mnpm[22m [31merror[39m [94mpath[39m /Users/kyuahn/Documents/AVG/court-reserve/apps/web
-⠙[1G[0K[1mnpm[22m [31merror[39m [94mworkspace[39m web@0.1.0
-⠙[1G[0K[1mnpm[22m [31merror[39m [94mlocation[39m /Users/kyuahn/Documents/AVG/court-reserve/apps/web
-⠙[1G[0K[1mnpm[22m [31merror[39m command failed
-⠙[1G[0K[1mnpm[22m [31merror[39m [94mcommand[39m sh -c next build
-⠙[1G[0K
+[4mRoute (app)[24m
+┌ ○ /
+└ ○ /_not-found
+
+
+○  (Static)  prerendered as static content
+
+[?25h⠙[1G[0K
