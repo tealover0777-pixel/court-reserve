@@ -7,7 +7,8 @@ import { signOut } from "firebase/auth";
 
 export default function DashboardClient({ params }: { params: { tenantId: string } }) {
   const { tenantId: contextTenantId, loading } = useTenant();
-  const [activeView, setActiveView] = React.useState<"DASHBOARD" | "COURT BOOKING" | "PROGRAMS" | "MEMBERSHIP" | "SETTINGS" | "PROFILE" | "ADMINISTRATION" | "PLATFORM_ADMINISTRATION">("DASHBOARD");
+  const [activeView, setActiveView] = React.useState<"DASHBOARD" | "COURT BOOKING" | "PROGRAMS" | "MEMBERSHIP" | "SETTINGS" | "PROFILE" | "ADMINISTRATION" | "PLATFORM_ADMINISTRATION" | "AI_ADMIN" | "DIMENSIONS" | "USER_ADMIN" | "PLATFORM_TENANT_ADMIN">("DASHBOARD");
+  const [platformAdminOpen, setPlatformAdminOpen] = React.useState(false);
   const tenantId = params.tenantId || contextTenantId;
 
   if (loading) {
@@ -71,9 +72,36 @@ export default function DashboardClient({ params }: { params: { tenantId: string
           <NavItem
             icon="hub"
             label="Platform Admin"
-            active={activeView === "PLATFORM_ADMINISTRATION"}
-            onClick={() => setActiveView("PLATFORM_ADMINISTRATION")}
+            active={activeView === "PLATFORM_ADMINISTRATION" || activeView === "AI_ADMIN" || activeView === "DIMENSIONS" || activeView === "USER_ADMIN" || activeView === "PLATFORM_TENANT_ADMIN"}
+            onClick={() => {
+              setActiveView("PLATFORM_ADMINISTRATION");
+              setPlatformAdminOpen(!platformAdminOpen);
+            }}
           />
+          {platformAdminOpen && (
+            <div className="bg-stone-50/50 py-2">
+              <SubNavItem
+                label="AI Admin"
+                active={activeView === "AI_ADMIN"}
+                onClick={() => setActiveView("AI_ADMIN")}
+              />
+              <SubNavItem
+                label="Dimensions"
+                active={activeView === "DIMENSIONS"}
+                onClick={() => setActiveView("DIMENSIONS")}
+              />
+              <SubNavItem
+                label="User Admin"
+                active={activeView === "USER_ADMIN"}
+                onClick={() => setActiveView("USER_ADMIN")}
+              />
+              <SubNavItem
+                label="Platform Tenant Admin"
+                active={activeView === "PLATFORM_TENANT_ADMIN"}
+                onClick={() => setActiveView("PLATFORM_TENANT_ADMIN")}
+              />
+            </div>
+          )}
         </nav>
 
         <div className="mt-auto p-8 border-t border-stone-100">
@@ -240,6 +268,14 @@ export default function DashboardClient({ params }: { params: { tenantId: string
               </div>
             </section>
           </>
+        ) : activeView === "AI_ADMIN" ? (
+          <PlaceholderView title="AI Admin" icon="psychology" />
+        ) : activeView === "DIMENSIONS" ? (
+          <PlaceholderView title="Dimensions" icon="straighten" />
+        ) : activeView === "USER_ADMIN" ? (
+          <PlaceholderView title="User Admin" icon="person_search" />
+        ) : activeView === "PLATFORM_TENANT_ADMIN" ? (
+          <PlaceholderView title="Platform Tenant Admin" icon="corporate_fare" />
         ) : activeView === "COURT BOOKING" ? (
           <CourtBookingView />
         ) : activeView === "PROGRAMS" ? (
@@ -259,6 +295,21 @@ export default function DashboardClient({ params }: { params: { tenantId: string
         )}
       </main>
     </div>
+  );
+}
+function SubNavItem({ label, active = false, onClick }: { label: string; active?: boolean; onClick?: () => void }) {
+  return (
+    <button
+      onClick={onClick}
+      className={`w-full flex items-center gap-5 py-3 transition-all duration-300 ease-in-out pl-20 relative group ${active
+        ? "text-[#4f6b28]"
+        : "text-stone-400 hover:text-stone-600"
+        }`}
+    >
+      <span className={`text-[10px] font-black uppercase tracking-[0.2em] transition-all ${active ? "translate-x-1" : "group-hover:translate-x-1"}`} style={{ fontFamily: 'Lexend, sans-serif' }}>
+        {label}
+      </span>
+    </button>
   );
 }
 
@@ -281,6 +332,22 @@ function NavItem({ icon, label, active = false, onClick }: { icon: string; label
         {label}
       </span>
     </button>
+  );
+}
+
+function PlaceholderView({ title, icon }: { title: string; icon: string }) {
+  return (
+    <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+      <div className="w-24 h-24 bg-stone-50 rounded-[32px] flex items-center justify-center text-[#4f6b28]">
+        <span className="material-symbols-outlined text-5xl">{icon}</span>
+      </div>
+      <div className="text-center">
+        <h2 className="text-4xl font-black italic tracking-tighter text-[#4f6b28] uppercase mb-4" style={{ fontFamily: 'Lexend, sans-serif' }}>
+          {title}
+        </h2>
+        <p className="text-stone-400 font-bold uppercase tracking-widest text-xs">Module Under Construction</p>
+      </div>
+    </div>
   );
 }
 
