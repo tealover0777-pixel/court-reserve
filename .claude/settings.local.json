@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//Users/kyuahn/**)",
+      "Read(//Users/kyuahn/Library/**)",
+      "Bash(npx mcp-remote *)"
+    ]
+  }
+}
