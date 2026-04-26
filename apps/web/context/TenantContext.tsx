@@ -19,25 +19,24 @@ export const TenantProvider = ({ children }: { children: React.ReactNode }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Initial check from URL for non-logged in state
-    const pathParts = window.location.pathname.split("/").filter(Boolean);
-    if (pathParts.length > 0 && pathParts[0]) {
-      const reserved = ["login", "register", "admin", "dashboard"];
-      if (!reserved.includes(pathParts[0])) {
-        setTenantId(pathParts[0]);
-      }
-    }
-
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
         // Force refresh the token to get the latest custom claims
         try {
           const idTokenResult = await user.getIdTokenResult(true);
           const tid = idTokenResult.claims.tenantId as string;
-          if (tid) setTenantId(tid);
+          if (tid) {
+            setTenantId(tid);
+          } else {
+            // Default fallback for demo purposes if no claim exists
+            setTenantId("kinetic");
+          }
         } catch (e) {
           console.error("Error fetching tenant claim:", e);
+          setTenantId("kinetic");
         }
+      } else {
+        setTenantId(null);
       }
       setLoading(false);
     });

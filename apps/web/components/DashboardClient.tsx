@@ -86,6 +86,14 @@ export default function DashboardClient({ params }: { params: { tenantId: string
               <p className="text-[9px] font-black uppercase tracking-widest text-stone-400">Gold Tier Member</p>
             </div>
           </div>
+          
+          <button 
+            onClick={() => auth.signOut()}
+            className="mt-6 flex items-center gap-3 text-stone-400 hover:text-red-500 transition-colors px-1"
+          >
+            <span className="material-symbols-outlined text-sm">logout</span>
+            <span className="text-[10px] font-black uppercase tracking-widest">LOGOUT</span>
+          </button>
         </div>
       </aside>
 
@@ -222,6 +230,10 @@ export default function DashboardClient({ params }: { params: { tenantId: string
           <CourtBookingView />
         ) : activeView === "PROGRAMS" ? (
           <ProgramsView />
+        ) : activeView === "MEMBERSHIP" ? (
+          <MembershipView />
+        ) : activeView === "SETTINGS" ? (
+          <SettingsView />
         ) : activeView === "PROFILE" ? (
           <ProfileView />
         ) : (
@@ -634,64 +646,157 @@ function ProgramsView() {
 
 function ProfileView() {
   return (
-    <div className="max-w-4xl space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <div className="flex items-center gap-8">
-        <div className="w-32 h-32 rounded-3xl bg-[#4f6b28] flex items-center justify-center text-white text-5xl font-black">
-          KA
+    <div className="max-w-4xl space-y-16 animate-in fade-in slide-in-from-bottom-4 duration-700">
+      <div className="flex items-center gap-10">
+        <div className="w-40 h-40 rounded-[40px] overflow-hidden border-4 border-white shadow-2xl">
+          <img 
+            src="https://lh3.googleusercontent.com/aida-public/AB6AXuCIVNG3lcWVm-Ge5NEEZUf-GdmgLwhFzcFnGsboAMqruvOsGoG2KsUaJnNi7egzkBHc-8ccIDPAhhUoKLhZ-6htVuQieJX6w20tMHdUP6wvr91JZaIcvqIJEmHuGFa4z4EtafMvMDZVDCE0FvjKCsjs2BQO27LBpb-zAw7Vj2lY1t1lbEH1wcnRQt6l-9LceLngmvluUeTcJdDm9RVYiiwiCLuDdYSnjSgJK13-P326RgshwnopS9Qa-T0LE8kRyriIPjwU5NIlUVY" 
+            alt="Profile" 
+            className="w-full h-full object-cover"
+          />
         </div>
         <div>
-          <h2 className="text-4xl font-black text-[#1a1a1a] tracking-tight uppercase" style={{ fontFamily: 'Lexend, sans-serif' }}>
-            KYU AHN
+          <div className="text-[10px] font-black text-[#4f6b28] tracking-[0.3em] uppercase mb-2">Member Profile</div>
+          <h2 className="text-6xl font-black italic text-[#1a1a1a] tracking-tighter uppercase leading-none" style={{ fontFamily: 'Lexend, sans-serif' }}>
+            ALEX STERLING
           </h2>
-          <div className="flex gap-4 mt-3">
-            <span className="px-3 py-1 bg-stone-100 rounded-full text-[10px] font-black tracking-widest uppercase text-stone-600">
-              PLATINUM MEMBER
+          <div className="flex gap-4 mt-6">
+            <span className="px-5 py-2 bg-[#4f6b28] text-white rounded-full text-[10px] font-black tracking-widest uppercase">
+              GOLD TIER MEMBER
             </span>
-            <span className="px-3 py-1 bg-[#4f6b28]/10 text-[#4f6b28] rounded-full text-[10px] font-black tracking-widest uppercase">
+            <span className="px-5 py-2 border-2 border-[#4f6b28] text-[#4f6b28] rounded-full text-[10px] font-black tracking-widest uppercase">
               NTRP 4.5
             </span>
           </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        <div className="p-8 bg-stone-50 rounded-3xl space-y-6">
-          <h3 className="text-sm font-black tracking-[0.2em] text-stone-400 uppercase">Personal Information</h3>
-          <div className="space-y-4">
+      <div className="grid grid-cols-12 gap-8">
+        <div className="col-span-12 lg:col-span-7 bg-[#fdfbe6] rounded-[40px] p-12 shadow-xl space-y-10">
+          <h3 className="text-3xl font-black italic text-[#4f6b28] uppercase">Account Security</h3>
+          <div className="grid grid-cols-2 gap-10">
             {[
-              { label: "EMAIL", value: "kyu.ahn@example.com" },
-              { label: "PHONE", value: "+1 (555) 000-0000" },
-              { label: "MEMBER SINCE", value: "Oct 2023" }
+              { label: "REGISTERED EMAIL", value: "alex.sterling@pro.com" },
+              { label: "PHONE VERIFIED", value: "+1 (555) 042-9901" },
+              { label: "MEMBER SINCE", value: "January 2024" },
+              { label: "LAST LOGIN", value: "2 hours ago" }
             ].map((item, i) => (
               <div key={i}>
-                <div className="text-[10px] font-black text-stone-400 mb-1">{item.label}</div>
-                <div className="text-stone-900 font-bold">{item.value}</div>
+                <div className="text-[10px] font-black text-[#4f6b28]/40 mb-1 tracking-widest">{item.label}</div>
+                <div className="text-[#4f6b28] font-black text-lg">{item.value}</div>
               </div>
             ))}
           </div>
-          <button className="w-full py-4 bg-white border border-stone-200 rounded-xl text-xs font-black tracking-widest hover:bg-stone-100 transition-all uppercase">
-            EDIT PROFILE
-          </button>
-        </div>
-
-        <div className="p-8 bg-[#4f6b28] rounded-3xl text-white space-y-6">
-          <h3 className="text-sm font-black tracking-[0.2em] opacity-60 uppercase">Membership Details</h3>
-          <div className="space-y-4">
-            <div>
-              <div className="text-[10px] font-black opacity-60 mb-1">CURRENT PLAN</div>
-              <div className="text-2xl font-black">Annual Platinum</div>
-            </div>
-            <div>
-              <div className="text-[10px] font-black opacity-60 mb-1">RENEWAL DATE</div>
-              <div className="text-lg font-bold">October 14, 2024</div>
-            </div>
-          </div>
-          <div className="pt-6 border-t border-white/20">
-            <button className="w-full py-4 bg-white text-[#4f6b28] rounded-xl text-xs font-black tracking-widest hover:bg-opacity-90 transition-all uppercase">
-              MANAGE SUBSCRIPTION
+          <div className="pt-8 flex gap-4">
+            <button className="flex-1 py-4 bg-[#4f6b28] text-white rounded-2xl text-[10px] font-black tracking-widest hover:opacity-90 transition-all uppercase">
+              EDIT INFORMATION
+            </button>
+            <button className="flex-1 py-4 border-2 border-[#4f6b28] text-[#4f6b28] rounded-2xl text-[10px] font-black tracking-widest hover:bg-[#4f6b28] hover:text-white transition-all uppercase">
+              CHANGE PASSWORD
             </button>
           </div>
         </div>
+
+        <div className="col-span-12 lg:col-span-5 bg-white border border-stone-100 rounded-[40px] p-12 shadow-xl flex flex-col justify-between">
+          <div>
+            <h3 className="text-3xl font-black italic text-[#1a1a1a] uppercase mb-8">Performance</h3>
+            <div className="space-y-8">
+              <div className="flex justify-between items-end">
+                <span className="text-[10px] font-black text-stone-400 tracking-widest uppercase">Season Progress</span>
+                <span className="text-sm font-black">74%</span>
+              </div>
+              <div className="h-3 bg-stone-100 rounded-full overflow-hidden">
+                <div className="h-full bg-[#cfff00] w-[74%] rounded-full shadow-[0_0_15px_rgba(207,255,0,0.5)]"></div>
+              </div>
+              <p className="text-stone-500 text-sm font-medium leading-relaxed">
+                You've completed 12 matches this session. 4 more to qualify for the Autumn Championship.
+              </p>
+            </div>
+          </div>
+          <button className="mt-12 w-full py-4 bg-stone-900 text-white rounded-2xl text-[10px] font-black tracking-widest hover:bg-black transition-all uppercase">
+            VIEW ANALYTICS
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function MembershipView() {
+  return (
+    <div className="space-y-16 animate-in fade-in slide-in-from-bottom-4 duration-700">
+      <h2 className="text-5xl font-black italic tracking-tighter text-[#4f6b28] uppercase" style={{ fontFamily: 'Lexend, sans-serif' }}>
+        MEMBERSHIP PLANS
+      </h2>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        {[
+          { name: "SILVER", price: "99", color: "bg-stone-50 text-stone-900", features: ["2 Bookings/Week", "Standard Access", "Social Mixers"] },
+          { name: "GOLD", price: "199", color: "bg-[#4f6b28] text-white", features: ["Unlimited Bookings", "Priority Courts", "Guest Passes (4)", "Pro Discounts"], popular: true },
+          { name: "PLATINUM", price: "299", color: "bg-stone-900 text-white", features: ["24/7 Access", "Personal Locker", "Free Stringing", "Pro Clinic Access"] }
+        ].map((plan, i) => (
+          <div key={i} className={`${plan.color} rounded-[40px] p-12 shadow-2xl relative flex flex-col`}>
+            {plan.popular && (
+              <div className="absolute -top-4 left-12 px-6 py-2 bg-[#cfff00] text-black text-[10px] font-black tracking-[0.2em] rounded-full shadow-lg">
+                MOST POPULAR
+              </div>
+            )}
+            <div className="mb-12">
+              <h3 className="text-2xl font-black italic tracking-widest uppercase opacity-60 mb-2">{plan.name}</h3>
+              <div className="flex items-baseline">
+                <span className="text-5xl font-black">${plan.price}</span>
+                <span className="text-sm font-bold opacity-40 ml-2">/MO</span>
+              </div>
+            </div>
+            <ul className="space-y-6 flex-1">
+              {plan.features.map((f, j) => (
+                <li key={j} className="flex items-center gap-4">
+                  <span className="material-symbols-outlined text-sm">check_circle</span>
+                  <span className="text-sm font-bold">{f}</span>
+                </li>
+              ))}
+            </ul>
+            <button className={`mt-12 w-full py-5 rounded-2xl text-xs font-black tracking-widest transition-all uppercase ${
+              plan.popular ? "bg-white text-[#4f6b28]" : "border-2 border-current hover:bg-current hover:text-white"
+            }`}>
+              {plan.name === "GOLD" ? "CURRENT PLAN" : "UPGRADE NOW"}
+            </button>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function SettingsView() {
+  return (
+    <div className="max-w-2xl space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-700">
+      <h2 className="text-5xl font-black italic tracking-tighter text-[#4f6b28] uppercase" style={{ fontFamily: 'Lexend, sans-serif' }}>
+        PREFERENCES
+      </h2>
+
+      <div className="space-y-8">
+        {[
+          { icon: "notifications", title: "Push Notifications", desc: "Get alerts for bookings and match invites", active: true },
+          { icon: "visibility", title: "Profile Visibility", desc: "Allow other members to find you", active: true },
+          { icon: "history", title: "Activity History", desc: "Log match results and training progress", active: false },
+          { icon: "mail", title: "Newsletter", desc: "Weekly club updates and clinic openings", active: true }
+        ].map((opt, i) => (
+          <div key={i} className="flex items-center justify-between p-8 bg-white rounded-3xl border border-stone-100 shadow-sm hover:shadow-md transition-all">
+            <div className="flex items-center gap-6">
+              <div className="w-12 h-12 bg-stone-50 rounded-2xl flex items-center justify-center text-[#4f6b28]">
+                <span className="material-symbols-outlined">{opt.icon}</span>
+              </div>
+              <div>
+                <h4 className="font-black italic text-lg text-stone-900 uppercase">{opt.title}</h4>
+                <p className="text-stone-400 text-sm font-medium">{opt.desc}</p>
+              </div>
+            </div>
+            <button className={`w-14 h-8 rounded-full relative transition-colors ${opt.active ? "bg-[#4f6b28]" : "bg-stone-200"}`}>
+              <div className={`absolute top-1 w-6 h-6 bg-white rounded-full transition-transform ${opt.active ? "right-1" : "left-1"}`}></div>
+            </button>
+          </div>
+        ))}
       </div>
     </div>
   );
