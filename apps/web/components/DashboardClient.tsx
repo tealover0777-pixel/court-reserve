@@ -2,6 +2,8 @@
 import React from "react";
 import Image from "next/image";
 import { useTenant } from "../context/TenantContext";
+import { auth } from "../lib/firebase";
+import { signOut } from "firebase/auth";
 
 export default function DashboardClient({ params }: { params: { tenantId: string } }) {
   const { tenantId: contextTenantId, loading } = useTenant();
@@ -88,7 +90,7 @@ export default function DashboardClient({ params }: { params: { tenantId: string
           </div>
           
           <button 
-            onClick={() => auth.signOut()}
+            onClick={() => signOut(auth)}
             className="mt-6 flex items-center gap-3 text-stone-400 hover:text-red-500 transition-colors px-1"
           >
             <span className="material-symbols-outlined text-sm">logout</span>
