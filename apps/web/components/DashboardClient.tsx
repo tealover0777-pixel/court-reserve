@@ -5,7 +5,7 @@ import { useTenant } from "../context/TenantContext";
 
 export default function DashboardClient({ params }: { params: { tenantId: string } }) {
   const { tenantId: contextTenantId, loading } = useTenant();
-  const [activeView, setActiveView] = React.useState<"DASHBOARD" | "COURT BOOKING" | "PROGRAMS" | "PROFILE">("DASHBOARD");
+  const [activeView, setActiveView] = React.useState<"DASHBOARD" | "COURT BOOKING" | "PROGRAMS" | "MEMBERSHIP" | "SETTINGS" | "PROFILE">("DASHBOARD");
   const tenantId = params.tenantId || contextTenantId;
 
   if (loading) {
@@ -29,30 +29,36 @@ export default function DashboardClient({ params }: { params: { tenantId: string
           </p>
         </div>
         
-        <nav className="flex-1">
+        <nav className="flex-1 space-y-2 py-4">
           <NavItem 
-            icon="dashboard" 
+            icon="grid_view" 
             label="Dashboard" 
             active={activeView === "DASHBOARD"} 
             onClick={() => setActiveView("DASHBOARD")}
           />
           <NavItem 
             icon="sports_tennis" 
-            label="Court Booking" 
+            label="My Schedule" 
             active={activeView === "COURT BOOKING"} 
             onClick={() => setActiveView("COURT BOOKING")}
           />
           <NavItem 
-            icon="event_seat" 
+            icon="calendar_today" 
             label="Programs" 
             active={activeView === "PROGRAMS"} 
             onClick={() => setActiveView("PROGRAMS")}
           />
           <NavItem 
-            icon="person" 
-            label="Profile" 
-            active={activeView === "PROFILE"} 
-            onClick={() => setActiveView("PROFILE")}
+            icon="card_membership" 
+            label="Membership" 
+            active={activeView === "MEMBERSHIP"} 
+            onClick={() => setActiveView("MEMBERSHIP")}
+          />
+          <NavItem 
+            icon="settings" 
+            label="Settings" 
+            active={activeView === "SETTINGS"} 
+            onClick={() => setActiveView("SETTINGS")}
           />
         </nav>
 
@@ -64,8 +70,11 @@ export default function DashboardClient({ params }: { params: { tenantId: string
             BOOK A COURT
           </button>
           
-          <div className="mt-8 flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-surface-container-highest overflow-hidden border-2 border-primary/20">
+          <div 
+            onClick={() => setActiveView("PROFILE")}
+            className="mt-8 flex items-center gap-3 cursor-pointer group"
+          >
+            <div className="w-10 h-10 rounded-full bg-stone-100 overflow-hidden border-2 border-transparent group-hover:border-[#4f6b28] transition-all">
               <img 
                 src="https://lh3.googleusercontent.com/aida-public/AB6AXuCIVNG3lcWVm-Ge5NEEZUf-GdmgLwhFzcFnGsboAMqruvOsGoG2KsUaJnNi7egzkBHc-8ccIDPAhhUoKLhZ-6htVuQieJX6w20tMHdUP6wvr91JZaIcvqIJEmHuGFa4z4EtafMvMDZVDCE0FvjKCsjs2BQO27LBpb-zAw7Vj2lY1t1lbEH1wcnRQt6l-9LceLngmvluUeTcJdDm9RVYiiwiCLuDdYSnjSgJK13-P326RgshwnopS9Qa-T0LE8kRyriIPjwU5NIlUVY" 
                 alt="Profile" 
@@ -73,8 +82,8 @@ export default function DashboardClient({ params }: { params: { tenantId: string
               />
             </div>
             <div>
-              <p className="text-xs font-bold">Alex Sterling</p>
-              <p className="text-[10px] text-stone-500">Gold Tier Member</p>
+              <p className="text-xs font-black group-hover:text-[#4f6b28] transition-colors">ALEX STERLING</p>
+              <p className="text-[9px] font-black uppercase tracking-widest text-stone-400">Gold Tier Member</p>
             </div>
           </div>
         </div>
@@ -82,7 +91,7 @@ export default function DashboardClient({ params }: { params: { tenantId: string
 
       {/* TopAppBar Component */}
       <header className="sticky top-0 z-40 w-full bg-white/60 backdrop-blur-xl flex justify-between items-center ml-72 px-12 py-6 max-w-[calc(100%-18rem)]">
-        <h2 className="text-4xl font-black font-headline text-[#4f6b28] tracking-tighter uppercase">{activeView}</h2>
+        <h2 className="text-4xl font-black italic text-[#4f6b28] tracking-tighter uppercase" style={{ fontFamily: 'Lexend, sans-serif' }}>{activeView}</h2>
         <div className="flex items-center gap-6">
           <div className="relative hidden lg:block">
             <input 
@@ -231,16 +240,19 @@ function NavItem({ icon, label, active = false, onClick }: { icon: string; label
   return (
     <button 
       onClick={onClick}
-      className={`w-full flex items-center gap-5 py-5 transition-all duration-200 ease-in-out px-6 ${
+      className={`w-full flex items-center gap-5 py-4 transition-all duration-300 ease-in-out px-8 relative group ${
         active 
-          ? "text-[#4f6b28] bg-[#f7f8f2] border-l-[6px] border-[#4f6b28]" 
-          : "text-stone-400 border-l-[6px] border-transparent hover:bg-stone-50"
+          ? "text-[#4f6b28]" 
+          : "text-stone-400 hover:text-stone-600"
       }`}
     >
-      <span className={`material-symbols-outlined text-2xl ${active ? "opacity-100" : "opacity-60"}`}>
+      {active && (
+        <div className="absolute left-0 top-0 bottom-0 w-2 bg-[#4f6b28] rounded-r-full" />
+      )}
+      <span className={`material-symbols-outlined text-2xl transition-all ${active ? "opacity-100 scale-110" : "opacity-40 group-hover:opacity-100"}`} style={active ? { fontVariationSettings: "'FILL' 1" } : {}}>
         {icon}
       </span>
-      <span className={`text-sm font-black uppercase tracking-wider ${active ? "text-[#4f6b28]" : "text-stone-500"}`}>
+      <span className={`text-[11px] font-black uppercase tracking-[0.2em] transition-all ${active ? "translate-x-1" : "group-hover:translate-x-1"}`} style={{ fontFamily: 'Lexend, sans-serif' }}>
         {label}
       </span>
     </button>
@@ -427,75 +439,195 @@ function CourtSection({ title }: { title: string }) {
 
 function ProgramsView() {
   return (
-    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <div className="flex justify-between items-end">
-        <div>
-          <h2 className="text-3xl font-black text-[#1a1a1a] tracking-tight uppercase" style={{ fontFamily: 'Lexend, sans-serif' }}>
-            CLINICS & PROGRAMS
-          </h2>
-          <p className="text-stone-500 font-medium mt-2">Elevate your game with world-class coaching.</p>
+    <div className="space-y-16 animate-in fade-in slide-in-from-bottom-4 duration-700">
+      {/* Header Section */}
+      <div className="flex justify-between items-center">
+        <h2 className="text-5xl font-black italic tracking-tighter text-[#4f6b28] uppercase" style={{ fontFamily: 'Lexend, sans-serif' }}>
+          CLUB PROGRAMS
+        </h2>
+        <div className="relative">
+          <input 
+            type="text" 
+            placeholder="Search training..." 
+            className="bg-[#f7f8f2] border-none rounded-full px-8 py-3 w-80 focus:ring-2 focus:ring-[#4f6b28] text-sm font-medium italic"
+          />
+          <span className="material-symbols-outlined absolute right-4 top-3 text-stone-400">search</span>
         </div>
-        <div className="flex gap-2">
-          <button className="px-6 py-2 border-2 border-stone-200 rounded-full text-xs font-bold tracking-widest hover:bg-stone-50 transition-colors uppercase">
-            FILTER BY LEVEL
+      </div>
+
+      {/* Hero Section */}
+      <div className="grid grid-cols-12 gap-8">
+        <div className="col-span-12 lg:col-span-8 group relative h-[450px] overflow-hidden rounded-[40px] shadow-2xl">
+          <img 
+            src="/images/programs_hero.png" 
+            alt="Championship Clinic" 
+            className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent"></div>
+          <div className="absolute inset-0 p-12 flex flex-col justify-end max-w-2xl">
+            <h3 className="text-7xl font-black italic text-white leading-[0.9] tracking-tighter mb-6 uppercase">
+              CHAMPIONSHIP CLINIC 2024
+            </h3>
+            <p className="text-white/80 text-lg font-medium leading-relaxed">
+              Intensive technical refinement for competitive players. Lead by ITF-certified master professionals.
+            </p>
+          </div>
+        </div>
+
+        <div className="col-span-12 lg:col-span-4 bg-[#fdfbe6] rounded-[40px] p-10 flex flex-col justify-between shadow-xl">
+          <div>
+            <h4 className="text-3xl font-black italic text-[#4f6b28] leading-tight mb-4 uppercase">
+              PRO-FOCUS WEEKEND
+            </h4>
+            <p className="text-[#4f6b28]/70 font-medium leading-relaxed">
+              Join Coach Marcus for a 48-hour immersion into strategy and bio-mechanics. Limited to 8 participants.
+            </p>
+          </div>
+          <button className="w-full py-4 border-2 border-[#4f6b28] text-[#4f6b28] rounded-full text-xs font-black tracking-[0.2em] hover:bg-[#4f6b28] hover:text-white transition-all uppercase">
+            VIEW COACH BIO
           </button>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {[
-          { 
-            title: "Adult Intermediate Clinic", 
-            time: "10:00 AM - 11:30 AM", 
-            coach: "Marco Rossi", 
-            spots: "2 spots left",
-            color: "bg-[#4f6b28]"
-          },
-          { 
-            title: "Junior Academy - Elite", 
-            time: "04:00 PM - 05:30 PM", 
-            coach: "Elena Petrova", 
-            spots: "Waitlist only",
-            color: "bg-stone-800"
-          },
-          { 
-            title: "Cardio Tennis", 
-            time: "07:00 AM - 08:00 AM", 
-            coach: "David Smith", 
-            spots: "6 spots left",
-            color: "bg-stone-400"
-          }
-        ].map((program, i) => (
-          <div key={i} className="group relative bg-white border border-stone-100 rounded-2xl overflow-hidden hover:shadow-xl transition-all duration-300">
-            <div className={`h-40 ${program.color} relative overflow-hidden`}>
-              <div className="absolute inset-0 opacity-20 flex items-center justify-center">
-                <span className="material-symbols-outlined text-[120px] text-white">sports_tennis</span>
+      {/* Training Tracks Section */}
+      <section>
+        <div className="flex justify-between items-end mb-12">
+          <h3 className="text-5xl font-black italic tracking-tighter text-[#4f6b28] uppercase">
+            TRAINING TRACKS
+          </h3>
+          <div className="flex gap-8 text-[10px] font-black tracking-widest uppercase text-stone-400">
+            <span>FILTER BY:</span>
+            <button className="text-[#4f6b28] border-b-2 border-[#4f6b28] pb-1">ALL</button>
+            <button className="hover:text-stone-600 transition-colors">YOUTH</button>
+            <button className="hover:text-stone-600 transition-colors">ADULT</button>
+            <button className="hover:text-stone-600 transition-colors">PRO</button>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {/* Active Clinics */}
+          <div className="bg-[#fdfbe6] rounded-[40px] overflow-hidden flex flex-col group shadow-lg">
+            <div className="h-64 overflow-hidden">
+              <img src="/images/active_clinics.png" alt="Active Clinics" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+            </div>
+            <div className="p-10 flex-1 relative">
+              <div className="absolute right-10 top-10 w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-md">
+                <span className="material-symbols-outlined text-[#4f6b28]">bolt</span>
+              </div>
+              <h4 className="text-3xl font-black italic text-[#4f6b28] mb-4 uppercase">ACTIVE CLINICS</h4>
+              <p className="text-[#4f6b28]/60 text-sm font-medium leading-relaxed mb-8">
+                High-energy drills focused on footwork, stamina, and consistent point construction.
+              </p>
+              <div className="flex justify-between items-center mt-auto">
+                <div>
+                  <div className="text-[10px] font-black text-[#4f6b28]/40 uppercase tracking-widest">STARTS AT</div>
+                  <div className="text-2xl font-black text-[#4f6b28]">$45/HR</div>
+                </div>
+                <button className="w-14 h-14 bg-[#4f6b28] text-white rounded-full flex items-center justify-center hover:scale-110 transition-transform shadow-lg shadow-[#4f6b28]/20">
+                  <span className="material-symbols-outlined">arrow_forward</span>
+                </button>
               </div>
             </div>
-            <div className="p-6">
-              <div className="flex justify-between items-start mb-4">
-                <h3 className="text-xl font-bold text-stone-900 leading-tight">{program.title}</h3>
-                <span className="px-3 py-1 bg-stone-100 rounded-full text-[10px] font-black tracking-widest uppercase">
-                  {program.spots}
-                </span>
+          </div>
+
+          {/* Junior Academy */}
+          <div className="bg-[#cfff00] rounded-[40px] overflow-hidden flex flex-col group shadow-lg">
+            <div className="h-64 overflow-hidden relative">
+              <img src="/images/junior_academy.png" alt="Junior Academy" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+              <div className="absolute top-6 left-6 px-4 py-1 bg-white/90 backdrop-blur rounded-full text-[8px] font-black tracking-widest uppercase">
+                PREMIER LEVEL
               </div>
-              <div className="space-y-3">
-                <div className="flex items-center gap-3 text-stone-500">
-                  <span className="material-symbols-outlined text-lg">schedule</span>
-                  <span className="text-sm font-medium">{program.time}</span>
-                </div>
-                <div className="flex items-center gap-3 text-stone-500">
-                  <span className="material-symbols-outlined text-lg">person</span>
-                  <span className="text-sm font-medium">Coach: {program.coach}</span>
-                </div>
-              </div>
-              <button className="w-full mt-6 py-3 border-2 border-stone-900 text-stone-900 rounded-xl text-xs font-black tracking-widest hover:bg-stone-900 hover:text-white transition-all uppercase">
-                REGISTER NOW
+            </div>
+            <div className="p-10 flex-1">
+              <h4 className="text-3xl font-black italic text-[#1a1a1a] mb-4 uppercase leading-none">JUNIOR<br/>ACADEMY</h4>
+              <p className="text-black/60 text-sm font-medium leading-relaxed mb-8">
+                Developing the next generation of competitors. Age groups 8-16.
+              </p>
+              <button className="w-full py-4 bg-[#4f6b28] text-white rounded-2xl text-[10px] font-black tracking-widest hover:opacity-90 transition-all uppercase">
+                EXPLORE PATHWAY
               </button>
             </div>
           </div>
-        ))}
-      </div>
+
+          {/* Social Mixers */}
+          <div className="bg-[#fdfbe6] rounded-[40px] overflow-hidden flex flex-col group shadow-lg">
+            <div className="p-10 pb-0">
+              <div className="flex justify-between items-start mb-4">
+                <h4 className="text-3xl font-black italic text-[#4f6b28] uppercase leading-none">SOCIAL<br/>MIXERS</h4>
+                <span className="material-symbols-outlined text-[#4f6b28] opacity-40">groups</span>
+              </div>
+              <p className="text-[#4f6b28]/60 text-sm font-medium leading-relaxed mb-6">
+                Network while you play. Round-robin format followed by clubhouse drinks.
+              </p>
+              <div className="flex items-center -space-x-3 mb-8">
+                {[1, 2, 3].map(i => (
+                  <div key={i} className="w-8 h-8 rounded-full border-2 border-[#fdfbe6] bg-stone-200 overflow-hidden">
+                    <img src={`https://i.pravatar.cc/100?img=${i+10}`} alt="User" />
+                  </div>
+                ))}
+                <div className="h-8 px-2 bg-[#4f6b28] text-white text-[8px] font-black flex items-center justify-center rounded-full border-2 border-[#fdfbe6]">
+                  +14
+                </div>
+              </div>
+            </div>
+            <div className="h-48 overflow-hidden relative mt-auto">
+              <img src="/images/social_mixers.png" alt="Social Mixers" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+              <div className="absolute right-6 bottom-6 w-12 h-12 bg-black text-white rounded-2xl flex items-center justify-center shadow-xl">
+                <span className="material-symbols-outlined">calendar_today</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Spring Session Section */}
+      <section className="bg-stone-50 rounded-[40px] p-16 grid grid-cols-12 gap-12">
+        <div className="col-span-12 lg:col-span-5 space-y-8">
+          <div className="space-y-4">
+            <h3 className="text-6xl font-black italic tracking-tighter text-[#1a1a1a] uppercase leading-none">
+              SPRING<br/>SESSION '24
+            </h3>
+            <p className="text-stone-500 font-medium leading-relaxed max-w-sm">
+              Registration is now open for all technical workshops and weekly ladders. Secure your spot before March 15th.
+            </p>
+          </div>
+          
+          <div className="space-y-4 pt-4">
+            <div className="flex items-center gap-4 text-[#4f6b28]">
+              <div className="w-6 h-6 bg-[#4f6b28] text-white rounded-md flex items-center justify-center">
+                <span className="material-symbols-outlined text-sm">check</span>
+              </div>
+              <span className="text-xs font-black tracking-widest uppercase">ITF GOLD STANDARDS</span>
+            </div>
+            <div className="flex items-center gap-4 text-[#4f6b28]">
+              <div className="w-6 h-6 bg-[#4f6b28] text-white rounded-md flex items-center justify-center">
+                <span className="material-symbols-outlined text-sm">bar_chart</span>
+              </div>
+              <span className="text-xs font-black tracking-widest uppercase">PERFORMANCE TRACKING</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="col-span-12 lg:col-span-7 grid grid-cols-1 md:grid-cols-2 gap-6">
+          {[
+            { date: "MARCH 12-14", title: "SERVE VELOCITY CLINIC", badge: "2 SLOTS LEFT", badgeColor: "bg-yellow-100 text-yellow-700" },
+            { date: "APRIL 05", title: "DOUBLES MASTERCLASS", badge: "OPENING SOON", badgeColor: "bg-blue-100 text-blue-700" },
+            { date: "WEEKLY SAT", title: "CARDIO TENNIS LADDER", badge: "RECURRING", badgeColor: "bg-green-100 text-green-700" },
+            { date: "MONTHLY", title: "VIDEO ANALYSIS LAB", badge: "MEMBER EXCLUSIVE", badgeColor: "bg-stone-200 text-stone-600" }
+          ].map((item, i) => (
+            <div key={i} className="bg-white p-8 rounded-3xl group cursor-pointer hover:shadow-xl transition-all border border-stone-100">
+              <div className="text-[10px] font-black text-stone-400 tracking-widest uppercase mb-2">{item.date}</div>
+              <h5 className="text-lg font-black italic text-stone-900 mb-6 group-hover:text-[#4f6b28] transition-colors uppercase leading-tight">{item.title}</h5>
+              <div className="flex justify-between items-center">
+                <span className={`px-3 py-1 rounded-full text-[8px] font-black tracking-widest uppercase ${item.badgeColor}`}>
+                  {item.badge}
+                </span>
+                <span className="material-symbols-outlined text-stone-300 group-hover:text-[#4f6b28] group-hover:translate-x-1 transition-all">chevron_right</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
     </div>
   );
 }
