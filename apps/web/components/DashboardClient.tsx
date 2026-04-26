@@ -7,7 +7,7 @@ import { signOut } from "firebase/auth";
 
 export default function DashboardClient({ params }: { params: { tenantId: string } }) {
   const { tenantId: contextTenantId, loading } = useTenant();
-  const [activeView, setActiveView] = React.useState<"DASHBOARD" | "COURT BOOKING" | "PROGRAMS" | "MEMBERSHIP" | "SETTINGS" | "PROFILE" | "ADMINISTRATION" | "PLATFORM_ADMINISTRATION">("DASHBOARD");
+  const [activeView, setActiveView] = React.useState<"DASHBOARD" | "COURT BOOKING" | "PROGRAMS" | "MEMBERSHIP" | "SETTINGS" | "PROFILE" | "ADMINISTRATION" | "PLATFORM_ADMIN">("DASHBOARD");
   const tenantId = params.tenantId || contextTenantId;
 
   if (loading) {
@@ -30,68 +30,68 @@ export default function DashboardClient({ params }: { params: { tenantId: string
             Elite Membership
           </p>
         </div>
-        
+
         <nav className="flex-1 space-y-2 py-4">
-          <NavItem 
-            icon="grid_view" 
-            label="Dashboard" 
-            active={activeView === "DASHBOARD"} 
+          <NavItem
+            icon="grid_view"
+            label="Dashboard"
+            active={activeView === "DASHBOARD"}
             onClick={() => setActiveView("DASHBOARD")}
           />
-          <NavItem 
-            icon="sports_tennis" 
-            label="My Schedule" 
-            active={activeView === "COURT BOOKING"} 
+          <NavItem
+            icon="sports_tennis"
+            label="My Schedule"
+            active={activeView === "COURT BOOKING"}
             onClick={() => setActiveView("COURT BOOKING")}
           />
-          <NavItem 
-            icon="calendar_today" 
-            label="Programs" 
-            active={activeView === "PROGRAMS"} 
+          <NavItem
+            icon="calendar_today"
+            label="Programs"
+            active={activeView === "PROGRAMS"}
             onClick={() => setActiveView("PROGRAMS")}
           />
-          <NavItem 
-            icon="card_membership" 
-            label="Membership" 
-            active={activeView === "MEMBERSHIP"} 
+          <NavItem
+            icon="card_membership"
+            label="Membership"
+            active={activeView === "MEMBERSHIP"}
             onClick={() => setActiveView("MEMBERSHIP")}
           />
-          <NavItem 
-            icon="admin_panel_settings" 
-            label="Administration" 
-            active={activeView === "ADMINISTRATION"} 
+          <NavItem
+            icon="admin_panel_settings"
+            label="Administration"
+            active={activeView === "ADMINISTRATION"}
             onClick={() => setActiveView("ADMINISTRATION")}
           />
-          <NavItem 
-            icon="settings" 
-            label="Settings" 
-            active={activeView === "SETTINGS"} 
+          <NavItem
+            icon="settings"
+            label="Settings"
+            active={activeView === "SETTINGS"}
             onClick={() => setActiveView("SETTINGS")}
           />
-          <NavItem 
-            icon="hub" 
-            label="Platform Administration" 
-            active={activeView === "PLATFORM_ADMINISTRATION"} 
+          <NavItem
+            icon="hub"
+            label="Platform Admin"
+            active={activeView === "PLATFORM_ADMINISTRATION"}
             onClick={() => setActiveView("PLATFORM_ADMINISTRATION")}
           />
         </nav>
 
         <div className="mt-auto p-8 border-t border-stone-100">
-          <button 
+          <button
             onClick={() => setActiveView("COURT BOOKING")}
             className="w-full py-4 bg-[#4f6b28] text-white font-black rounded-lg text-xs tracking-widest hover:opacity-90 transition-all uppercase shadow-lg shadow-[#4f6b28]/10"
           >
             BOOK A COURT
           </button>
-          
-          <div 
+
+          <div
             onClick={() => setActiveView("PROFILE")}
             className="mt-8 flex items-center gap-3 cursor-pointer group"
           >
             <div className="w-10 h-10 rounded-full bg-stone-100 overflow-hidden border-2 border-transparent group-hover:border-[#4f6b28] transition-all">
-              <img 
-                src="https://lh3.googleusercontent.com/aida-public/AB6AXuCIVNG3lcWVm-Ge5NEEZUf-GdmgLwhFzcFnGsboAMqruvOsGoG2KsUaJnNi7egzkBHc-8ccIDPAhhUoKLhZ-6htVuQieJX6w20tMHdUP6wvr91JZaIcvqIJEmHuGFa4z4EtafMvMDZVDCE0FvjKCsjs2BQO27LBpb-zAw7Vj2lY1t1lbEH1wcnRQt6l-9LceLngmvluUeTcJdDm9RVYiiwiCLuDdYSnjSgJK13-P326RgshwnopS9Qa-T0LE8kRyriIPjwU5NIlUVY" 
-                alt="Profile" 
+              <img
+                src="https://lh3.googleusercontent.com/aida-public/AB6AXuCIVNG3lcWVm-Ge5NEEZUf-GdmgLwhFzcFnGsboAMqruvOsGoG2KsUaJnNi7egzkBHc-8ccIDPAhhUoKLhZ-6htVuQieJX6w20tMHdUP6wvr91JZaIcvqIJEmHuGFa4z4EtafMvMDZVDCE0FvjKCsjs2BQO27LBpb-zAw7Vj2lY1t1lbEH1wcnRQt6l-9LceLngmvluUeTcJdDm9RVYiiwiCLuDdYSnjSgJK13-P326RgshwnopS9Qa-T0LE8kRyriIPjwU5NIlUVY"
+                alt="Profile"
                 className="w-full h-full object-cover"
               />
             </div>
@@ -100,8 +100,8 @@ export default function DashboardClient({ params }: { params: { tenantId: string
               <p className="text-[9px] font-black uppercase tracking-widest text-stone-400">Gold Tier Member</p>
             </div>
           </div>
-          
-          <button 
+
+          <button
             onClick={() => signOut(auth)}
             className="mt-6 flex items-center gap-3 text-stone-400 hover:text-red-500 transition-colors px-1"
           >
@@ -116,9 +116,9 @@ export default function DashboardClient({ params }: { params: { tenantId: string
         <h2 className="text-4xl font-black italic text-[#4f6b28] tracking-tighter uppercase" style={{ fontFamily: 'Lexend, sans-serif' }}>{activeView}</h2>
         <div className="flex items-center gap-6">
           <div className="relative hidden lg:block">
-            <input 
-              type="text" 
-              placeholder="Search facilities..." 
+            <input
+              type="text"
+              placeholder="Search facilities..."
               className="bg-surface-container-low border-none rounded-full px-6 py-2 w-64 focus:ring-2 focus:ring-primary text-sm text-on-surface"
             />
             <span className="material-symbols-outlined absolute right-4 top-2 text-stone-400">search</span>
@@ -137,9 +137,9 @@ export default function DashboardClient({ params }: { params: { tenantId: string
             {/* Welcome Hero */}
             <section className="mb-12 relative overflow-hidden rounded-2xl bg-surface-container-low p-12 flex items-end min-h-[320px] shadow-sm">
               <div className="absolute inset-0 z-0">
-                <img 
-                  src="/images/clay_court.png" 
-                  alt="Tennis court" 
+                <img
+                  src="/images/clay_court.png"
+                  alt="Tennis court"
                   className="w-full h-full object-cover opacity-30 scale-105"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-surface-container-low via-surface-container-low/40 to-transparent"></div>
@@ -205,7 +205,7 @@ export default function DashboardClient({ params }: { params: { tenantId: string
                   </button>
                 </div>
               </div>
-              
+
               <div className="flex gap-6 overflow-x-auto pb-8 hide-scrollbar">
                 <BookingCard court="Court 02" date="OCT 16" time="04:00 PM - 05:30 PM" partner="Sarah Jenkins" avatar="https://lh3.googleusercontent.com/aida-public/AB6AXuDJwGLQJGS7l8awuXxFimqmgZMt3TgCyqyLykcGCi-I30U4I6UMXYtSSHoLMLp-X_Jh3IDS8WG85Go6xqEYtnE3ZuPzsENZW3X_DVY0IyohJE1JXEztGlZmksG0ifboNkfrakgRhDqaARnOym2XV1Bz_7RRHq7SGY2l_b7n1mrmOSYYjtDkvYJwPhzSV6NOYvLoeiV4jONAvGzksAWjX3u0JAjzJM38DeDRn8mO4seXqz0uojWd-WCz41rqriUeXQBFGr-PNYJDwko" />
                 <BookingCard court="Court 08" date="OCT 18" time="09:00 AM - 10:30 AM" isOpen />
@@ -219,9 +219,9 @@ export default function DashboardClient({ params }: { params: { tenantId: string
               <h4 className="text-4xl font-black text-on-surface tracking-tighter uppercase mb-8">Club News</h4>
               <div className="grid grid-cols-12 gap-8">
                 <div className="col-span-12 md:col-span-7 group cursor-pointer overflow-hidden rounded-2xl relative h-[400px] shadow-lg">
-                  <img 
-                    src="/images/clay_court.png" 
-                    alt="New facilities" 
+                  <img
+                    src="/images/clay_court.png"
+                    alt="New facilities"
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
@@ -231,7 +231,7 @@ export default function DashboardClient({ params }: { params: { tenantId: string
                     <p className="text-white/70 mt-2 max-w-lg">Three new professional-grade clay courts are now open. Experience the authentic European feel.</p>
                   </div>
                 </div>
-                
+
                 <div className="col-span-12 md:col-span-5 flex flex-col gap-8">
                   <NewsItem title="PRO CLINIC WITH COACH MILLER" subtitle="Master the overhead smash this weekend." tag="Training" />
                   <NewsItem title="MIXER NIGHT: DRINKS & DOUBLES" subtitle="Join us for the seasonal social event next Friday." tag="Social" />
@@ -264,13 +264,12 @@ export default function DashboardClient({ params }: { params: { tenantId: string
 
 function NavItem({ icon, label, active = false, onClick }: { icon: string; label: string; active?: boolean; onClick?: () => void }) {
   return (
-    <button 
+    <button
       onClick={onClick}
-      className={`w-full flex items-center gap-5 py-4 transition-all duration-300 ease-in-out px-8 relative group ${
-        active 
-          ? "text-[#4f6b28]" 
+      className={`w-full flex items-center gap-5 py-4 transition-all duration-300 ease-in-out px-8 relative group ${active
+          ? "text-[#4f6b28]"
           : "text-stone-400 hover:text-stone-600"
-      }`}
+        }`}
     >
       {active && (
         <div className="absolute left-0 top-0 bottom-0 w-2 bg-[#4f6b28] rounded-r-full" />
@@ -288,7 +287,7 @@ function NavItem({ icon, label, active = false, onClick }: { icon: string; label
 function StatCard({ label, value, trend, color }: { label: string; value: string; trend: string; color: string }) {
   const bgColor = color === "primary" ? "bg-surface-container-highest" : color === "tertiary" ? "bg-tertiary-container" : "bg-surface-container-highest";
   const textColor = color === "tertiary" ? "text-on-tertiary-container" : color === "primary" ? "text-primary" : "text-on-surface";
-  
+
   return (
     <div className={`col-span-1 ${bgColor} p-8 rounded-2xl flex flex-col justify-between shadow-sm border border-black/5`}>
       <span className={`font-label text-xs uppercase font-bold tracking-widest ${color === "tertiary" ? "text-on-tertiary-container/60" : "text-stone-500"}`}>
@@ -382,16 +381,15 @@ function CourtBookingView() {
             October 2023
           </button>
         </div>
-        
+
         <div className="flex gap-4 overflow-x-auto pb-4 hide-scrollbar">
           {[12, 13, 14, 15, 16, 17, 18].map((day) => (
-            <button 
+            <button
               key={day}
-              className={`flex-shrink-0 w-20 h-24 rounded-2xl flex flex-col items-center justify-center transition-all ${
-                day === 14 
-                  ? "bg-[#4f6b28] text-white shadow-lg shadow-[#4f6b28]/20 scale-105" 
+              className={`flex-shrink-0 w-20 h-24 rounded-2xl flex flex-col items-center justify-center transition-all ${day === 14
+                  ? "bg-[#4f6b28] text-white shadow-lg shadow-[#4f6b28]/20 scale-105"
                   : "bg-surface-container-low text-on-surface hover:bg-stone-100"
-              }`}
+                }`}
             >
               <span className="text-[10px] font-black uppercase tracking-widest opacity-60">
                 {day === 12 ? 'Mon' : day === 13 ? 'Tue' : day === 14 ? 'Wed' : day === 15 ? 'Thu' : day === 16 ? 'Fri' : day === 17 ? 'Sat' : 'Sun'}
@@ -433,17 +431,16 @@ function CourtSection({ title }: { title: string }) {
         <h4 className="font-black tracking-tighter uppercase text-xl">{title}</h4>
         <span className="material-symbols-outlined text-stone-300">info</span>
       </div>
-      
+
       <div className="grid grid-cols-2 gap-4">
         {times.map((slot, i) => (
-          <button 
+          <button
             key={i}
             disabled={slot.status === "booked"}
-            className={`p-6 rounded-2xl flex flex-col items-start transition-all border ${
-              slot.status === "booked"
+            className={`p-6 rounded-2xl flex flex-col items-start transition-all border ${slot.status === "booked"
                 ? "bg-stone-50 border-stone-100 opacity-50 cursor-not-allowed"
                 : "bg-white border-stone-100 hover:border-primary hover:shadow-md cursor-pointer group"
-            }`}
+              }`}
           >
             <span className={`text-sm font-black ${slot.status === "available" ? "text-primary" : "text-stone-400"}`}>
               {slot.time}
@@ -472,9 +469,9 @@ function ProgramsView() {
           CLUB PROGRAMS
         </h2>
         <div className="relative">
-          <input 
-            type="text" 
-            placeholder="Search training..." 
+          <input
+            type="text"
+            placeholder="Search training..."
             className="bg-[#f7f8f2] border-none rounded-full px-8 py-3 w-80 focus:ring-2 focus:ring-[#4f6b28] text-sm font-medium italic"
           />
           <span className="material-symbols-outlined absolute right-4 top-3 text-stone-400">search</span>
@@ -484,9 +481,9 @@ function ProgramsView() {
       {/* Hero Section */}
       <div className="grid grid-cols-12 gap-8">
         <div className="col-span-12 lg:col-span-8 group relative h-[450px] overflow-hidden rounded-[40px] shadow-2xl">
-          <img 
-            src="/images/programs_hero.png" 
-            alt="Championship Clinic" 
+          <img
+            src="/images/programs_hero.png"
+            alt="Championship Clinic"
             className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105"
           />
           <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent"></div>
@@ -565,7 +562,7 @@ function ProgramsView() {
               </div>
             </div>
             <div className="p-10 flex-1">
-              <h4 className="text-3xl font-black italic text-[#1a1a1a] mb-4 uppercase leading-none">JUNIOR<br/>ACADEMY</h4>
+              <h4 className="text-3xl font-black italic text-[#1a1a1a] mb-4 uppercase leading-none">JUNIOR<br />ACADEMY</h4>
               <p className="text-black/60 text-sm font-medium leading-relaxed mb-8">
                 Developing the next generation of competitors. Age groups 8-16.
               </p>
@@ -579,7 +576,7 @@ function ProgramsView() {
           <div className="bg-[#fdfbe6] rounded-[40px] overflow-hidden flex flex-col group shadow-lg">
             <div className="p-10 pb-0">
               <div className="flex justify-between items-start mb-4">
-                <h4 className="text-3xl font-black italic text-[#4f6b28] uppercase leading-none">SOCIAL<br/>MIXERS</h4>
+                <h4 className="text-3xl font-black italic text-[#4f6b28] uppercase leading-none">SOCIAL<br />MIXERS</h4>
                 <span className="material-symbols-outlined text-[#4f6b28] opacity-40">groups</span>
               </div>
               <p className="text-[#4f6b28]/60 text-sm font-medium leading-relaxed mb-6">
@@ -588,7 +585,7 @@ function ProgramsView() {
               <div className="flex items-center -space-x-3 mb-8">
                 {[1, 2, 3].map(i => (
                   <div key={i} className="w-8 h-8 rounded-full border-2 border-[#fdfbe6] bg-stone-200 overflow-hidden">
-                    <img src={`https://i.pravatar.cc/100?img=${i+10}`} alt="User" />
+                    <img src={`https://i.pravatar.cc/100?img=${i + 10}`} alt="User" />
                   </div>
                 ))}
                 <div className="h-8 px-2 bg-[#4f6b28] text-white text-[8px] font-black flex items-center justify-center rounded-full border-2 border-[#fdfbe6]">
@@ -611,13 +608,13 @@ function ProgramsView() {
         <div className="col-span-12 lg:col-span-5 space-y-8">
           <div className="space-y-4">
             <h3 className="text-6xl font-black italic tracking-tighter text-[#1a1a1a] uppercase leading-none">
-              SPRING<br/>SESSION '24
+              SPRING<br />SESSION '24
             </h3>
             <p className="text-stone-500 font-medium leading-relaxed max-w-sm">
               Registration is now open for all technical workshops and weekly ladders. Secure your spot before March 15th.
             </p>
           </div>
-          
+
           <div className="space-y-4 pt-4">
             <div className="flex items-center gap-4 text-[#4f6b28]">
               <div className="w-6 h-6 bg-[#4f6b28] text-white rounded-md flex items-center justify-center">
@@ -663,9 +660,9 @@ function ProfileView() {
     <div className="max-w-4xl space-y-16 animate-in fade-in slide-in-from-bottom-4 duration-700">
       <div className="flex items-center gap-10">
         <div className="w-40 h-40 rounded-[40px] overflow-hidden border-4 border-white shadow-2xl">
-          <img 
-            src="https://lh3.googleusercontent.com/aida-public/AB6AXuCIVNG3lcWVm-Ge5NEEZUf-GdmgLwhFzcFnGsboAMqruvOsGoG2KsUaJnNi7egzkBHc-8ccIDPAhhUoKLhZ-6htVuQieJX6w20tMHdUP6wvr91JZaIcvqIJEmHuGFa4z4EtafMvMDZVDCE0FvjKCsjs2BQO27LBpb-zAw7Vj2lY1t1lbEH1wcnRQt6l-9LceLngmvluUeTcJdDm9RVYiiwiCLuDdYSnjSgJK13-P326RgshwnopS9Qa-T0LE8kRyriIPjwU5NIlUVY" 
-            alt="Profile" 
+          <img
+            src="https://lh3.googleusercontent.com/aida-public/AB6AXuCIVNG3lcWVm-Ge5NEEZUf-GdmgLwhFzcFnGsboAMqruvOsGoG2KsUaJnNi7egzkBHc-8ccIDPAhhUoKLhZ-6htVuQieJX6w20tMHdUP6wvr91JZaIcvqIJEmHuGFa4z4EtafMvMDZVDCE0FvjKCsjs2BQO27LBpb-zAw7Vj2lY1t1lbEH1wcnRQt6l-9LceLngmvluUeTcJdDm9RVYiiwiCLuDdYSnjSgJK13-P326RgshwnopS9Qa-T0LE8kRyriIPjwU5NIlUVY"
+            alt="Profile"
             className="w-full h-full object-cover"
           />
         </div>
@@ -770,9 +767,8 @@ function MembershipView() {
                 </li>
               ))}
             </ul>
-            <button className={`mt-12 w-full py-5 rounded-2xl text-xs font-black tracking-widest transition-all uppercase ${
-              plan.popular ? "bg-white text-[#4f6b28]" : "border-2 border-current hover:bg-current hover:text-white"
-            }`}>
+            <button className={`mt-12 w-full py-5 rounded-2xl text-xs font-black tracking-widest transition-all uppercase ${plan.popular ? "bg-white text-[#4f6b28]" : "border-2 border-current hover:bg-current hover:text-white"
+              }`}>
               {plan.name === "GOLD" ? "CURRENT PLAN" : "UPGRADE NOW"}
             </button>
           </div>
