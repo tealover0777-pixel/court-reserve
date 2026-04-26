@@ -5,10 +5,11 @@ import { useTenant } from "../context/TenantContext";
 import { auth } from "../lib/firebase";
 import { signOut } from "firebase/auth";
 import DimensionsView from "./DimensionsView";
+import RoleTypesView from "./RoleTypesView";
 
 export default function DashboardClient({ params }: { params: { tenantId: string } }) {
   const { tenantId: contextTenantId, loading } = useTenant();
-  const [activeView, setActiveView] = React.useState<"DASHBOARD" | "COURT BOOKING" | "PROGRAMS" | "MEMBERSHIP" | "SETTINGS" | "PROFILE" | "ADMINISTRATION" | "PLATFORM_ADMINISTRATION" | "AI_ADMIN" | "DIMENSIONS" | "USER_ADMIN" | "PLATFORM_TENANT_ADMIN">("DASHBOARD");
+  const [activeView, setActiveView] = React.useState<"DASHBOARD" | "COURT BOOKING" | "PROGRAMS" | "MEMBERSHIP" | "SETTINGS" | "PROFILE" | "ADMINISTRATION" | "PLATFORM_ADMINISTRATION" | "AI_ADMIN" | "DIMENSIONS" | "ROLE_TYPES" | "USER_ADMIN" | "PLATFORM_TENANT_ADMIN">("DASHBOARD");
   const [platformAdminOpen, setPlatformAdminOpen] = React.useState(false);
   const tenantId = params.tenantId || contextTenantId;
 
@@ -90,6 +91,11 @@ export default function DashboardClient({ params }: { params: { tenantId: string
                 label="Dimensions"
                 active={activeView === "DIMENSIONS"}
                 onClick={() => setActiveView("DIMENSIONS")}
+              />
+              <SubNavItem
+                label="Role Types"
+                active={activeView === "ROLE_TYPES"}
+                onClick={() => setActiveView("ROLE_TYPES")}
               />
               <SubNavItem
                 label="User Admin"
@@ -273,6 +279,8 @@ export default function DashboardClient({ params }: { params: { tenantId: string
           <PlaceholderView title="AI Admin" icon="psychology" />
         ) : activeView === "DIMENSIONS" ? (
           <DimensionsView />
+        ) : activeView === "ROLE_TYPES" ? (
+          <RoleTypesView />
         ) : activeView === "USER_ADMIN" ? (
           <PlaceholderView title="User Admin" icon="person_search" />
         ) : activeView === "PLATFORM_TENANT_ADMIN" ? (
