@@ -30,6 +30,10 @@ Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
 - **Standard**: Use **TanStack Table** (formerly React Table) for all table-related development.
 - **Features**: Every table must include **filtering** and **sorting** functionality directly within the header row.
 
+### Forms & Input
+- **No Hardcoded Dropdowns**: Never hardcode options for dropdown menus or select inputs in the UI code.
+- **Dimensions**: All dropdown options must be dynamically fetched and managed via the **Dimensions** module.
+
 
 ### Utilities
 

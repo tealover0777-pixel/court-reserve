@@ -27,7 +27,7 @@ export default function RootLayout({
     <html lang="en">
       <head>
         <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap" />
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&family=Lexend:wght@100..900&family=Manrope:wght@200..800&display=swap" />
       </head>
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
         <TenantProvider>

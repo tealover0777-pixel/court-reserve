@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useTenant } from "../context/TenantContext";
 import { auth } from "../lib/firebase";
 import { signOut } from "firebase/auth";
+import DimensionsView from "./DimensionsView";
 
 export default function DashboardClient({ params }: { params: { tenantId: string } }) {
   const { tenantId: contextTenantId, loading } = useTenant();
@@ -271,7 +272,7 @@ export default function DashboardClient({ params }: { params: { tenantId: string
         ) : activeView === "AI_ADMIN" ? (
           <PlaceholderView title="AI Admin" icon="psychology" />
         ) : activeView === "DIMENSIONS" ? (
-          <PlaceholderView title="Dimensions" icon="straighten" />
+          <DimensionsView tenantId={tenantId} />
         ) : activeView === "USER_ADMIN" ? (
           <PlaceholderView title="User Admin" icon="person_search" />
         ) : activeView === "PLATFORM_TENANT_ADMIN" ? (
