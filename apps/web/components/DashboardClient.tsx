@@ -7,7 +7,7 @@ import { signOut } from "firebase/auth";
 
 export default function DashboardClient({ params }: { params: { tenantId: string } }) {
   const { tenantId: contextTenantId, loading } = useTenant();
-  const [activeView, setActiveView] = React.useState<"DASHBOARD" | "COURT BOOKING" | "PROGRAMS" | "MEMBERSHIP" | "SETTINGS" | "PROFILE">("DASHBOARD");
+  const [activeView, setActiveView] = React.useState<"DASHBOARD" | "COURT BOOKING" | "PROGRAMS" | "MEMBERSHIP" | "SETTINGS" | "PROFILE" | "ADMINISTRATION" | "PLATFORM_ADMINISTRATION">("DASHBOARD");
   const tenantId = params.tenantId || contextTenantId;
 
   if (loading) {
@@ -57,10 +57,22 @@ export default function DashboardClient({ params }: { params: { tenantId: string
             onClick={() => setActiveView("MEMBERSHIP")}
           />
           <NavItem 
+            icon="admin_panel_settings" 
+            label="Administration" 
+            active={activeView === "ADMINISTRATION"} 
+            onClick={() => setActiveView("ADMINISTRATION")}
+          />
+          <NavItem 
             icon="settings" 
             label="Settings" 
             active={activeView === "SETTINGS"} 
             onClick={() => setActiveView("SETTINGS")}
+          />
+          <NavItem 
+            icon="hub" 
+            label="Platform Administration" 
+            active={activeView === "PLATFORM_ADMINISTRATION"} 
+            onClick={() => setActiveView("PLATFORM_ADMINISTRATION")}
           />
         </nav>
 
