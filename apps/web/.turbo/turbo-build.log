@@ -5,7 +5,6 @@
 
 [1m[38;2;173;127;168m▲ Next.js 16.2.0[39m[22m (Turbopack)
 
-[33m[1m⚠[22m[39m The "middleware" file convention is deprecated. Please use "proxy" instead. Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
 [37m[1m [22m[39m Creating an optimized production build ...
 Turbopack build encountered 1 warnings:
 ./apps/web/tailwind.config.js
@@ -14,15 +13,11 @@ The EcmaScript module format was specified in the package.json that is affecting
 Exports made by CommonJs syntax will lead to a runtime error, since the module is in EcmaScript mode. Either change the "type" field in the package.json or replace CommonJs syntax with EcmaScript import/export syntax in the source file.
 
 
-[32m[1m✓[22m[39m Compiled successfully in 2.6s
-[?25l[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[?25h[?25l[37m[1m [22m[39m Finished TypeScript in 1510ms  [36m.[39m[2K[1G[?25h[37m[1m [22m[39m Finished TypeScript in 1510ms    [32m[1m✓[22m[39m Finished TypeScript in 1510ms 
-[?25l[37m[1m [22m[39m Collecting page data using 6 workers  [36m.[39m[2K[1G[37m[1m [22m[39m Collecting page data using 6 workers  [36m..[39m[2K[1G[?25h[37m[1m [22m[39m Collecting page data using 6 workers in 290ms    [32m[1m✓[22m[39m Collecting page data using 6 workers in 290ms 
-[?25l[37m[1m [22m[39m Generating static pages using 6 workers (0/6)  [36m[    ][39m[2K[1G[37m[1m [22m[39m Generating static pages using 6 workers (0/6)  [36m[=   ][39m[2K[1G[?25h[32m[1m✓[22m[39m Generating static pages using 6 workers (6/6) in 396ms
-[?25l[37m[1m [22m[39m Finalizing page optimization  [36m.[39m[2K[1G[?25h[33m[1m⚠[22m[39m [33mStatically exporting a Next.js application via `next export` disables API routes and middleware.[39m
-[33mThis command is meant for static-only hosts, and is [1mnot necessary to make your application static.[22m[39m
-[33mPages in your application without server-side data dependencies will be automatically statically exported by `next build`, including pages powered by `getStaticProps`.[39m
-[33mLearn more: https://nextjs.org/docs/messages/api-routes-static-export[39m
-[?25l [36m.[39m [2K[1G [36m..[39m [2K[1G [36m...[39m [2K[1G[?25h[37m[1m [22m[39m Finalizing page optimization in 522ms    [32m[1m✓[22m[39m Finalizing page optimization in 522ms 
+[32m[1m✓[22m[39m Compiled successfully in 2.4s
+[?25l[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[?25h[?25l[37m[1m [22m[39m Finished TypeScript in 1494ms  [36m.[39m[2K[1G[?25h[37m[1m [22m[39m Finished TypeScript in 1494ms    [32m[1m✓[22m[39m Finished TypeScript in 1494ms 
+[?25l[37m[1m [22m[39m Collecting page data using 6 workers  [36m.[39m[2K[1G[37m[1m [22m[39m Collecting page data using 6 workers  [36m..[39m[2K[1G[?25h[37m[1m [22m[39m Collecting page data using 6 workers in 292ms    [32m[1m✓[22m[39m Collecting page data using 6 workers in 292ms 
+[?25l[37m[1m [22m[39m Generating static pages using 6 workers (0/6)  [36m[    ][39m[2K[1G[37m[1m [22m[39m Generating static pages using 6 workers (0/6)  [36m[=   ][39m[2K[1G[?25h[32m[1m✓[22m[39m Generating static pages using 6 workers (6/6) in 393ms
+[?25l[37m[1m [22m[39m Finalizing page optimization  [36m.[39m[2K[1G[37m[1m [22m[39m Finalizing page optimization  [36m..[39m[2K[1G[37m[1m [22m[39m Finalizing page optimization  [36m...[39m[2K[1G[?25h[37m[1m [22m[39m Finalizing page optimization in 521ms    [32m[1m✓[22m[39m Finalizing page optimization in 521ms 
 
 [4mRoute (app)[24m
 ┌ ○ /
@@ -31,8 +26,6 @@ Exports made by CommonJs syntax will lead to a runtime error, since the module i
   ├ /kinetic
   └ /flraquet
 
-
-ƒ Proxy (Middleware)
 
 ○  (Static)  prerendered as static content
 ●  (SSG)     prerendered as static HTML (uses [36mgenerateStaticParams[39m)

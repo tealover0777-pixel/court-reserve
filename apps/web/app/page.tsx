@@ -1,5 +1,4 @@
-"use client";
-import Link from "next/link";
+import React from "react";
 
 export default function LandingPage() {
   return (
@@ -15,18 +14,18 @@ export default function LandingPage() {
         
         <div className="space-y-4">
           <p className="text-xs font-bold uppercase tracking-widest text-stone-400 mb-4">Demo Portals</p>
-          <Link 
+          <a 
             href="/kinetic" 
-            className="block w-full rounded-full bg-primary p-4 font-black text-on-primary shadow-lg hover:opacity-90 transition-all uppercase tracking-widest"
+            className="block w-full rounded-full bg-primary p-4 font-black text-on-primary shadow-lg hover:opacity-90 transition-all uppercase tracking-widest text-center"
           >
             Kinetic Court
-          </Link>
-          <Link 
+          </a>
+          <a 
             href="/flraquet" 
-            className="block w-full rounded-full border-2 border-primary p-4 font-black text-primary hover:bg-primary/5 transition-all uppercase tracking-widest"
+            className="block w-full rounded-full border-2 border-primary p-4 font-black text-primary hover:bg-primary/5 transition-all uppercase tracking-widest text-center"
           >
             FL Raquet Club
-          </Link>
+          </a>
         </div>
       </div>
     </div>
