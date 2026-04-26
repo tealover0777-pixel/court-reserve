@@ -24,6 +24,13 @@ This Turborepo includes the following packages/apps:
 
 Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
 
+## Development Guidelines
+
+### Tables
+- **Standard**: Use **TanStack Table** (formerly React Table) for all table-related development.
+- **Features**: Every table must include **filtering** and **sorting** functionality directly within the header row.
+
+
 ### Utilities
 
 This Turborepo has some additional tools already setup for you:

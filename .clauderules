@@ -1,0 +1,23 @@
+# Development Rules for Court Reserve
+
+## Table Development
+- **Core Library**: Always use **TanStack Table** (v8+) for all data grids and tables.
+- **Header Features**: Every table column header must support:
+  - **Sorting**: Toggle between ASC, DESC, and None.
+  - **Filtering**: Inline filtering (text, select, or date) within the header row where applicable.
+- **Performance**: Use `memo` for table cells and rows if the dataset is large.
+
+## Design & Styling
+- **Design System**: Follow the "Kinetic Editorial" strategy defined in Stitch.
+- **Styling**: Use **Vanilla CSS** with CSS Modules or scoped styles. Avoid TailwindCSS unless explicitly requested.
+- **Aesthetics**: Prioritize premium editorial design—generous whitespace, modern typography (Lexend/Manrope), and subtle glassmorphism.
+
+## Architecture & Tech Stack
+- **Framework**: Next.js (App Router preferred for new features).
+- **Database**: Firebase Firestore.
+- **Backend Logic**: Use Firebase Cloud Functions for complex transactions or sensitive operations.
+- **Language**: TypeScript for all new code. Use strict type checking.
+
+## Workflow
+- **Stitch Integration**: Before building a new UI, check if a screen exists in Stitch. Use `mcp_Stitch_get_screen` to pull the latest design.
+- **Component Reusability**: Extract shared UI components into `@repo/ui`.
