@@ -11,6 +11,7 @@ export default function DashboardClient({ params }: { params: { tenantId: string
   const { tenantId: contextTenantId, loading } = useTenant();
   const [activeView, setActiveView] = React.useState<"DASHBOARD" | "COURT BOOKING" | "PROGRAMS" | "MEMBERSHIP" | "SETTINGS" | "PROFILE" | "ADMINISTRATION" | "PLATFORM_ADMINISTRATION" | "AI_ADMIN" | "DIMENSIONS" | "ROLE_TYPES" | "USER_ADMIN" | "PLATFORM_TENANT_ADMIN">("DASHBOARD");
   const [platformAdminOpen, setPlatformAdminOpen] = React.useState(false);
+  const [administrationOpen, setAdministrationOpen] = React.useState(false);
   const tenantId = params.tenantId || contextTenantId;
 
   if (loading) {
@@ -62,9 +63,21 @@ export default function DashboardClient({ params }: { params: { tenantId: string
           <NavItem
             icon="admin_panel_settings"
             label="Administration"
-            active={activeView === "ADMINISTRATION"}
-            onClick={() => setActiveView("ADMINISTRATION")}
+            active={activeView === "ADMINISTRATION" || activeView === "ROLE_TYPES"}
+            onClick={() => {
+              setActiveView("ADMINISTRATION");
+              setAdministrationOpen(!administrationOpen);
+            }}
           />
+          {administrationOpen && (
+            <div className="bg-stone-50/50 py-2">
+              <SubNavItem
+                label="Role Types"
+                active={activeView === "ROLE_TYPES"}
+                onClick={() => setActiveView("ROLE_TYPES")}
+              />
+            </div>
+          )}
           <NavItem
             icon="settings"
             label="Settings"
@@ -91,11 +104,6 @@ export default function DashboardClient({ params }: { params: { tenantId: string
                 label="Dimensions"
                 active={activeView === "DIMENSIONS"}
                 onClick={() => setActiveView("DIMENSIONS")}
-              />
-              <SubNavItem
-                label="Role Types"
-                active={activeView === "ROLE_TYPES"}
-                onClick={() => setActiveView("ROLE_TYPES")}
               />
               <SubNavItem
                 label="User Admin"
