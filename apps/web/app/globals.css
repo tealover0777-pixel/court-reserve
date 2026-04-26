@@ -18,21 +18,28 @@
   --on-surface: #3b3a06;
   --surface-variant: #efec93;
   --on-surface-variant: #686730;
-  --background: #fffbff;
-  --on-background: #3b3a06;
   --outline: #858349;
   --outline-variant: #bfbc7c;
-  --surface-container-low: #fffcca;
+  --surface-container-low: #f7f7f5;
   --surface-container-high: #f5f29d;
-  --surface-container-highest: #efec93;
+  --surface-container-highest: #e4e4e1;
   --tertiary-container: #fce047;
   --on-tertiary-container: #5d5000;
 }
 
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+html,
 body {
+  max-width: 100vw;
+  overflow-x: hidden;
+  font-family: 'Outfit', sans-serif;
   color: var(--on-surface);
   background: var(--background);
-  font-family: 'Manrope', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }

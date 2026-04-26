@@ -13,21 +13,19 @@ The EcmaScript module format was specified in the package.json that is affecting
 Exports made by CommonJs syntax will lead to a runtime error, since the module is in EcmaScript mode. Either change the "type" field in the package.json or replace CommonJs syntax with EcmaScript import/export syntax in the source file.
 
 
-[32m[1m✓[22m[39m Compiled successfully in 2.4s
-[?25l[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[?25h[?25l[37m[1m [22m[39m Finished TypeScript in 1494ms  [36m.[39m[2K[1G[?25h[37m[1m [22m[39m Finished TypeScript in 1494ms    [32m[1m✓[22m[39m Finished TypeScript in 1494ms 
-[?25l[37m[1m [22m[39m Collecting page data using 6 workers  [36m.[39m[2K[1G[37m[1m [22m[39m Collecting page data using 6 workers  [36m..[39m[2K[1G[?25h[37m[1m [22m[39m Collecting page data using 6 workers in 292ms    [32m[1m✓[22m[39m Collecting page data using 6 workers in 292ms 
-[?25l[37m[1m [22m[39m Generating static pages using 6 workers (0/6)  [36m[    ][39m[2K[1G[37m[1m [22m[39m Generating static pages using 6 workers (0/6)  [36m[=   ][39m[2K[1G[?25h[32m[1m✓[22m[39m Generating static pages using 6 workers (6/6) in 393ms
-[?25l[37m[1m [22m[39m Finalizing page optimization  [36m.[39m[2K[1G[37m[1m [22m[39m Finalizing page optimization  [36m..[39m[2K[1G[37m[1m [22m[39m Finalizing page optimization  [36m...[39m[2K[1G[?25h[37m[1m [22m[39m Finalizing page optimization in 521ms    [32m[1m✓[22m[39m Finalizing page optimization in 521ms 
+[32m[1m✓[22m[39m Compiled successfully in 2.5s
+[?25l[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[?25h[?25l[37m[1m [22m[39m Finished TypeScript in 1470ms  [36m.[39m[2K[1G[?25h[37m[1m [22m[39m Finished TypeScript in 1470ms    [32m[1m✓[22m[39m Finished TypeScript in 1470ms 
+[?25l[37m[1m [22m[39m Collecting page data using 7 workers  [36m.[39m[2K[1G[37m[1m [22m[39m Collecting page data using 7 workers  [36m..[39m[2K[1G[?25h[37m[1m [22m[39m Collecting page data using 7 workers in 296ms    [32m[1m✓[22m[39m Collecting page data using 7 workers in 296ms 
+[?25l[37m[1m [22m[39m Generating static pages using 7 workers (0/6)  [36m[    ][39m[2K[1G[37m[1m [22m[39m Generating static pages using 7 workers (0/6)  [36m[=   ][39m[2K[1G[?25h[32m[1m✓[22m[39m Generating static pages using 7 workers (6/6) in 397ms
+[?25l[37m[1m [22m[39m Finalizing page optimization  [36m.[39m[2K[1G[37m[1m [22m[39m Finalizing page optimization  [36m..[39m[2K[1G[37m[1m [22m[39m Finalizing page optimization  [36m...[39m[2K[1G[?25h[37m[1m [22m[39m Finalizing page optimization in 525ms    [32m[1m✓[22m[39m Finalizing page optimization in 525ms 
 
 [4mRoute (app)[24m
 ┌ ○ /
 ├ ○ /_not-found
-└ ● /[tenantId]
-  ├ /kinetic
-  └ /flraquet
+├ ○ /flraquet
+└ ○ /kinetic
 
 
 ○  (Static)  prerendered as static content
-●  (SSG)     prerendered as static HTML (uses [36mgenerateStaticParams[39m)
 
 [?25h⠙[1G[0K

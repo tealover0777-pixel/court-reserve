@@ -18,9 +18,9 @@ export default function DashboardClient({ params }: { params: { tenantId: string
   return (
     <div className="min-h-screen bg-background text-on-background selection:bg-primary/30">
       {/* SideNavBar Component */}
-      <aside className="fixed left-0 top-0 h-full w-64 border-r-0 bg-stone-50 flex flex-col py-8 px-4 z-50">
-        <div className="mb-10 px-4">
-          <h1 className="text-2xl font-black italic tracking-tighter text-primary">
+      <aside className="fixed left-0 top-0 h-full w-72 border-r bg-white flex flex-col z-50">
+        <div className="py-10 px-8">
+          <h1 className="text-3xl font-black italic tracking-tighter text-[#4f6b28]">
             {tenantId ? tenantId.toUpperCase() : "KINETIC COURT"}
           </h1>
           <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-stone-400 mt-1">
@@ -28,15 +28,15 @@ export default function DashboardClient({ params }: { params: { tenantId: string
           </p>
         </div>
         
-        <nav className="flex-1 space-y-2">
+        <nav className="flex-1">
           <NavItem icon="dashboard" label="Dashboard" active />
           <NavItem icon="sports_tennis" label="Court Booking" />
           <NavItem icon="event_seat" label="Programs" />
           <NavItem icon="person" label="Profile" />
         </nav>
 
-        <div className="mt-auto px-4">
-          <button className="w-full py-4 bg-gradient-to-r from-primary to-primary-container text-on-primary font-black rounded-full text-sm tracking-widest hover:opacity-90 transition-all uppercase shadow-lg shadow-primary/20">
+        <div className="mt-auto p-8 border-t border-stone-100">
+          <button className="w-full py-4 bg-[#4f6b28] text-white font-black rounded-lg text-xs tracking-widest hover:opacity-90 transition-all uppercase shadow-lg shadow-[#4f6b28]/10">
             BOOK A COURT
           </button>
           
@@ -57,8 +57,8 @@ export default function DashboardClient({ params }: { params: { tenantId: string
       </aside>
 
       {/* TopAppBar Component */}
-      <header className="sticky top-0 z-40 w-full bg-white/60 backdrop-blur-xl flex justify-between items-center ml-64 px-12 py-6 max-w-[calc(100%-16rem)]">
-        <h2 className="text-4xl font-black font-headline text-primary tracking-tighter">DASHBOARD</h2>
+      <header className="sticky top-0 z-40 w-full bg-white/60 backdrop-blur-xl flex justify-between items-center ml-72 px-12 py-6 max-w-[calc(100%-18rem)]">
+        <h2 className="text-4xl font-black font-headline text-[#4f6b28] tracking-tighter">DASHBOARD</h2>
         <div className="flex items-center gap-6">
           <div className="relative hidden lg:block">
             <input 
@@ -76,7 +76,7 @@ export default function DashboardClient({ params }: { params: { tenantId: string
       </header>
 
       {/* Main Content Area */}
-      <main className="ml-64 p-12 min-h-screen">
+      <main className="ml-72 p-12 min-h-screen">
         {/* Welcome Hero */}
         <section className="mb-12 relative overflow-hidden rounded-2xl bg-surface-container-low p-12 flex items-end min-h-[320px] shadow-sm">
           <div className="absolute inset-0 z-0">
@@ -140,10 +140,10 @@ export default function DashboardClient({ params }: { params: { tenantId: string
               <p className="text-stone-400 font-medium mt-1">Your scheduled time on the court.</p>
             </div>
             <div className="flex gap-2">
-              <button className="w-10 h-10 rounded-full border border-outline-variant/30 flex items-center justify-center text-primary hover:bg-primary-container transition-colors">
+              <button className="w-10 h-10 rounded-full border border-outline-variant/30 flex items-center justify-center text-[#4f6b28] hover:bg-primary-container transition-colors">
                 <span className="material-symbols-outlined">chevron_left</span>
               </button>
-              <button className="w-10 h-10 rounded-full border border-outline-variant/30 flex items-center justify-center text-primary hover:bg-primary-container transition-colors">
+              <button className="w-10 h-10 rounded-full border border-outline-variant/30 flex items-center justify-center text-[#4f6b28] hover:bg-primary-container transition-colors">
                 <span className="material-symbols-outlined">chevron_right</span>
               </button>
             </div>
@@ -191,14 +191,18 @@ function NavItem({ icon, label, active = false }: { icon: string; label: string;
   return (
     <a 
       href="#" 
-      className={`flex items-center gap-3 py-3 transition-all duration-150 ease-in-out pl-4 hover:bg-primary/5 active:scale-95 ${
+      className={`flex items-center gap-5 py-5 transition-all duration-200 ease-in-out px-6 ${
         active 
-          ? "text-primary font-black border-l-4 border-primary bg-primary/5" 
-          : "text-stone-500 font-medium pl-5"
+          ? "text-[#4f6b28] bg-[#f7f8f2] border-l-[6px] border-[#4f6b28]" 
+          : "text-stone-400 border-l-[6px] border-transparent hover:bg-stone-50"
       }`}
     >
-      <span className="material-symbols-outlined">{icon}</span>
-      <span className="font-label text-lg uppercase tracking-tight">{label}</span>
+      <span className={`material-symbols-outlined text-2xl ${active ? "opacity-100" : "opacity-60"}`}>
+        {icon}
+      </span>
+      <span className={`text-sm font-black uppercase tracking-wider ${active ? "text-[#4f6b28]" : "text-stone-500"}`}>
+        {label}
+      </span>
     </a>
   );
 }
