@@ -19,7 +19,7 @@ interface Dimension {
   items: string[];
 }
 
-export default function DimensionsView({ tenantId }: { tenantId: string }) {
+export default function DimensionsView() {
   const [dimensions, setDimensions] = useState<Dimension[]>([]);
   const [loading, setLoading] = useState(true);
   const [showNewModal, setShowNewModal] = useState(false);
@@ -31,9 +31,7 @@ export default function DimensionsView({ tenantId }: { tenantId: string }) {
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!tenantId) return;
-
-    const colRef = collection(db, "tenants", tenantId, "dimensions");
+    const colRef = collection(db, "dimensions");
     const q = query(colRef, orderBy("category", "asc"));
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
@@ -49,13 +47,13 @@ export default function DimensionsView({ tenantId }: { tenantId: string }) {
     });
 
     return () => unsubscribe();
-  }, [tenantId]);
+  }, []);
 
   const handleCreate = async () => {
     if (!newName.trim()) return;
     try {
       const items = newValuesStr.split(",").map(v => v.trim()).filter(Boolean);
-      await addDoc(collection(db, "tenants", tenantId, "dimensions"), {
+      await addDoc(collection(db, "dimensions"), {
         category: newName.trim(),
         items: items,
         created_at: serverTimestamp()
@@ -76,7 +74,7 @@ export default function DimensionsView({ tenantId }: { tenantId: string }) {
     if (!dim || dim.items.includes(val)) return;
 
     try {
-      await updateDoc(doc(db, "tenants", tenantId, "dimensions", categoryId), {
+      await updateDoc(doc(db, "dimensions", categoryId), {
         items: [...dim.items, val]
       });
       setNewValueInput(prev => ({ ...prev, [categoryId]: "" }));
@@ -90,7 +88,7 @@ export default function DimensionsView({ tenantId }: { tenantId: string }) {
     if (!dim) return;
 
     try {
-      await updateDoc(doc(db, "tenants", tenantId, "dimensions", categoryId), {
+      await updateDoc(doc(db, "dimensions", categoryId), {
         items: dim.items.filter(v => v !== valueToRemove)
       });
     } catch (err) {
@@ -109,7 +107,7 @@ export default function DimensionsView({ tenantId }: { tenantId: string }) {
     try {
       const newItems = [...dim.items];
       newItems[index] = trimmed;
-      await updateDoc(doc(db, "tenants", tenantId, "dimensions", categoryId), {
+      await updateDoc(doc(db, "dimensions", categoryId), {
         items: newItems
       });
       setEditingItem(null);
@@ -120,7 +118,7 @@ export default function DimensionsView({ tenantId }: { tenantId: string }) {
 
   const handleDeleteCategory = async (id: string) => {
     try {
-      await deleteDoc(doc(db, "tenants", tenantId, "dimensions", id));
+      await deleteDoc(doc(db, "dimensions", id));
       setConfirmDelete(null);
     } catch (err) {
       console.error("Error deleting dimension:", err);

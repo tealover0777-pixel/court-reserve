@@ -272,7 +272,7 @@ export default function DashboardClient({ params }: { params: { tenantId: string
         ) : activeView === "AI_ADMIN" ? (
           <PlaceholderView title="AI Admin" icon="psychology" />
         ) : activeView === "DIMENSIONS" ? (
-          <DimensionsView tenantId={tenantId} />
+          <DimensionsView />
         ) : activeView === "USER_ADMIN" ? (
           <PlaceholderView title="User Admin" icon="person_search" />
         ) : activeView === "PLATFORM_TENANT_ADMIN" ? (
