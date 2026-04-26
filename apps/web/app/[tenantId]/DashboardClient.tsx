@@ -1,10 +1,9 @@
 "use client";
-
 import React from "react";
 import Image from "next/image";
-import { useTenant } from "../../../context/TenantContext";
+import { useTenant } from "../../context/TenantContext";
 
-export default function Dashboard({ params }: { params: { tenantId: string } }) {
+export default function DashboardClient({ params }: { params: { tenantId: string } }) {
   const { tenantId: contextTenantId, loading } = useTenant();
   const tenantId = params.tenantId || contextTenantId;
 
