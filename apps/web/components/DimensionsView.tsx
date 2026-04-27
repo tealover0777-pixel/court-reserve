@@ -166,7 +166,7 @@ export default function DimensionsView() {
       header: "ACTIONS",
       size: 120,
       cell: props => (
-        <div className="flex justify-center items-center gap-2">
+        <div className="flex justify-end items-center gap-2 pr-2">
           <button 
             onClick={() => setEditingCategoryId(editingCategoryId === props.row.original.id ? null : props.row.original.id)}
             className="text-stone-400 hover:text-stone-900 transition-colors"
@@ -224,20 +224,22 @@ export default function DimensionsView() {
         </button>
       </div>
 
-      <div className="bg-white border border-stone-900 rounded-[32px] overflow-hidden shadow-sm">
+      <div className="bg-white border border-stone-200 rounded-xl overflow-hidden shadow-sm">
         <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse" style={{ width: table.getCenterTotalSize(), tableLayout: 'fixed' }}>
+          <table className="w-full text-left border-collapse">
             <thead className="bg-white sticky top-0 z-10 border-b border-stone-900">
               {table.getHeaderGroups().map(headerGroup => (
                 <tr key={headerGroup.id}>
                   {headerGroup.headers.map(header => (
                     <th 
                       key={header.id} 
-                      className="px-8 py-5 text-sm font-black text-stone-900 uppercase tracking-widest relative border-r border-stone-900 last:border-r-0"
-                      style={{ width: header.getSize() }}
+                      className="px-6 py-4 text-[10px] font-black text-stone-400 uppercase tracking-widest relative border-r border-stone-900 last:border-r-0"
+                      style={{ width: header.getSize() === 120 ? '120px' : 'auto' }}
                     >
                       <div className="flex flex-col gap-2">
-                        <span>{flexRender(header.column.columnDef.header, header.getContext())}</span>
+                        <div className={header.column.id === 'actions' ? 'text-right' : ''}>
+                          {flexRender(header.column.columnDef.header, header.getContext())}
+                        </div>
                         {header.column.getCanFilter() ? (
                           <div className="relative">
                             <input
@@ -248,7 +250,7 @@ export default function DimensionsView() {
                               }}
                               onClick={(e) => e.stopPropagation()}
                               placeholder="..."
-                              className="w-full bg-white border border-stone-300 rounded-md px-3 py-2 text-sm font-medium text-stone-900 outline-none focus:border-stone-900 transition-all shadow-sm"
+                              className="w-full bg-white border border-stone-100 rounded-md px-3 py-1.5 text-xs font-medium text-stone-900 outline-none focus:border-stone-400 transition-all"
                             />
                           </div>
                         ) : null}
@@ -256,29 +258,28 @@ export default function DimensionsView() {
                     </th>
                   ))}
                 </tr>
-              ))}
-            </thead>
-            <tbody>
-              {table.getRowModel().rows.map(row => (
-                <tr 
-                  key={row.id} 
-                  className="border-b border-stone-900 hover:bg-stone-50 transition-colors group"
-                >
-                  {row.getVisibleCells().map(cell => (
-                    <td 
-                      key={cell.id} 
-                      className="px-8 py-6 text-base font-medium text-stone-900 border-r border-stone-900 last:border-r-0"
-                      style={{ width: cell.column.getSize() }}
-                    >
-                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                    </td>
-                  ))}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
+              </thead>
+              <tbody>
+                {table.getRowModel().rows.map(row => (
+                  <tr 
+                    key={row.id} 
+                    className="border-b border-stone-900 hover:bg-stone-50 transition-colors group"
+                  >
+                    {row.getVisibleCells().map(cell => (
+                      <td 
+                        key={cell.id} 
+                        className="px-6 py-3 text-sm font-medium text-stone-900 border-r border-stone-900 last:border-r-0"
+                      >
+                        <div className="flex items-center min-h-[32px]">
+                          {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                        </div>
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
 
       {/* Inline Editing Drawer or Modal could go here if category matches editingCategoryId */}
       {editingCategoryId && (

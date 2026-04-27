@@ -210,7 +210,7 @@ export default function RoleTypesView() {
       header: "ACTIONS",
       size: 100,
       cell: props => (
-        <div className="flex justify-center items-center h-full">
+        <div className="flex justify-end items-center h-full pr-2">
           <button 
             onClick={() => handleOpenEdit(props.row.original)}
             className="text-stone-400 hover:text-stone-900 transition-colors"
@@ -230,7 +230,6 @@ export default function RoleTypesView() {
       columnFilters,
     },
     onColumnFiltersChange: setColumnFilters,
-    columnResizeMode: 'onChange',
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
@@ -282,45 +281,34 @@ export default function RoleTypesView() {
         </div>
       </div>
 
-      <div className="bg-white border border-stone-300 rounded-[32px] overflow-hidden shadow-sm">
+      <div className="bg-white border border-stone-200 rounded-xl overflow-hidden shadow-sm">
         <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse" style={{ width: table.getCenterTotalSize(), tableLayout: 'fixed' }}>
-            <thead className="bg-white sticky top-0 z-10 border-b border-stone-800">
+          <table className="w-full text-left border-collapse">
+            <thead className="bg-white sticky top-0 z-10 border-b border-stone-900">
               {table.getHeaderGroups().map(headerGroup => (
                 <tr key={headerGroup.id}>
                   {headerGroup.headers.map(header => (
                     <th 
                       key={header.id} 
-                      className="px-8 py-5 text-sm font-black text-stone-900 uppercase tracking-widest relative border-r border-stone-900 last:border-r-0"
-                      style={{ width: header.getSize() }}
+                      className="px-6 py-4 text-[10px] font-black text-stone-400 uppercase tracking-widest relative border-r border-stone-900 last:border-r-0"
+                      style={{ width: header.getSize() === 100 ? '100px' : 'auto' }}
                     >
                       {header.isPlaceholder ? null : (
-                        <div className="space-y-4">
+                        <div className="space-y-3">
                           <div className="flex items-center justify-between">
                             <div
                               className={header.column.getCanSort() ? 'cursor-pointer select-none flex items-center gap-2 flex-1' : 'flex-1'}
                               onClick={header.column.getToggleSortingHandler()}
                             >
-                              {flexRender(header.column.columnDef.header, header.getContext())}
-                              {{
-                                asc: <span className="material-symbols-outlined text-sm text-[#4f6b28]">arrow_upward</span>,
-                                desc: <span className="material-symbols-outlined text-sm text-[#4f6b28]">arrow_downward</span>,
-                              }[header.column.getIsSorted() as string] ?? null}
+                              <div className={header.column.id === 'actions' ? 'text-right w-full' : ''}>
+                                {flexRender(header.column.columnDef.header, header.getContext())}
+                              </div>
                             </div>
-                            
-                            {/* Resizer */}
-                            <div
-                              onMouseDown={header.getResizeHandler()}
-                              onTouchStart={header.getResizeHandler()}
-                              className={`absolute right-0 top-0 h-full w-1 cursor-col-resize select-none touch-none hover:bg-[#4f6b28]/50 transition-colors ${
-                                header.column.getIsResizing() ? 'bg-[#4f6b28] w-1' : 'bg-transparent'
-                              }`}
-                            />
                           </div>
 
                           {/* Filter Input */}
                           {header.column.getCanFilter() ? (
-                            <div className="relative mt-2">
+                            <div className="relative">
                               <input
                                 value={(header.column.getFilterValue() as string) ?? ""}
                                 onChange={(e) => {
@@ -329,41 +317,39 @@ export default function RoleTypesView() {
                                 }}
                                 onClick={(e) => e.stopPropagation()}
                                 placeholder="..."
-                                className="w-full bg-white border border-stone-300 rounded-md px-3 py-2 text-sm font-medium text-stone-900 outline-none focus:border-stone-900 transition-all shadow-sm"
+                                className="w-full bg-white border border-stone-100 rounded-md px-3 py-1.5 text-xs font-medium text-stone-900 outline-none focus:border-stone-400 transition-all"
                               />
                             </div>
                           ) : (
-                            <div className="h-8" /> 
+                            <div className="h-6" /> 
                           )}
                         </div>
                       )}
                     </th>
                   ))}
                 </tr>
-              ))}
-            </thead>
-            <tbody>
-              {table.getRowModel().rows.map((row, i) => (
-                <tr 
-                  key={row.id} 
-                  className="border-b border-stone-900 hover:bg-stone-50 transition-colors group"
-                >
-                  {row.getVisibleCells().map(cell => (
-                    <td 
-                      key={cell.id} 
-                      className="px-8 py-6 text-base font-medium text-stone-900 border-r border-stone-900 last:border-r-0"
-                      style={{ width: cell.column.getSize() }}
-                    >
-                      <div className="flex items-center min-h-[40px]">
-                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                      </div>
-                    </td>
-                  ))}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {table.getRowModel().rows.map((row, i) => (
+                  <tr 
+                    key={row.id} 
+                    className="border-b border-stone-900 hover:bg-stone-50 transition-colors group"
+                  >
+                    {row.getVisibleCells().map(cell => (
+                      <td 
+                        key={cell.id} 
+                        className="px-6 py-3 text-sm font-medium text-stone-900 border-r border-stone-900 last:border-r-0"
+                      >
+                        <div className="flex items-center min-h-[32px]">
+                          {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                        </div>
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         {roles.length === 0 && (
           <div className="py-20 text-center">
             <span className="material-symbols-outlined text-4xl text-stone-300 mb-4 block">assignment_ind</span>
