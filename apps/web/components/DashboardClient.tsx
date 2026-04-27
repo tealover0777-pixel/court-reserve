@@ -443,7 +443,7 @@ function ThemeSelector({ theme, setTheme }: { theme: "LIGHT" | "DARK" | "VINTAGE
         <span className={`text-[10px] font-black uppercase tracking-widest ${
           theme === "DARK" ? "text-stone-400" : "text-stone-900"
         }`}>
-          {theme === "VINTAGE" ? "Vintage Pure" : theme === "DARK" ? "Vintage Noir" : "Kinetic - Lemon"}
+          {theme === "VINTAGE" ? "Vintage Pure" : theme === "DARK" ? "Vintage Noir" : "Kinetic Lemon"}
         </span>
       </div>
       <button 
