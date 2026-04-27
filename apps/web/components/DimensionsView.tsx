@@ -159,7 +159,7 @@ export default function DimensionsView() {
             <div className="px-8 py-6 border-b border-stone-200 bg-stone-100/50 flex justify-between items-center">
               <div>
                 <h3 className="font-black tracking-tighter uppercase text-xl text-[#4f6b28]">{dim.category}</h3>
-                <p className="text-[10px] font-bold text-stone-900 uppercase tracking-widest">{dim.items.length} values</p>
+                <p className="text-xs font-bold text-stone-900 uppercase tracking-widest">{dim.items.length} values</p>
               </div>
               <div className="flex gap-2">
                 <button 

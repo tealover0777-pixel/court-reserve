@@ -181,7 +181,7 @@ export default function RoleTypesView() {
     columnHelper.accessor("role_id", {
       header: "ID",
       size: 100,
-      cell: info => <span className="font-mono text-[10px] bg-stone-100 px-2 py-1 rounded-md text-stone-500">{info.getValue()}</span>,
+      cell: info => <span className="font-mono text-xs bg-stone-100 px-2 py-1 rounded-md text-stone-500">{info.getValue()}</span>,
     }),
     columnHelper.accessor("role_name", {
       header: "Role Name",
@@ -194,10 +194,10 @@ export default function RoleTypesView() {
       cell: info => (
         <div className="flex flex-wrap gap-1 max-w-md">
           {(info.getValue() || []).slice(0, 3).map((p, i) => (
-            <span key={i} className="text-[9px] font-black bg-[#4f6b28]/5 text-[#4f6b28] px-2 py-0.5 rounded-full uppercase">{p}</span>
+            <span key={i} className="text-xs font-black bg-[#4f6b28]/5 text-[#4f6b28] px-2 py-0.5 rounded-full uppercase">{p}</span>
           ))}
           {(info.getValue() || []).length > 3 && (
-            <span className="text-[9px] font-black bg-stone-100 text-stone-400 px-2 py-0.5 rounded-full">+{(info.getValue() || []).length - 3}</span>
+            <span className="text-xs font-black bg-stone-100 text-stone-400 px-2 py-0.5 rounded-full">+{(info.getValue() || []).length - 3}</span>
           )}
         </div>
       ),
@@ -206,7 +206,7 @@ export default function RoleTypesView() {
       header: "Type",
       size: 100,
       cell: info => (
-        <span className={`text-[9px] font-black px-2 py-1 rounded-md uppercase ${info.getValue() ? 'bg-amber-100 text-amber-700' : 'bg-blue-100 text-blue-700'}`}>
+        <span className={`text-xs font-black px-2 py-1 rounded-md uppercase ${info.getValue() ? 'bg-amber-100 text-amber-700' : 'bg-blue-100 text-blue-700'}`}>
           {info.getValue() ? 'Global' : 'Tenant'}
         </span>
       ),
@@ -288,7 +288,7 @@ export default function RoleTypesView() {
                   {headerGroup.headers.map(header => (
                     <th 
                       key={header.id} 
-                      className="px-8 py-5 text-[10px] font-black text-stone-900 uppercase tracking-[0.2em] relative border-r border-stone-300 last:border-r-0"
+                      className="px-8 py-5 text-xs font-black text-stone-900 uppercase tracking-[0.2em] relative border-r border-stone-300 last:border-r-0"
                       style={{ width: header.getSize() }}
                     >
                       {header.isPlaceholder ? null : (
@@ -323,7 +323,7 @@ export default function RoleTypesView() {
                                 value={(header.column.getFilterValue() ?? '') as string}
                                 onChange={e => header.column.setFilterValue(e.target.value)}
                                 placeholder="Filter..."
-                                className="w-full bg-white border border-stone-200 rounded-lg px-2 py-1 text-[9px] font-bold text-stone-900 placeholder:text-stone-300 focus:border-[#4f6b28] outline-none transition-all"
+                                className="w-full bg-white border border-stone-200 rounded-lg px-2 py-1 text-xs font-bold text-stone-900 placeholder:text-stone-300 focus:border-[#4f6b28] outline-none transition-all"
                                 onClick={e => e.stopPropagation()}
                               />
                             </div>
@@ -343,7 +343,7 @@ export default function RoleTypesView() {
                   {row.getVisibleCells().map(cell => (
                     <td 
                       key={cell.id} 
-                      className="px-8 py-4 text-sm font-medium text-stone-900 border-r border-stone-200 last:border-r-0"
+                      className="px-8 py-4 text-base font-medium text-stone-900 border-r border-stone-200 last:border-r-0"
                       style={{ width: cell.column.getSize() }}
                     >
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}

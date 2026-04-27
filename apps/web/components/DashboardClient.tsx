@@ -30,7 +30,7 @@ export default function DashboardClient({ params }: { params: { tenantId: string
           <h1 className="text-3xl font-black italic tracking-tighter text-[#4f6b28]">
             {tenantId ? tenantId.toUpperCase() : "KINETIC COURT"}
           </h1>
-          <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-stone-900 mt-1">
+          <p className="text-xs font-bold uppercase tracking-[0.2em] text-stone-900 mt-1">
             Elite Membership
           </p>
         </div>
@@ -133,8 +133,8 @@ export default function DashboardClient({ params }: { params: { tenantId: string
               />
             </div>
             <div>
-              <p className="text-xs font-black group-hover:text-[#4f6b28] transition-colors">ALEX STERLING</p>
-              <p className="text-[9px] font-black uppercase tracking-widest text-stone-900">Gold Tier Member</p>
+              <p className="text-xs font-black group-hover:text-[#4f6b28] transition-colors uppercase">ALEX STERLING</p>
+              <p className="text-xs font-black uppercase tracking-widest text-stone-900">Gold Tier Member</p>
             </div>
           </div>
 
@@ -143,7 +143,7 @@ export default function DashboardClient({ params }: { params: { tenantId: string
             className="mt-6 flex items-center gap-3 text-stone-900 hover:text-red-500 transition-colors px-1"
           >
             <span className="material-symbols-outlined text-sm">logout</span>
-            <span className="text-[10px] font-black uppercase tracking-widest">LOGOUT</span>
+            <span className="text-xs font-black uppercase tracking-widest">LOGOUT</span>
           </button>
         </div>
       </aside>
@@ -317,7 +317,7 @@ function SubNavItem({ label, active = false, onClick }: { label: string; active?
         : "text-stone-900 hover:text-black"
         }`}
     >
-      <span className={`text-[10px] font-black uppercase tracking-[0.2em] transition-all ${active ? "translate-x-1" : "group-hover:translate-x-1"}`} style={{ fontFamily: 'Lexend, sans-serif' }}>
+      <span className={`text-xs font-black uppercase tracking-[0.2em] transition-all ${active ? "translate-x-1" : "group-hover:translate-x-1"}`} style={{ fontFamily: 'Lexend, sans-serif' }}>
         {label}
       </span>
     </button>
@@ -339,7 +339,7 @@ function NavItem({ icon, label, active = false, onClick }: { icon: string; label
       <span className={`material-symbols-outlined text-2xl transition-all ${active ? "opacity-100 scale-110" : "opacity-60 group-hover:opacity-100"}`} style={active ? { fontVariationSettings: "'FILL' 1" } : {}}>
         {icon}
       </span>
-      <span className={`text-[11px] font-black uppercase tracking-[0.2em] transition-all ${active ? "translate-x-1" : "group-hover:translate-x-1"}`} style={{ fontFamily: 'Lexend, sans-serif' }}>
+      <span className={`text-sm font-black uppercase tracking-[0.2em] transition-all ${active ? "translate-x-1" : "group-hover:translate-x-1"}`} style={{ fontFamily: 'Lexend, sans-serif' }}>
         {label}
       </span>
     </button>
@@ -400,7 +400,7 @@ function BookingCard({ court, date, time, partner, avatar, isOpen = false, highl
   return (
     <div className="min-w-[300px] bg-white border border-stone-200 p-6 rounded-2xl shadow-sm hover:shadow-md transition-shadow">
       <div className="flex justify-between items-start mb-6">
-        <div className={`${highlight ? 'bg-primary-container text-on-primary-container' : 'bg-stone-100 text-black'} px-3 py-1 rounded text-[10px] font-black uppercase`}>
+        <div className={`${highlight ? 'bg-primary-container text-on-primary-container' : 'bg-stone-100 text-black'} px-3 py-1 rounded text-xs font-black uppercase`}>
           {court}
         </div>
         <button className="material-symbols-outlined text-stone-500 hover:text-black transition-colors">more_vert</button>
@@ -437,7 +437,7 @@ function NewsItem({ title, subtitle, tag }: { title: string; subtitle: string; t
         </div>
       </div>
       <div className="py-2">
-        <span className="text-primary font-black text-[10px] tracking-widest uppercase">{tag}</span>
+        <span className="text-primary font-black text-xs tracking-widest uppercase">{tag}</span>
         <h6 className="text-lg font-black text-black tracking-tight mt-1 group-hover:text-primary transition-colors">{title}</h6>
         <p className="text-stone-900 text-xs mt-1">{subtitle}</p>
       </div>
