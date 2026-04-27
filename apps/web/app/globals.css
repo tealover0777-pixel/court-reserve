@@ -15,11 +15,11 @@
   --secondary-container: #dae2fd;
   --on-secondary-container: #4a5167;
   --surface: #fffbff;
-  --on-surface: #3b3a06;
+  --on-surface: #000000;
   --surface-variant: #efec93;
-  --on-surface-variant: #686730;
-  --outline: #858349;
-  --outline-variant: #bfbc7c;
+  --on-surface-variant: #1a1a1a;
+  --outline: #4a4a4a;
+  --outline-variant: #8e8e8e;
   --surface-container-low: #f7f7f5;
   --surface-container-high: #f5f29d;
   --surface-container-highest: #e4e4e1;

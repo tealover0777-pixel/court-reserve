@@ -227,9 +227,14 @@ export default function RoleTypesView() {
     }),
   ];
 
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const table = useReactTable({
     data: roles,
     columns,
+    state: {
+      columnFilters,
+    },
+    onColumnFiltersChange: setColumnFilters,
     columnResizeMode: 'onChange',
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
@@ -251,14 +256,14 @@ export default function RoleTypesView() {
           <h2 className="text-5xl font-black italic tracking-tighter text-[#4f6b28] uppercase" style={{ fontFamily: 'Lexend, sans-serif' }}>
             Role Types
           </h2>
-          <p className="text-stone-400 font-bold uppercase tracking-widest text-xs mt-2">
+          <p className="text-stone-900 font-bold uppercase tracking-widest text-xs mt-2">
             System Administration · <span className="text-[#4f6b28]">{roles.length}</span> Roles · <span className="text-[#4f6b28]">{permissions.length + globalPermissions.length}</span> Permissions
           </p>
         </div>
         <div className="flex gap-4">
           <button 
             onClick={() => setShowPermsModal(true)}
-            className="border-2 border-stone-100 text-stone-600 px-8 py-3 rounded-full font-black text-xs tracking-widest hover:bg-stone-50 transition-all uppercase flex items-center gap-2"
+            className="border-2 border-stone-200 text-stone-900 px-8 py-3 rounded-full font-black text-xs tracking-widest hover:bg-stone-50 transition-all uppercase flex items-center gap-2"
           >
             <span className="material-symbols-outlined text-sm">settings_suggest</span>
             Manage Permissions
@@ -273,39 +278,57 @@ export default function RoleTypesView() {
         </div>
       </div>
 
-      <div className="bg-white border border-stone-100 rounded-[32px] overflow-hidden shadow-sm">
+      <div className="bg-white border border-stone-300 rounded-[32px] overflow-hidden shadow-sm">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse" style={{ width: table.getCenterTotalSize(), tableLayout: 'fixed' }}>
-            <thead className="bg-stone-50/50 border-b border-stone-50">
+            <thead className="bg-stone-100/50 border-b border-stone-300">
               {table.getHeaderGroups().map(headerGroup => (
                 <tr key={headerGroup.id}>
                   {headerGroup.headers.map(header => (
                     <th 
                       key={header.id} 
-                      className="px-8 py-5 text-[10px] font-black text-stone-400 uppercase tracking-[0.2em] relative border-r border-stone-100 last:border-r-0"
+                      className="px-8 py-5 text-[10px] font-black text-stone-900 uppercase tracking-[0.2em] relative border-r border-stone-300 last:border-r-0"
                       style={{ width: header.getSize() }}
                     >
                       {header.isPlaceholder ? null : (
-                        <div className="flex items-center justify-between">
-                          <div
-                            className={header.column.getCanSort() ? 'cursor-pointer select-none flex items-center gap-1 flex-1' : 'flex-1'}
-                            onClick={header.column.getToggleSortingHandler()}
-                          >
-                            {flexRender(header.column.columnDef.header, header.getContext())}
-                            {{
-                              asc: <span className="material-symbols-outlined text-xs">arrow_upward</span>,
-                              desc: <span className="material-symbols-outlined text-xs">arrow_downward</span>,
-                            }[header.column.getIsSorted() as string] ?? null}
+                        <div className="space-y-3">
+                          <div className="flex items-center justify-between">
+                            <div
+                              className={header.column.getCanSort() ? 'cursor-pointer select-none flex items-center gap-1 flex-1' : 'flex-1'}
+                              onClick={header.column.getToggleSortingHandler()}
+                            >
+                              {flexRender(header.column.columnDef.header, header.getContext())}
+                              {{
+                                asc: <span className="material-symbols-outlined text-xs">arrow_upward</span>,
+                                desc: <span className="material-symbols-outlined text-xs">arrow_downward</span>,
+                              }[header.column.getIsSorted() as string] ?? null}
+                            </div>
+                            
+                            {/* Resizer */}
+                            <div
+                              onMouseDown={header.getResizeHandler()}
+                              onTouchStart={header.getResizeHandler()}
+                              className={`absolute right-0 top-0 h-full w-1 cursor-col-resize select-none touch-none hover:bg-[#4f6b28] transition-colors ${
+                                header.column.getIsResizing() ? 'bg-[#4f6b28] w-1' : 'bg-transparent'
+                              }`}
+                            />
                           </div>
-                          
-                          {/* Resizer */}
-                          <div
-                            onMouseDown={header.getResizeHandler()}
-                            onTouchStart={header.getResizeHandler()}
-                            className={`absolute right-0 top-0 h-full w-1 cursor-col-resize select-none touch-none hover:bg-[#4f6b28] transition-colors ${
-                              header.column.getIsResizing() ? 'bg-[#4f6b28] w-1' : 'bg-transparent'
-                            }`}
-                          />
+
+                          {/* Filter Input */}
+                          {header.column.getCanFilter() ? (
+                            <div className="relative">
+                              <input
+                                type="text"
+                                value={(header.column.getFilterValue() ?? '') as string}
+                                onChange={e => header.column.setFilterValue(e.target.value)}
+                                placeholder="Filter..."
+                                className="w-full bg-white border border-stone-200 rounded-lg px-2 py-1 text-[9px] font-bold text-stone-900 placeholder:text-stone-300 focus:border-[#4f6b28] outline-none transition-all"
+                                onClick={e => e.stopPropagation()}
+                              />
+                            </div>
+                          ) : (
+                            <div className="h-6" /> // Spacer for non-filterable columns
+                          )}
                         </div>
                       )}
                     </th>
@@ -315,11 +338,11 @@ export default function RoleTypesView() {
             </thead>
             <tbody>
               {table.getRowModel().rows.map(row => (
-                <tr key={row.id} className="border-b border-stone-50 hover:bg-stone-50/30 transition-colors group">
+                <tr key={row.id} className="border-b border-stone-200 hover:bg-stone-50 transition-colors group">
                   {row.getVisibleCells().map(cell => (
                     <td 
                       key={cell.id} 
-                      className="px-8 py-4 text-sm font-medium text-stone-600 border-r border-stone-50 last:border-r-0"
+                      className="px-8 py-4 text-sm font-medium text-stone-900 border-r border-stone-200 last:border-r-0"
                       style={{ width: cell.column.getSize() }}
                     >
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
@@ -332,8 +355,8 @@ export default function RoleTypesView() {
         </div>
         {roles.length === 0 && (
           <div className="py-20 text-center">
-            <span className="material-symbols-outlined text-4xl text-stone-200 mb-4 block">assignment_ind</span>
-            <p className="text-stone-400 font-bold uppercase tracking-widest text-[10px]">No roles defined yet</p>
+            <span className="material-symbols-outlined text-4xl text-stone-300 mb-4 block">assignment_ind</span>
+            <p className="text-stone-900 font-bold uppercase tracking-widest text-[10px]">No roles defined yet</p>
           </div>
         )}
       </div>
@@ -349,18 +372,18 @@ export default function RoleTypesView() {
             
             <div className="grid grid-cols-2 gap-8">
               <div>
-                <label className="text-[10px] font-black text-stone-400 tracking-[0.2em] uppercase mb-3 block">Role ID</label>
-                <div className="w-full bg-stone-50 border-none rounded-2xl px-6 py-4 text-sm font-mono font-bold text-stone-400 select-none">
+                <label className="text-[10px] font-black text-stone-900 tracking-[0.2em] uppercase mb-3 block">Role ID</label>
+                <div className="w-full bg-stone-100 border-none rounded-2xl px-6 py-4 text-sm font-mono font-bold text-stone-900 select-none">
                   {roleId}
                 </div>
               </div>
               <div>
-                <label className="text-[10px] font-black text-stone-400 tracking-[0.2em] uppercase mb-3 block">Role Name</label>
+                <label className="text-[10px] font-black text-stone-900 tracking-[0.2em] uppercase mb-3 block">Role Name</label>
                 <input 
                   value={roleName}
                   onChange={e => setRoleName(e.target.value)}
                   placeholder="e.g. Club Manager, Instructor..."
-                  className="w-full bg-stone-50 border-none rounded-2xl px-6 py-4 text-sm font-bold placeholder:text-stone-300 focus:ring-2 focus:ring-[#4f6b28] outline-none"
+                  className="w-full bg-stone-100 border-none rounded-2xl px-6 py-4 text-sm font-bold placeholder:text-stone-400 focus:ring-2 focus:ring-[#4f6b28] outline-none"
                 />
               </div>
             </div>
@@ -373,13 +396,13 @@ export default function RoleTypesView() {
                 >
                   {isGlobal && <span className="material-symbols-outlined text-sm font-bold">check</span>}
                 </div>
-                <span className="text-xs font-black uppercase tracking-widest text-stone-600">Global Role (Access to all tenants)</span>
+                <span className="text-xs font-black uppercase tracking-widest text-stone-900">Global Role (Access to all tenants)</span>
               </label>
             </div>
 
             <div className="mt-8">
-              <label className="text-[10px] font-black text-stone-400 tracking-[0.2em] uppercase mb-3 block">Permissions</label>
-              <div className="bg-stone-50 rounded-[32px] p-6 max-h-64 overflow-y-auto border border-stone-100 flex flex-wrap gap-2">
+              <label className="text-[10px] font-black text-stone-900 tracking-[0.2em] uppercase mb-3 block">Permissions</label>
+              <div className="bg-stone-100 rounded-[32px] p-6 max-h-64 overflow-y-auto border border-stone-200 flex flex-wrap gap-2">
                 {permissions.map(p => (
                   <button
                     key={p}
@@ -387,7 +410,7 @@ export default function RoleTypesView() {
                       if (selectedPerms.includes(p)) setSelectedPerms(prev => prev.filter(x => x !== p));
                       else setSelectedPerms(prev => [...prev, p]);
                     }}
-                    className={`px-4 py-2 rounded-full text-[10px] font-black tracking-tight transition-all uppercase ${selectedPerms.includes(p) ? 'bg-[#4f6b28] text-white shadow-md shadow-[#4f6b28]/20' : 'bg-white text-stone-400 border border-stone-100 hover:border-[#4f6b28]/30'}`}
+                    className={`px-4 py-2 rounded-full text-[10px] font-black tracking-tight transition-all uppercase ${selectedPerms.includes(p) ? 'bg-[#4f6b28] text-white shadow-md shadow-[#4f6b28]/20' : 'bg-white text-stone-900 border border-stone-200 hover:border-[#4f6b28]/30'}`}
                   >
                     {p}
                   </button>
@@ -397,8 +420,8 @@ export default function RoleTypesView() {
 
             {isGlobal && (
               <div className="mt-8 animate-in fade-in slide-in-from-top-2">
-                <label className="text-[10px] font-black text-stone-400 tracking-[0.2em] uppercase mb-3 block">Platform Admin Permissions</label>
-                <div className="bg-amber-50/30 rounded-[32px] p-6 max-h-48 overflow-y-auto border border-amber-100/50 flex flex-wrap gap-2">
+                <label className="text-[10px] font-black text-stone-900 tracking-[0.2em] uppercase mb-3 block">Platform Admin Permissions</label>
+                <div className="bg-amber-100/30 rounded-[32px] p-6 max-h-48 overflow-y-auto border border-amber-200 flex flex-wrap gap-2">
                   {globalPermissions.map(p => (
                     <button
                       key={p}
@@ -406,7 +429,7 @@ export default function RoleTypesView() {
                         if (selectedPerms.includes(p)) setSelectedPerms(prev => prev.filter(x => x !== p));
                         else setSelectedPerms(prev => [...prev, p]);
                       }}
-                      className={`px-4 py-2 rounded-full text-[10px] font-black tracking-tight transition-all uppercase ${selectedPerms.includes(p) ? 'bg-amber-500 text-white shadow-md shadow-amber-500/20' : 'bg-white text-amber-300 border border-amber-100 hover:border-amber-500/30'}`}
+                      className={`px-4 py-2 rounded-full text-[10px] font-black tracking-tight transition-all uppercase ${selectedPerms.includes(p) ? 'bg-amber-600 text-white shadow-md shadow-amber-600/20' : 'bg-white text-amber-800 border border-amber-200 hover:border-amber-600/30'}`}
                     >
                       {p}
                     </button>
@@ -418,7 +441,7 @@ export default function RoleTypesView() {
             <div className="flex gap-4 mt-12">
               <button 
                 onClick={() => setShowRoleModal(false)}
-                className="flex-1 py-4 border-2 border-stone-100 text-stone-400 rounded-2xl text-[10px] font-black tracking-widest hover:bg-stone-50 transition-all uppercase"
+                className="flex-1 py-4 border-2 border-stone-200 text-stone-900 rounded-2xl text-[10px] font-black tracking-widest hover:bg-stone-50 transition-all uppercase"
               >
                 Cancel
               </button>

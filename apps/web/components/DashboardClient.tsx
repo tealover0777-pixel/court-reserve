@@ -30,7 +30,7 @@ export default function DashboardClient({ params }: { params: { tenantId: string
           <h1 className="text-3xl font-black italic tracking-tighter text-[#4f6b28]">
             {tenantId ? tenantId.toUpperCase() : "KINETIC COURT"}
           </h1>
-          <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-stone-500 mt-1">
+          <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-stone-900 mt-1">
             Elite Membership
           </p>
         </div>
@@ -67,7 +67,7 @@ export default function DashboardClient({ params }: { params: { tenantId: string
             onClick={() => setAdministrationOpen(!administrationOpen)}
           />
           {administrationOpen && (
-            <div className="bg-stone-50/50 py-2">
+            <div className="bg-stone-100/50 py-2">
               <SubNavItem
                 label="Role Types"
                 active={activeView === "ROLE_TYPES"}
@@ -88,7 +88,7 @@ export default function DashboardClient({ params }: { params: { tenantId: string
             onClick={() => setPlatformAdminOpen(!platformAdminOpen)}
           />
           {platformAdminOpen && (
-            <div className="bg-stone-50/50 py-2">
+            <div className="bg-stone-100/50 py-2">
               <SubNavItem
                 label="AI Admin"
                 active={activeView === "AI_ADMIN"}
@@ -113,7 +113,7 @@ export default function DashboardClient({ params }: { params: { tenantId: string
           )}
         </nav>
 
-        <div className="mt-auto p-8 border-t border-stone-100">
+        <div className="mt-auto p-8 border-t border-stone-200">
           <button
             onClick={() => setActiveView("COURT BOOKING")}
             className="w-full py-4 bg-[#4f6b28] text-white font-black rounded-lg text-xs tracking-widest hover:opacity-90 transition-all uppercase shadow-lg shadow-[#4f6b28]/10"
@@ -134,13 +134,13 @@ export default function DashboardClient({ params }: { params: { tenantId: string
             </div>
             <div>
               <p className="text-xs font-black group-hover:text-[#4f6b28] transition-colors">ALEX STERLING</p>
-              <p className="text-[9px] font-black uppercase tracking-widest text-stone-500">Gold Tier Member</p>
+              <p className="text-[9px] font-black uppercase tracking-widest text-stone-900">Gold Tier Member</p>
             </div>
           </div>
 
           <button
             onClick={() => signOut(auth)}
-            className="mt-6 flex items-center gap-3 text-stone-500 hover:text-red-500 transition-colors px-1"
+            className="mt-6 flex items-center gap-3 text-stone-900 hover:text-red-500 transition-colors px-1"
           >
             <span className="material-symbols-outlined text-sm">logout</span>
             <span className="text-[10px] font-black uppercase tracking-widest">LOGOUT</span>
@@ -314,7 +314,7 @@ function SubNavItem({ label, active = false, onClick }: { label: string; active?
       onClick={onClick}
       className={`w-full flex items-center gap-5 py-3 transition-all duration-300 ease-in-out pl-20 relative group ${active
         ? "text-[#4f6b28]"
-        : "text-stone-600 hover:text-stone-900"
+        : "text-stone-900 hover:text-black"
         }`}
     >
       <span className={`text-[10px] font-black uppercase tracking-[0.2em] transition-all ${active ? "translate-x-1" : "group-hover:translate-x-1"}`} style={{ fontFamily: 'Lexend, sans-serif' }}>
@@ -330,7 +330,7 @@ function NavItem({ icon, label, active = false, onClick }: { icon: string; label
       onClick={onClick}
       className={`w-full flex items-center gap-5 py-4 transition-all duration-300 ease-in-out px-8 relative group ${active
           ? "text-[#4f6b28]"
-          : "text-stone-600 hover:text-stone-900"
+          : "text-stone-900 hover:text-black"
         }`}
     >
       {active && (
@@ -356,24 +356,24 @@ function PlaceholderView({ title, icon }: { title: string; icon: string }) {
         <h2 className="text-4xl font-black italic tracking-tighter text-[#4f6b28] uppercase mb-4" style={{ fontFamily: 'Lexend, sans-serif' }}>
           {title}
         </h2>
-        <p className="text-stone-400 font-bold uppercase tracking-widest text-xs">Module Under Construction</p>
+        <p className="text-stone-900 font-bold uppercase tracking-widest text-xs">Module Under Construction</p>
       </div>
     </div>
   );
 }
 
 function StatCard({ label, value, trend, color }: { label: string; value: string; trend: string; color: string }) {
-  const bgColor = color === "primary" ? "bg-surface-container-highest" : color === "tertiary" ? "bg-tertiary-container" : "bg-surface-container-highest";
-  const textColor = color === "tertiary" ? "text-on-tertiary-container" : color === "primary" ? "text-primary" : "text-on-surface";
+  const bgColor = color === "primary" ? "bg-stone-100" : color === "tertiary" ? "bg-tertiary-container" : "bg-stone-100";
+  const textColor = color === "tertiary" ? "text-on-tertiary-container" : color === "primary" ? "text-primary" : "text-black";
 
   return (
-    <div className={`col-span-1 ${bgColor} p-8 rounded-2xl flex flex-col justify-between shadow-sm border border-black/5`}>
-      <span className={`font-label text-xs uppercase font-bold tracking-widest ${color === "tertiary" ? "text-on-tertiary-container/60" : "text-stone-500"}`}>
+    <div className={`col-span-1 ${bgColor} p-8 rounded-2xl flex flex-col justify-between shadow-sm border border-black/10`}>
+      <span className={`font-label text-xs uppercase font-bold tracking-widest ${color === "tertiary" ? "text-on-tertiary-container/80" : "text-stone-900"}`}>
         {label}
       </span>
       <div className="mt-4">
         <div className={`text-5xl font-black ${textColor}`}>{value}</div>
-        <div className={`flex items-center text-xs font-bold mt-2 ${color === "tertiary" ? "text-on-tertiary-container/60" : color === "primary" ? "text-primary" : "text-stone-400"}`}>
+        <div className={`flex items-center text-xs font-bold mt-2 ${color === "tertiary" ? "text-on-tertiary-container/80" : color === "primary" ? "text-primary" : "text-stone-900"}`}>
           {color === "primary" && <span className="material-symbols-outlined text-sm mr-1">trending_up</span>}
           <span>{trend}</span>
         </div>
@@ -398,18 +398,18 @@ function ActivityItem({ icon, title, subtitle, color, fill = false }: { icon: st
 
 function BookingCard({ court, date, time, partner, avatar, isOpen = false, highlight = false }: { court: string; date: string; time: string; partner?: string; avatar?: string; isOpen?: boolean; highlight?: boolean }) {
   return (
-    <div className="min-w-[300px] bg-white border border-stone-100 p-6 rounded-2xl shadow-sm hover:shadow-md transition-shadow">
+    <div className="min-w-[300px] bg-white border border-stone-200 p-6 rounded-2xl shadow-sm hover:shadow-md transition-shadow">
       <div className="flex justify-between items-start mb-6">
-        <div className={`${highlight ? 'bg-primary-container text-on-primary-container' : 'bg-surface-container-highest text-on-surface-variant'} px-3 py-1 rounded text-[10px] font-black uppercase`}>
+        <div className={`${highlight ? 'bg-primary-container text-on-primary-container' : 'bg-stone-100 text-black'} px-3 py-1 rounded text-[10px] font-black uppercase`}>
           {court}
         </div>
-        <button className="material-symbols-outlined text-stone-300 hover:text-stone-500 transition-colors">more_vert</button>
+        <button className="material-symbols-outlined text-stone-500 hover:text-black transition-colors">more_vert</button>
       </div>
       <div className="mb-6">
-        <h5 className="text-2xl font-black text-on-surface">{date}</h5>
-        <p className="text-sm font-bold text-stone-400 uppercase tracking-tighter">{time}</p>
+        <h5 className="text-2xl font-black text-black">{date}</h5>
+        <p className="text-sm font-bold text-stone-900 uppercase tracking-tighter">{time}</p>
       </div>
-      <div className="flex items-center gap-3 pt-6 border-t border-stone-50">
+      <div className="flex items-center gap-3 pt-6 border-t border-stone-100">
         {isOpen ? (
           <>
             <div className="w-8 h-8 rounded-full bg-secondary-container flex items-center justify-center text-secondary">
@@ -438,8 +438,8 @@ function NewsItem({ title, subtitle, tag }: { title: string; subtitle: string; t
       </div>
       <div className="py-2">
         <span className="text-primary font-black text-[10px] tracking-widest uppercase">{tag}</span>
-        <h6 className="text-lg font-black text-on-surface tracking-tight mt-1 group-hover:text-primary transition-colors">{title}</h6>
-        <p className="text-stone-500 text-xs mt-1">{subtitle}</p>
+        <h6 className="text-lg font-black text-black tracking-tight mt-1 group-hover:text-primary transition-colors">{title}</h6>
+        <p className="text-stone-900 text-xs mt-1">{subtitle}</p>
       </div>
     </div>
   );

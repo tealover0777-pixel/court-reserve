@@ -140,7 +140,7 @@ export default function DimensionsView() {
           <h2 className="text-5xl font-black italic tracking-tighter text-[#4f6b28] uppercase" style={{ fontFamily: 'Lexend, sans-serif' }}>
             Dimensions
           </h2>
-          <p className="text-stone-400 font-bold uppercase tracking-widest text-xs mt-2">
+          <p className="text-stone-900 font-bold uppercase tracking-widest text-xs mt-2">
             Reference data · <span className="text-[#4f6b28]">{dimensions.length}</span> categories · <span className="text-[#4f6b28]">{dimensions.reduce((acc, d) => acc + d.items.length, 0)}</span> values
           </p>
         </div>
@@ -155,16 +155,16 @@ export default function DimensionsView() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {dimensions.map((dim) => (
-          <div key={dim.id} className="bg-white border border-stone-100 rounded-[32px] overflow-hidden shadow-sm hover:shadow-md transition-all group">
-            <div className="px-8 py-6 border-b border-stone-50 bg-stone-50/50 flex justify-between items-center">
+          <div key={dim.id} className="bg-white border border-stone-300 rounded-[32px] overflow-hidden shadow-sm hover:shadow-md transition-all group">
+            <div className="px-8 py-6 border-b border-stone-200 bg-stone-100/50 flex justify-between items-center">
               <div>
                 <h3 className="font-black tracking-tighter uppercase text-xl text-[#4f6b28]">{dim.category}</h3>
-                <p className="text-[10px] font-bold text-stone-400 uppercase tracking-widest">{dim.items.length} values</p>
+                <p className="text-[10px] font-bold text-stone-900 uppercase tracking-widest">{dim.items.length} values</p>
               </div>
               <div className="flex gap-2">
                 <button 
                   onClick={() => setEditingCategoryId(editingCategoryId === dim.id ? null : dim.id)}
-                  className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all ${editingCategoryId === dim.id ? 'bg-[#4f6b28] text-white' : 'bg-white text-stone-400 hover:text-[#4f6b28] border border-stone-100'}`}
+                  className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all ${editingCategoryId === dim.id ? 'bg-[#4f6b28] text-white' : 'bg-white text-stone-900 hover:text-[#4f6b28] border border-stone-200'}`}
                 >
                   <span className="material-symbols-outlined text-xl">
                     {editingCategoryId === dim.id ? 'check' : 'edit'}
@@ -172,7 +172,7 @@ export default function DimensionsView() {
                 </button>
                 <button 
                   onClick={() => setConfirmDelete(dim.id)}
-                  className="w-10 h-10 rounded-xl bg-white text-stone-300 hover:text-red-500 border border-stone-100 flex items-center justify-center transition-all"
+                  className="w-10 h-10 rounded-xl bg-white text-stone-900 hover:text-red-500 border border-stone-200 flex items-center justify-center transition-all"
                 >
                   <span className="material-symbols-outlined text-xl">delete</span>
                 </button>
@@ -269,15 +269,15 @@ export default function DimensionsView() {
               </div>
 
               <div>
-                <label className="text-[10px] font-black text-stone-400 tracking-[0.2em] uppercase mb-3 block">Initial Values</label>
+                <label className="text-[10px] font-black text-stone-900 tracking-[0.2em] uppercase mb-3 block">Initial Values</label>
                 <textarea 
                   value={newValuesStr}
                   onChange={e => setNewValuesStr(e.target.value)}
                   placeholder="High, Medium, Low (comma separated)"
                   rows={4}
-                  className="w-full bg-stone-50 border-none rounded-2xl px-6 py-4 text-sm font-bold placeholder:text-stone-300 focus:ring-2 focus:ring-[#4f6b28] outline-none resize-none"
+                  className="w-full bg-stone-100 border-none rounded-2xl px-6 py-4 text-sm font-bold placeholder:text-stone-400 focus:ring-2 focus:ring-[#4f6b28] outline-none resize-none"
                 />
-                <p className="text-[10px] text-stone-400 mt-2 font-medium">Separate items with commas to create multiple values at once.</p>
+                <p className="text-[10px] text-stone-600 mt-2 font-medium">Separate items with commas to create multiple values at once.</p>
               </div>
             </div>
 
