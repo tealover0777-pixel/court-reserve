@@ -6,12 +6,16 @@ import { auth } from "../lib/firebase";
 import { signOut } from "firebase/auth";
 import DimensionsView from "./DimensionsView";
 import RoleTypesView from "./RoleTypesView";
+import UserAdminView from "./UserAdminView";
+import PlatformTenantAdminView from "./PlatformTenantAdminView";
+import AIAdminView from "./AIAdminView";
 
 export default function DashboardClient({ params }: { params: { tenantId: string } }) {
   const { tenantId: contextTenantId, loading } = useTenant();
   const [activeView, setActiveView] = React.useState<"DASHBOARD" | "COURT BOOKING" | "PROGRAMS" | "MEMBERSHIP" | "SETTINGS" | "PROFILE" | "AI_ADMIN" | "DIMENSIONS" | "ROLE_TYPES" | "USER_ADMIN" | "PLATFORM_TENANT_ADMIN">("DASHBOARD");
   const [platformAdminOpen, setPlatformAdminOpen] = React.useState(false);
   const [administrationOpen, setAdministrationOpen] = React.useState(false);
+  const [theme, setTheme] = React.useState<"LIGHT" | "DARK">("LIGHT");
   const tenantId = params.tenantId || contextTenantId;
 
   if (loading) {
@@ -23,14 +27,14 @@ export default function DashboardClient({ params }: { params: { tenantId: string
   }
 
   return (
-    <div className="min-h-screen bg-background text-on-background selection:bg-primary/30">
+    <div className={`min-h-screen transition-colors duration-500 ${theme === "DARK" ? "bg-stone-950 text-white" : "bg-background text-on-background"} selection:bg-primary/30`}>
       {/* SideNavBar Component */}
-      <aside className="fixed left-0 top-0 h-full w-72 border-r bg-white flex flex-col z-50">
+      <aside className={`fixed left-0 top-0 h-full w-72 border-r transition-colors duration-500 ${theme === "DARK" ? "bg-stone-950 border-stone-800" : "bg-white border-stone-200"} flex flex-col z-50`}>
         <div className="py-10 px-8">
-          <h1 className="text-3xl font-black italic tracking-tighter text-[#4f6b28]">
+          <h1 className={`text-3xl font-black italic tracking-tighter ${theme === "DARK" ? "text-[#ccff00]" : "text-[#4f6b28]"}`}>
             {tenantId ? tenantId.toUpperCase() : "KINETIC COURT"}
           </h1>
-          <p className="text-xs font-bold uppercase tracking-[0.2em] text-stone-900 mt-1">
+          <p className={`text-xs font-bold uppercase tracking-[0.2em] mt-1 ${theme === "DARK" ? "text-stone-400" : "text-stone-900"}`}>
             Elite Membership
           </p>
         </div>
@@ -41,30 +45,35 @@ export default function DashboardClient({ params }: { params: { tenantId: string
             label="Dashboard"
             active={activeView === "DASHBOARD"}
             onClick={() => setActiveView("DASHBOARD")}
+            theme={theme}
           />
           <NavItem
             icon="sports_tennis"
             label="My Schedule"
             active={activeView === "COURT BOOKING"}
             onClick={() => setActiveView("COURT BOOKING")}
+            theme={theme}
           />
           <NavItem
             icon="calendar_today"
             label="Programs"
             active={activeView === "PROGRAMS"}
             onClick={() => setActiveView("PROGRAMS")}
+            theme={theme}
           />
           <NavItem
             icon="card_membership"
             label="Membership"
             active={activeView === "MEMBERSHIP"}
             onClick={() => setActiveView("MEMBERSHIP")}
+            theme={theme}
           />
           <NavItem
             icon="admin_panel_settings"
             label="Administration"
             active={activeView === "ROLE_TYPES"}
             onClick={() => setAdministrationOpen(!administrationOpen)}
+            theme={theme}
           />
           {administrationOpen && (
             <div className="bg-stone-100/50 py-2">
@@ -72,6 +81,7 @@ export default function DashboardClient({ params }: { params: { tenantId: string
                 label="Role Types"
                 active={activeView === "ROLE_TYPES"}
                 onClick={() => setActiveView("ROLE_TYPES")}
+                theme={theme}
               />
             </div>
           )}
@@ -80,12 +90,14 @@ export default function DashboardClient({ params }: { params: { tenantId: string
             label="Settings"
             active={activeView === "SETTINGS"}
             onClick={() => setActiveView("SETTINGS")}
+            theme={theme}
           />
           <NavItem
             icon="hub"
             label="Platform"
             active={activeView === "AI_ADMIN" || activeView === "DIMENSIONS" || activeView === "USER_ADMIN" || activeView === "PLATFORM_TENANT_ADMIN"}
             onClick={() => setPlatformAdminOpen(!platformAdminOpen)}
+            theme={theme}
           />
           {platformAdminOpen && (
             <div className="bg-stone-100/50 py-2">
@@ -93,21 +105,25 @@ export default function DashboardClient({ params }: { params: { tenantId: string
                 label="AI Admin"
                 active={activeView === "AI_ADMIN"}
                 onClick={() => setActiveView("AI_ADMIN")}
+                theme={theme}
               />
               <SubNavItem
                 label="Dimensions"
                 active={activeView === "DIMENSIONS"}
                 onClick={() => setActiveView("DIMENSIONS")}
+                theme={theme}
               />
               <SubNavItem
                 label="User Admin"
                 active={activeView === "USER_ADMIN"}
                 onClick={() => setActiveView("USER_ADMIN")}
+                theme={theme}
               />
               <SubNavItem
                 label="Tenant Admin"
                 active={activeView === "PLATFORM_TENANT_ADMIN"}
                 onClick={() => setActiveView("PLATFORM_TENANT_ADMIN")}
+                theme={theme}
               />
             </div>
           )}
@@ -125,7 +141,7 @@ export default function DashboardClient({ params }: { params: { tenantId: string
             onClick={() => setActiveView("PROFILE")}
             className="mt-8 flex items-center gap-3 cursor-pointer group"
           >
-            <div className="w-10 h-10 rounded-full bg-stone-100 overflow-hidden border-2 border-transparent group-hover:border-[#4f6b28] transition-all">
+            <div className={`w-10 h-10 rounded-full overflow-hidden border-2 border-transparent transition-all ${theme === "DARK" ? "bg-stone-800 group-hover:border-[#ccff00]" : "bg-stone-100 group-hover:border-[#4f6b28]"}`}>
               <img
                 src="https://lh3.googleusercontent.com/aida-public/AB6AXuCIVNG3lcWVm-Ge5NEEZUf-GdmgLwhFzcFnGsboAMqruvOsGoG2KsUaJnNi7egzkBHc-8ccIDPAhhUoKLhZ-6htVuQieJX6w20tMHdUP6wvr91JZaIcvqIJEmHuGFa4z4EtafMvMDZVDCE0FvjKCsjs2BQO27LBpb-zAw7Vj2lY1t1lbEH1wcnRQt6l-9LceLngmvluUeTcJdDm9RVYiiwiCLuDdYSnjSgJK13-P326RgshwnopS9Qa-T0LE8kRyriIPjwU5NIlUVY"
                 alt="Profile"
@@ -133,14 +149,14 @@ export default function DashboardClient({ params }: { params: { tenantId: string
               />
             </div>
             <div>
-              <p className="text-xs font-black group-hover:text-[#4f6b28] transition-colors uppercase">ALEX STERLING</p>
-              <p className="text-xs font-black uppercase tracking-widest text-stone-900">Gold Tier Member</p>
+              <p className={`text-xs font-black transition-colors uppercase ${theme === "DARK" ? "group-hover:text-[#ccff00]" : "group-hover:text-[#4f6b28]"}`}>ALEX STERLING</p>
+              <p className={`text-xs font-black uppercase tracking-widest ${theme === "DARK" ? "text-stone-500" : "text-stone-900"}`}>Gold Tier Member</p>
             </div>
           </div>
 
           <button
             onClick={() => signOut(auth)}
-            className="mt-6 flex items-center gap-3 text-stone-900 hover:text-red-500 transition-colors px-1"
+            className={`mt-6 flex items-center gap-3 transition-colors px-1 ${theme === "DARK" ? "text-stone-400 hover:text-red-400" : "text-stone-900 hover:text-red-500"}`}
           >
             <span className="material-symbols-outlined text-sm">logout</span>
             <span className="text-xs font-black uppercase tracking-widest">LOGOUT</span>
@@ -149,16 +165,21 @@ export default function DashboardClient({ params }: { params: { tenantId: string
       </aside>
 
       {/* TopAppBar Component */}
-      <header className="sticky top-0 z-40 w-full bg-white/60 backdrop-blur-xl flex justify-between items-center ml-72 px-12 py-6 max-w-[calc(100%-18rem)]">
-        <h2 className="text-4xl font-black italic text-[#4f6b28] tracking-tighter uppercase" style={{ fontFamily: 'Lexend, sans-serif' }}>{activeView}</h2>
-        <div className="flex items-center gap-6">
+      <header className={`sticky top-0 z-40 w-full backdrop-blur-xl flex justify-between items-center ml-72 px-12 py-6 max-w-[calc(100%-18rem)] transition-colors duration-500 ${theme === "DARK" ? "bg-stone-950/60 border-b border-stone-800" : "bg-white/60"}`}>
+        <h2 className={`text-4xl font-black italic tracking-tighter uppercase ${theme === "DARK" ? "text-[#ccff00]" : "text-[#4f6b28]"}`} style={{ fontFamily: 'Lexend, sans-serif' }}>{activeView}</h2>
+        <div className="flex items-center gap-8">
+          <ThemeSelector theme={theme} setTheme={setTheme} />
           <div className="relative hidden lg:block">
             <input
               type="text"
-              placeholder="Search facilities..."
-              className="bg-surface-container-low border-none rounded-full px-6 py-2 w-64 focus:ring-2 focus:ring-primary text-sm text-on-surface"
+              placeholder="Search platform..."
+              className={`rounded-full px-6 py-2 w-64 text-sm outline-none transition-all ${
+                theme === "DARK" 
+                  ? "bg-stone-900 text-white focus:ring-2 focus:ring-[#ccff00] placeholder:text-stone-600" 
+                  : "bg-stone-100 text-stone-900 focus:ring-2 focus:ring-[#4f6b28] placeholder:text-stone-400"
+              }`}
             />
-            <span className="material-symbols-outlined absolute right-4 top-2 text-stone-400">search</span>
+            <span className={`material-symbols-outlined absolute right-4 top-2 transition-colors ${theme === "DARK" ? "text-stone-600" : "text-stone-400"}`}>search</span>
           </div>
           <div className="flex items-center gap-4 text-primary">
             <button className="material-symbols-outlined hover:opacity-80 transition-opacity">notifications</button>
@@ -168,7 +189,7 @@ export default function DashboardClient({ params }: { params: { tenantId: string
       </header>
 
       {/* Main Content Area */}
-      <main className="ml-72 p-12 min-h-screen">
+      <main className={`ml-72 p-12 min-h-screen transition-colors duration-500 ${theme === "DARK" ? "bg-stone-900" : "bg-stone-50"}`}>
         {activeView === "DASHBOARD" ? (
           <>
             {/* Welcome Hero */}
@@ -278,15 +299,15 @@ export default function DashboardClient({ params }: { params: { tenantId: string
             </section>
           </>
         ) : activeView === "AI_ADMIN" ? (
-          <PlaceholderView title="AI Admin" icon="psychology" />
+          <AIAdminView theme={theme} />
         ) : activeView === "DIMENSIONS" ? (
-          <DimensionsView />
+          <DimensionsView theme={theme} />
         ) : activeView === "ROLE_TYPES" ? (
-          <RoleTypesView />
+          <RoleTypesView theme={theme} />
         ) : activeView === "USER_ADMIN" ? (
-          <PlaceholderView title="User Admin" icon="person_search" />
+          <UserAdminView theme={theme} />
         ) : activeView === "PLATFORM_TENANT_ADMIN" ? (
-          <PlaceholderView title="Platform Tenant Admin" icon="corporate_fare" />
+          <PlatformTenantAdminView theme={theme} />
         ) : activeView === "COURT BOOKING" ? (
           <CourtBookingView />
         ) : activeView === "PROGRAMS" ? (
@@ -308,14 +329,38 @@ export default function DashboardClient({ params }: { params: { tenantId: string
     </div>
   );
 }
-function SubNavItem({ label, active = false, onClick }: { label: string; active?: boolean; onClick?: () => void }) {
+
+function ThemeSelector({ theme, setTheme }: { theme: "LIGHT" | "DARK", setTheme: (t: "LIGHT" | "DARK") => void }) {
+  return (
+    <div className={`flex items-center gap-1 p-1 rounded-full border transition-colors duration-500 ${theme === "DARK" ? "bg-stone-900 border-stone-800" : "bg-stone-100 border-stone-200"}`}>
+      <div className={`px-4 py-1.5 flex items-center gap-2 border-r mr-1 transition-colors ${theme === "DARK" ? "border-stone-800" : "border-stone-200"}`}>
+        <span className={`text-[10px] font-black uppercase tracking-widest ${theme === "DARK" ? "text-stone-400" : "text-stone-900"}`}>Kinetic - Lemon</span>
+      </div>
+      <button 
+        onClick={() => setTheme("LIGHT")}
+        className={`p-1.5 rounded-full transition-all flex items-center justify-center ${theme === "LIGHT" ? "bg-white shadow-sm text-stone-900" : "text-stone-500 hover:text-stone-300"}`}
+      >
+        <span className="material-symbols-outlined text-sm">light_mode</span>
+      </button>
+      <button 
+        onClick={() => setTheme("DARK")}
+        className={`p-1.5 rounded-full transition-all flex items-center justify-center ${theme === "DARK" ? "bg-[#ccff00] shadow-sm text-stone-950" : "text-stone-500 hover:text-stone-700"}`}
+      >
+        <span className="material-symbols-outlined text-sm">dark_mode</span>
+      </button>
+    </div>
+  )
+}
+
+function SubNavItem({ label, active = false, onClick, theme }: { label: string; active?: boolean; onClick?: () => void; theme: "LIGHT" | "DARK" }) {
   return (
     <button
       onClick={onClick}
-      className={`w-full flex items-center gap-5 py-3 transition-all duration-300 ease-in-out pl-20 relative group ${active
-        ? "text-[#4f6b28]"
-        : "text-black"
-        }`}
+      className={`w-full flex items-center gap-5 py-3 transition-all duration-300 ease-in-out pl-20 relative group ${
+        active 
+          ? (theme === "DARK" ? "text-[#ccff00]" : "text-[#4f6b28]") 
+          : (theme === "DARK" ? "text-stone-400 hover:text-[#ccff00]" : "text-black hover:bg-stone-50")
+      }`}
     >
       <span className={`text-sm font-black uppercase tracking-[0.2em] transition-all ${active ? "translate-x-1" : "group-hover:translate-x-1"}`} style={{ fontFamily: 'Lexend, sans-serif' }}>
         {label}
@@ -324,17 +369,18 @@ function SubNavItem({ label, active = false, onClick }: { label: string; active?
   );
 }
 
-function NavItem({ icon, label, active = false, onClick }: { icon: string; label: string; active?: boolean; onClick?: () => void }) {
+function NavItem({ icon, label, active = false, onClick, theme }: { icon: string; label: string; active?: boolean; onClick?: () => void; theme: "LIGHT" | "DARK" }) {
   return (
     <button
       onClick={onClick}
-      className={`w-full flex items-center gap-5 py-4 transition-all duration-300 ease-in-out px-8 relative group ${active
-        ? "text-[#4f6b28]"
-        : "text-black"
-        }`}
+      className={`w-full flex items-center gap-5 py-4 transition-all duration-300 ease-in-out px-8 relative group ${
+        active 
+          ? (theme === "DARK" ? "text-[#ccff00] bg-stone-900" : "text-[#4f6b28] bg-stone-100") 
+          : (theme === "DARK" ? "text-stone-400 hover:text-[#ccff00]" : "text-black hover:bg-stone-50")
+      }`}
     >
       {active && (
-        <div className="absolute left-0 top-0 bottom-0 w-2 bg-[#4f6b28] rounded-r-full" />
+        <div className={`absolute left-0 top-0 bottom-0 w-2 rounded-r-full ${theme === "DARK" ? "bg-[#ccff00]" : "bg-[#4f6b28]"}`} />
       )}
       <span className={`material-symbols-outlined text-2xl transition-all ${active ? "opacity-100 scale-110" : "opacity-60 group-hover:opacity-100"}`} style={active ? { fontVariationSettings: "'FILL' 1" } : {}}>
         {icon}

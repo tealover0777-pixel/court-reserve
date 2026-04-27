@@ -29,7 +29,7 @@ interface Dimension {
   items: string[];
 }
 
-export default function DimensionsView() {
+export default function DimensionsView({ theme = "LIGHT" }: { theme?: "LIGHT" | "DARK" }) {
   const [dimensions, setDimensions] = useState<Dimension[]>([]);
   const [loading, setLoading] = useState(true);
   const [showNewModal, setShowNewModal] = useState(false);
@@ -233,32 +233,40 @@ export default function DimensionsView() {
     <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
       <div className="flex justify-between items-end mb-10">
         <div>
-          <h2 className="text-5xl font-black italic tracking-tighter text-[#4f6b28] uppercase" style={{ fontFamily: 'Lexend, sans-serif' }}>
+          <h2 className={`text-5xl font-black italic tracking-tighter uppercase transition-colors duration-500 ${theme === "DARK" ? "text-[#ccff00]" : "text-[#4f6b28]"}`} style={{ fontFamily: 'Lexend, sans-serif' }}>
             Dimensions
           </h2>
-          <p className="text-stone-900 font-bold uppercase tracking-widest text-xs mt-2">
-            Reference data · <span className="text-[#4f6b28]">{dimensions.length}</span> categories · <span className="text-[#4f6b28]">{dimensions.reduce((acc, d) => acc + d.items.length, 0)}</span> values
+          <p className={`font-bold uppercase tracking-widest text-xs mt-2 transition-colors duration-500 ${theme === "DARK" ? "text-stone-400" : "text-stone-900"}`}>
+            System Architecture · <span className={theme === "DARK" ? "text-[#ccff00]" : "text-[#4f6b28]"}>{dimensions.length}</span> Categories · <span className={theme === "DARK" ? "text-[#ccff00]" : "text-[#4f6b28]"}>{dimensions.reduce((acc, curr) => acc + curr.items.length, 0)}</span> Parameters
           </p>
         </div>
         <button 
           onClick={() => setShowNewModal(true)}
-          className="bg-[#4f6b28] text-white px-8 py-3 rounded-full font-black text-xs tracking-widest hover:opacity-90 transition-all uppercase shadow-lg shadow-[#4f6b28]/20 flex items-center gap-2"
+          className={`px-8 py-3 rounded-full font-black text-xs tracking-widest transition-all uppercase shadow-lg flex items-center gap-2 ${
+            theme === "DARK"
+              ? "bg-[#ccff00] text-stone-950 shadow-[#ccff00]/10 hover:opacity-90"
+              : "bg-[#4f6b28] text-white shadow-[#4f6b28]/20 hover:opacity-90"
+          }`}
         >
-          <span className="material-symbols-outlined text-sm">add</span>
-          New Dimension
+          <span className="material-symbols-outlined text-sm">add_box</span>
+          New Category
         </button>
       </div>
 
-      <div className="bg-white border border-stone-200 rounded-xl overflow-hidden shadow-sm">
+      <div className={`border rounded-xl overflow-hidden shadow-sm transition-colors duration-500 ${
+        theme === "DARK" ? "bg-stone-950 border-stone-800" : "bg-white border-stone-200"
+      }`}>
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
-            <thead className="bg-stone-100 sticky top-0 z-10 border-b border-stone-900">
+            <thead className={`sticky top-0 z-10 border-b ${theme === "DARK" ? "bg-stone-900 border-stone-800" : "bg-stone-100 border-stone-900"}`}>
               {table.getHeaderGroups().map(headerGroup => (
                 <tr key={headerGroup.id}>
                   {headerGroup.headers.map(header => (
                     <th 
                       key={header.id} 
-                      className="px-6 py-4 text-[10px] font-black text-black uppercase tracking-widest relative border-r border-stone-900 last:border-r-0"
+                      className={`px-6 py-4 text-[10px] font-black uppercase tracking-widest relative border-r last:border-r-0 transition-colors duration-500 ${
+                        theme === "DARK" ? "text-[#ccff00] border-stone-800" : "text-black border-stone-900"
+                      }`}
                       style={{ width: header.getSize() === 120 ? '120px' : 'auto' }}
                     >
                       <div className="flex flex-col gap-2">
@@ -275,7 +283,11 @@ export default function DimensionsView() {
                               }}
                               onClick={(e) => e.stopPropagation()}
                               placeholder="..."
-                              className="w-full bg-white border border-stone-100 rounded-md px-3 py-1.5 text-xs font-medium text-stone-900 outline-none focus:border-stone-400 transition-all"
+                              className={`w-full border rounded-md px-3 py-1.5 text-xs font-medium outline-none transition-all ${
+                                theme === "DARK" 
+                                ? "bg-stone-950 border-stone-800 text-stone-100 focus:border-[#ccff00]" 
+                                : "bg-white border-stone-100 text-stone-900 focus:border-stone-400"
+                              }`}
                             />
                           </div>
                         ) : null}
@@ -289,12 +301,18 @@ export default function DimensionsView() {
               {table.getRowModel().rows.map((row, i) => (
                   <tr 
                     key={row.id} 
-                    className={`border-b border-stone-900 hover:bg-stone-50 transition-colors group ${i % 2 !== 0 ? 'bg-stone-50/50' : 'bg-white'}`}
+                    className={`border-b transition-colors group ${
+                      theme === "DARK" 
+                        ? (i % 2 !== 0 ? 'bg-stone-900/40 border-stone-800' : 'bg-stone-950 border-stone-800 hover:bg-stone-900/60') 
+                        : (i % 2 !== 0 ? 'bg-stone-50/50 border-stone-900' : 'bg-white border-stone-900 hover:bg-stone-50')
+                    }`}
                   >
                     {row.getVisibleCells().map(cell => (
                       <td 
                         key={cell.id} 
-                        className="px-6 py-3 text-sm font-medium text-stone-900 border-r border-stone-900 last:border-r-0"
+                        className={`px-6 py-3 text-sm font-medium border-r last:border-r-0 transition-colors duration-500 ${
+                          theme === "DARK" ? "text-stone-300 border-stone-800" : "text-stone-900 border-stone-900"
+                        }`}
                       >
                         <div className="flex items-center min-h-[32px]">
                           {flexRender(cell.column.columnDef.cell, cell.getContext())}

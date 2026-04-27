@@ -35,7 +35,7 @@ interface Dimension {
   items: string[];
 }
 
-export default function RoleTypesView() {
+export default function RoleTypesView({ theme = "LIGHT" }: { theme?: "LIGHT" | "DARK" }) {
   const [roles, setRoles] = useState<RoleType[]>([]);
   const [permissions, setPermissions] = useState<string[]>([]);
   const [globalPermissions, setGlobalPermissions] = useState<string[]>([]);
@@ -297,11 +297,11 @@ export default function RoleTypesView() {
     <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
       <div className="flex justify-between items-end mb-10">
         <div>
-          <h2 className="text-5xl font-black italic tracking-tighter text-[#4f6b28] uppercase" style={{ fontFamily: 'Lexend, sans-serif' }}>
+          <h2 className={`text-5xl font-black italic tracking-tighter uppercase transition-colors duration-500 ${theme === "DARK" ? "text-[#ccff00]" : "text-[#4f6b28]"}`} style={{ fontFamily: 'Lexend, sans-serif' }}>
             Role Types
           </h2>
-          <p className="text-stone-900 font-bold uppercase tracking-widest text-xs mt-2">
-            System Administration · <span className="text-[#4f6b28]">{roles.length}</span> Roles · <span className="text-[#4f6b28]">{permissions.length + globalPermissions.length}</span> Permissions
+          <p className={`font-bold uppercase tracking-widest text-xs mt-2 transition-colors duration-500 ${theme === "DARK" ? "text-stone-400" : "text-stone-900"}`}>
+            System Administration · <span className={theme === "DARK" ? "text-[#ccff00]" : "text-[#4f6b28]"}>{roles.length}</span> Roles · <span className={theme === "DARK" ? "text-[#ccff00]" : "text-[#4f6b28]"}>{permissions.length + globalPermissions.length}</span> Permissions
           </p>
         </div>
         <div className="flex gap-4">
@@ -310,20 +310,32 @@ export default function RoleTypesView() {
             <input 
               type="text"
               placeholder="Search roles..."
-              className="w-full bg-white border border-stone-200 rounded-full pl-12 pr-6 py-3 text-sm font-medium text-stone-900 focus:border-[#4f6b28] outline-none transition-all shadow-sm"
+              className={`w-full border rounded-full pl-12 pr-6 py-3 text-sm font-medium outline-none transition-all shadow-sm ${
+                theme === "DARK" 
+                  ? "bg-stone-900 border-stone-800 text-white focus:border-[#ccff00]" 
+                  : "bg-white border-stone-200 text-stone-900 focus:border-[#4f6b28]"
+              }`}
               onChange={(e) => table.setGlobalFilter(e.target.value)}
             />
           </div>
           <button 
             onClick={() => setShowPermsModal(true)}
-            className="border-2 border-stone-200 text-stone-900 px-8 py-3 rounded-full font-black text-xs tracking-widest hover:bg-stone-50 transition-all uppercase flex items-center gap-2"
+            className={`border-2 px-8 py-3 rounded-full font-black text-xs tracking-widest transition-all uppercase flex items-center gap-2 ${
+              theme === "DARK" 
+                ? "border-stone-800 text-stone-400 hover:bg-stone-900" 
+                : "border-stone-200 text-stone-900 hover:bg-stone-50"
+            }`}
           >
             <span className="material-symbols-outlined text-sm">settings_suggest</span>
             Manage Permissions
           </button>
           <button 
             onClick={handleOpenAdd}
-            className="bg-[#4f6b28] text-white px-8 py-3 rounded-full font-black text-xs tracking-widest hover:opacity-90 transition-all uppercase shadow-lg shadow-[#4f6b28]/20 flex items-center gap-2"
+            className={`px-8 py-3 rounded-full font-black text-xs tracking-widest transition-all uppercase shadow-lg flex items-center gap-2 ${
+              theme === "DARK"
+                ? "bg-[#ccff00] text-stone-950 shadow-[#ccff00]/10 hover:opacity-90"
+                : "bg-[#4f6b28] text-white shadow-[#4f6b28]/20 hover:opacity-90"
+            }`}
           >
             <span className="material-symbols-outlined text-sm">add</span>
             New Role
@@ -331,7 +343,9 @@ export default function RoleTypesView() {
         </div>
       </div>
 
-      <div className="bg-white border border-stone-200 rounded-xl overflow-hidden shadow-sm">
+      <div className={`border rounded-xl overflow-hidden shadow-sm transition-colors duration-500 ${
+        theme === "DARK" ? "bg-stone-950 border-stone-800" : "bg-white border-stone-200"
+      }`}>
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead className="bg-stone-100 sticky top-0 z-10 border-b border-stone-900">
@@ -340,7 +354,9 @@ export default function RoleTypesView() {
                   {headerGroup.headers.map(header => (
                     <th 
                       key={header.id} 
-                      className="px-6 py-4 text-[10px] font-black text-black uppercase tracking-widest relative border-r border-stone-900 last:border-r-0"
+                      className={`px-6 py-4 text-[10px] font-black uppercase tracking-widest relative border-r last:border-r-0 transition-colors duration-500 ${
+                        theme === "DARK" ? "text-[#ccff00] border-stone-800 bg-stone-900" : "text-black border-stone-900 bg-stone-100"
+                      }`}
                       style={{ width: header.getSize() === 100 ? '100px' : 'auto' }}
                     >
                       {header.isPlaceholder ? null : (
@@ -384,12 +400,18 @@ export default function RoleTypesView() {
                 {table.getRowModel().rows.map((row, i) => (
                   <tr 
                     key={row.id} 
-                    className={`border-b border-stone-900 hover:bg-stone-50 transition-colors group ${i % 2 !== 0 ? 'bg-stone-50/50' : 'bg-white'}`}
+                    className={`border-b transition-colors group ${
+                      theme === "DARK" 
+                        ? (i % 2 !== 0 ? 'bg-stone-900/40 border-stone-800' : 'bg-stone-950 border-stone-800 hover:bg-stone-900/60') 
+                        : (i % 2 !== 0 ? 'bg-stone-50/50 border-stone-900' : 'bg-white border-stone-900 hover:bg-stone-50')
+                    }`}
                   >
                     {row.getVisibleCells().map(cell => (
                       <td 
                         key={cell.id} 
-                        className="px-6 py-3 text-sm font-medium text-stone-900 border-r border-stone-900 last:border-r-0"
+                        className={`px-6 py-3 text-sm font-medium border-r last:border-r-0 transition-colors duration-500 ${
+                          theme === "DARK" ? "text-stone-300 border-stone-800" : "text-stone-900 border-stone-900"
+                        }`}
                       >
                         <div className="flex items-center min-h-[32px]">
                           {flexRender(cell.column.columnDef.cell, cell.getContext())}
