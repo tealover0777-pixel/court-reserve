@@ -9,7 +9,7 @@ import RoleTypesView from "./RoleTypesView";
 
 export default function DashboardClient({ params }: { params: { tenantId: string } }) {
   const { tenantId: contextTenantId, loading } = useTenant();
-  const [activeView, setActiveView] = React.useState<"DASHBOARD" | "COURT BOOKING" | "PROGRAMS" | "MEMBERSHIP" | "SETTINGS" | "PROFILE" | "ADMINISTRATION" | "PLATFORM_ADMINISTRATION" | "AI_ADMIN" | "DIMENSIONS" | "ROLE_TYPES" | "USER_ADMIN" | "PLATFORM_TENANT_ADMIN">("DASHBOARD");
+  const [activeView, setActiveView] = React.useState<"DASHBOARD" | "COURT BOOKING" | "PROGRAMS" | "MEMBERSHIP" | "SETTINGS" | "PROFILE" | "AI_ADMIN" | "DIMENSIONS" | "ROLE_TYPES" | "USER_ADMIN" | "PLATFORM_TENANT_ADMIN">("DASHBOARD");
   const [platformAdminOpen, setPlatformAdminOpen] = React.useState(false);
   const [administrationOpen, setAdministrationOpen] = React.useState(false);
   const tenantId = params.tenantId || contextTenantId;
@@ -63,11 +63,8 @@ export default function DashboardClient({ params }: { params: { tenantId: string
           <NavItem
             icon="admin_panel_settings"
             label="Administration"
-            active={activeView === "ADMINISTRATION" || activeView === "ROLE_TYPES"}
-            onClick={() => {
-              setActiveView("ADMINISTRATION");
-              setAdministrationOpen(!administrationOpen);
-            }}
+            active={activeView === "ROLE_TYPES"}
+            onClick={() => setAdministrationOpen(!administrationOpen)}
           />
           {administrationOpen && (
             <div className="bg-stone-50/50 py-2">
@@ -87,11 +84,8 @@ export default function DashboardClient({ params }: { params: { tenantId: string
           <NavItem
             icon="hub"
             label="Platform Admin"
-            active={activeView === "PLATFORM_ADMINISTRATION" || activeView === "AI_ADMIN" || activeView === "DIMENSIONS" || activeView === "USER_ADMIN" || activeView === "PLATFORM_TENANT_ADMIN"}
-            onClick={() => {
-              setActiveView("PLATFORM_ADMINISTRATION");
-              setPlatformAdminOpen(!platformAdminOpen);
-            }}
+            active={activeView === "AI_ADMIN" || activeView === "DIMENSIONS" || activeView === "USER_ADMIN" || activeView === "PLATFORM_TENANT_ADMIN"}
+            onClick={() => setPlatformAdminOpen(!platformAdminOpen)}
           />
           {platformAdminOpen && (
             <div className="bg-stone-50/50 py-2">
