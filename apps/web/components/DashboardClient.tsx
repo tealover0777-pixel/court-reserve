@@ -105,7 +105,7 @@ export default function DashboardClient({ params }: { params: { tenantId: string
                 onClick={() => setActiveView("USER_ADMIN")}
               />
               <SubNavItem
-                label="Platform Tenant Admin"
+                label="Tenant Admin"
                 active={activeView === "PLATFORM_TENANT_ADMIN"}
                 onClick={() => setActiveView("PLATFORM_TENANT_ADMIN")}
               />
