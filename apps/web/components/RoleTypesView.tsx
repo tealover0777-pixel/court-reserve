@@ -191,6 +191,12 @@ export default function RoleTypesView() {
     columnHelper.accessor("IsGlobal", {
       header: "TYPE",
       size: 100,
+      filterFn: (row, columnId, filterValue) => {
+        if (!filterValue) return true;
+        const isGlobal = !!row.getValue(columnId);
+        const label = isGlobal ? "global" : "tenant";
+        return label.includes(String(filterValue).toLowerCase());
+      },
       cell: info => (
         <span className={`text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-widest border ${
           info.getValue() 
