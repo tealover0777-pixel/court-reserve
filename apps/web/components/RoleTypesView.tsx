@@ -179,36 +179,24 @@ export default function RoleTypesView() {
   const columnHelper = createColumnHelper<RoleType>();
   const columns = [
     columnHelper.accessor("role_id", {
-      header: "ID",
-      size: 100,
-      cell: info => <span className="font-mono text-xs bg-stone-100 px-2 py-1 rounded-md text-stone-500">{info.getValue()}</span>,
+      header: "ROLEID",
+      size: 120,
+      cell: info => <span className="font-mono text-xs text-stone-900">{info.getValue()}</span>,
     }),
     columnHelper.accessor("role_name", {
-      header: "Role Name",
+      header: "ROLENAME",
       size: 200,
-      cell: info => <span className="font-black text-stone-900">{info.getValue()}</span>,
+      cell: info => <span className="text-sm font-bold text-stone-900">{info.getValue()}</span>,
     }),
     columnHelper.accessor("permissions", {
-      header: "Permissions",
-      size: 400,
+      header: "PERMISSIONS",
+      size: 600,
       cell: info => (
-        <div className="flex flex-wrap gap-1 max-w-md">
-          {(info.getValue() || []).slice(0, 3).map((p, i) => (
-            <span key={i} className="text-[10px] font-bold bg-[#4f6b28]/5 text-[#4f6b28] border border-[#4f6b28]/10 px-3 py-1 rounded-full uppercase tracking-wider">{p}</span>
+        <div className="flex flex-wrap gap-1.5 py-1">
+          {(info.getValue() || []).map((p, i) => (
+            <span key={i} className="text-[10px] font-bold bg-blue-50 text-blue-600 border border-blue-200 px-3 py-1 rounded-full uppercase tracking-wider">{p}</span>
           ))}
-          {(info.getValue() || []).length > 3 && (
-            <span className="text-[10px] font-bold bg-stone-100 text-stone-500 border border-stone-200 px-3 py-1 rounded-full">+{(info.getValue() || []).length - 3}</span>
-          )}
         </div>
-      ),
-    }),
-    columnHelper.accessor("IsGlobal", {
-      header: "Type",
-      size: 100,
-      cell: info => (
-        <span className={`text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-widest border ${info.getValue() ? 'bg-amber-50 text-amber-600 border-amber-200/50' : 'bg-blue-50 text-blue-600 border-blue-200/50'}`}>
-          {info.getValue() ? 'GLOBAL' : 'TENANT'}
-        </span>
       ),
     }),
     columnHelper.display({
@@ -216,12 +204,12 @@ export default function RoleTypesView() {
       header: "ACTIONS",
       size: 100,
       cell: props => (
-        <div className="flex justify-end gap-2">
-          <button onClick={() => handleOpenEdit(props.row.original)} className="p-2 hover:bg-[#4f6b28]/10 text-stone-400 hover:text-[#4f6b28] rounded-xl transition-all">
-            <span className="material-symbols-outlined text-lg">edit</span>
-          </button>
-          <button onClick={() => setConfirmDelete(props.row.original.id)} className="p-2 hover:bg-red-50 text-stone-300 hover:text-red-500 rounded-xl transition-all">
-            <span className="material-symbols-outlined text-lg">delete</span>
+        <div className="flex justify-center items-center h-full">
+          <button 
+            onClick={() => handleOpenEdit(props.row.original)}
+            className="text-stone-400 hover:text-stone-900 transition-colors"
+          >
+            <span className="material-symbols-outlined text-xl">more_horiz</span>
           </button>
         </div>
       ),
@@ -291,13 +279,13 @@ export default function RoleTypesView() {
       <div className="bg-white border border-stone-300 rounded-[32px] overflow-hidden shadow-sm">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse" style={{ width: table.getCenterTotalSize(), tableLayout: 'fixed' }}>
-            <thead className="bg-stone-50 sticky top-0 z-10 border-b-2 border-stone-200">
+            <thead className="bg-white sticky top-0 z-10 border-b border-stone-800">
               {table.getHeaderGroups().map(headerGroup => (
                 <tr key={headerGroup.id}>
                   {headerGroup.headers.map(header => (
                     <th 
                       key={header.id} 
-                      className="px-8 py-6 text-sm font-black text-stone-900 uppercase tracking-[0.2em] relative border-r border-stone-100 last:border-r-0"
+                      className="px-8 py-5 text-sm font-black text-stone-900 uppercase tracking-widest relative border-r border-stone-900 last:border-r-0"
                       style={{ width: header.getSize() }}
                     >
                       {header.isPlaceholder ? null : (
@@ -326,7 +314,7 @@ export default function RoleTypesView() {
 
                           {/* Filter Input */}
                           {header.column.getCanFilter() ? (
-                            <div className="relative">
+                            <div className="relative mt-2">
                               <input
                                 value={(header.column.getFilterValue() as string) ?? ""}
                                 onChange={(e) => {
@@ -334,8 +322,8 @@ export default function RoleTypesView() {
                                   header.column.setFilterValue(e.target.value);
                                 }}
                                 onClick={(e) => e.stopPropagation()}
-                                placeholder="Filter..."
-                                className="w-full bg-white/80 border border-stone-200 rounded-lg px-3 py-1.5 text-sm font-bold text-stone-900 placeholder:text-stone-300 focus:border-[#4f6b28] focus:bg-white outline-none transition-all shadow-sm"
+                                placeholder="..."
+                                className="w-full bg-white border border-stone-300 rounded-md px-3 py-2 text-sm font-medium text-stone-900 outline-none focus:border-stone-900 transition-all shadow-sm"
                               />
                             </div>
                           ) : (
@@ -352,12 +340,12 @@ export default function RoleTypesView() {
               {table.getRowModel().rows.map((row, i) => (
                 <tr 
                   key={row.id} 
-                  className={`border-b border-stone-100 hover:bg-[#4f6b28]/5 transition-colors group ${i % 2 === 1 ? 'bg-stone-50/30' : 'bg-transparent'}`}
+                  className="border-b border-stone-900 hover:bg-stone-50 transition-colors group"
                 >
                   {row.getVisibleCells().map(cell => (
                     <td 
                       key={cell.id} 
-                      className="px-8 py-5 text-base font-medium text-stone-900 border-r border-stone-50 last:border-r-0"
+                      className="px-8 py-6 text-base font-medium text-stone-900 border-r border-stone-900 last:border-r-0"
                       style={{ width: cell.column.getSize() }}
                     >
                       <div className="flex items-center min-h-[40px]">

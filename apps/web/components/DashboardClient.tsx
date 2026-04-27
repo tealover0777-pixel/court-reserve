@@ -314,10 +314,10 @@ function SubNavItem({ label, active = false, onClick }: { label: string; active?
       onClick={onClick}
       className={`w-full flex items-center gap-5 py-3 transition-all duration-300 ease-in-out pl-20 relative group ${active
         ? "text-[#4f6b28]"
-        : "text-stone-900 hover:text-black"
+        : "text-black"
         }`}
     >
-      <span className={`text-xs font-black uppercase tracking-[0.2em] transition-all ${active ? "translate-x-1" : "group-hover:translate-x-1"}`} style={{ fontFamily: 'Lexend, sans-serif' }}>
+      <span className={`text-sm font-black uppercase tracking-[0.2em] transition-all ${active ? "translate-x-1" : "group-hover:translate-x-1"}`} style={{ fontFamily: 'Lexend, sans-serif' }}>
         {label}
       </span>
     </button>
@@ -330,7 +330,7 @@ function NavItem({ icon, label, active = false, onClick }: { icon: string; label
       onClick={onClick}
       className={`w-full flex items-center gap-5 py-4 transition-all duration-300 ease-in-out px-8 relative group ${active
           ? "text-[#4f6b28]"
-          : "text-stone-900 hover:text-black"
+          : "text-black"
         }`}
     >
       {active && (
@@ -339,7 +339,7 @@ function NavItem({ icon, label, active = false, onClick }: { icon: string; label
       <span className={`material-symbols-outlined text-2xl transition-all ${active ? "opacity-100 scale-110" : "opacity-60 group-hover:opacity-100"}`} style={active ? { fontVariationSettings: "'FILL' 1" } : {}}>
         {icon}
       </span>
-      <span className={`text-sm font-black uppercase tracking-[0.2em] transition-all ${active ? "translate-x-1" : "group-hover:translate-x-1"}`} style={{ fontFamily: 'Lexend, sans-serif' }}>
+      <span className={`text-base font-black uppercase tracking-[0.2em] transition-all ${active ? "translate-x-1" : "group-hover:translate-x-1"}`} style={{ fontFamily: 'Lexend, sans-serif' }}>
         {label}
       </span>
     </button>

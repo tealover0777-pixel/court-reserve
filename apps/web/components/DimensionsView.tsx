@@ -13,6 +13,16 @@ import {
   serverTimestamp 
 } from "firebase/firestore";
 
+import {
+  useReactTable,
+  getCoreRowModel,
+  getFilteredRowModel,
+  getSortedRowModel,
+  flexRender,
+  createColumnHelper,
+  ColumnFiltersState,
+} from "@tanstack/react-table";
+
 interface Dimension {
   id: string;
   category: string;
@@ -125,6 +135,61 @@ export default function DimensionsView() {
     }
   };
 
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  const columnHelper = createColumnHelper<Dimension>();
+
+  const columns = [
+    columnHelper.accessor("category", {
+      header: "CATEGORY",
+      size: 250,
+      cell: info => <span className="text-base font-bold text-stone-900 uppercase tracking-tight">{info.getValue()}</span>,
+    }),
+    columnHelper.accessor("items", {
+      header: "VALUES",
+      size: 600,
+      cell: info => (
+        <div className="flex flex-wrap gap-2 py-1">
+          {(info.getValue() || []).map((item, i) => (
+            <span key={i} className="text-[10px] font-bold bg-stone-100 text-stone-900 border border-stone-200 px-3 py-1 rounded-full uppercase tracking-wider">{item}</span>
+          ))}
+        </div>
+      ),
+    }),
+    columnHelper.display({
+      id: "actions",
+      header: "ACTIONS",
+      size: 120,
+      cell: props => (
+        <div className="flex justify-center items-center gap-2">
+          <button 
+            onClick={() => setEditingCategoryId(editingCategoryId === props.row.original.id ? null : props.row.original.id)}
+            className="text-stone-400 hover:text-stone-900 transition-colors"
+          >
+            <span className="material-symbols-outlined text-xl">edit</span>
+          </button>
+          <button 
+            onClick={() => setConfirmDelete(props.row.original.id)}
+            className="text-stone-400 hover:text-red-500 transition-colors"
+          >
+            <span className="material-symbols-outlined text-xl">delete</span>
+          </button>
+        </div>
+      ),
+    }),
+  ];
+
+  const table = useReactTable({
+    data: dimensions,
+    columns,
+    state: {
+      columnFilters,
+    },
+    onColumnFiltersChange: setColumnFilters,
+    getCoreRowModel: getCoreRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+  });
+
   if (loading) {
     return (
       <div className="flex h-64 items-center justify-center">
@@ -153,100 +218,105 @@ export default function DimensionsView() {
         </button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        {dimensions.map((dim) => (
-          <div key={dim.id} className="bg-white border border-stone-300 rounded-[32px] overflow-hidden shadow-sm hover:shadow-md transition-all group">
-            <div className="px-8 py-6 border-b border-stone-200 bg-stone-100/50 flex justify-between items-center">
-              <div>
-                <h3 className="font-black tracking-tighter uppercase text-xl text-[#4f6b28]">{dim.category}</h3>
-                <p className="text-xs font-bold text-stone-900 uppercase tracking-widest">{dim.items.length} values</p>
-              </div>
-              <div className="flex gap-2">
-                <button 
-                  onClick={() => setEditingCategoryId(editingCategoryId === dim.id ? null : dim.id)}
-                  className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all ${editingCategoryId === dim.id ? 'bg-[#4f6b28] text-white' : 'bg-white text-stone-900 hover:text-[#4f6b28] border border-stone-200'}`}
-                >
-                  <span className="material-symbols-outlined text-xl">
-                    {editingCategoryId === dim.id ? 'check' : 'edit'}
-                  </span>
-                </button>
-                <button 
-                  onClick={() => setConfirmDelete(dim.id)}
-                  className="w-10 h-10 rounded-xl bg-white text-stone-900 hover:text-red-500 border border-stone-200 flex items-center justify-center transition-all"
-                >
-                  <span className="material-symbols-outlined text-xl">delete</span>
-                </button>
-              </div>
-            </div>
-            
-            <div className="p-8 flex flex-wrap gap-3">
-              {dim.items.map((item, index) => {
-                const isEditingThis = editingItem?.categoryId === dim.id && editingItem?.index === index;
-                
-                if (isEditingThis) {
-                  return (
-                    <input
-                      key={index}
-                      autoFocus
-                      value={editingItem.value}
-                      onChange={e => setEditingItem(prev => prev ? { ...prev, value: e.target.value } : null)}
-                      onKeyDown={e => {
-                        if (e.key === "Enter") handleRenameItem(dim.id, index, editingItem.value);
-                        if (e.key === "Escape") setEditingItem(null);
-                      }}
-                      onBlur={() => handleRenameItem(dim.id, index, editingItem.value)}
-                      className="bg-white border-2 border-[#4f6b28] rounded-full px-4 py-1 text-sm font-bold text-[#4f6b28] outline-none min-w-[100px]"
-                    />
-                  );
-                }
-
-                return (
-                  <div 
-                    key={index} 
-                    className="flex items-center gap-2 bg-[#f7f8f2] text-[#4f6b28] border border-[#4f6b28]/10 rounded-full px-5 py-2 text-xs font-black tracking-tight group/tag"
-                  >
-                    <span>{item}</span>
-                    {editingCategoryId === dim.id && (
-                      <div className="flex items-center gap-1 ml-1">
-                        <button 
-                          onClick={() => setEditingItem({ categoryId: dim.id, index, value: item })}
-                          className="opacity-40 hover:opacity-100 transition-opacity"
-                        >
-                          <span className="material-symbols-outlined text-xs">edit</span>
-                        </button>
-                        <button 
-                          onClick={() => handleRemoveValue(dim.id, item)}
-                          className="opacity-40 hover:opacity-100 text-red-500 transition-opacity"
-                        >
-                          <span className="material-symbols-outlined text-xs">close</span>
-                        </button>
+      <div className="bg-white border border-stone-900 rounded-[32px] overflow-hidden shadow-sm">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left border-collapse" style={{ width: table.getCenterTotalSize(), tableLayout: 'fixed' }}>
+            <thead className="bg-white sticky top-0 z-10 border-b border-stone-900">
+              {table.getHeaderGroups().map(headerGroup => (
+                <tr key={headerGroup.id}>
+                  {headerGroup.headers.map(header => (
+                    <th 
+                      key={header.id} 
+                      className="px-8 py-5 text-sm font-black text-stone-900 uppercase tracking-widest relative border-r border-stone-900 last:border-r-0"
+                      style={{ width: header.getSize() }}
+                    >
+                      <div className="flex flex-col gap-2">
+                        <span>{flexRender(header.column.columnDef.header, header.getContext())}</span>
+                        {header.column.getCanFilter() ? (
+                          <div className="relative">
+                            <input
+                              value={(header.column.getFilterValue() as string) ?? ""}
+                              onChange={(e) => {
+                                e.stopPropagation();
+                                header.column.setFilterValue(e.target.value);
+                              }}
+                              onClick={(e) => e.stopPropagation()}
+                              placeholder="..."
+                              className="w-full bg-white border border-stone-300 rounded-md px-3 py-2 text-sm font-medium text-stone-900 outline-none focus:border-stone-900 transition-all shadow-sm"
+                            />
+                          </div>
+                        ) : null}
                       </div>
-                    )}
-                  </div>
-                );
-              })}
-              
-              {editingCategoryId === dim.id && (
-                <div className="flex items-center gap-2 w-full mt-4 animate-in fade-in slide-in-from-top-2">
-                  <input 
-                    value={newValueInput[dim.id] || ""}
-                    onChange={e => setNewValueInput(prev => ({ ...prev, [dim.id]: e.target.value }))}
-                    onKeyDown={e => e.key === "Enter" && handleAddValue(dim.id)}
-                    placeholder="Add value..."
-                    className="flex-1 bg-white border border-stone-200 rounded-2xl px-5 py-3 text-sm font-medium outline-none focus:border-[#4f6b28] transition-colors"
-                  />
-                  <button 
-                    onClick={() => handleAddValue(dim.id)}
-                    className="w-12 h-12 bg-[#4f6b28] text-white rounded-2xl flex items-center justify-center hover:opacity-90 transition-all shadow-md"
-                  >
-                    <span className="material-symbols-outlined">add</span>
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
-        ))}
+                    </th>
+                  ))}
+                </tr>
+              ))}
+            </thead>
+            <tbody>
+              {table.getRowModel().rows.map(row => (
+                <tr 
+                  key={row.id} 
+                  className="border-b border-stone-900 hover:bg-stone-50 transition-colors group"
+                >
+                  {row.getVisibleCells().map(cell => (
+                    <td 
+                      key={cell.id} 
+                      className="px-8 py-6 text-base font-medium text-stone-900 border-r border-stone-900 last:border-r-0"
+                      style={{ width: cell.column.getSize() }}
+                    >
+                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
+
+      {/* Inline Editing Drawer or Modal could go here if category matches editingCategoryId */}
+      {editingCategoryId && (
+        <div className="mt-8 p-8 bg-stone-50 border border-stone-900 rounded-[32px] animate-in fade-in slide-in-from-top-4">
+          <div className="flex justify-between items-center mb-6">
+            <h4 className="text-xl font-black uppercase tracking-tight text-[#4f6b28]">
+              Manage {dimensions.find(d => d.id === editingCategoryId)?.category}
+            </h4>
+            <button onClick={() => setEditingCategoryId(null)} className="text-stone-400 hover:text-stone-900">
+              <span className="material-symbols-outlined">close</span>
+            </button>
+          </div>
+          
+          <div className="flex flex-wrap gap-3 mb-8">
+            {dimensions.find(d => d.id === editingCategoryId)?.items.map((item, index) => (
+              <div key={index} className="flex items-center gap-2 bg-white border border-stone-300 rounded-full px-5 py-2 text-xs font-bold text-stone-900 group">
+                <span>{item}</span>
+                <button 
+                  onClick={() => handleRemoveValue(editingCategoryId, item)}
+                  className="opacity-0 group-hover:opacity-100 text-red-500 transition-opacity"
+                >
+                  <span className="material-symbols-outlined text-xs">close</span>
+                </button>
+              </div>
+            ))}
+          </div>
+
+          <div className="flex items-center gap-2 max-w-md">
+            <input 
+              value={newValueInput[editingCategoryId] || ""}
+              onChange={e => setNewValueInput(prev => ({ ...prev, [editingCategoryId]: e.target.value }))}
+              onKeyDown={e => e.key === "Enter" && handleAddValue(editingCategoryId)}
+              placeholder="Add new value..."
+              className="flex-1 bg-white border border-stone-300 rounded-xl px-5 py-3 text-sm font-medium outline-none focus:border-[#4f6b28] transition-colors"
+            />
+            <button 
+              onClick={() => handleAddValue(editingCategoryId)}
+              className="px-6 py-3 bg-[#4f6b28] text-white rounded-xl font-black text-xs uppercase tracking-widest hover:opacity-90"
+            >
+              Add
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* New Dimension Modal */}
       {showNewModal && (
