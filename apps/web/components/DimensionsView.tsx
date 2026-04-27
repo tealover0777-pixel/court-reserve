@@ -258,7 +258,8 @@ export default function DimensionsView() {
                     </th>
                   ))}
                 </tr>
-              </thead>
+              ))}
+            </thead>
               <tbody>
                 {table.getRowModel().rows.map(row => (
                   <tr 
@@ -280,6 +281,7 @@ export default function DimensionsView() {
               </tbody>
             </table>
           </div>
+        </div>
 
       {/* Inline Editing Drawer or Modal could go here if category matches editingCategoryId */}
       {editingCategoryId && (

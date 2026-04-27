@@ -328,7 +328,8 @@ export default function RoleTypesView() {
                     </th>
                   ))}
                 </tr>
-              </thead>
+              ))}
+            </thead>
               <tbody>
                 {table.getRowModel().rows.map((row, i) => (
                   <tr 
