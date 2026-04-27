@@ -83,7 +83,7 @@ export default function DashboardClient({ params }: { params: { tenantId: string
           />
           <NavItem
             icon="hub"
-            label="Platform Admin"
+            label="Platform"
             active={activeView === "AI_ADMIN" || activeView === "DIMENSIONS" || activeView === "USER_ADMIN" || activeView === "PLATFORM_TENANT_ADMIN"}
             onClick={() => setPlatformAdminOpen(!platformAdminOpen)}
           />
@@ -329,8 +329,8 @@ function NavItem({ icon, label, active = false, onClick }: { icon: string; label
     <button
       onClick={onClick}
       className={`w-full flex items-center gap-5 py-4 transition-all duration-300 ease-in-out px-8 relative group ${active
-          ? "text-[#4f6b28]"
-          : "text-black"
+        ? "text-[#4f6b28]"
+        : "text-black"
         }`}
     >
       {active && (
@@ -465,8 +465,8 @@ function CourtBookingView() {
             <button
               key={day}
               className={`flex-shrink-0 w-20 h-24 rounded-2xl flex flex-col items-center justify-center transition-all ${day === 14
-                  ? "bg-[#4f6b28] text-white shadow-lg shadow-[#4f6b28]/20 scale-105"
-                  : "bg-surface-container-low text-on-surface hover:bg-stone-100"
+                ? "bg-[#4f6b28] text-white shadow-lg shadow-[#4f6b28]/20 scale-105"
+                : "bg-surface-container-low text-on-surface hover:bg-stone-100"
                 }`}
             >
               <span className="text-[10px] font-black uppercase tracking-widest opacity-60">
@@ -516,8 +516,8 @@ function CourtSection({ title }: { title: string }) {
             key={i}
             disabled={slot.status === "booked"}
             className={`p-6 rounded-2xl flex flex-col items-start transition-all border ${slot.status === "booked"
-                ? "bg-stone-50 border-stone-100 opacity-50 cursor-not-allowed"
-                : "bg-white border-stone-100 hover:border-primary hover:shadow-md cursor-pointer group"
+              ? "bg-stone-50 border-stone-100 opacity-50 cursor-not-allowed"
+              : "bg-white border-stone-100 hover:border-primary hover:shadow-md cursor-pointer group"
               }`}
           >
             <span className={`text-sm font-black ${slot.status === "available" ? "text-primary" : "text-stone-400"}`}>
