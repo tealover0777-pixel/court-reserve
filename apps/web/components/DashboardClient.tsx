@@ -443,15 +443,15 @@ function ThemeSelector({ theme, setTheme }: { theme: "LIGHT" | "DARK" | "VINTAGE
         <span className={`text-[10px] font-black uppercase tracking-widest ${
           theme === "DARK" ? "text-stone-400" : "text-stone-900"
         }`}>
-          {theme === "VINTAGE" ? "Vintage Pure" : "Kinetic - Lemon"}
+          {theme === "VINTAGE" ? "Vintage Pure" : theme === "DARK" ? "Vintage Noir" : "Kinetic - Lemon"}
         </span>
       </div>
       <button 
         onClick={() => setTheme("LIGHT")}
-        className={`p-1.5 rounded-full transition-all flex items-center justify-center ${theme === "LIGHT" ? "bg-white shadow-sm text-stone-900" : "text-stone-500 hover:text-stone-300"}`}
+        className={`p-1.5 rounded-full transition-all flex items-center justify-center ${theme === "LIGHT" ? "bg-[#ccff00] shadow-sm text-stone-950" : "text-stone-500 hover:text-stone-300"}`}
         title="Light Mode"
       >
-        <span className="material-symbols-outlined text-sm">light_mode</span>
+        <span className="material-symbols-outlined text-sm">sports_tennis</span>
       </button>
       <button 
         onClick={() => setTheme("DARK")}
@@ -465,7 +465,7 @@ function ThemeSelector({ theme, setTheme }: { theme: "LIGHT" | "DARK" | "VINTAGE
         className={`p-1.5 rounded-full transition-all flex items-center justify-center ${theme === "VINTAGE" ? "bg-black shadow-sm text-white" : "text-stone-500 hover:text-stone-700"}`}
         title="Vintage Mode"
       >
-        <span className="material-symbols-outlined text-sm">history_edu</span>
+        <span className="material-symbols-outlined text-sm">light_mode</span>
       </button>
     </div>
   )
