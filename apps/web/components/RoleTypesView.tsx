@@ -35,7 +35,7 @@ interface Dimension {
   items: string[];
 }
 
-export default function RoleTypesView({ theme = "LIGHT" }: { theme?: "LIGHT" | "DARK" }) {
+export default function RoleTypesView({ theme = "LIGHT" }: { theme?: "LIGHT" | "DARK" | "VINTAGE" }) {
   const [roles, setRoles] = useState<RoleType[]>([]);
   const [permissions, setPermissions] = useState<string[]>([]);
   const [globalPermissions, setGlobalPermissions] = useState<string[]>([]);
@@ -181,12 +181,20 @@ export default function RoleTypesView({ theme = "LIGHT" }: { theme?: "LIGHT" | "
     columnHelper.accessor("role_id", {
       header: "ROLE ID",
       size: 120,
-      cell: info => <span className="font-mono text-xs text-stone-900">{info.getValue()}</span>,
+      cell: info => <span className={`font-mono text-xs transition-colors duration-500 ${
+        theme === "DARK" ? "text-stone-400" : 
+        theme === "VINTAGE" ? "text-stone-600" :
+        "text-stone-900"
+      }`}>{info.getValue()}</span>,
     }),
     columnHelper.accessor("role_name", {
       header: "ROLE NAME",
       size: 200,
-      cell: info => <span className="text-sm font-bold text-stone-900">{info.getValue()}</span>,
+      cell: info => <span className={`text-sm font-bold transition-colors duration-500 ${
+        theme === "DARK" ? "text-white" : 
+        theme === "VINTAGE" ? "text-black" :
+        "text-stone-900"
+      }`}>{info.getValue()}</span>,
     }),
     columnHelper.accessor("IsGlobal", {
       header: "TYPE",
@@ -198,10 +206,10 @@ export default function RoleTypesView({ theme = "LIGHT" }: { theme?: "LIGHT" | "
         return label.includes(String(filterValue).toLowerCase());
       },
       cell: info => (
-        <span className={`text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-widest border ${
+        <span className={`text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-widest border transition-all ${
           info.getValue() 
-            ? "bg-purple-50 text-purple-600 border-purple-200" 
-            : "bg-stone-50 text-stone-600 border-stone-200"
+            ? (theme === "VINTAGE" ? "bg-stone-50 text-stone-900 border-stone-200" : "bg-purple-50 text-purple-600 border-purple-200")
+            : (theme === "VINTAGE" ? "bg-white text-stone-400 border-stone-100" : "bg-stone-50 text-stone-600 border-stone-200")
         }`}>
           {info.getValue() ? "Global" : "Tenant"}
         </span>
@@ -219,7 +227,11 @@ export default function RoleTypesView({ theme = "LIGHT" }: { theme?: "LIGHT" | "
       cell: info => (
         <div className="flex flex-wrap gap-1.5 py-1">
           {(info.getValue() || []).map((p, i) => (
-            <span key={i} className="text-[10px] font-bold bg-blue-50 text-blue-600 border border-blue-200 px-3 py-1 rounded-full uppercase tracking-wider">{p}</span>
+            <span key={i} className={`text-[10px] font-bold border px-3 py-1 rounded-full uppercase tracking-wider transition-colors ${
+              theme === "VINTAGE" 
+                ? "bg-white text-black border-stone-100 shadow-sm" 
+                : "bg-blue-50 text-blue-600 border-blue-200"
+            }`}>{p}</span>
           ))}
         </div>
       ),
@@ -242,13 +254,21 @@ export default function RoleTypesView({ theme = "LIGHT" }: { theme?: "LIGHT" | "
             {showMenu && (
               <>
                 <div className="fixed inset-0 z-40" onClick={() => setShowMenu(false)}></div>
-                <div className="absolute right-0 top-10 bg-white border border-stone-100 rounded-xl shadow-xl py-2 w-32 z-50 animate-in fade-in zoom-in-95 duration-200">
+                <div className={`absolute right-0 top-10 border rounded-xl shadow-xl py-2 w-32 z-50 animate-in fade-in zoom-in-95 duration-200 transition-colors ${
+                  theme === "DARK" ? "bg-stone-900 border-stone-800" : 
+                  theme === "VINTAGE" ? "bg-white border-stone-100 shadow-xl" :
+                  "bg-white border-stone-100"
+                }`}>
                   <button 
                     onClick={() => {
                       handleOpenEdit(props.row.original);
                       setShowMenu(false);
                     }}
-                    className="w-full flex items-center gap-3 px-4 py-2.5 text-[10px] font-black uppercase tracking-widest text-stone-600 hover:bg-stone-50 transition-colors"
+                    className={`w-full flex items-center gap-3 px-4 py-2.5 text-[10px] font-black uppercase tracking-widest transition-colors ${
+                      theme === "DARK" ? "text-stone-400 hover:bg-stone-800" : 
+                      theme === "VINTAGE" ? "text-black hover:bg-stone-50" :
+                      "text-stone-600 hover:bg-stone-50"
+                    }`}
                   >
                     <span className="material-symbols-outlined text-base">edit</span>
                     Edit
@@ -288,7 +308,11 @@ export default function RoleTypesView({ theme = "LIGHT" }: { theme?: "LIGHT" | "
   if (loading) {
     return (
       <div className="flex h-64 items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-[#4f6b28] border-t-transparent"></div>
+        <div className={`h-8 w-8 animate-spin rounded-full border-4 border-t-transparent ${
+          theme === "DARK" ? "border-[#ccff00]" : 
+          theme === "VINTAGE" ? "border-black" :
+          "border-[#4f6b28]"
+        }`}></div>
       </div>
     );
   }
@@ -297,11 +321,27 @@ export default function RoleTypesView({ theme = "LIGHT" }: { theme?: "LIGHT" | "
     <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
       <div className="flex justify-between items-end mb-10">
         <div>
-          <h2 className={`text-5xl font-black italic tracking-tighter uppercase transition-colors duration-500 ${theme === "DARK" ? "text-[#ccff00]" : "text-[#4f6b28]"}`} style={{ fontFamily: 'Lexend, sans-serif' }}>
+          <h2 className={`text-5xl font-black italic tracking-tighter uppercase transition-colors duration-500 ${
+            theme === "DARK" ? "text-[#ccff00]" : 
+            theme === "VINTAGE" ? "text-black" :
+            "text-[#4f6b28]"
+          }`} style={{ fontFamily: 'Lexend, sans-serif' }}>
             Role Types
           </h2>
-          <p className={`font-bold uppercase tracking-widest text-xs mt-2 transition-colors duration-500 ${theme === "DARK" ? "text-stone-400" : "text-stone-900"}`}>
-            System Administration · <span className={theme === "DARK" ? "text-[#ccff00]" : "text-[#4f6b28]"}>{roles.length}</span> Roles · <span className={theme === "DARK" ? "text-[#ccff00]" : "text-[#4f6b28]"}>{permissions.length + globalPermissions.length}</span> Permissions
+          <p className={`font-bold uppercase tracking-widest text-xs mt-2 transition-colors duration-500 ${
+            theme === "DARK" ? "text-stone-400" : 
+            theme === "VINTAGE" ? "text-stone-500" :
+            "text-stone-900"
+          }`}>
+            System Administration · <span className={
+              theme === "DARK" ? "text-[#ccff00]" : 
+              theme === "VINTAGE" ? "text-black" :
+              "text-[#4f6b28]"
+            }>{roles.length}</span> Roles · <span className={
+              theme === "DARK" ? "text-[#ccff00]" : 
+              theme === "VINTAGE" ? "text-black" :
+              "text-[#4f6b28]"
+            }>{permissions.length + globalPermissions.length}</span> Permissions
           </p>
         </div>
         <div className="flex gap-4">
@@ -313,7 +353,9 @@ export default function RoleTypesView({ theme = "LIGHT" }: { theme?: "LIGHT" | "
               className={`w-full border rounded-full pl-12 pr-6 py-3 text-sm font-medium outline-none transition-all shadow-sm ${
                 theme === "DARK" 
                   ? "bg-stone-900 border-stone-800 text-white focus:border-[#ccff00]" 
-                  : "bg-white border-stone-200 text-stone-900 focus:border-[#4f6b28]"
+                  : theme === "VINTAGE"
+                    ? "bg-white border-stone-100 text-black focus:border-black shadow-md"
+                    : "bg-white border-stone-200 text-stone-900 focus:border-[#4f6b28]"
               }`}
               onChange={(e) => table.setGlobalFilter(e.target.value)}
             />
@@ -323,7 +365,9 @@ export default function RoleTypesView({ theme = "LIGHT" }: { theme?: "LIGHT" | "
             className={`border-2 px-8 py-3 rounded-full font-black text-xs tracking-widest transition-all uppercase flex items-center gap-2 ${
               theme === "DARK" 
                 ? "border-stone-800 text-stone-400 hover:bg-stone-900" 
-                : "border-stone-200 text-stone-900 hover:bg-stone-50"
+                : theme === "VINTAGE"
+                  ? "border-stone-100 text-black hover:bg-stone-50"
+                  : "border-stone-200 text-stone-900 hover:bg-stone-50"
             }`}
           >
             <span className="material-symbols-outlined text-sm">settings_suggest</span>
@@ -334,7 +378,9 @@ export default function RoleTypesView({ theme = "LIGHT" }: { theme?: "LIGHT" | "
             className={`px-8 py-3 rounded-full font-black text-xs tracking-widest transition-all uppercase shadow-lg flex items-center gap-2 ${
               theme === "DARK"
                 ? "bg-[#ccff00] text-stone-950 shadow-[#ccff00]/10 hover:opacity-90"
-                : "bg-[#4f6b28] text-white shadow-[#4f6b28]/20 hover:opacity-90"
+                : theme === "VINTAGE"
+                  ? "bg-black text-white shadow-black/10 hover:opacity-90"
+                  : "bg-[#4f6b28] text-white shadow-[#4f6b28]/20 hover:opacity-90"
             }`}
           >
             <span className="material-symbols-outlined text-sm">add</span>
@@ -344,18 +390,26 @@ export default function RoleTypesView({ theme = "LIGHT" }: { theme?: "LIGHT" | "
       </div>
 
       <div className={`border rounded-xl overflow-hidden shadow-sm transition-colors duration-500 ${
-        theme === "DARK" ? "bg-stone-950 border-stone-800" : "bg-white border-stone-200"
+        theme === "DARK" ? "bg-stone-950 border-stone-800" : 
+        theme === "VINTAGE" ? "bg-white border-transparent shadow-md" :
+        "bg-white border-stone-200"
       }`}>
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
-            <thead className="bg-stone-100 sticky top-0 z-10 border-b border-stone-900">
+            <thead className={`sticky top-0 z-10 border-b transition-colors duration-500 ${
+              theme === "DARK" ? "bg-stone-900 border-stone-800" : 
+              theme === "VINTAGE" ? "bg-white border-stone-100" :
+              "bg-stone-100 border-stone-900"
+            }`}>
               {table.getHeaderGroups().map(headerGroup => (
                 <tr key={headerGroup.id}>
                   {headerGroup.headers.map(header => (
                     <th 
                       key={header.id} 
                       className={`px-6 py-4 text-[10px] font-black uppercase tracking-widest relative border-r last:border-r-0 transition-colors duration-500 ${
-                        theme === "DARK" ? "text-[#ccff00] border-stone-800 bg-stone-900" : "text-black border-stone-900 bg-stone-100"
+                        theme === "DARK" ? "text-[#ccff00] border-stone-800" : 
+                        theme === "VINTAGE" ? "text-black border-stone-100" :
+                        "text-black border-stone-900"
                       }`}
                       style={{ width: header.getSize() === 100 ? '100px' : 'auto' }}
                     >
@@ -383,7 +437,13 @@ export default function RoleTypesView({ theme = "LIGHT" }: { theme?: "LIGHT" | "
                                 }}
                                 onClick={(e) => e.stopPropagation()}
                                 placeholder="..."
-                                className="w-full bg-white border border-stone-100 rounded-md px-3 py-1.5 text-xs font-medium text-stone-900 outline-none focus:border-stone-400 transition-all"
+                                className={`w-full border rounded-md px-3 py-1.5 text-xs font-medium outline-none transition-all ${
+                                  theme === "DARK" 
+                                    ? "bg-stone-950 border-stone-800 text-white focus:border-[#ccff00]" 
+                                    : theme === "VINTAGE"
+                                      ? "bg-[#f7f9fb] border-transparent text-black focus:border-stone-200"
+                                      : "bg-white border-stone-100 text-stone-900 focus:border-stone-400"
+                                }`}
                               />
                             </div>
                           ) : (
@@ -403,14 +463,18 @@ export default function RoleTypesView({ theme = "LIGHT" }: { theme?: "LIGHT" | "
                     className={`border-b transition-colors group ${
                       theme === "DARK" 
                         ? (i % 2 !== 0 ? 'bg-stone-900/40 border-stone-800' : 'bg-stone-950 border-stone-800 hover:bg-stone-900/60') 
-                        : (i % 2 !== 0 ? 'bg-stone-50/50 border-stone-900' : 'bg-white border-stone-900 hover:bg-stone-50')
+                        : theme === "VINTAGE"
+                          ? (i % 2 !== 0 ? 'bg-[#f7f9fb]/50 border-stone-100' : 'bg-white border-stone-100 hover:bg-[#f7f9fb]/80')
+                          : (i % 2 !== 0 ? 'bg-stone-50/50 border-stone-900' : 'bg-white border-stone-900 hover:bg-stone-50')
                     }`}
                   >
                     {row.getVisibleCells().map(cell => (
                       <td 
                         key={cell.id} 
                         className={`px-6 py-3 text-sm font-medium border-r last:border-r-0 transition-colors duration-500 ${
-                          theme === "DARK" ? "text-stone-300 border-stone-800" : "text-stone-900 border-stone-900"
+                          theme === "DARK" ? "text-stone-300 border-stone-800" : 
+                          theme === "VINTAGE" ? "text-black border-stone-100" :
+                          "text-stone-900 border-stone-900"
                         }`}
                       >
                         <div className="flex items-center min-h-[32px]">
@@ -435,25 +499,45 @@ export default function RoleTypesView({ theme = "LIGHT" }: { theme?: "LIGHT" | "
       {showRoleModal && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 animate-in fade-in duration-300">
           <div className="absolute inset-0 bg-stone-900/40 backdrop-blur-sm" onClick={() => setShowRoleModal(false)}></div>
-          <div className="relative bg-white rounded-[40px] w-full max-w-3xl p-12 shadow-2xl animate-in zoom-in-95 duration-300 overflow-y-auto max-h-[90vh]">
-            <h3 className="text-4xl font-black italic tracking-tighter text-[#4f6b28] uppercase mb-8">
+          <div className={`relative rounded-[40px] w-full max-w-3xl p-12 shadow-2xl animate-in zoom-in-95 duration-300 overflow-y-auto max-h-[90vh] transition-colors ${
+            theme === "DARK" ? "bg-stone-950" : "bg-white"
+          }`}>
+            <h3 className={`text-4xl font-black italic tracking-tighter uppercase mb-8 transition-colors ${
+              theme === "DARK" ? "text-[#ccff00]" : 
+              theme === "VINTAGE" ? "text-black" :
+              "text-[#4f6b28]"
+            }`}>
               {editingRole ? 'Edit Role' : 'New Role'}
             </h3>
             
             <div className="grid grid-cols-2 gap-8">
               <div>
-                <label className="text-[10px] font-black text-stone-900 tracking-[0.2em] uppercase mb-3 block">Role ID</label>
-                <div className="w-full bg-stone-100 border-none rounded-2xl px-6 py-4 text-sm font-mono font-bold text-stone-900 select-none">
+                <label className={`text-[10px] font-black tracking-[0.2em] uppercase mb-3 block transition-colors ${
+                  theme === "DARK" ? "text-stone-400" : "text-stone-900"
+                }`}>Role ID</label>
+                <div className={`w-full border-none rounded-2xl px-6 py-4 text-sm font-mono font-bold select-none transition-colors ${
+                  theme === "DARK" ? "bg-stone-900 text-white" : 
+                  theme === "VINTAGE" ? "bg-[#f7f9fb] text-black" :
+                  "bg-stone-100 text-stone-900"
+                }`}>
                   {roleId}
                 </div>
               </div>
               <div>
-                <label className="text-[10px] font-black text-stone-900 tracking-[0.2em] uppercase mb-3 block">Role Name</label>
+                <label className={`text-[10px] font-black tracking-[0.2em] uppercase mb-3 block transition-colors ${
+                  theme === "DARK" ? "text-stone-400" : "text-stone-900"
+                }`}>Role Name</label>
                 <input 
                   value={roleName}
                   onChange={e => setRoleName(e.target.value)}
                   placeholder="e.g. Club Manager, Instructor..."
-                  className="w-full bg-stone-100 border-none rounded-2xl px-6 py-4 text-sm font-bold placeholder:text-stone-400 focus:ring-2 focus:ring-[#4f6b28] outline-none"
+                  className={`w-full border-none rounded-2xl px-6 py-4 text-sm font-bold placeholder:text-stone-400 outline-none transition-colors ${
+                    theme === "DARK" 
+                      ? "bg-stone-900 text-white focus:ring-2 focus:ring-[#ccff00]" 
+                      : theme === "VINTAGE"
+                        ? "bg-[#f7f9fb] text-black focus:ring-2 focus:ring-black"
+                        : "bg-stone-100 text-stone-900 focus:ring-2 focus:ring-[#4f6b28]"
+                  }`}
                 />
               </div>
             </div>
@@ -461,18 +545,30 @@ export default function RoleTypesView({ theme = "LIGHT" }: { theme?: "LIGHT" | "
             <div className="mt-8">
               <label className="flex items-center gap-3 cursor-pointer group">
                 <div 
-                  className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all ${isGlobal ? 'bg-[#4f6b28] border-[#4f6b28] text-white' : 'border-stone-200 bg-white group-hover:border-stone-300'}`}
+                  className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all ${
+                    isGlobal 
+                      ? (theme === "DARK" ? "bg-[#ccff00] border-[#ccff00] text-stone-950" : theme === "VINTAGE" ? "bg-black border-black text-white" : "bg-[#4f6b28] border-[#4f6b28] text-white")
+                      : (theme === "DARK" ? "border-stone-800 bg-stone-900" : "border-stone-200 bg-white")
+                  }`}
                   onClick={() => setIsGlobal(!isGlobal)}
                 >
                   {isGlobal && <span className="material-symbols-outlined text-sm font-bold">check</span>}
                 </div>
-                <span className="text-xs font-black uppercase tracking-widest text-stone-900">Global Role (Access to all tenants)</span>
+                <span className={`text-xs font-black uppercase tracking-widest transition-colors ${
+                  theme === "DARK" ? "text-stone-400" : "text-stone-900"
+                }`}>Global Role (Access to all tenants)</span>
               </label>
             </div>
 
             <div className="mt-8">
-              <label className="text-[10px] font-black text-stone-900 tracking-[0.2em] uppercase mb-3 block">Permissions</label>
-              <div className="bg-stone-100 rounded-[32px] p-6 max-h-64 overflow-y-auto border border-stone-200 flex flex-wrap gap-2">
+              <label className={`text-[10px] font-black tracking-[0.2em] uppercase mb-3 block transition-colors ${
+                theme === "DARK" ? "text-stone-400" : "text-stone-900"
+              }`}>Permissions</label>
+              <div className={`rounded-[32px] p-6 max-h-64 overflow-y-auto border flex flex-wrap gap-2 transition-colors ${
+                theme === "DARK" ? "bg-stone-900 border-stone-800" : 
+                theme === "VINTAGE" ? "bg-[#f7f9fb] border-stone-100" :
+                "bg-stone-100 border-stone-200"
+              }`}>
                 {permissions.map(p => (
                   <button
                     key={p}
@@ -480,7 +576,11 @@ export default function RoleTypesView({ theme = "LIGHT" }: { theme?: "LIGHT" | "
                       if (selectedPerms.includes(p)) setSelectedPerms(prev => prev.filter(x => x !== p));
                       else setSelectedPerms(prev => [...prev, p]);
                     }}
-                    className={`px-4 py-2 rounded-full text-[10px] font-black tracking-tight transition-all uppercase ${selectedPerms.includes(p) ? 'bg-[#4f6b28] text-white shadow-md shadow-[#4f6b28]/20' : 'bg-white text-stone-900 border border-stone-200 hover:border-[#4f6b28]/30'}`}
+                    className={`px-4 py-2 rounded-full text-[10px] font-black tracking-tight transition-all uppercase ${
+                      selectedPerms.includes(p) 
+                        ? (theme === "DARK" ? "bg-[#ccff00] text-stone-950 shadow-md shadow-[#ccff00]/20" : theme === "VINTAGE" ? "bg-black text-white shadow-md shadow-black/20" : "bg-[#4f6b28] text-white shadow-md shadow-[#4f6b28]/20")
+                        : (theme === "DARK" ? "bg-stone-800 text-stone-400 border border-stone-700 hover:border-[#ccff00]/30" : "bg-white text-stone-900 border border-stone-200 hover:border-[#4f6b28]/30")
+                    }`}
                   >
                     {p}
                   </button>
@@ -490,8 +590,14 @@ export default function RoleTypesView({ theme = "LIGHT" }: { theme?: "LIGHT" | "
 
             {isGlobal && (
               <div className="mt-8 animate-in fade-in slide-in-from-top-2">
-                <label className="text-[10px] font-black text-stone-900 tracking-[0.2em] uppercase mb-3 block">Platform Admin Permissions</label>
-                <div className="bg-amber-100/30 rounded-[32px] p-6 max-h-48 overflow-y-auto border border-amber-200 flex flex-wrap gap-2">
+                <label className={`text-[10px] font-black tracking-[0.2em] uppercase mb-3 block transition-colors ${
+                  theme === "DARK" ? "text-stone-400" : "text-stone-900"
+                }`}>Platform Admin Permissions</label>
+                <div className={`rounded-[32px] p-6 max-h-48 overflow-y-auto border flex flex-wrap gap-2 transition-colors ${
+                  theme === "DARK" ? "bg-stone-900 border-stone-800" : 
+                  theme === "VINTAGE" ? "bg-amber-50/30 border-amber-100" :
+                  "bg-amber-100/30 border-amber-200"
+                }`}>
                   {globalPermissions.map(p => (
                     <button
                       key={p}
@@ -499,7 +605,11 @@ export default function RoleTypesView({ theme = "LIGHT" }: { theme?: "LIGHT" | "
                         if (selectedPerms.includes(p)) setSelectedPerms(prev => prev.filter(x => x !== p));
                         else setSelectedPerms(prev => [...prev, p]);
                       }}
-                      className={`px-4 py-2 rounded-full text-[10px] font-black tracking-tight transition-all uppercase ${selectedPerms.includes(p) ? 'bg-amber-600 text-white shadow-md shadow-amber-600/20' : 'bg-white text-amber-800 border border-amber-200 hover:border-amber-600/30'}`}
+                      className={`px-4 py-2 rounded-full text-[10px] font-black tracking-tight transition-all uppercase ${
+                        selectedPerms.includes(p) 
+                          ? "bg-amber-600 text-white shadow-md shadow-amber-600/20" 
+                          : "bg-white text-amber-800 border border-amber-200 hover:border-amber-600/30"
+                      }`}
                     >
                       {p}
                     </button>
@@ -511,13 +621,21 @@ export default function RoleTypesView({ theme = "LIGHT" }: { theme?: "LIGHT" | "
             <div className="flex gap-4 mt-12">
               <button 
                 onClick={() => setShowRoleModal(false)}
-                className="flex-1 py-4 border-2 border-stone-200 text-stone-900 rounded-2xl text-[10px] font-black tracking-widest hover:bg-stone-50 transition-all uppercase"
+                className={`flex-1 py-4 border-2 rounded-2xl text-[10px] font-black tracking-widest transition-all uppercase ${
+                  theme === "DARK" ? "border-stone-800 text-stone-400 hover:bg-stone-900" : 
+                  theme === "VINTAGE" ? "border-stone-100 text-black hover:bg-stone-50" :
+                  "border-stone-200 text-stone-900 hover:bg-stone-50"
+                }`}
               >
                 Cancel
               </button>
               <button 
                 onClick={handleSaveRole}
-                className="flex-1 py-4 bg-[#4f6b28] text-white rounded-2xl text-[10px] font-black tracking-widest hover:opacity-90 transition-all uppercase shadow-lg shadow-[#4f6b28]/20"
+                className={`flex-1 py-4 rounded-2xl text-[10px] font-black tracking-widest transition-all uppercase shadow-lg ${
+                  theme === "DARK" ? "bg-[#ccff00] text-stone-950 shadow-[#ccff00]/20" : 
+                  theme === "VINTAGE" ? "bg-black text-white shadow-black/20" :
+                  "bg-[#4f6b28] text-white shadow-[#4f6b28]/20"
+                } hover:opacity-90`}
               >
                 {editingRole ? 'Update Role' : 'Create Role'}
               </button>
@@ -530,24 +648,44 @@ export default function RoleTypesView({ theme = "LIGHT" }: { theme?: "LIGHT" | "
       {showPermsModal && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 animate-in fade-in duration-300">
           <div className="absolute inset-0 bg-stone-900/40 backdrop-blur-sm" onClick={() => setShowPermsModal(false)}></div>
-          <div className="relative bg-white rounded-[40px] w-full max-w-xl p-12 shadow-2xl animate-in zoom-in-95 duration-300">
-            <h3 className="text-4xl font-black italic tracking-tighter text-[#4f6b28] uppercase mb-4">
+          <div className={`relative rounded-[40px] w-full max-w-xl p-12 shadow-2xl animate-in zoom-in-95 duration-300 transition-colors ${
+            theme === "DARK" ? "bg-stone-950" : "bg-white"
+          }`}>
+            <h3 className={`text-4xl font-black italic tracking-tighter uppercase mb-4 transition-colors ${
+              theme === "DARK" ? "text-[#ccff00]" : 
+              theme === "VINTAGE" ? "text-black" :
+              "text-[#4f6b28]"
+            }`}>
               Permissions
             </h3>
             <p className="text-stone-400 font-bold uppercase tracking-widest text-[10px] mb-8">Manage application-wide permission keys</p>
 
-            <div className="bg-stone-50 p-8 rounded-[32px] border border-stone-100 mb-8">
+            <div className={`p-8 rounded-[32px] border mb-8 transition-colors ${
+              theme === "DARK" ? "bg-stone-900 border-stone-800" : 
+              theme === "VINTAGE" ? "bg-[#f7f9fb] border-stone-100" :
+              "bg-stone-50 border-stone-100"
+            }`}>
               <div className="flex gap-4 mb-6">
                 <input 
                   value={newPerm}
                   onChange={e => setNewPerm(e.target.value)}
                   onKeyDown={e => e.key === "Enter" && handleAddPermission()}
                   placeholder="e.g. INVOICE, COURT_BOOKING..."
-                  className="flex-1 bg-white border border-stone-200 rounded-2xl px-6 py-4 text-sm font-bold placeholder:text-stone-300 focus:border-[#4f6b28] outline-none transition-colors"
+                  className={`flex-1 border rounded-2xl px-6 py-4 text-sm font-bold placeholder:text-stone-300 outline-none transition-all ${
+                    theme === "DARK" 
+                      ? "bg-stone-950 border-stone-800 text-white focus:border-[#ccff00]" 
+                      : theme === "VINTAGE"
+                        ? "bg-white border-stone-100 text-black focus:border-black"
+                        : "bg-white border-stone-200 text-stone-900 focus:border-[#4f6b28]"
+                  }`}
                 />
                 <button 
                   onClick={handleAddPermission}
-                  className="bg-[#4f6b28] text-white px-8 rounded-2xl font-black text-xs tracking-widest hover:opacity-90 transition-all uppercase"
+                  className={`px-8 rounded-2xl font-black text-xs tracking-widest transition-all uppercase ${
+                    theme === "DARK" ? "bg-[#ccff00] text-stone-950" : 
+                    theme === "VINTAGE" ? "bg-black text-white" :
+                    "bg-[#4f6b28] text-white"
+                  } hover:opacity-90`}
                 >
                   Add
                 </button>
@@ -556,12 +694,20 @@ export default function RoleTypesView({ theme = "LIGHT" }: { theme?: "LIGHT" | "
                 {Object.keys(permToggles).map(k => (
                   <label key={k} className="flex items-center gap-2 cursor-pointer group">
                     <div 
-                      className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all ${permToggles[k as keyof typeof permToggles] ? 'bg-[#4f6b28] border-[#4f6b28] text-white' : 'border-stone-200 bg-white group-hover:border-stone-300'}`}
+                      className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all ${
+                        permToggles[k as keyof typeof permToggles] 
+                          ? (theme === "DARK" ? "bg-[#ccff00] border-[#ccff00] text-stone-950" : theme === "VINTAGE" ? "bg-black border-black text-white" : "bg-[#4f6b28] border-[#4f6b28] text-white")
+                          : (theme === "DARK" ? "border-stone-800 bg-stone-950" : "border-stone-200 bg-white")
+                      }`}
                       onClick={() => setPermToggles(prev => ({ ...prev, [k]: !prev[k as keyof typeof prev] }))}
                     >
                       {permToggles[k as keyof typeof permToggles] && <span className="material-symbols-outlined text-[10px] font-bold">check</span>}
                     </div>
-                    <span className={`text-[10px] font-black uppercase tracking-widest ${permToggles[k as keyof typeof permToggles] ? 'text-[#4f6b28]' : 'text-stone-300'}`}>{k}</span>
+                    <span className={`text-[10px] font-black uppercase tracking-widest transition-colors ${
+                      permToggles[k as keyof typeof permToggles] 
+                        ? (theme === "DARK" ? "text-[#ccff00]" : theme === "VINTAGE" ? "text-black" : "text-[#4f6b28]") 
+                        : "text-stone-300"
+                    }`}>{k}</span>
                   </label>
                 ))}
               </div>
@@ -569,8 +715,14 @@ export default function RoleTypesView({ theme = "LIGHT" }: { theme?: "LIGHT" | "
 
             <div className="max-h-64 overflow-y-auto pr-4 grid grid-cols-2 gap-3">
               {permissions.sort().map(p => (
-                <div key={p} className="flex items-center justify-between bg-stone-50 border border-stone-100 rounded-2xl px-5 py-3 group">
-                  <span className="text-[10px] font-mono font-bold text-stone-500">{p}</span>
+                <div key={p} className={`flex items-center justify-between border rounded-2xl px-5 py-3 group transition-colors ${
+                  theme === "DARK" ? "bg-stone-900 border-stone-800" : 
+                  theme === "VINTAGE" ? "bg-[#f7f9fb] border-stone-100" :
+                  "bg-stone-50 border-stone-100"
+                }`}>
+                  <span className={`text-[10px] font-mono font-bold transition-colors ${
+                    theme === "DARK" ? "text-stone-400" : "text-stone-500"
+                  }`}>{p}</span>
                   <button onClick={() => handleRemovePermission(p)} className="text-stone-300 hover:text-red-500 transition-colors">
                     <span className="material-symbols-outlined text-lg">close</span>
                   </button>
@@ -581,7 +733,11 @@ export default function RoleTypesView({ theme = "LIGHT" }: { theme?: "LIGHT" | "
             <div className="mt-12">
               <button 
                 onClick={() => setShowPermsModal(false)}
-                className="w-full py-4 bg-stone-900 text-white rounded-2xl text-[10px] font-black tracking-widest hover:opacity-90 transition-all uppercase"
+                className={`w-full py-4 rounded-2xl text-[10px] font-black tracking-widest transition-all uppercase shadow-lg ${
+                  theme === "DARK" ? "bg-stone-800 text-white hover:bg-stone-700" : 
+                  theme === "VINTAGE" ? "bg-black text-white hover:opacity-90" :
+                  "bg-stone-900 text-white hover:opacity-90"
+                }`}
               >
                 Close
               </button>
@@ -594,26 +750,40 @@ export default function RoleTypesView({ theme = "LIGHT" }: { theme?: "LIGHT" | "
       {confirmDelete && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 animate-in fade-in duration-300">
           <div className="absolute inset-0 bg-stone-900/40 backdrop-blur-sm" onClick={() => setConfirmDelete(null)}></div>
-          <div className="relative bg-white rounded-[40px] w-full max-w-md p-12 shadow-2xl animate-in zoom-in-95 duration-300">
-            <div className="w-20 h-20 bg-red-50 rounded-3xl flex items-center justify-center text-red-500 mb-8 mx-auto">
+          <div className={`relative rounded-[40px] w-full max-w-md p-12 shadow-2xl animate-in zoom-in-95 duration-300 transition-colors ${
+            theme === "DARK" ? "bg-stone-950" : "bg-white"
+          }`}>
+            <div className={`w-20 h-20 rounded-3xl flex items-center justify-center mb-8 mx-auto ${
+              theme === "VINTAGE" ? "bg-stone-50 text-black" : "bg-red-50 text-red-500"
+            }`}>
               <span className="material-symbols-outlined text-4xl">delete_forever</span>
             </div>
-            <h3 className="text-3xl font-black italic tracking-tighter text-stone-900 uppercase text-center mb-4">
+            <h3 className={`text-3xl font-black italic tracking-tighter uppercase text-center mb-4 transition-colors ${
+              theme === "DARK" ? "text-white" : "text-stone-900"
+            }`}>
               Delete Role?
             </h3>
-            <p className="text-stone-500 text-center font-medium leading-relaxed mb-10">
+            <p className={`text-center font-medium leading-relaxed mb-10 transition-colors ${
+              theme === "DARK" ? "text-stone-400" : "text-stone-500"
+            }`}>
               Are you sure you want to delete this role type? Users assigned to this role may lose their permissions.
             </p>
             <div className="flex gap-4">
               <button 
                 onClick={() => setConfirmDelete(null)}
-                className="flex-1 py-4 border-2 border-stone-100 text-stone-400 rounded-2xl text-[10px] font-black tracking-widest hover:bg-stone-50 transition-all uppercase"
+                className={`flex-1 py-4 border-2 rounded-2xl text-[10px] font-black tracking-widest transition-all uppercase ${
+                  theme === "DARK" ? "border-stone-800 text-stone-400 hover:bg-stone-900" : 
+                  theme === "VINTAGE" ? "border-stone-100 text-black hover:bg-stone-50" :
+                  "border-stone-100 text-stone-400 hover:bg-stone-50"
+                }`}
               >
                 Go Back
               </button>
               <button 
                 onClick={() => handleDeleteRole(confirmDelete)}
-                className="flex-1 py-4 bg-red-500 text-white rounded-2xl text-[10px] font-black tracking-widest hover:bg-red-600 transition-all uppercase shadow-lg shadow-red-500/20"
+                className={`flex-1 py-4 rounded-2xl text-[10px] font-black tracking-widest transition-all uppercase shadow-lg ${
+                  theme === "VINTAGE" ? "bg-black text-white hover:bg-stone-900 shadow-black/20" : "bg-red-500 text-white hover:bg-red-600 shadow-red-500/20"
+                }`}
               >
                 Delete Now
               </button>
