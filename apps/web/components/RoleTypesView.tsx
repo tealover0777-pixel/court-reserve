@@ -18,6 +18,7 @@ import {
   getSortedRowModel,
   flexRender,
   createColumnHelper,
+  ColumnFiltersState,
 } from "@tanstack/react-table";
 
 interface RoleType {
