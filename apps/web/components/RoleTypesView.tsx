@@ -328,7 +328,7 @@ export default function RoleTypesView() {
       <div className="bg-white border border-stone-200 rounded-xl overflow-hidden shadow-sm">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
-            <thead className="bg-white sticky top-0 z-10 border-b border-stone-900">
+            <thead className="bg-stone-100 sticky top-0 z-10 border-b border-stone-900">
               {table.getHeaderGroups().map(headerGroup => (
                 <tr key={headerGroup.id}>
                   {headerGroup.headers.map(header => (
@@ -378,7 +378,7 @@ export default function RoleTypesView() {
                 {table.getRowModel().rows.map((row, i) => (
                   <tr 
                     key={row.id} 
-                    className="border-b border-stone-900 hover:bg-stone-50 transition-colors group"
+                    className={`border-b border-stone-900 hover:bg-stone-50 transition-colors group ${i % 2 !== 0 ? 'bg-stone-50/50' : 'bg-white'}`}
                   >
                     {row.getVisibleCells().map(cell => (
                       <td 
