@@ -233,7 +233,7 @@ export default function DimensionsView() {
                   {headerGroup.headers.map(header => (
                     <th 
                       key={header.id} 
-                      className="px-6 py-4 text-[10px] font-black text-stone-400 uppercase tracking-widest relative border-r border-stone-900 last:border-r-0"
+                      className="px-6 py-4 text-[10px] font-black text-black uppercase tracking-widest relative border-r border-stone-900 last:border-r-0"
                       style={{ width: header.getSize() === 120 ? '120px' : 'auto' }}
                     >
                       <div className="flex flex-col gap-2">

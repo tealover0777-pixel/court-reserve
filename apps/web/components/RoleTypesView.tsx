@@ -179,14 +179,27 @@ export default function RoleTypesView() {
   const columnHelper = createColumnHelper<RoleType>();
   const columns = [
     columnHelper.accessor("role_id", {
-      header: "ROLEID",
+      header: "ROLE ID",
       size: 120,
       cell: info => <span className="font-mono text-xs text-stone-900">{info.getValue()}</span>,
     }),
     columnHelper.accessor("role_name", {
-      header: "ROLENAME",
+      header: "ROLE NAME",
       size: 200,
       cell: info => <span className="text-sm font-bold text-stone-900">{info.getValue()}</span>,
+    }),
+    columnHelper.accessor("IsGlobal", {
+      header: "TYPE",
+      size: 100,
+      cell: info => (
+        <span className={`text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-widest border ${
+          info.getValue() 
+            ? "bg-purple-50 text-purple-600 border-purple-200" 
+            : "bg-stone-50 text-stone-600 border-stone-200"
+        }`}>
+          {info.getValue() ? "Global" : "Tenant"}
+        </span>
+      ),
     }),
     columnHelper.accessor("permissions", {
       header: "PERMISSIONS",
@@ -290,7 +303,7 @@ export default function RoleTypesView() {
                   {headerGroup.headers.map(header => (
                     <th 
                       key={header.id} 
-                      className="px-6 py-4 text-[10px] font-black text-stone-400 uppercase tracking-widest relative border-r border-stone-900 last:border-r-0"
+                      className="px-6 py-4 text-[10px] font-black text-black uppercase tracking-widest relative border-r border-stone-900 last:border-r-0"
                       style={{ width: header.getSize() === 100 ? '100px' : 'auto' }}
                     >
                       {header.isPlaceholder ? null : (
