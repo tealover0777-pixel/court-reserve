@@ -443,22 +443,22 @@ function ThemeSelector({ theme, setTheme }: { theme: "LIGHT" | "DARK" | "VINTAGE
         <span className={`text-[10px] font-black uppercase tracking-widest ${
           theme === "DARK" ? "text-stone-400" : "text-stone-900"
         }`}>
-          {theme === "VINTAGE" ? "Vintage Pure" : theme === "DARK" ? "Vintage Noir" : "Kinetic Lemon"}
+          {theme === "VINTAGE" ? "light mode" : theme === "DARK" ? "Dark mode" : "Tennis yellow mode"}
         </span>
       </div>
       <button 
         onClick={() => setTheme("LIGHT")}
-        className={`p-1.5 rounded-full transition-all flex items-center justify-center ${theme === "LIGHT" ? "bg-[#ccff00] shadow-sm text-stone-950" : "text-stone-500 hover:text-stone-300"}`}
+        className={`p-1.5 rounded-full transition-all flex items-center justify-center ${theme === "LIGHT" ? "bg-white shadow-sm ring-1 ring-stone-200" : "text-stone-500 hover:text-stone-300"}`}
         title="Light Mode"
       >
-        <span className="material-symbols-outlined text-sm">sports_tennis</span>
+        <span className={`material-symbols-outlined text-sm ${theme === "LIGHT" ? "text-[#4f6b28]" : ""}`}>sports_tennis</span>
       </button>
       <button 
         onClick={() => setTheme("DARK")}
-        className={`p-1.5 rounded-full transition-all flex items-center justify-center ${theme === "DARK" ? "bg-[#ccff00] shadow-sm text-stone-950" : "text-stone-500 hover:text-stone-700"}`}
+        className={`p-1.5 rounded-full transition-all flex items-center justify-center ${theme === "DARK" ? "bg-stone-800 shadow-sm" : "text-stone-500 hover:text-stone-700"}`}
         title="Dark Mode"
       >
-        <span className="material-symbols-outlined text-sm">dark_mode</span>
+        <span className={`material-symbols-outlined text-sm ${theme === "DARK" ? "text-[#ccff00]" : ""}`}>dark_mode</span>
       </button>
       <button 
         onClick={() => setTheme("VINTAGE")}
