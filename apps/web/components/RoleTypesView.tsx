@@ -179,14 +179,17 @@ export default function RoleTypesView() {
   const columns = [
     columnHelper.accessor("role_id", {
       header: "ID",
+      size: 100,
       cell: info => <span className="font-mono text-[10px] bg-stone-100 px-2 py-1 rounded-md text-stone-500">{info.getValue()}</span>,
     }),
     columnHelper.accessor("role_name", {
       header: "Role Name",
+      size: 200,
       cell: info => <span className="font-black text-stone-900">{info.getValue()}</span>,
     }),
     columnHelper.accessor("permissions", {
       header: "Permissions",
+      size: 400,
       cell: info => (
         <div className="flex flex-wrap gap-1 max-w-md">
           {(info.getValue() || []).slice(0, 3).map((p, i) => (
@@ -200,6 +203,7 @@ export default function RoleTypesView() {
     }),
     columnHelper.accessor("IsGlobal", {
       header: "Type",
+      size: 100,
       cell: info => (
         <span className={`text-[9px] font-black px-2 py-1 rounded-md uppercase ${info.getValue() ? 'bg-amber-100 text-amber-700' : 'bg-blue-100 text-blue-700'}`}>
           {info.getValue() ? 'Global' : 'Tenant'}
@@ -209,6 +213,7 @@ export default function RoleTypesView() {
     columnHelper.display({
       id: "actions",
       header: "",
+      size: 100,
       cell: props => (
         <div className="flex justify-end gap-2">
           <button onClick={() => handleOpenEdit(props.row.original)} className="p-2 hover:bg-[#4f6b28]/10 text-stone-400 hover:text-[#4f6b28] rounded-xl transition-all">
@@ -225,6 +230,7 @@ export default function RoleTypesView() {
   const table = useReactTable({
     data: roles,
     columns,
+    columnResizeMode: 'onChange',
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
@@ -268,41 +274,62 @@ export default function RoleTypesView() {
       </div>
 
       <div className="bg-white border border-stone-100 rounded-[32px] overflow-hidden shadow-sm">
-        <table className="w-full text-left border-collapse">
-          <thead className="bg-stone-50/50 border-b border-stone-50">
-            {table.getHeaderGroups().map(headerGroup => (
-              <tr key={headerGroup.id}>
-                {headerGroup.headers.map(header => (
-                  <th key={header.id} className="px-8 py-5 text-[10px] font-black text-stone-400 uppercase tracking-[0.2em]">
-                    {header.isPlaceholder ? null : (
-                      <div
-                        className={header.column.getCanSort() ? 'cursor-pointer select-none flex items-center gap-1' : ''}
-                        onClick={header.column.getToggleSortingHandler()}
-                      >
-                        {flexRender(header.column.columnDef.header, header.getContext())}
-                        {{
-                          asc: <span className="material-symbols-outlined text-xs">arrow_upward</span>,
-                          desc: <span className="material-symbols-outlined text-xs">arrow_downward</span>,
-                        }[header.column.getIsSorted() as string] ?? null}
-                      </div>
-                    )}
-                  </th>
-                ))}
-              </tr>
-            ))}
-          </thead>
-          <tbody>
-            {table.getRowModel().rows.map(row => (
-              <tr key={row.id} className="border-b border-stone-50 hover:bg-stone-50/30 transition-colors group">
-                {row.getVisibleCells().map(cell => (
-                  <td key={cell.id} className="px-8 py-4 text-sm font-medium text-stone-600">
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </td>
-                ))}
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <div className="overflow-x-auto">
+          <table className="w-full text-left border-collapse" style={{ width: table.getCenterTotalSize(), tableLayout: 'fixed' }}>
+            <thead className="bg-stone-50/50 border-b border-stone-50">
+              {table.getHeaderGroups().map(headerGroup => (
+                <tr key={headerGroup.id}>
+                  {headerGroup.headers.map(header => (
+                    <th 
+                      key={header.id} 
+                      className="px-8 py-5 text-[10px] font-black text-stone-400 uppercase tracking-[0.2em] relative border-r border-stone-100 last:border-r-0"
+                      style={{ width: header.getSize() }}
+                    >
+                      {header.isPlaceholder ? null : (
+                        <div className="flex items-center justify-between">
+                          <div
+                            className={header.column.getCanSort() ? 'cursor-pointer select-none flex items-center gap-1 flex-1' : 'flex-1'}
+                            onClick={header.column.getToggleSortingHandler()}
+                          >
+                            {flexRender(header.column.columnDef.header, header.getContext())}
+                            {{
+                              asc: <span className="material-symbols-outlined text-xs">arrow_upward</span>,
+                              desc: <span className="material-symbols-outlined text-xs">arrow_downward</span>,
+                            }[header.column.getIsSorted() as string] ?? null}
+                          </div>
+                          
+                          {/* Resizer */}
+                          <div
+                            onMouseDown={header.getResizeHandler()}
+                            onTouchStart={header.getResizeHandler()}
+                            className={`absolute right-0 top-0 h-full w-1 cursor-col-resize select-none touch-none hover:bg-[#4f6b28] transition-colors ${
+                              header.column.getIsResizing() ? 'bg-[#4f6b28] w-1' : 'bg-transparent'
+                            }`}
+                          />
+                        </div>
+                      )}
+                    </th>
+                  ))}
+                </tr>
+              ))}
+            </thead>
+            <tbody>
+              {table.getRowModel().rows.map(row => (
+                <tr key={row.id} className="border-b border-stone-50 hover:bg-stone-50/30 transition-colors group">
+                  {row.getVisibleCells().map(cell => (
+                    <td 
+                      key={cell.id} 
+                      className="px-8 py-4 text-sm font-medium text-stone-600 border-r border-stone-50 last:border-r-0"
+                      style={{ width: cell.column.getSize() }}
+                    >
+                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
         {roles.length === 0 && (
           <div className="py-20 text-center">
             <span className="material-symbols-outlined text-4xl text-stone-200 mb-4 block">assignment_ind</span>
