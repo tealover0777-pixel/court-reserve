@@ -221,17 +221,48 @@ export default function RoleTypesView() {
     columnHelper.display({
       id: "actions",
       header: "ACTIONS",
-      size: 100,
-      cell: props => (
-        <div className="flex justify-end items-center h-full pr-2">
-          <button 
-            onClick={() => handleOpenEdit(props.row.original)}
-            className="text-stone-400 hover:text-stone-900 transition-colors"
-          >
-            <span className="material-symbols-outlined text-xl">more_horiz</span>
-          </button>
-        </div>
-      ),
+      size: 120,
+      cell: props => {
+        const [showMenu, setShowMenu] = useState(false);
+        return (
+          <div className="flex justify-end items-center h-full pr-2 relative">
+            <button 
+              onClick={() => setShowMenu(!showMenu)}
+              className="text-stone-400 hover:text-stone-900 transition-colors p-2"
+            >
+              <span className="material-symbols-outlined text-xl">more_horiz</span>
+            </button>
+            
+            {showMenu && (
+              <>
+                <div className="fixed inset-0 z-40" onClick={() => setShowMenu(false)}></div>
+                <div className="absolute right-0 top-10 bg-white border border-stone-100 rounded-xl shadow-xl py-2 w-32 z-50 animate-in fade-in zoom-in-95 duration-200">
+                  <button 
+                    onClick={() => {
+                      handleOpenEdit(props.row.original);
+                      setShowMenu(false);
+                    }}
+                    className="w-full flex items-center gap-3 px-4 py-2.5 text-[10px] font-black uppercase tracking-widest text-stone-600 hover:bg-stone-50 transition-colors"
+                  >
+                    <span className="material-symbols-outlined text-base">edit</span>
+                    Edit
+                  </button>
+                  <button 
+                    onClick={() => {
+                      setConfirmDelete(props.row.original.id);
+                      setShowMenu(false);
+                    }}
+                    className="w-full flex items-center gap-3 px-4 py-2.5 text-[10px] font-black uppercase tracking-widest text-red-500 hover:bg-red-50 transition-colors"
+                  >
+                    <span className="material-symbols-outlined text-base">delete</span>
+                    Delete
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        );
+      },
     }),
   ];
 

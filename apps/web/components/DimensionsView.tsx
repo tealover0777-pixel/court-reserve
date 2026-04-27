@@ -165,22 +165,47 @@ export default function DimensionsView() {
       id: "actions",
       header: "ACTIONS",
       size: 120,
-      cell: props => (
-        <div className="flex justify-end items-center gap-2 pr-2">
-          <button 
-            onClick={() => setEditingCategoryId(editingCategoryId === props.row.original.id ? null : props.row.original.id)}
-            className="text-stone-400 hover:text-stone-900 transition-colors"
-          >
-            <span className="material-symbols-outlined text-xl">edit</span>
-          </button>
-          <button 
-            onClick={() => setConfirmDelete(props.row.original.id)}
-            className="text-stone-400 hover:text-red-500 transition-colors"
-          >
-            <span className="material-symbols-outlined text-xl">delete</span>
-          </button>
-        </div>
-      ),
+      cell: props => {
+        const [showMenu, setShowMenu] = useState(false);
+        return (
+          <div className="flex justify-end items-center h-full pr-2 relative">
+            <button 
+              onClick={() => setShowMenu(!showMenu)}
+              className="text-stone-400 hover:text-stone-900 transition-colors p-2"
+            >
+              <span className="material-symbols-outlined text-xl">more_horiz</span>
+            </button>
+            
+            {showMenu && (
+              <>
+                <div className="fixed inset-0 z-40" onClick={() => setShowMenu(false)}></div>
+                <div className="absolute right-0 top-10 bg-white border border-stone-100 rounded-xl shadow-xl py-2 w-32 z-50 animate-in fade-in zoom-in-95 duration-200">
+                  <button 
+                    onClick={() => {
+                      setEditingCategoryId(editingCategoryId === props.row.original.id ? null : props.row.original.id);
+                      setShowMenu(false);
+                    }}
+                    className="w-full flex items-center gap-3 px-4 py-2.5 text-[10px] font-black uppercase tracking-widest text-stone-600 hover:bg-stone-50 transition-colors"
+                  >
+                    <span className="material-symbols-outlined text-base">edit</span>
+                    Edit
+                  </button>
+                  <button 
+                    onClick={() => {
+                      setConfirmDelete(props.row.original.id);
+                      setShowMenu(false);
+                    }}
+                    className="w-full flex items-center gap-3 px-4 py-2.5 text-[10px] font-black uppercase tracking-widest text-red-500 hover:bg-red-50 transition-colors"
+                  >
+                    <span className="material-symbols-outlined text-base">delete</span>
+                    Delete
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        );
+      },
     }),
   ];
 
