@@ -191,6 +191,12 @@ export default function RoleTypesView() {
     columnHelper.accessor("permissions", {
       header: "PERMISSIONS",
       size: 600,
+      filterFn: (row, columnId, filterValue) => {
+        const rowValue = row.getValue(columnId) as string[];
+        if (!rowValue || !filterValue) return true;
+        const search = String(filterValue).toLowerCase();
+        return rowValue.some(p => p.toLowerCase().includes(search));
+      },
       cell: info => (
         <div className="flex flex-wrap gap-1.5 py-1">
           {(info.getValue() || []).map((p, i) => (

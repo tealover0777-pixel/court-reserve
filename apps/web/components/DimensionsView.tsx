@@ -147,6 +147,12 @@ export default function DimensionsView() {
     columnHelper.accessor("items", {
       header: "VALUES",
       size: 600,
+      filterFn: (row, columnId, filterValue) => {
+        const rowValue = row.getValue(columnId) as string[];
+        if (!rowValue || !filterValue) return true;
+        const search = String(filterValue).toLowerCase();
+        return rowValue.some(p => p.toLowerCase().includes(search));
+      },
       cell: info => (
         <div className="flex flex-wrap gap-2 py-1">
           {(info.getValue() || []).map((item, i) => (
