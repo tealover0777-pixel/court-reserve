@@ -429,10 +429,6 @@ function DashboardHome({ theme }: { theme: "LIGHT" | "DARK" | "VINTAGE" }) {
     </>
   );
 }
-      </main>
-    </div>
-  );
-}
 
 function ThemeSelector({ theme, setTheme }: { theme: "LIGHT" | "DARK" | "VINTAGE", setTheme: (t: "LIGHT" | "DARK" | "VINTAGE") => void }) {
   return (
