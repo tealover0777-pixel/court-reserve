@@ -34,6 +34,10 @@ Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
 - **No Hardcoded Dropdowns**: Never hardcode options for dropdown menus or select inputs in the UI code.
 - **Dimensions**: All dropdown options must be dynamically fetched and managed via the **Dimensions** module.
 
+### Verification
+- **Stop Automated Verification**: Never perform automated verification via DOM control (browser subagent) without explicit user approval for each instance.
+- **Mandatory Consent**: You MUST ask the user before running any verification tasks that involve browser interactions or live application testing.
+
 
 ### Utilities
 
