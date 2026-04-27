@@ -30,7 +30,7 @@ export default function DashboardClient({ params }: { params: { tenantId: string
           <h1 className="text-3xl font-black italic tracking-tighter text-[#4f6b28]">
             {tenantId ? tenantId.toUpperCase() : "KINETIC COURT"}
           </h1>
-          <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-stone-400 mt-1">
+          <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-stone-500 mt-1">
             Elite Membership
           </p>
         </div>
@@ -140,13 +140,13 @@ export default function DashboardClient({ params }: { params: { tenantId: string
             </div>
             <div>
               <p className="text-xs font-black group-hover:text-[#4f6b28] transition-colors">ALEX STERLING</p>
-              <p className="text-[9px] font-black uppercase tracking-widest text-stone-400">Gold Tier Member</p>
+              <p className="text-[9px] font-black uppercase tracking-widest text-stone-500">Gold Tier Member</p>
             </div>
           </div>
 
           <button
             onClick={() => signOut(auth)}
-            className="mt-6 flex items-center gap-3 text-stone-400 hover:text-red-500 transition-colors px-1"
+            className="mt-6 flex items-center gap-3 text-stone-500 hover:text-red-500 transition-colors px-1"
           >
             <span className="material-symbols-outlined text-sm">logout</span>
             <span className="text-[10px] font-black uppercase tracking-widest">LOGOUT</span>
@@ -320,7 +320,7 @@ function SubNavItem({ label, active = false, onClick }: { label: string; active?
       onClick={onClick}
       className={`w-full flex items-center gap-5 py-3 transition-all duration-300 ease-in-out pl-20 relative group ${active
         ? "text-[#4f6b28]"
-        : "text-stone-400 hover:text-stone-600"
+        : "text-stone-600 hover:text-stone-900"
         }`}
     >
       <span className={`text-[10px] font-black uppercase tracking-[0.2em] transition-all ${active ? "translate-x-1" : "group-hover:translate-x-1"}`} style={{ fontFamily: 'Lexend, sans-serif' }}>
@@ -336,13 +336,13 @@ function NavItem({ icon, label, active = false, onClick }: { icon: string; label
       onClick={onClick}
       className={`w-full flex items-center gap-5 py-4 transition-all duration-300 ease-in-out px-8 relative group ${active
           ? "text-[#4f6b28]"
-          : "text-stone-400 hover:text-stone-600"
+          : "text-stone-600 hover:text-stone-900"
         }`}
     >
       {active && (
         <div className="absolute left-0 top-0 bottom-0 w-2 bg-[#4f6b28] rounded-r-full" />
       )}
-      <span className={`material-symbols-outlined text-2xl transition-all ${active ? "opacity-100 scale-110" : "opacity-40 group-hover:opacity-100"}`} style={active ? { fontVariationSettings: "'FILL' 1" } : {}}>
+      <span className={`material-symbols-outlined text-2xl transition-all ${active ? "opacity-100 scale-110" : "opacity-60 group-hover:opacity-100"}`} style={active ? { fontVariationSettings: "'FILL' 1" } : {}}>
         {icon}
       </span>
       <span className={`text-[11px] font-black uppercase tracking-[0.2em] transition-all ${active ? "translate-x-1" : "group-hover:translate-x-1"}`} style={{ fontFamily: 'Lexend, sans-serif' }}>
