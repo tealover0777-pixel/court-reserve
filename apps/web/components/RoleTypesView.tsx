@@ -11,15 +11,10 @@ import {
   orderBy,
   serverTimestamp 
 } from "firebase/firestore";
-import {
-  useReactTable,
-  getCoreRowModel,
-  getFilteredRowModel,
-  getSortedRowModel,
-  flexRender,
   createColumnHelper,
   ColumnFiltersState,
 } from "@tanstack/react-table";
+import { Modal } from "@repo/ui/modal";
 
 interface RoleType {
   id: string;
@@ -496,301 +491,280 @@ export default function RoleTypesView({ theme = "LIGHT" }: { theme?: "LIGHT" | "
       </div>
 
       {/* Role Modal */}
-      {showRoleModal && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 animate-in fade-in duration-300">
-          <div className="absolute inset-0 bg-stone-900/40 backdrop-blur-sm" onClick={() => setShowRoleModal(false)}></div>
-          <div className={`relative rounded-[40px] w-full max-w-3xl p-12 shadow-2xl animate-in zoom-in-95 duration-300 overflow-y-auto max-h-[90vh] transition-colors ${
-            theme === "DARK" ? "bg-stone-950" : "bg-white"
-          }`}>
-            <h3 className={`text-4xl font-black italic tracking-tighter uppercase mb-8 transition-colors ${
-              theme === "DARK" ? "text-[#ccff00]" : 
-              theme === "VINTAGE" ? "text-black" :
-              "text-[#4f6b28]"
+      <Modal
+        isOpen={showRoleModal}
+        onClose={() => setShowRoleModal(false)}
+        title={editingRole ? 'Edit Role' : 'New Role'}
+        theme={theme}
+        width={700}
+        footer={
+          <div className="flex gap-4">
+            <button 
+              onClick={() => setShowRoleModal(false)}
+              className={`flex-1 py-4 border-2 rounded-2xl text-[10px] font-black tracking-widest transition-all uppercase ${
+                theme === "DARK" ? "border-stone-800 text-stone-400 hover:bg-stone-900" : 
+                theme === "VINTAGE" ? "border-stone-100 text-black hover:bg-stone-50" :
+                "border-stone-200 text-stone-900 hover:bg-stone-50"
+              }`}
+            >
+              Cancel
+            </button>
+            <button 
+              onClick={handleSaveRole}
+              className={`flex-1 py-4 rounded-2xl text-[10px] font-black tracking-widest transition-all uppercase shadow-lg ${
+                theme === "DARK" ? "bg-[#ccff00] text-stone-950 shadow-[#ccff00]/20" : 
+                theme === "VINTAGE" ? "bg-black text-white shadow-black/20" :
+                "bg-[#4f6b28] text-white shadow-[#4f6b28]/20"
+              } hover:opacity-90`}
+            >
+              {editingRole ? 'Update Role' : 'Create Role'}
+            </button>
+          </div>
+        }
+      >
+        <div className="grid grid-cols-2 gap-8">
+          <div>
+            <label className={`text-[10px] font-black tracking-[0.2em] uppercase mb-3 block transition-colors ${
+              theme === "DARK" ? "text-stone-400" : "text-stone-900"
+            }`}>Role ID</label>
+            <div className={`w-full border-none rounded-2xl px-6 py-4 text-sm font-mono font-bold select-none transition-colors ${
+              theme === "DARK" ? "bg-stone-900 text-white" : 
+              theme === "VINTAGE" ? "bg-[#f7f9fb] text-black" :
+              "bg-stone-100 text-stone-900"
             }`}>
-              {editingRole ? 'Edit Role' : 'New Role'}
-            </h3>
-            
-            <div className="grid grid-cols-2 gap-8">
-              <div>
-                <label className={`text-[10px] font-black tracking-[0.2em] uppercase mb-3 block transition-colors ${
-                  theme === "DARK" ? "text-stone-400" : "text-stone-900"
-                }`}>Role ID</label>
-                <div className={`w-full border-none rounded-2xl px-6 py-4 text-sm font-mono font-bold select-none transition-colors ${
-                  theme === "DARK" ? "bg-stone-900 text-white" : 
-                  theme === "VINTAGE" ? "bg-[#f7f9fb] text-black" :
-                  "bg-stone-100 text-stone-900"
-                }`}>
-                  {roleId}
-                </div>
-              </div>
-              <div>
-                <label className={`text-[10px] font-black tracking-[0.2em] uppercase mb-3 block transition-colors ${
-                  theme === "DARK" ? "text-stone-400" : "text-stone-900"
-                }`}>Role Name</label>
-                <input 
-                  value={roleName}
-                  onChange={e => setRoleName(e.target.value)}
-                  placeholder="e.g. Club Manager, Instructor..."
-                  className={`w-full border-none rounded-2xl px-6 py-4 text-sm font-bold placeholder:text-stone-400 outline-none transition-colors ${
-                    theme === "DARK" 
-                      ? "bg-stone-900 text-white focus:ring-2 focus:ring-[#ccff00]" 
-                      : theme === "VINTAGE"
-                        ? "bg-[#f7f9fb] text-black focus:ring-2 focus:ring-black"
-                        : "bg-stone-100 text-stone-900 focus:ring-2 focus:ring-[#4f6b28]"
-                  }`}
-                />
-              </div>
-            </div>
-
-            <div className="mt-8">
-              <label className="flex items-center gap-3 cursor-pointer group">
-                <div 
-                  className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all ${
-                    isGlobal 
-                      ? (theme === "DARK" ? "bg-[#ccff00] border-[#ccff00] text-stone-950" : theme === "VINTAGE" ? "bg-black border-black text-white" : "bg-[#4f6b28] border-[#4f6b28] text-white")
-                      : (theme === "DARK" ? "border-stone-800 bg-stone-900" : "border-stone-200 bg-white")
-                  }`}
-                  onClick={() => setIsGlobal(!isGlobal)}
-                >
-                  {isGlobal && <span className="material-symbols-outlined text-sm font-bold">check</span>}
-                </div>
-                <span className={`text-xs font-black uppercase tracking-widest transition-colors ${
-                  theme === "DARK" ? "text-stone-400" : "text-stone-900"
-                }`}>Global Role (Access to all tenants)</span>
-              </label>
-            </div>
-
-            <div className="mt-8">
-              <label className={`text-[10px] font-black tracking-[0.2em] uppercase mb-3 block transition-colors ${
-                theme === "DARK" ? "text-stone-400" : "text-stone-900"
-              }`}>Permissions</label>
-              <div className={`rounded-[32px] p-6 max-h-64 overflow-y-auto border flex flex-wrap gap-2 transition-colors ${
-                theme === "DARK" ? "bg-stone-900 border-stone-800" : 
-                theme === "VINTAGE" ? "bg-[#f7f9fb] border-stone-100" :
-                "bg-stone-100 border-stone-200"
-              }`}>
-                {permissions.map(p => (
-                  <button
-                    key={p}
-                    onClick={() => {
-                      if (selectedPerms.includes(p)) setSelectedPerms(prev => prev.filter(x => x !== p));
-                      else setSelectedPerms(prev => [...prev, p]);
-                    }}
-                    className={`px-4 py-2 rounded-full text-[10px] font-black tracking-tight transition-all uppercase ${
-                      selectedPerms.includes(p) 
-                        ? (theme === "DARK" ? "bg-[#ccff00] text-stone-950 shadow-md shadow-[#ccff00]/20" : theme === "VINTAGE" ? "bg-black text-white shadow-md shadow-black/20" : "bg-[#4f6b28] text-white shadow-md shadow-[#4f6b28]/20")
-                        : (theme === "DARK" ? "bg-stone-800 text-stone-400 border border-stone-700 hover:border-[#ccff00]/30" : "bg-white text-stone-900 border border-stone-200 hover:border-[#4f6b28]/30")
-                    }`}
-                  >
-                    {p}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {isGlobal && (
-              <div className="mt-8 animate-in fade-in slide-in-from-top-2">
-                <label className={`text-[10px] font-black tracking-[0.2em] uppercase mb-3 block transition-colors ${
-                  theme === "DARK" ? "text-stone-400" : "text-stone-900"
-                }`}>Platform Admin Permissions</label>
-                <div className={`rounded-[32px] p-6 max-h-48 overflow-y-auto border flex flex-wrap gap-2 transition-colors ${
-                  theme === "DARK" ? "bg-stone-900 border-stone-800" : 
-                  theme === "VINTAGE" ? "bg-amber-50/30 border-amber-100" :
-                  "bg-amber-100/30 border-amber-200"
-                }`}>
-                  {globalPermissions.map(p => (
-                    <button
-                      key={p}
-                      onClick={() => {
-                        if (selectedPerms.includes(p)) setSelectedPerms(prev => prev.filter(x => x !== p));
-                        else setSelectedPerms(prev => [...prev, p]);
-                      }}
-                      className={`px-4 py-2 rounded-full text-[10px] font-black tracking-tight transition-all uppercase ${
-                        selectedPerms.includes(p) 
-                          ? "bg-amber-600 text-white shadow-md shadow-amber-600/20" 
-                          : "bg-white text-amber-800 border border-amber-200 hover:border-amber-600/30"
-                      }`}
-                    >
-                      {p}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            <div className="flex gap-4 mt-12">
-              <button 
-                onClick={() => setShowRoleModal(false)}
-                className={`flex-1 py-4 border-2 rounded-2xl text-[10px] font-black tracking-widest transition-all uppercase ${
-                  theme === "DARK" ? "border-stone-800 text-stone-400 hover:bg-stone-900" : 
-                  theme === "VINTAGE" ? "border-stone-100 text-black hover:bg-stone-50" :
-                  "border-stone-200 text-stone-900 hover:bg-stone-50"
-                }`}
-              >
-                Cancel
-              </button>
-              <button 
-                onClick={handleSaveRole}
-                className={`flex-1 py-4 rounded-2xl text-[10px] font-black tracking-widest transition-all uppercase shadow-lg ${
-                  theme === "DARK" ? "bg-[#ccff00] text-stone-950 shadow-[#ccff00]/20" : 
-                  theme === "VINTAGE" ? "bg-black text-white shadow-black/20" :
-                  "bg-[#4f6b28] text-white shadow-[#4f6b28]/20"
-                } hover:opacity-90`}
-              >
-                {editingRole ? 'Update Role' : 'Create Role'}
-              </button>
+              {roleId}
             </div>
           </div>
+          <div>
+            <label className={`text-[10px] font-black tracking-[0.2em] uppercase mb-3 block transition-colors ${
+              theme === "DARK" ? "text-stone-400" : "text-stone-900"
+            }`}>Role Name</label>
+            <input 
+              value={roleName}
+              onChange={e => setRoleName(e.target.value)}
+              placeholder="e.g. Club Manager, Instructor..."
+              className={`w-full border-none rounded-2xl px-6 py-4 text-sm font-bold placeholder:text-stone-400 outline-none transition-colors ${
+                theme === "DARK" 
+                  ? "bg-stone-900 text-white focus:ring-2 focus:ring-[#ccff00]" 
+                  : theme === "VINTAGE"
+                    ? "bg-[#f7f9fb] text-black focus:ring-2 focus:ring-black"
+                    : "bg-stone-100 text-stone-900 focus:ring-2 focus:ring-[#4f6b28]"
+              }`}
+            />
+          </div>
         </div>
-      )}
+
+        <div className="mt-8">
+          <label className="flex items-center gap-3 cursor-pointer group">
+            <div 
+              className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all ${
+                isGlobal 
+                  ? (theme === "DARK" ? "bg-[#ccff00] border-[#ccff00] text-stone-950" : theme === "VINTAGE" ? "bg-black border-black text-white" : "bg-[#4f6b28] border-[#4f6b28] text-white")
+                  : (theme === "DARK" ? "border-stone-800 bg-stone-900" : "border-stone-200 bg-white")
+              }`}
+              onClick={() => setIsGlobal(!isGlobal)}
+            >
+              {isGlobal && <span className="material-symbols-outlined text-sm font-bold">check</span>}
+            </div>
+            <span className={`text-xs font-black uppercase tracking-widest transition-colors ${
+              theme === "DARK" ? "text-stone-400" : "text-stone-900"
+            }`}>Global Role (Access to all tenants)</span>
+          </label>
+        </div>
+
+        <div className="mt-8">
+          <label className={`text-[10px] font-black tracking-[0.2em] uppercase mb-3 block transition-colors ${
+            theme === "DARK" ? "text-stone-400" : "text-stone-900"
+          }`}>Permissions</label>
+          <div className={`rounded-[32px] p-6 max-h-64 overflow-y-auto border flex flex-wrap gap-2 transition-colors ${
+            theme === "DARK" ? "bg-stone-900 border-stone-800" : 
+            theme === "VINTAGE" ? "bg-[#f7f9fb] border-stone-100" :
+            "bg-stone-100 border-stone-200"
+          }`}>
+            {permissions.map(p => (
+              <button
+                key={p}
+                onClick={() => {
+                  if (selectedPerms.includes(p)) setSelectedPerms(prev => prev.filter(x => x !== p));
+                  else setSelectedPerms(prev => [...prev, p]);
+                }}
+                className={`px-4 py-2 rounded-full text-[10px] font-black tracking-tight transition-all uppercase ${
+                  selectedPerms.includes(p) 
+                    ? (theme === "DARK" ? "bg-[#ccff00] text-stone-950 shadow-md shadow-[#ccff00]/20" : theme === "VINTAGE" ? "bg-black text-white shadow-md shadow-black/20" : "bg-[#4f6b28] text-white shadow-md shadow-[#4f6b28]/20")
+                    : (theme === "DARK" ? "bg-stone-800 text-stone-400 border border-stone-700 hover:border-[#ccff00]/30" : "bg-white text-stone-900 border border-stone-200 hover:border-[#4f6b28]/30")
+                }`}
+              >
+                {p}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {isGlobal && (
+          <div className="mt-8 animate-in fade-in slide-in-from-top-2">
+            <label className={`text-[10px] font-black tracking-[0.2em] uppercase mb-3 block transition-colors ${
+              theme === "DARK" ? "text-stone-400" : "text-stone-900"
+            }`}>Platform Admin Permissions</label>
+            <div className={`rounded-[32px] p-6 max-h-48 overflow-y-auto border flex flex-wrap gap-2 transition-colors ${
+              theme === "DARK" ? "bg-stone-900 border-stone-800" : 
+              theme === "VINTAGE" ? "bg-amber-50/30 border-amber-100" :
+              "bg-amber-100/30 border-amber-200"
+            }`}>
+              {globalPermissions.map(p => (
+                <button
+                  key={p}
+                  onClick={() => {
+                    if (selectedPerms.includes(p)) setSelectedPerms(prev => prev.filter(x => x !== p));
+                    else setSelectedPerms(prev => [...prev, p]);
+                  }}
+                  className={`px-4 py-2 rounded-full text-[10px] font-black tracking-tight transition-all uppercase ${
+                    selectedPerms.includes(p) 
+                      ? "bg-amber-600 text-white shadow-md shadow-amber-600/20" 
+                      : "bg-white text-amber-800 border border-amber-200 hover:border-amber-600/30"
+                  }`}
+                >
+                  {p}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+      </Modal>
 
       {/* Permissions Modal */}
-      {showPermsModal && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 animate-in fade-in duration-300">
-          <div className="absolute inset-0 bg-stone-900/40 backdrop-blur-sm" onClick={() => setShowPermsModal(false)}></div>
-          <div className={`relative rounded-[40px] w-full max-w-xl p-12 shadow-2xl animate-in zoom-in-95 duration-300 transition-colors ${
-            theme === "DARK" ? "bg-stone-950" : "bg-white"
-          }`}>
-            <h3 className={`text-4xl font-black italic tracking-tighter uppercase mb-4 transition-colors ${
-              theme === "DARK" ? "text-[#ccff00]" : 
-              theme === "VINTAGE" ? "text-black" :
-              "text-[#4f6b28]"
-            }`}>
-              Permissions
-            </h3>
-            <p className="text-stone-400 font-bold uppercase tracking-widest text-[10px] mb-8">Manage application-wide permission keys</p>
+      <Modal
+        isOpen={showPermsModal}
+        onClose={() => setShowPermsModal(false)}
+        title="Permissions"
+        theme={theme}
+        width={600}
+        footer={
+          <button 
+            onClick={() => setShowPermsModal(false)}
+            className={`w-full py-4 rounded-2xl text-[10px] font-black tracking-widest transition-all uppercase shadow-lg ${
+              theme === "DARK" ? "bg-stone-800 text-white hover:bg-stone-700" : 
+              theme === "VINTAGE" ? "bg-black text-white hover:opacity-90" :
+              "bg-stone-900 text-white hover:opacity-90"
+            }`}
+          >
+            Close
+          </button>
+        }
+      >
+        <p className="text-stone-400 font-bold uppercase tracking-widest text-[10px] mb-8">Manage application-wide permission keys</p>
 
-            <div className={`p-8 rounded-[32px] border mb-8 transition-colors ${
+        <div className={`p-8 rounded-[32px] border mb-8 transition-colors ${
+          theme === "DARK" ? "bg-stone-900 border-stone-800" : 
+          theme === "VINTAGE" ? "bg-[#f7f9fb] border-stone-100" :
+          "bg-stone-50 border-stone-100"
+        }`}>
+          <div className="flex gap-4 mb-6">
+            <input 
+              value={newPerm}
+              onChange={e => setNewPerm(e.target.value)}
+              onKeyDown={e => e.key === "Enter" && handleAddPermission()}
+              placeholder="e.g. INVOICE, COURT_BOOKING..."
+              className={`flex-1 border rounded-2xl px-6 py-4 text-sm font-bold placeholder:text-stone-300 outline-none transition-all ${
+                theme === "DARK" 
+                  ? "bg-stone-950 border-stone-800 text-white focus:border-[#ccff00]" 
+                  : theme === "VINTAGE"
+                    ? "bg-white border-stone-100 text-black focus:border-black"
+                    : "bg-white border-stone-200 text-stone-900 focus:border-[#4f6b28]"
+              }`}
+            />
+            <button 
+              onClick={handleAddPermission}
+              className={`px-8 rounded-2xl font-black text-xs tracking-widest transition-all uppercase ${
+                theme === "DARK" ? "bg-[#ccff00] text-stone-950" : 
+                theme === "VINTAGE" ? "bg-black text-white" :
+                "bg-[#4f6b28] text-white"
+              } hover:opacity-90`}
+            >
+              Add
+            </button>
+          </div>
+          <div className="flex flex-wrap gap-6 pl-2">
+            {Object.keys(permToggles).map(k => (
+              <label key={k} className="flex items-center gap-2 cursor-pointer group">
+                <div 
+                  className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all ${
+                    permToggles[k as keyof typeof permToggles] 
+                      ? (theme === "DARK" ? "bg-[#ccff00] border-[#ccff00] text-stone-950" : theme === "VINTAGE" ? "bg-black border-black text-white" : "bg-[#4f6b28] border-[#4f6b28] text-white")
+                      : (theme === "DARK" ? "border-stone-800 bg-stone-950" : "border-stone-200 bg-white")
+                  }`}
+                  onClick={() => setPermToggles(prev => ({ ...prev, [k]: !prev[k as keyof typeof prev] }))}
+                >
+                  {permToggles[k as keyof typeof permToggles] && <span className="material-symbols-outlined text-[10px] font-bold">check</span>}
+                </div>
+                <span className={`text-[10px] font-black uppercase tracking-widest transition-colors ${
+                  permToggles[k as keyof typeof permToggles] 
+                    ? (theme === "DARK" ? "text-[#ccff00]" : theme === "VINTAGE" ? "text-black" : "text-[#4f6b28]") 
+                    : "text-stone-300"
+                }`}>{k}</span>
+              </label>
+            ))}
+          </div>
+        </div>
+
+        <div className="max-h-64 overflow-y-auto pr-4 grid grid-cols-2 gap-3">
+          {permissions.sort().map(p => (
+            <div key={p} className={`flex items-center justify-between border rounded-2xl px-5 py-3 group transition-colors ${
               theme === "DARK" ? "bg-stone-900 border-stone-800" : 
               theme === "VINTAGE" ? "bg-[#f7f9fb] border-stone-100" :
               "bg-stone-50 border-stone-100"
             }`}>
-              <div className="flex gap-4 mb-6">
-                <input 
-                  value={newPerm}
-                  onChange={e => setNewPerm(e.target.value)}
-                  onKeyDown={e => e.key === "Enter" && handleAddPermission()}
-                  placeholder="e.g. INVOICE, COURT_BOOKING..."
-                  className={`flex-1 border rounded-2xl px-6 py-4 text-sm font-bold placeholder:text-stone-300 outline-none transition-all ${
-                    theme === "DARK" 
-                      ? "bg-stone-950 border-stone-800 text-white focus:border-[#ccff00]" 
-                      : theme === "VINTAGE"
-                        ? "bg-white border-stone-100 text-black focus:border-black"
-                        : "bg-white border-stone-200 text-stone-900 focus:border-[#4f6b28]"
-                  }`}
-                />
-                <button 
-                  onClick={handleAddPermission}
-                  className={`px-8 rounded-2xl font-black text-xs tracking-widest transition-all uppercase ${
-                    theme === "DARK" ? "bg-[#ccff00] text-stone-950" : 
-                    theme === "VINTAGE" ? "bg-black text-white" :
-                    "bg-[#4f6b28] text-white"
-                  } hover:opacity-90`}
-                >
-                  Add
-                </button>
-              </div>
-              <div className="flex flex-wrap gap-6 pl-2">
-                {Object.keys(permToggles).map(k => (
-                  <label key={k} className="flex items-center gap-2 cursor-pointer group">
-                    <div 
-                      className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all ${
-                        permToggles[k as keyof typeof permToggles] 
-                          ? (theme === "DARK" ? "bg-[#ccff00] border-[#ccff00] text-stone-950" : theme === "VINTAGE" ? "bg-black border-black text-white" : "bg-[#4f6b28] border-[#4f6b28] text-white")
-                          : (theme === "DARK" ? "border-stone-800 bg-stone-950" : "border-stone-200 bg-white")
-                      }`}
-                      onClick={() => setPermToggles(prev => ({ ...prev, [k]: !prev[k as keyof typeof prev] }))}
-                    >
-                      {permToggles[k as keyof typeof permToggles] && <span className="material-symbols-outlined text-[10px] font-bold">check</span>}
-                    </div>
-                    <span className={`text-[10px] font-black uppercase tracking-widest transition-colors ${
-                      permToggles[k as keyof typeof permToggles] 
-                        ? (theme === "DARK" ? "text-[#ccff00]" : theme === "VINTAGE" ? "text-black" : "text-[#4f6b28]") 
-                        : "text-stone-300"
-                    }`}>{k}</span>
-                  </label>
-                ))}
-              </div>
-            </div>
-
-            <div className="max-h-64 overflow-y-auto pr-4 grid grid-cols-2 gap-3">
-              {permissions.sort().map(p => (
-                <div key={p} className={`flex items-center justify-between border rounded-2xl px-5 py-3 group transition-colors ${
-                  theme === "DARK" ? "bg-stone-900 border-stone-800" : 
-                  theme === "VINTAGE" ? "bg-[#f7f9fb] border-stone-100" :
-                  "bg-stone-50 border-stone-100"
-                }`}>
-                  <span className={`text-[10px] font-mono font-bold transition-colors ${
-                    theme === "DARK" ? "text-stone-400" : "text-stone-500"
-                  }`}>{p}</span>
-                  <button onClick={() => handleRemovePermission(p)} className="text-stone-300 hover:text-red-500 transition-colors">
-                    <span className="material-symbols-outlined text-lg">close</span>
-                  </button>
-                </div>
-              ))}
-            </div>
-
-            <div className="mt-12">
-              <button 
-                onClick={() => setShowPermsModal(false)}
-                className={`w-full py-4 rounded-2xl text-[10px] font-black tracking-widest transition-all uppercase shadow-lg ${
-                  theme === "DARK" ? "bg-stone-800 text-white hover:bg-stone-700" : 
-                  theme === "VINTAGE" ? "bg-black text-white hover:opacity-90" :
-                  "bg-stone-900 text-white hover:opacity-90"
-                }`}
-              >
-                Close
+              <span className={`text-[10px] font-mono font-bold transition-colors ${
+                theme === "DARK" ? "text-stone-400" : "text-stone-500"
+              }`}>{p}</span>
+              <button onClick={() => handleRemovePermission(p)} className="text-stone-300 hover:text-red-500 transition-colors">
+                <span className="material-symbols-outlined text-lg">close</span>
               </button>
             </div>
-          </div>
+          ))}
         </div>
-      )}
+      </Modal>
 
       {/* Delete Confirmation Modal */}
-      {confirmDelete && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 animate-in fade-in duration-300">
-          <div className="absolute inset-0 bg-stone-900/40 backdrop-blur-sm" onClick={() => setConfirmDelete(null)}></div>
-          <div className={`relative rounded-[40px] w-full max-w-md p-12 shadow-2xl animate-in zoom-in-95 duration-300 transition-colors ${
-            theme === "DARK" ? "bg-stone-950" : "bg-white"
-          }`}>
-            <div className={`w-20 h-20 rounded-3xl flex items-center justify-center mb-8 mx-auto ${
-              theme === "VINTAGE" ? "bg-stone-50 text-black" : "bg-red-50 text-red-500"
-            }`}>
-              <span className="material-symbols-outlined text-4xl">delete_forever</span>
-            </div>
-            <h3 className={`text-3xl font-black italic tracking-tighter uppercase text-center mb-4 transition-colors ${
-              theme === "DARK" ? "text-white" : "text-stone-900"
-            }`}>
-              Delete Role?
-            </h3>
-            <p className={`text-center font-medium leading-relaxed mb-10 transition-colors ${
-              theme === "DARK" ? "text-stone-400" : "text-stone-500"
-            }`}>
-              Are you sure you want to delete this role type? Users assigned to this role may lose their permissions.
-            </p>
-            <div className="flex gap-4">
-              <button 
-                onClick={() => setConfirmDelete(null)}
-                className={`flex-1 py-4 border-2 rounded-2xl text-[10px] font-black tracking-widest transition-all uppercase ${
-                  theme === "DARK" ? "border-stone-800 text-stone-400 hover:bg-stone-900" : 
-                  theme === "VINTAGE" ? "border-stone-100 text-black hover:bg-stone-50" :
-                  "border-stone-100 text-stone-400 hover:bg-stone-50"
-                }`}
-              >
-                Go Back
-              </button>
-              <button 
-                onClick={() => handleDeleteRole(confirmDelete)}
-                className={`flex-1 py-4 rounded-2xl text-[10px] font-black tracking-widest transition-all uppercase shadow-lg ${
-                  theme === "VINTAGE" ? "bg-black text-white hover:bg-stone-900 shadow-black/20" : "bg-red-500 text-white hover:bg-red-600 shadow-red-500/20"
-                }`}
-              >
-                Delete Now
-              </button>
-            </div>
+      <Modal
+        isOpen={!!confirmDelete}
+        onClose={() => setConfirmDelete(null)}
+        title="Delete Role?"
+        theme={theme}
+        width={400}
+        footer={
+          <div className="flex gap-4">
+            <button 
+              onClick={() => setConfirmDelete(null)}
+              className={`flex-1 py-4 border-2 rounded-2xl text-[10px] font-black tracking-widest transition-all uppercase ${
+                theme === "DARK" ? "border-stone-800 text-stone-400 hover:bg-stone-900" : 
+                theme === "VINTAGE" ? "border-stone-100 text-black hover:bg-stone-50" :
+                "border-stone-100 text-stone-400 hover:bg-stone-50"
+              }`}
+            >
+              Go Back
+            </button>
+            <button 
+              onClick={() => confirmDelete && handleDeleteRole(confirmDelete)}
+              className={`flex-1 py-4 rounded-2xl text-[10px] font-black tracking-widest transition-all uppercase shadow-lg ${
+                theme === "VINTAGE" ? "bg-black text-white hover:bg-stone-900 shadow-black/20" : "bg-red-500 text-white hover:bg-red-600 shadow-red-500/20"
+              }`}
+            >
+              Delete Now
+            </button>
           </div>
+        }
+      >
+        <div className={`w-20 h-20 rounded-3xl flex items-center justify-center mb-8 mx-auto ${
+          theme === "VINTAGE" ? "bg-stone-50 text-black" : "bg-red-50 text-red-500"
+        }`}>
+          <span className="material-symbols-outlined text-4xl">delete_forever</span>
         </div>
-      )}
+        <p className={`text-center font-medium leading-relaxed transition-colors ${
+          theme === "DARK" ? "text-stone-400" : "text-stone-500"
+        }`}>
+          Are you sure you want to delete this role type? Users assigned to this role may lose their permissions.
+        </p>
+      </Modal>
     </div>
   );
 }

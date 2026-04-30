@@ -1,14 +1,9 @@
 "use client";
 import React, { useState } from "react";
-import {
-  useReactTable,
-  getCoreRowModel,
-  getFilteredRowModel,
-  getSortedRowModel,
-  flexRender,
   createColumnHelper,
   ColumnFiltersState,
 } from "@tanstack/react-table";
+import { Modal } from "@repo/ui/modal";
 
 interface Tenant {
   id: string;
@@ -30,6 +25,24 @@ export default function PlatformTenantAdminView({ theme = "LIGHT" }: { theme?: "
   const [tenants] = useState<Tenant[]>(MOCK_TENANTS);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
+  const [showNewModal, setShowNewModal] = useState(false);
+  const [formData, setFormData] = useState({
+    tenant_id: "T10005",
+    tenant_name: "",
+    owner_id: "U10001",
+    owner_email: "",
+    owner_first_name: "",
+    owner_last_name: "",
+    owner_phone: "",
+    owner_role: "Owner",
+    invite_user: true,
+    internal_notes: ""
+  });
+
+  const handleSave = () => {
+    // Mock save logic
+    setShowNewModal(false);
+  };
 
   const columnHelper = createColumnHelper<Tenant>();
   const columns = [
@@ -191,13 +204,16 @@ export default function PlatformTenantAdminView({ theme = "LIGHT" }: { theme?: "
               onChange={(e) => table.setGlobalFilter(e.target.value)}
             />
           </div>
-          <button className={`px-8 py-3 rounded-full font-black text-xs tracking-widest transition-all uppercase shadow-lg flex items-center gap-2 ${
-            theme === "DARK"
-              ? "bg-[#ccff00] text-stone-950 shadow-[#ccff00]/10 hover:opacity-90"
-              : theme === "VINTAGE"
-                ? "bg-black text-white shadow-black/10 hover:opacity-90"
-                : "bg-[#4f6b28] text-white shadow-[#4f6b28]/20 hover:opacity-90"
-          }`}>
+          <button 
+            onClick={() => setShowNewModal(true)}
+            className={`px-8 py-3 rounded-full font-black text-xs tracking-widest transition-all uppercase shadow-lg flex items-center gap-2 ${
+              theme === "DARK"
+                ? "bg-[#ccff00] text-stone-950 shadow-[#ccff00]/10 hover:opacity-90"
+                : theme === "VINTAGE"
+                  ? "bg-black text-white shadow-black/10 hover:opacity-90"
+                  : "bg-[#4f6b28] text-white shadow-[#4f6b28]/20 hover:opacity-90"
+            }`}
+          >
             <span className="material-symbols-outlined text-sm">add_business</span>
             New Tenant
           </button>
@@ -291,52 +307,208 @@ export default function PlatformTenantAdminView({ theme = "LIGHT" }: { theme?: "
       </div>
 
       {/* Delete Confirmation Modal */}
-      {confirmDelete && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 animate-in fade-in duration-300">
-          <div className="absolute inset-0 bg-stone-900/40 backdrop-blur-sm" onClick={() => setConfirmDelete(null)}></div>
-          <div className={`relative rounded-[40px] w-full max-w-md p-12 shadow-2xl animate-in zoom-in-95 duration-300 overflow-hidden transition-colors ${
-            theme === "DARK" ? "bg-stone-950" : "bg-white"
-          }`}>
-            <div className="relative z-10">
-              <div className={`w-20 h-20 rounded-3xl flex items-center justify-center mb-8 mx-auto ${
-                theme === "VINTAGE" ? "bg-stone-50 text-black" : "bg-red-50 text-red-500"
-              }`}>
-                <span className="material-symbols-outlined text-4xl">delete_forever</span>
-              </div>
-              <h3 className={`text-3xl font-black italic tracking-tighter uppercase text-center mb-4 transition-colors ${
-                theme === "DARK" ? "text-white" : "text-stone-900"
-              }`}>
-                Delete Tenant?
-              </h3>
-              <p className={`text-center font-medium leading-relaxed mb-10 transition-colors ${
-                theme === "DARK" ? "text-stone-400" : "text-stone-500"
-              }`}>
-                Are you sure you want to remove this tenant from the platform? This will revoke all access for their users.
-              </p>
-              <div className="flex gap-4">
-                <button 
-                  onClick={() => setConfirmDelete(null)}
-                  className={`flex-1 py-4 border-2 rounded-2xl text-[10px] font-black tracking-widest transition-all uppercase ${
-                    theme === "DARK" ? "border-stone-800 text-stone-400 hover:bg-stone-900" : 
-                    theme === "VINTAGE" ? "border-stone-100 text-black hover:bg-stone-50" :
-                    "border-stone-100 text-stone-400 hover:bg-stone-50"
-                  }`}
-                >
-                  Go Back
-                </button>
-                <button 
-                  onClick={() => setConfirmDelete(null)}
-                  className={`flex-1 py-4 rounded-2xl text-[10px] font-black tracking-widest transition-all uppercase shadow-lg ${
-                    theme === "VINTAGE" ? "bg-black text-white hover:bg-stone-900 shadow-black/20" : "bg-red-500 text-white hover:bg-red-600 shadow-red-500/20"
-                  }`}
-                >
-                  Delete Now
-                </button>
-              </div>
-            </div>
+      <Modal
+        isOpen={!!confirmDelete}
+        onClose={() => setConfirmDelete(null)}
+        title="Delete Tenant?"
+        theme={theme}
+        width={400}
+        footer={
+          <div className="flex gap-4">
+            <button 
+              onClick={() => setConfirmDelete(null)}
+              className={`flex-1 py-4 border-2 rounded-2xl text-[10px] font-black tracking-widest transition-all uppercase ${
+                theme === "DARK" ? "border-stone-800 text-stone-400 hover:bg-stone-900" : 
+                theme === "VINTAGE" ? "border-stone-100 text-black hover:bg-stone-50" :
+                "border-stone-100 text-stone-400 hover:bg-stone-50"
+              }`}
+            >
+              Go Back
+            </button>
+            <button 
+              onClick={() => setConfirmDelete(null)}
+              className={`flex-1 py-4 rounded-2xl text-[10px] font-black tracking-widest transition-all uppercase shadow-lg ${
+                theme === "VINTAGE" ? "bg-black text-white hover:bg-stone-900 shadow-black/20" : "bg-red-500 text-white hover:bg-red-600 shadow-red-500/20"
+              }`}
+            >
+              Delete Now
+            </button>
           </div>
+        }
+      >
+        <div className={`w-20 h-20 rounded-3xl flex items-center justify-center mb-8 mx-auto ${
+          theme === "VINTAGE" ? "bg-stone-50 text-black" : "bg-red-50 text-red-500"
+        }`}>
+          <span className="material-symbols-outlined text-4xl">delete_forever</span>
         </div>
-      )}
+        <p className={`text-center font-medium leading-relaxed transition-colors ${
+          theme === "DARK" ? "text-stone-400" : "text-stone-500"
+        }`}>
+          Are you sure you want to remove this tenant from the platform? This will revoke all access for their users.
+        </p>
+      </Modal>
+
+      {/* New Tenant Modal */}
+      <Modal
+        isOpen={showNewModal}
+        onClose={() => setShowNewModal(false)}
+        title="New Tenant"
+        theme={theme}
+        width={600}
+        footer={
+          <div className="flex gap-4">
+            <button 
+              onClick={() => setShowNewModal(false)}
+              className={`flex-1 py-4 border-2 rounded-2xl text-[10px] font-black tracking-widest transition-all uppercase ${
+                theme === "DARK" ? "border-stone-800 text-stone-400 hover:bg-stone-900" : 
+                theme === "VINTAGE" ? "border-stone-100 text-black hover:bg-stone-50" :
+                "border-stone-100 text-stone-400 hover:bg-stone-50"
+              }`}
+            >
+              Cancel
+            </button>
+            <button 
+              onClick={handleSave}
+              className={`flex-1 py-4 rounded-2xl text-[10px] font-black tracking-widest transition-all uppercase shadow-lg ${
+                theme === "DARK" ? "bg-[#ccff00] text-stone-950 shadow-[#ccff00]/20" : 
+                theme === "VINTAGE" ? "bg-black text-white shadow-black/20" :
+                "bg-[#4f6b28] text-white shadow-[#4f6b28]/20"
+              } hover:opacity-90`}
+            >
+              Save
+            </button>
+          </div>
+        }
+      >
+        <div className="space-y-6">
+          <FormField label="TENANT ID" theme={theme}>
+            <div className={`px-6 py-4 rounded-2xl font-mono text-sm transition-colors ${
+              theme === "DARK" ? "bg-stone-900 text-stone-400" : "bg-stone-50 text-stone-500"
+            }`}>
+              {formData.tenant_id}
+            </div>
+          </FormField>
+
+          <FormField label="TENANT NAME" theme={theme}>
+            <input 
+              value={formData.tenant_name}
+              onChange={e => setFormData({ ...formData, tenant_name: e.target.value })}
+              placeholder="e.g. AVG Real Estate"
+              className={inputClasses(theme)}
+            />
+          </FormField>
+
+          <div className={`pt-4 pb-2 border-b transition-colors ${
+            theme === "DARK" ? "border-stone-800" : "border-stone-100"
+          }`}>
+            <span className={`text-[10px] font-black uppercase tracking-[0.2em] ${
+              theme === "DARK" ? "text-stone-500" : "text-stone-400"
+            }`}>Primary Owner Details</span>
+          </div>
+
+          <FormField label="OWNER ID (UPCOMING)" theme={theme}>
+            <div className={`px-6 py-4 rounded-2xl font-mono text-sm transition-colors ${
+              theme === "DARK" ? "bg-stone-900 text-stone-400" : "bg-stone-50 text-stone-500"
+            }`}>
+              {formData.owner_id}
+            </div>
+          </FormField>
+
+          <FormField label="EMAIL ADDRESS" theme={theme}>
+            <input 
+              value={formData.owner_email}
+              onChange={e => setFormData({ ...formData, owner_email: e.target.value })}
+              placeholder="owner@company.com"
+              className={inputClasses(theme)}
+            />
+          </FormField>
+
+          <div className="grid grid-cols-2 gap-6">
+            <FormField label="FIRST NAME" theme={theme}>
+              <input 
+                value={formData.owner_first_name}
+                onChange={e => setFormData({ ...formData, owner_first_name: e.target.value })}
+                placeholder="Jane"
+                className={inputClasses(theme)}
+              />
+            </FormField>
+            <FormField label="LAST NAME" theme={theme}>
+              <input 
+                value={formData.owner_last_name}
+                onChange={e => setFormData({ ...formData, owner_last_name: e.target.value })}
+                placeholder="Doe"
+                className={inputClasses(theme)}
+              />
+            </FormField>
+          </div>
+
+          <FormField label="PHONE" theme={theme}>
+            <input 
+              value={formData.owner_phone}
+              onChange={e => setFormData({ ...formData, owner_phone: e.target.value })}
+              placeholder="+1 555 000 0000"
+              className={inputClasses(theme)}
+            />
+          </FormField>
+
+          <FormField label="ROLE" theme={theme}>
+            <div className={`px-6 py-4 rounded-2xl text-sm font-bold transition-colors ${
+              theme === "DARK" ? "bg-stone-900 text-stone-400" : "bg-stone-50 text-stone-500"
+            }`}>
+              {formData.owner_role}
+            </div>
+            <p className="text-[10px] text-stone-500 mt-2 font-medium">Primary owner must be assigned the Owner role.</p>
+          </FormField>
+
+          <label className="flex items-center gap-4 cursor-pointer group">
+            <div className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all ${
+              formData.invite_user 
+                ? (theme === "DARK" ? "bg-[#ccff00] border-[#ccff00]" : "bg-black border-black")
+                : (theme === "DARK" ? "border-stone-800" : "border-stone-200")
+            }`}>
+              {formData.invite_user && <span className="material-symbols-outlined text-white text-lg">check</span>}
+            </div>
+            <input 
+              type="checkbox"
+              className="hidden"
+              checked={formData.invite_user}
+              onChange={e => setFormData({ ...formData, invite_user: e.target.checked })}
+            />
+            <span className={`text-sm font-bold transition-colors ${
+              theme === "DARK" ? "text-white" : "text-stone-900"
+            }`}>Invite user (Send verification email)</span>
+          </label>
+
+          <FormField label="INTERNAL NOTES" theme={theme}>
+            <textarea 
+              value={formData.internal_notes}
+              onChange={e => setFormData({ ...formData, internal_notes: e.target.value })}
+              placeholder="Private notes about this tenant/owner..."
+              rows={4}
+              className={inputClasses(theme)}
+            />
+          </FormField>
+        </div>
+      </Modal>
     </div>
   );
 }
+
+function FormField({ label, children, theme }: { label: string; children: React.ReactNode; theme: string }) {
+  return (
+    <div>
+      <label className={`text-[10px] font-black tracking-[0.2em] uppercase mb-3 block transition-colors ${
+        theme === "DARK" ? "text-stone-400" : "text-stone-900"
+      }`}>{label}</label>
+      {children}
+    </div>
+  );
+}
+
+const inputClasses = (theme: string) => `w-full border-none rounded-2xl px-6 py-4 text-sm font-bold placeholder:text-stone-300 outline-none transition-colors ${
+  theme === "DARK" 
+    ? "bg-stone-900 text-white focus:ring-2 focus:ring-[#ccff00]" 
+    : theme === "VINTAGE"
+      ? "bg-[#f7f9fb] text-black focus:ring-2 focus:ring-black"
+      : "bg-stone-50 text-stone-900 focus:ring-2 focus:ring-[#4f6b28]"
+}`;

@@ -9,6 +9,7 @@ import {
   createColumnHelper,
   ColumnFiltersState,
 } from "@tanstack/react-table";
+import { Modal } from "@repo/ui/modal";
 
 interface User {
   id: string;
@@ -291,52 +292,48 @@ export default function UserAdminView({ theme = "LIGHT" }: { theme?: "LIGHT" | "
       </div>
 
       {/* Delete Confirmation Modal */}
-      {confirmDelete && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 animate-in fade-in duration-300">
-          <div className="absolute inset-0 bg-stone-900/40 backdrop-blur-sm" onClick={() => setConfirmDelete(null)}></div>
-          <div className={`relative rounded-[40px] w-full max-w-md p-12 shadow-2xl animate-in zoom-in-95 duration-300 overflow-hidden ${
-            theme === "DARK" ? "bg-stone-950" : "bg-white"
-          }`}>
-            <div className="relative z-10">
-              <div className={`w-20 h-20 rounded-3xl flex items-center justify-center mb-8 mx-auto ${
-                theme === "VINTAGE" ? "bg-stone-50 text-black" : "bg-red-50 text-red-500"
-              }`}>
-                <span className="material-symbols-outlined text-4xl">delete_forever</span>
-              </div>
-              <h3 className={`text-3xl font-black italic tracking-tighter uppercase text-center mb-4 transition-colors ${
-                theme === "DARK" ? "text-white" : "text-stone-900"
-              }`}>
-                Delete User?
-              </h3>
-              <p className={`text-center font-medium leading-relaxed mb-10 transition-colors ${
-                theme === "DARK" ? "text-stone-400" : "text-stone-500"
-              }`}>
-                Are you sure you want to remove this user from the platform? This action cannot be undone.
-              </p>
-              <div className="flex gap-4">
-                <button 
-                  onClick={() => setConfirmDelete(null)}
-                  className={`flex-1 py-4 border-2 rounded-2xl text-[10px] font-black tracking-widest transition-all uppercase ${
-                    theme === "DARK" ? "border-stone-800 text-stone-400 hover:bg-stone-900" : 
-                    theme === "VINTAGE" ? "border-stone-100 text-black hover:bg-stone-50" :
-                    "border-stone-100 text-stone-400 hover:bg-stone-50"
-                  }`}
-                >
-                  Go Back
-                </button>
-                <button 
-                  onClick={() => setConfirmDelete(null)}
-                  className={`flex-1 py-4 rounded-2xl text-[10px] font-black tracking-widest transition-all uppercase shadow-lg ${
-                    theme === "VINTAGE" ? "bg-black text-white hover:bg-stone-900 shadow-black/20" : "bg-red-500 text-white hover:bg-red-600 shadow-red-500/20"
-                  }`}
-                >
-                  Delete Now
-                </button>
-              </div>
-            </div>
+      <Modal
+        isOpen={!!confirmDelete}
+        onClose={() => setConfirmDelete(null)}
+        title="Delete User?"
+        theme={theme}
+        width={400}
+        footer={
+          <div className="flex gap-4">
+            <button 
+              onClick={() => setConfirmDelete(null)}
+              className={`flex-1 py-4 border-2 rounded-2xl text-[10px] font-black tracking-widest transition-all uppercase ${
+                theme === "DARK" ? "border-stone-800 text-stone-400 hover:bg-stone-900" : 
+                theme === "VINTAGE" ? "border-stone-100 text-black hover:bg-stone-50" :
+                "border-stone-100 text-stone-400 hover:bg-stone-50"
+              }`}
+            >
+              Go Back
+            </button>
+            <button 
+              onClick={() => setConfirmDelete(null)}
+              className={`flex-1 py-4 rounded-2xl text-[10px] font-black tracking-widest transition-all uppercase shadow-lg ${
+                theme === "VINTAGE" ? "bg-black text-white hover:bg-stone-900 shadow-black/20" : "bg-red-500 text-white hover:bg-red-600 shadow-red-500/20"
+              }`}
+            >
+              Delete Now
+            </button>
           </div>
+        }
+      >
+        <div className="relative z-10">
+          <div className={`w-20 h-20 rounded-3xl flex items-center justify-center mb-8 mx-auto ${
+            theme === "VINTAGE" ? "bg-stone-50 text-black" : "bg-red-50 text-red-500"
+          }`}>
+            <span className="material-symbols-outlined text-4xl">delete_forever</span>
+          </div>
+          <p className={`text-center font-medium leading-relaxed transition-colors ${
+            theme === "DARK" ? "text-stone-400" : "text-stone-500"
+          }`}>
+            Are you sure you want to remove this user from the platform? This action cannot be undone.
+          </p>
         </div>
-      )}
+      </Modal>
     </div>
   );
 }

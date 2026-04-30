@@ -38,6 +38,10 @@ Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
 - **Stop Automated Verification**: Never perform automated verification via DOM control (browser subagent) without explicit user approval for each instance.
 - **Mandatory Consent**: You MUST ask the user before running any verification tasks that involve browser interactions or live application testing.
 
+### Modals
+- **UX Standard**: All modal windows must be **resizable and moveable**.
+- **Implementation**: Use the shared `@repo/ui/modal` component to ensure consistency across themes and interactivity standards.
+
 
 ### Utilities
 
