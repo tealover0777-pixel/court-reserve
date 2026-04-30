@@ -468,7 +468,7 @@ export default function PlatformTenantAdminView({ theme = "LIGHT" }: { theme?: "
               Go Back
             </button>
             <button 
-              onClick={handleDeleteTenant}
+              onClick={() => handleDeleteTenant()}
               className={`flex-1 py-4 rounded-2xl text-[10px] font-black tracking-widest transition-all uppercase shadow-lg ${
                 theme === "VINTAGE" ? "bg-black text-white hover:bg-stone-900 shadow-black/20" : "bg-red-500 text-white hover:bg-red-600 shadow-red-500/20"
               }`}
