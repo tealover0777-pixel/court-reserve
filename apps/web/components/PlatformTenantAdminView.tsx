@@ -16,6 +16,7 @@ import {
   onSnapshot, 
   doc, 
   setDoc, 
+  deleteDoc,
   serverTimestamp, 
   query, 
   orderBy 
