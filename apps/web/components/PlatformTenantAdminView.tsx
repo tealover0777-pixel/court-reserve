@@ -83,9 +83,37 @@ export default function PlatformTenantAdminView({ theme = "LIGHT" }: { theme?: "
     }
   }, [showNewModal, nextTenantId]);
 
+  const handleDeleteTenant = async (id?: string) => {
+    const targetId = id || confirmDelete;
+    if (!targetId) return;
+    try {
+      await deleteDoc(doc(db, "tenants", targetId));
+      if (!id) setConfirmDelete(null);
+    } catch (err) {
+      console.error("Failed to delete tenant:", err);
+      alert("Failed to delete tenant.");
+    }
+  };
+
+  const cleanupSamples = async () => {
+    const samples = ["T10001", "T10002", "T10003", "T10004"];
+    try {
+      for (const id of samples) {
+        await deleteDoc(doc(db, "tenants", id));
+      }
+      alert("Samples cleaned up successfully.");
+    } catch (err) {
+      console.error("Cleanup failed:", err);
+    }
+  };
+
   const handleSave = async () => {
     try {
       const tenantDocId = formData.tenant_id;
+      if (!formData.tenant_name || !formData.owner_email) {
+        alert("Please fill in the tenant name and owner email.");
+        return;
+      }
       
       // 1. Create Tenant in Firestore
       await setDoc(doc(db, "tenants", tenantDocId), {
@@ -93,7 +121,7 @@ export default function PlatformTenantAdminView({ theme = "LIGHT" }: { theme?: "
         name: formData.tenant_name,
         domain: `${formData.tenant_name.toLowerCase().replace(/\s+/g, '-')}.kinetic.com`,
         status: "Active",
-        created_at: new Date().toISOString().split('T')[0], // For the mock table format, or use serverTimestamp for real
+        created_at: new Date().toISOString().split('T')[0],
         Notes: formData.internal_notes,
         owner_id: formData.owner_id
       });
@@ -102,7 +130,7 @@ export default function PlatformTenantAdminView({ theme = "LIGHT" }: { theme?: "
       const inviteUserFn = httpsCallable(functions, "inviteUser");
       await inviteUserFn({
         email: formData.owner_email,
-        role: "R10005", // Default Owner role
+        role: "R10005",
         tenantId: tenantDocId,
         user_id: formData.owner_id,
         first_name: formData.owner_first_name,
@@ -304,7 +332,21 @@ export default function PlatformTenantAdminView({ theme = "LIGHT" }: { theme?: "
             />
           </div>
           <button 
-            onClick={() => setShowNewModal(true)}
+            onClick={cleanupSamples}
+            className={`px-4 py-3 rounded-full font-black text-[10px] tracking-widest transition-all uppercase border-2 flex items-center gap-2 ${
+              theme === "DARK" ? "border-stone-800 text-stone-400 hover:bg-stone-900" : 
+              theme === "VINTAGE" ? "border-stone-100 text-stone-500 hover:bg-stone-50" :
+              "border-stone-100 text-stone-400 hover:bg-stone-50"
+            }`}
+          >
+            <span className="material-symbols-outlined text-sm">cleaning_services</span>
+            Cleanup Samples
+          </button>
+          <button 
+            onClick={() => {
+              console.log("Opening New Tenant Modal");
+              setShowNewModal(true);
+            }}
             className={`px-8 py-3 rounded-full font-black text-xs tracking-widest transition-all uppercase shadow-lg flex items-center gap-2 ${
               theme === "DARK"
                 ? "bg-[#ccff00] text-stone-950 shadow-[#ccff00]/10 hover:opacity-90"
@@ -425,7 +467,7 @@ export default function PlatformTenantAdminView({ theme = "LIGHT" }: { theme?: "
               Go Back
             </button>
             <button 
-              onClick={() => setConfirmDelete(null)}
+              onClick={handleDeleteTenant}
               className={`flex-1 py-4 rounded-2xl text-[10px] font-black tracking-widest transition-all uppercase shadow-lg ${
                 theme === "VINTAGE" ? "bg-black text-white hover:bg-stone-900 shadow-black/20" : "bg-red-500 text-white hover:bg-red-600 shadow-red-500/20"
               }`}
