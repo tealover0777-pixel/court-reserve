@@ -1,5 +1,11 @@
 "use client";
 import React, { useState } from "react";
+import {
+  useReactTable,
+  getCoreRowModel,
+  getSortedRowModel,
+  getFilteredRowModel,
+  flexRender,
   createColumnHelper,
   ColumnFiltersState,
 } from "@tanstack/react-table";

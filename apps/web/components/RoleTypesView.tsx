@@ -11,6 +11,12 @@ import {
   orderBy,
   serverTimestamp 
 } from "firebase/firestore";
+import {
+  useReactTable,
+  getCoreRowModel,
+  getSortedRowModel,
+  getFilteredRowModel,
+  flexRender,
   createColumnHelper,
   ColumnFiltersState,
 } from "@tanstack/react-table";

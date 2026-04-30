@@ -13,8 +13,14 @@ import {
   serverTimestamp 
 } from "firebase/firestore";
 
+import { 
   createColumnHelper,
   ColumnFiltersState,
+  useReactTable,
+  getCoreRowModel,
+  getSortedRowModel,
+  getFilteredRowModel,
+  flexRender,
 } from "@tanstack/react-table";
 import { Modal } from "@repo/ui/modal";
 
