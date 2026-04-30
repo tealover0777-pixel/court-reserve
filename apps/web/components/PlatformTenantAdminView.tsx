@@ -10,6 +10,18 @@ import {
   ColumnFiltersState,
 } from "@tanstack/react-table";
 import { Modal } from "@repo/ui/modal";
+import { db, functions } from "../lib/firebase";
+import { 
+  collection, 
+  onSnapshot, 
+  doc, 
+  setDoc, 
+  serverTimestamp, 
+  query, 
+  orderBy 
+} from "firebase/firestore";
+import { httpsCallable } from "firebase/functions";
+import { useEffect } from "react";
 
 interface Tenant {
   id: string;
@@ -20,22 +32,18 @@ interface Tenant {
   created_at: string;
 }
 
-const MOCK_TENANTS: Tenant[] = [
-  { id: "1", tenant_id: "T10001", name: "Elite Tennis Club", domain: "elite-tennis.kinetic.com", status: "Active", created_at: "2024-01-15" },
-  { id: "2", tenant_id: "T10002", name: "Peak Padel Center", domain: "peak-padel.kinetic.com", status: "Active", created_at: "2024-02-10" },
-  { id: "3", tenant_id: "T10003", name: "Harbor Courts", domain: "harbor-courts.kinetic.com", status: "Suspended", created_at: "2024-02-22" },
-  { id: "4", tenant_id: "T10004", name: "Vantage Sports", domain: "vantage.kinetic.com", status: "Pending", created_at: "2024-03-05" },
-];
+
 
 export default function PlatformTenantAdminView({ theme = "LIGHT" }: { theme?: "LIGHT" | "DARK" | "VINTAGE" }) {
-  const [tenants] = useState<Tenant[]>(MOCK_TENANTS);
+  const [tenants, setTenants] = useState<Tenant[]>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
   const [showNewModal, setShowNewModal] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [formData, setFormData] = useState({
-    tenant_id: "T10005",
+    tenant_id: "",
     tenant_name: "",
-    owner_id: "U10001",
+    owner_id: "",
     owner_email: "",
     owner_first_name: "",
     owner_last_name: "",
@@ -45,9 +53,82 @@ export default function PlatformTenantAdminView({ theme = "LIGHT" }: { theme?: "
     internal_notes: ""
   });
 
-  const handleSave = () => {
-    // Mock save logic
-    setShowNewModal(false);
+  useEffect(() => {
+    const q = query(collection(db, "tenants"), orderBy("tenant_id", "asc"));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const data = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      })) as Tenant[];
+      setTenants(data);
+      setLoading(false);
+    });
+    return () => unsubscribe();
+  }, []);
+
+  const nextTenantId = (() => {
+    if (tenants.length === 0) return "T10001";
+    const maxNum = Math.max(...tenants.map(p => {
+      const m = String(p.tenant_id).match(/^T(\d+)$/);
+      return m ? Number(m[1]) : 0;
+    }));
+    return "T" + (maxNum + 1);
+  })();
+
+  const nextOwnerId = "U10001"; // Simplify for now or fetch from global_users count
+
+  useEffect(() => {
+    if (showNewModal) {
+      setFormData(prev => ({ ...prev, tenant_id: nextTenantId, owner_id: nextOwnerId }));
+    }
+  }, [showNewModal, nextTenantId]);
+
+  const handleSave = async () => {
+    try {
+      const tenantDocId = formData.tenant_id;
+      
+      // 1. Create Tenant in Firestore
+      await setDoc(doc(db, "tenants", tenantDocId), {
+        tenant_id: formData.tenant_id,
+        name: formData.tenant_name,
+        domain: `${formData.tenant_name.toLowerCase().replace(/\s+/g, '-')}.kinetic.com`,
+        status: "Active",
+        created_at: new Date().toISOString().split('T')[0], // For the mock table format, or use serverTimestamp for real
+        Notes: formData.internal_notes,
+        owner_id: formData.owner_id
+      });
+
+      // 2. Invite Owner via Cloud Function
+      const inviteUserFn = httpsCallable(functions, "inviteUser");
+      await inviteUserFn({
+        email: formData.owner_email,
+        role: "R10005", // Default Owner role
+        tenantId: tenantDocId,
+        user_id: formData.owner_id,
+        first_name: formData.owner_first_name,
+        last_name: formData.owner_last_name,
+        phone: formData.owner_phone,
+        notes: formData.internal_notes || `Created with New Tenant: ${tenantDocId}`,
+        inviteUser: formData.invite_user
+      });
+
+      setShowNewModal(false);
+      setFormData({
+        tenant_id: "",
+        tenant_name: "",
+        owner_id: "",
+        owner_email: "",
+        owner_first_name: "",
+        owner_last_name: "",
+        owner_phone: "",
+        owner_role: "Owner",
+        invite_user: true,
+        internal_notes: ""
+      });
+    } catch (err) {
+      console.error("Failed to save tenant:", err);
+      alert("Failed to save tenant: " + (err instanceof Error ? err.message : "Unknown error"));
+    }
   };
 
   const columnHelper = createColumnHelper<Tenant>();
@@ -170,6 +251,18 @@ export default function PlatformTenantAdminView({ theme = "LIGHT" }: { theme?: "
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
   });
+
+  if (loading) {
+    return (
+      <div className="flex h-64 items-center justify-center">
+        <div className={`h-8 w-8 animate-spin rounded-full border-4 border-t-transparent ${
+          theme === "DARK" ? "border-[#ccff00]" : 
+          theme === "VINTAGE" ? "border-black" :
+          "border-[#4f6b28]"
+        }`}></div>
+      </div>
+    );
+  }
 
   return (
     <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">

@@ -20,18 +20,41 @@ interface User {
   status: "Active" | "Inactive";
 }
 
-const MOCK_USERS: User[] = [
-  { id: "1", user_id: "U10001", name: "Alex Sterling", email: "alex@kinetic.com", role: "Club Manager", status: "Active" },
-  { id: "2", user_id: "U10002", name: "Sarah Chen", email: "sarah.c@kinetic.com", role: "Instructor", status: "Active" },
-  { id: "3", user_id: "U10003", name: "Marcus Volkov", email: "marcus@kinetic.com", role: "Technician", status: "Active" },
-  { id: "4", user_id: "U10004", name: "Elena Rodriguez", email: "elena@kinetic.com", role: "Front Desk", status: "Inactive" },
-  { id: "5", user_id: "U10005", name: "David Kim", email: "david.k@kinetic.com", role: "Club Manager", status: "Active" },
-];
+
+
+import { db } from "../lib/firebase";
+import { collection, onSnapshot, query, orderBy, doc, deleteDoc } from "firebase/firestore";
+import { useEffect } from "react";
 
 export default function UserAdminView({ theme = "LIGHT" }: { theme?: "LIGHT" | "DARK" | "VINTAGE" }) {
-  const [users] = useState<User[]>(MOCK_USERS);
+  const [users, setUsers] = useState<User[]>([]);
+  const [loading, setLoading] = useState(true);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
+
+  useEffect(() => {
+    const q = query(collection(db, "global_users"), orderBy("user_id", "asc"));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const data = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      })) as User[];
+      setUsers(data);
+      setLoading(false);
+    });
+    return () => unsubscribe();
+  }, []);
+
+  const handleDeleteUser = async () => {
+    if (!confirmDelete) return;
+    try {
+      await deleteDoc(doc(db, "global_users", confirmDelete));
+      setConfirmDelete(null);
+    } catch (err) {
+      console.error("Failed to delete user:", err);
+      alert("Failed to delete user.");
+    }
+  };
 
   const columnHelper = createColumnHelper<User>();
   const columns = [
@@ -152,6 +175,18 @@ export default function UserAdminView({ theme = "LIGHT" }: { theme?: "LIGHT" | "
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
   });
+
+  if (loading) {
+    return (
+      <div className="flex h-64 items-center justify-center">
+        <div className={`h-8 w-8 animate-spin rounded-full border-4 border-t-transparent ${
+          theme === "DARK" ? "border-[#ccff00]" : 
+          theme === "VINTAGE" ? "border-black" :
+          "border-[#4f6b28]"
+        }`}></div>
+      </div>
+    );
+  }
 
   return (
     <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
@@ -311,7 +346,7 @@ export default function UserAdminView({ theme = "LIGHT" }: { theme?: "LIGHT" | "
               Go Back
             </button>
             <button 
-              onClick={() => setConfirmDelete(null)}
+              onClick={handleDeleteUser}
               className={`flex-1 py-4 rounded-2xl text-[10px] font-black tracking-widest transition-all uppercase shadow-lg ${
                 theme === "VINTAGE" ? "bg-black text-white hover:bg-stone-900 shadow-black/20" : "bg-red-500 text-white hover:bg-red-600 shadow-red-500/20"
               }`}
