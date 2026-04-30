@@ -16,16 +16,18 @@ Exports made by CommonJs syntax will lead to a runtime error, since the module i
 [32m[1m✓[22m[39m Compiled successfully in 2.8s
 [?25l[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[31mFailed to type check.
 [39m
-[36m./components/PlatformTenantAdminView.tsx[39m:[33m90[39m:[33m13[39m
-[31m[1mType error[22m[39m: Cannot find name 'deleteDoc'.
+[36m./components/PlatformTenantAdminView.tsx[39m:[33m471[39m:[33m15[39m
+[31m[1mType error[22m[39m: Type '(id?: string) => Promise<void>' is not assignable to type 'MouseEventHandler<HTMLButtonElement>'.
+  Types of parameters 'id' and 'event' are incompatible.
+    Type 'MouseEvent<HTMLButtonElement, MouseEvent>' is not assignable to type 'string'.
 
-  [90m88 |[0m     [36mif[0m (!targetId) [36mreturn[0m;
-  [90m89 |[0m     [36mtry[0m {
-[31m[1m>[0m [90m90 |[0m       [36mawait[0m deleteDoc(doc(db, [32m"tenants"[0m, targetId));
-  [90m   |[0m             [31m[1m^[0m
-  [90m91 |[0m       [36mif[0m (!id) setConfirmDelete([36mnull[0m);
-  [90m92 |[0m     } [36mcatch[0m (err) {
-  [90m93 |[0m       console.error([32m"Failed to delete tenant:"[0m, err);
+  [90m469 |[0m             </button>
+  [90m470 |[0m             <button 
+[31m[1m>[0m [90m471 |[0m               onClick={handleDeleteTenant}
+  [90m    |[0m               [31m[1m^[0m
+  [90m472 |[0m               className={[32m`flex-1 py-4 rounded-2xl text-[10px] font-black tracking-widest ...[0m
+  [90m473 |[0m                 theme === [32m"VINTAGE"[0m ? [32m"bg-black text-white hover:bg-stone-900 shadow-blac...[0m
+  [90m474 |[0m               [32m}`[0m}
 [2K[1G[?25hNext.js build worker exited with code: 1 and signal: null
 [?25l [36m.[39m [?25h⠙[1G[0K[1mnpm[22m [31merror[39m Lifecycle script `build` failed with error:
 ⠙[1G[0K[1mnpm[22m [31merror[39m [94mcode[39m [33m1[39m
