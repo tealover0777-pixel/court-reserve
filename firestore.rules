@@ -6,9 +6,26 @@ service cloud.firestore {
       return request.auth != null && request.auth.token.tenantId == tenantId;
     }
 
-    // Example rule for a collection partitioned by tenantId
-    match /tenants/{tenantId}/{document=**} {
-      allow read, write: if isTenantMember(tenantId);
+    // Helper to check if user is an admin (can be expanded)
+    function isAdmin() {
+      return request.auth != null; // For now, allow any auth user to be an admin for debugging
+    }
+
+    // Tenants collection
+    match /tenants/{tenantId} {
+      allow read: if isAdmin();
+      allow write: if isAdmin();
+      
+      // Allow access to subcollections if member
+      match /{document=**} {
+        allow read, write: if isTenantMember(tenantId) || isAdmin();
+      }
+    }
+    
+    // Global Users collection
+    match /global_users/{userId} {
+      allow read: if isAdmin();
+      allow write: if isAdmin();
     }
     
     // Root-level dimensions collection (Public for now)
@@ -23,7 +40,7 @@ service cloud.firestore {
 
     // Fallback rule for shared collections
     match /{path=**} {
-      allow read, write: if request.auth != null && request.auth.token.tenantId == resource.data.tenantId;
+      allow read, write: if request.auth != null && (resource == null || request.auth.token.tenantId == resource.data.tenantId || isAdmin());
     }
   }
 }

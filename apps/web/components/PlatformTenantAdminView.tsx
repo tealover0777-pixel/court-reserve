@@ -63,6 +63,9 @@ export default function PlatformTenantAdminView({ theme = "LIGHT" }: { theme?: "
       })) as Tenant[];
       setTenants(data);
       setLoading(false);
+    }, (error) => {
+      console.error("Error fetching tenants:", error);
+      setLoading(false);
     });
     return () => unsubscribe();
   }, []);

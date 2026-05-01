@@ -3,9 +3,9 @@
 > web@0.1.0 build
 > next build
 
-▲ Next.js 16.2.0 (Turbopack)
+[1m[38;2;173;127;168m▲ Next.js 16.2.0[39m[22m (Turbopack)
 
-  Creating an optimized production build ...
+[37m[1m [22m[39m Creating an optimized production build ...
 Turbopack build encountered 1 warnings:
 ./apps/web/tailwind.config.js
 Specified module format (EcmaScript Modules) is not matching the module format of the source code (CommonJs)
@@ -13,16 +13,17 @@ The EcmaScript module format was specified in the package.json that is affecting
 Exports made by CommonJs syntax will lead to a runtime error, since the module is in EcmaScript mode. Either change the "type" field in the package.json or replace CommonJs syntax with EcmaScript import/export syntax in the source file.
 
 
-✓ Compiled successfully in 3.0s
-  Finished TypeScript in 2.2s    ✓ Finished TypeScript in 2.2s 
-  Collecting page data using 5 workers in 268ms    ✓ Collecting page data using 5 workers in 268ms 
-✓ Generating static pages using 5 workers (4/4) in 386ms
-  Finalizing page optimization in 521ms    ✓ Finalizing page optimization in 521ms 
+[32m[1m✓[22m[39m Compiled successfully in 2.8s
+[?25l[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[2K[1G[?25h[?25l[37m[1m [22m[39m Finished TypeScript in 2.3s  [36m.[39m[2K[1G[?25h[37m[1m [22m[39m Finished TypeScript in 2.3s    [32m[1m✓[22m[39m Finished TypeScript in 2.3s 
+[?25l[37m[1m [22m[39m Collecting page data using 5 workers  [36m.[39m[2K[1G[37m[1m [22m[39m Collecting page data using 5 workers  [36m..[39m[2K[1G[?25h[37m[1m [22m[39m Collecting page data using 5 workers in 259ms    [32m[1m✓[22m[39m Collecting page data using 5 workers in 259ms 
+[?25l[37m[1m [22m[39m Generating static pages using 5 workers (0/4)  [36m[    ][39m[2K[1G[37m[1m [22m[39m Generating static pages using 5 workers (0/4)  [36m[=   ][39m[2K[1G[?25h[32m[1m✓[22m[39m Generating static pages using 5 workers (4/4) in 384ms
+[?25l[37m[1m [22m[39m Finalizing page optimization  [36m.[39m[2K[1G[37m[1m [22m[39m Finalizing page optimization  [36m..[39m[2K[1G[37m[1m [22m[39m Finalizing page optimization  [36m...[39m[2K[1G[?25h[37m[1m [22m[39m Finalizing page optimization in 519ms    [32m[1m✓[22m[39m Finalizing page optimization in 519ms 
 
-Route (app)
+[4mRoute (app)[24m
 ┌ ○ /
 └ ○ /_not-found
 
 
 ○  (Static)  prerendered as static content
 
+[?25h⠙[1G[0K

@@ -41,6 +41,9 @@ export default function UserAdminView({ theme = "LIGHT" }: { theme?: "LIGHT" | "
       })) as User[];
       setUsers(data);
       setLoading(false);
+    }, (error) => {
+      console.error("Error fetching users:", error);
+      setLoading(false);
     });
     return () => unsubscribe();
   }, []);
