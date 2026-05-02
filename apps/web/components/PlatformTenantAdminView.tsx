@@ -32,6 +32,12 @@ interface Tenant {
   domain: string;
   status: "Active" | "Suspended" | "Pending";
   created_at: string;
+  owner_id?: string;
+  owner_email?: string;
+  owner_first_name?: string;
+  owner_last_name?: string;
+  owner_phone?: string;
+  Notes?: string;
 }
 
 
@@ -118,14 +124,14 @@ export default function PlatformTenantAdminView({ theme = "LIGHT" }: { theme?: "
     setFormData({
       tenant_id: tenant.tenant_id,
       tenant_name: tenant.name,
-      owner_id: (tenant as any).owner_id || "",
-      owner_email: (tenant as any).owner_email || "", // Assuming these exist or will be handled
-      owner_first_name: "",
-      owner_last_name: "",
-      owner_phone: "",
+      owner_id: tenant.owner_id || "",
+      owner_email: tenant.owner_email || "",
+      owner_first_name: tenant.owner_first_name || "",
+      owner_last_name: tenant.owner_last_name || "",
+      owner_phone: tenant.owner_phone || "",
       owner_role: "Owner",
       invite_user: false,
-      internal_notes: (tenant as any).Notes || ""
+      internal_notes: tenant.Notes || ""
     });
     setShowNewModal(true);
   };
@@ -146,7 +152,11 @@ export default function PlatformTenantAdminView({ theme = "LIGHT" }: { theme?: "
         status: "Active",
         created_at: editingTenantId ? (tenants.find(t => t.id === editingTenantId) as any).created_at : new Date().toISOString().split('T')[0],
         Notes: formData.internal_notes,
-        owner_id: formData.owner_id
+        owner_id: formData.owner_id,
+        owner_email: formData.owner_email,
+        owner_first_name: formData.owner_first_name,
+        owner_last_name: formData.owner_last_name,
+        owner_phone: formData.owner_phone
       });
 
       // 2. Invite Owner via Cloud Function (Only if new or explicitly requested)
