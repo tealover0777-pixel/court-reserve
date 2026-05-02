@@ -10,6 +10,7 @@ import {
   deleteDoc, 
   query, 
   orderBy,
+  setDoc,
   serverTimestamp 
 } from "firebase/firestore";
 
@@ -40,6 +41,10 @@ export default function DimensionsView({ theme = "LIGHT" }: { theme?: "LIGHT" | 
   const [newValueInput, setNewValueInput] = useState<{ [key: string]: string }>({});
   const [editingItem, setEditingItem] = useState<{ categoryId: string; index: number; value: string } | null>(null);
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
+  const [showPermsModal, setShowPermsModal] = useState(false);
+  const [newPerm, setNewPerm] = useState("");
+  const [permToggles, setPermToggles] = useState({ VIEW: true, UPDATE: true, CREATE: true, DELETE: true });
+  const [permissions, setPermissions] = useState<string[]>([]);
 
   useEffect(() => {
     const colRef = collection(db, "dimensions");
@@ -57,7 +62,14 @@ export default function DimensionsView({ theme = "LIGHT" }: { theme?: "LIGHT" | 
       setLoading(false);
     });
 
-    return () => unsubscribe();
+    const unsubscribePerms = onSnapshot(doc(db, "dimensions", "Permissions"), (snap) => {
+      if (snap.exists()) setPermissions(snap.data().items || []);
+    });
+
+    return () => {
+      unsubscribe();
+      unsubscribePerms();
+    };
   }, []);
 
   const handleCreate = async () => {
@@ -133,6 +145,40 @@ export default function DimensionsView({ theme = "LIGHT" }: { theme?: "LIGHT" | 
       setConfirmDelete(null);
     } catch (err) {
       console.error("Error deleting dimension:", err);
+    }
+  };
+
+  const handleAddPermission = async () => {
+    const base = newPerm.trim().toUpperCase();
+    if (!base) return;
+
+    const toAdd = Object.keys(permToggles)
+      .filter(k => permToggles[k as keyof typeof permToggles])
+      .map(k => `${base}_${k}`);
+
+    if (toAdd.length === 0) toAdd.push(base);
+
+    const newPerms = [...new Set([...permissions, ...toAdd])].sort();
+    try {
+      await setDoc(doc(db, "dimensions", "Permissions"), {
+        category: "Permissions",
+        items: newPerms
+      }, { merge: true });
+      setNewPerm("");
+    } catch (err) {
+      console.error("Error adding permissions:", err);
+    }
+  };
+
+  const handleRemovePermission = async (p: string) => {
+    const newPerms = permissions.filter(item => item !== p);
+    try {
+      await setDoc(doc(db, "dimensions", "Permissions"), {
+        category: "Permissions",
+        items: newPerms
+      }, { merge: true });
+    } catch (err) {
+      console.error("Error removing permission:", err);
     }
   };
 
@@ -277,19 +323,34 @@ export default function DimensionsView({ theme = "LIGHT" }: { theme?: "LIGHT" | 
             }>{dimensions.reduce((acc, curr) => acc + curr.items.length, 0)}</span> Parameters
           </p>
         </div>
-        <button 
-          onClick={() => setShowNewModal(true)}
-          className={`px-8 py-3 rounded-full font-black text-xs tracking-widest transition-all uppercase shadow-lg flex items-center gap-2 ${
-            theme === "DARK"
-              ? "bg-[#ccff00] text-stone-950 shadow-[#ccff00]/10 hover:opacity-90"
-              : theme === "VINTAGE"
-                ? "bg-black text-white shadow-black/10 hover:opacity-90"
-                : "bg-[#4f6b28] text-white shadow-[#4f6b28]/20 hover:opacity-90"
-          }`}
-        >
-          <span className="material-symbols-outlined text-sm">add_box</span>
-          New Category
-        </button>
+        <div className="flex gap-4">
+          <button 
+            onClick={() => setShowNewModal(true)}
+            className={`px-8 py-3 rounded-full font-black text-xs tracking-widest transition-all uppercase shadow-lg flex items-center gap-2 ${
+              theme === "DARK"
+                ? "bg-[#ccff00] text-stone-950 shadow-[#ccff00]/10 hover:opacity-90"
+                : theme === "VINTAGE"
+                  ? "bg-black text-white shadow-black/10 hover:opacity-90"
+                  : "bg-[#4f6b28] text-white shadow-[#4f6b28]/20 hover:opacity-90"
+            }`}
+          >
+            <span className="material-symbols-outlined text-sm">add_box</span>
+            New Category
+          </button>
+          <button 
+            onClick={() => setShowPermsModal(true)}
+            className={`px-8 py-3 rounded-full font-black text-xs tracking-widest transition-all uppercase border-2 flex items-center gap-2 ${
+              theme === "DARK" 
+                ? "border-stone-800 text-stone-400 hover:bg-stone-900" 
+                : theme === "VINTAGE"
+                  ? "border-stone-100 text-black hover:bg-stone-50"
+                  : "border-stone-200 text-stone-900 hover:bg-stone-50"
+            }`}
+          >
+            <span className="material-symbols-outlined text-sm">settings_suggest</span>
+            Manage Permissions
+          </button>
+        </div>
       </div>
 
       <div className={`border rounded-xl overflow-hidden shadow-sm transition-colors duration-500 ${
@@ -558,6 +619,98 @@ export default function DimensionsView({ theme = "LIGHT" }: { theme?: "LIGHT" | 
         }`}>
           Are you sure you want to delete this category? This action will remove all associated values and cannot be undone.
         </p>
+      </Modal>
+      {/* Permissions Modal */}
+      <Modal
+        isOpen={showPermsModal}
+        onClose={() => setShowPermsModal(false)}
+        title="Permissions"
+        theme={theme}
+        width={600}
+        footer={
+          <button 
+            onClick={() => setShowPermsModal(false)}
+            className={`w-full py-4 rounded-2xl text-[10px] font-black tracking-widest transition-all uppercase shadow-lg ${
+              theme === "DARK" ? "bg-stone-800 text-white hover:bg-stone-700" : 
+              theme === "VINTAGE" ? "bg-black text-white hover:opacity-90" :
+              "bg-stone-900 text-white hover:opacity-90"
+            }`}
+          >
+            Close
+          </button>
+        }
+      >
+        <p className="text-stone-400 font-bold uppercase tracking-widest text-[10px] mb-8">Manage application-wide permission keys</p>
+
+        <div className={`p-8 rounded-[32px] border mb-8 transition-colors ${
+          theme === "DARK" ? "bg-stone-900 border-stone-800" : 
+          theme === "VINTAGE" ? "bg-[#f7f9fb] border-stone-100" :
+          "bg-stone-50 border-stone-100"
+        }`}>
+          <div className="flex gap-4 mb-6">
+            <input 
+              value={newPerm}
+              onChange={e => setNewPerm(e.target.value)}
+              onKeyDown={e => e.key === "Enter" && handleAddPermission()}
+              placeholder="e.g. INVOICE, COURT_BOOKING..."
+              className={`flex-1 border rounded-2xl px-6 py-4 text-sm font-bold placeholder:text-stone-300 outline-none transition-all ${
+                theme === "DARK" 
+                  ? "bg-stone-950 border-stone-800 text-white focus:border-[#ccff00]" 
+                  : theme === "VINTAGE"
+                    ? "bg-white border-stone-100 text-black focus:border-black"
+                    : "bg-white border-stone-200 text-stone-900 focus:border-[#4f6b28]"
+              }`}
+            />
+            <button 
+              onClick={handleAddPermission}
+              className={`px-8 rounded-2xl font-black text-xs tracking-widest transition-all uppercase ${
+                theme === "DARK" ? "bg-[#ccff00] text-stone-950" : 
+                theme === "VINTAGE" ? "bg-black text-white" :
+                "bg-[#4f6b28] text-white"
+              } hover:opacity-90`}
+            >
+              Add
+            </button>
+          </div>
+          <div className="flex flex-wrap gap-6 pl-2">
+            {Object.keys(permToggles).map(k => (
+              <label key={k} className="flex items-center gap-2 cursor-pointer group">
+                <div 
+                  className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all ${
+                    permToggles[k as keyof typeof permToggles] 
+                      ? (theme === "DARK" ? "bg-[#ccff00] border-[#ccff00] text-stone-950" : theme === "VINTAGE" ? "bg-black border-black text-white" : "bg-[#4f6b28] border-[#4f6b28] text-white")
+                      : (theme === "DARK" ? "border-stone-800 bg-stone-950" : "border-stone-200 bg-white")
+                  }`}
+                  onClick={() => setPermToggles(prev => ({ ...prev, [k]: !prev[k as keyof typeof prev] }))}
+                >
+                  {permToggles[k as keyof typeof permToggles] && <span className="material-symbols-outlined text-[10px] font-bold">check</span>}
+                </div>
+                <span className={`text-[10px] font-black uppercase tracking-widest transition-colors ${
+                  permToggles[k as keyof typeof permToggles] 
+                    ? (theme === "DARK" ? "text-[#ccff00]" : theme === "VINTAGE" ? "text-black" : "text-[#4f6b28]") 
+                    : "text-stone-300"
+                }`}>{k}</span>
+              </label>
+            ))}
+          </div>
+        </div>
+
+        <div className="max-h-64 overflow-y-auto pr-4 grid grid-cols-2 gap-3">
+          {permissions.sort().map(p => (
+            <div key={p} className={`flex items-center justify-between border rounded-2xl px-5 py-3 group transition-colors ${
+              theme === "DARK" ? "bg-stone-900 border-stone-800" : 
+              theme === "VINTAGE" ? "bg-[#f7f9fb] border-stone-100" :
+              "bg-stone-50 border-stone-100"
+            }`}>
+              <span className={`text-[10px] font-mono font-bold transition-colors ${
+                theme === "DARK" ? "text-stone-400" : "text-stone-500"
+              }`}>{p}</span>
+              <button onClick={() => handleRemovePermission(p)} className="text-stone-300 hover:text-red-500 transition-colors">
+                <span className="material-symbols-outlined text-lg">close</span>
+              </button>
+            </div>
+          ))}
+        </div>
       </Modal>
     </div>
   );
