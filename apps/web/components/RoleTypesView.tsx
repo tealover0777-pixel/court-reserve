@@ -355,7 +355,7 @@ export default function RoleTypesView({ theme = "LIGHT" }: { theme?: "LIGHT" | "
         </div>
       </div>
 
-      <div className={`border rounded-xl overflow-hidden shadow-sm transition-colors duration-500 ${
+      <div className={`border rounded-xl shadow-sm transition-colors duration-500 ${
         theme === "DARK" ? "bg-stone-950 border-stone-800" : 
         theme === "VINTAGE" ? "bg-white border-transparent shadow-md" :
         "bg-white border-stone-200"
