@@ -5,6 +5,7 @@ import {
   getCoreRowModel,
   getSortedRowModel,
   getFilteredRowModel,
+  getPaginationRowModel,
   flexRender,
   createColumnHelper,
   ColumnFiltersState,
@@ -282,6 +283,12 @@ export default function PlatformTenantAdminView({ theme = "LIGHT" }: { theme?: "
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    initialState: {
+      pagination: {
+        pageSize: 20,
+      },
+    },
   });
 
   if (loading) {
@@ -382,7 +389,7 @@ export default function PlatformTenantAdminView({ theme = "LIGHT" }: { theme?: "
                   {headerGroup.headers.map(header => (
                     <th 
                       key={header.id} 
-                      className={`px-6 py-4 text-[10px] font-black uppercase tracking-widest relative border-r last:border-r-0 transition-colors duration-500 ${
+                      className={`px-4 py-2 text-[10px] font-black uppercase tracking-widest relative border-r last:border-r-0 transition-colors duration-500 ${
                         theme === "DARK" ? "text-[#ccff00] border-stone-800 bg-stone-900" : 
                         theme === "VINTAGE" ? "text-black border-stone-100 bg-white" :
                         "text-black border-stone-900 bg-stone-100"
@@ -433,13 +440,13 @@ export default function PlatformTenantAdminView({ theme = "LIGHT" }: { theme?: "
                   {row.getVisibleCells().map(cell => (
                     <td 
                       key={cell.id} 
-                      className={`px-6 py-3 text-sm font-medium border-r last:border-r-0 transition-colors duration-500 ${
+                      className={`px-4 py-1.5 text-sm font-medium border-r last:border-r-0 transition-colors duration-500 ${
                         theme === "DARK" ? "text-stone-300 border-stone-800" : 
                         theme === "VINTAGE" ? "text-black border-stone-100" :
                         "text-stone-900 border-stone-900"
                       }`}
                     >
-                      <div className="flex items-center min-h-[32px]">
+                      <div className="flex items-center min-h-[24px]">
                         {flexRender(cell.column.columnDef.cell, cell.getContext())}
                       </div>
                     </td>
@@ -448,6 +455,43 @@ export default function PlatformTenantAdminView({ theme = "LIGHT" }: { theme?: "
               ))}
             </tbody>
           </table>
+        </div>
+        
+        {/* Pagination Controls */}
+        <div className={`px-6 py-4 border-t flex items-center justify-between transition-colors ${
+          theme === "DARK" ? "border-stone-800" : 
+          theme === "VINTAGE" ? "border-stone-100" :
+          "border-stone-200"
+        }`}>
+          <div className={`text-[10px] font-black uppercase tracking-widest ${
+            theme === "DARK" ? "text-stone-500" : "text-stone-400"
+          }`}>
+            Page {table.getState().pagination.pageIndex + 1} of {table.getPageCount()}
+          </div>
+          <div className="flex gap-2">
+            <button
+              onClick={() => table.previousPage()}
+              disabled={!table.getCanPreviousPage()}
+              className={`p-2 rounded-lg border transition-all ${
+                !table.getCanPreviousPage() 
+                  ? "opacity-30 cursor-not-allowed" 
+                  : theme === "DARK" ? "hover:bg-stone-900 border-stone-800 text-[#ccff00]" : "hover:bg-stone-50 border-stone-100 text-black"
+              }`}
+            >
+              <span className="material-symbols-outlined text-base">chevron_left</span>
+            </button>
+            <button
+              onClick={() => table.nextPage()}
+              disabled={!table.getCanNextPage()}
+              className={`p-2 rounded-lg border transition-all ${
+                !table.getCanNextPage() 
+                  ? "opacity-30 cursor-not-allowed" 
+                  : theme === "DARK" ? "hover:bg-stone-900 border-stone-800 text-[#ccff00]" : "hover:bg-stone-50 border-stone-100 text-black"
+              }`}
+            >
+              <span className="material-symbols-outlined text-base">chevron_right</span>
+            </button>
+          </div>
         </div>
       </div>
 
