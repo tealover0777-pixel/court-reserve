@@ -278,6 +278,7 @@ export default function RoleTypesView({ theme = "LIGHT" }: { theme?: "LIGHT" | "
     state: {
       columnFilters,
     },
+    columnResizeMode: 'onChange',
     onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
@@ -415,6 +416,17 @@ export default function RoleTypesView({ theme = "LIGHT" }: { theme?: "LIGHT" | "
                           ) : (
                             <div className="h-6" /> 
                           )}
+
+                          {/* Resizer */}
+                          <div
+                            {...{
+                              onMouseDown: header.getResizeHandler(),
+                              onTouchStart: header.getResizeHandler(),
+                              className: `absolute right-0 top-0 h-full w-1 cursor-col-resize select-none touch-none hover:bg-[#ccff00]/30 transition-colors ${
+                                header.column.getIsResizing() ? 'bg-[#ccff00] w-1' : ''
+                              }`,
+                            }}
+                          />
                         </div>
                       )}
                     </th>
@@ -422,37 +434,38 @@ export default function RoleTypesView({ theme = "LIGHT" }: { theme?: "LIGHT" | "
                 </tr>
               ))}
             </thead>
-              <tbody>
-                {table.getRowModel().rows.map((row, i) => (
-                  <tr 
-                    key={row.id} 
-                    className={`border-b transition-colors group ${
-                      theme === "DARK" 
-                        ? (i % 2 !== 0 ? 'bg-stone-900/40 border-stone-800' : 'bg-stone-950 border-stone-800 hover:bg-stone-900/60') 
-                        : theme === "VINTAGE"
-                          ? (i % 2 !== 0 ? 'bg-[#f7f9fb]/50 border-stone-100' : 'bg-white border-stone-100 hover:bg-[#f7f9fb]/80')
-                          : (i % 2 !== 0 ? 'bg-stone-50/50 border-stone-900' : 'bg-white border-stone-900 hover:bg-stone-50')
-                    }`}
-                  >
-                    {row.getVisibleCells().map(cell => (
-                      <td 
-                        key={cell.id} 
-                        className={`px-6 py-3 text-sm font-medium border-r last:border-r-0 transition-colors duration-500 ${
-                          theme === "DARK" ? "text-stone-300 border-stone-800" : 
-                          theme === "VINTAGE" ? "text-black border-stone-100" :
-                          "text-stone-900 border-stone-900"
-                        }`}
-                      >
-                        <div className="flex items-center min-h-[32px]">
-                          {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                        </div>
-                      </td>
-                    ))}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+            <tbody style={{ width: table.getTotalSize() }}>
+              {table.getRowModel().rows.map((row, i) => (
+                <tr 
+                  key={row.id} 
+                  className={`border-b transition-colors group ${
+                    theme === "DARK" 
+                      ? (i % 2 !== 0 ? 'bg-stone-900/40 border-stone-800' : 'bg-stone-950 border-stone-800 hover:bg-stone-900/60') 
+                      : theme === "VINTAGE"
+                        ? (i % 2 !== 0 ? 'bg-[#f7f9fb]/50 border-stone-100' : 'bg-white border-stone-100 hover:bg-[#f7f9fb]/80')
+                        : (i % 2 !== 0 ? 'bg-stone-50/50 border-stone-900' : 'bg-white border-stone-900 hover:bg-stone-50')
+                  }`}
+                >
+                  {row.getVisibleCells().map(cell => (
+                    <td 
+                      key={cell.id} 
+                      className={`px-6 py-3 text-sm font-medium border-r last:border-r-0 transition-colors duration-500 ${
+                        theme === "DARK" ? "text-stone-300 border-stone-800" : 
+                        theme === "VINTAGE" ? "text-black border-stone-100" :
+                        "text-stone-900 border-stone-900"
+                      }`}
+                      style={{ width: cell.column.getSize() }}
+                    >
+                      <div className="flex items-center min-h-[32px]">
+                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                      </div>
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
         {roles.length === 0 && (
           <div className="py-20 text-center">
             <span className="material-symbols-outlined text-4xl text-stone-300 mb-4 block">assignment_ind</span>
