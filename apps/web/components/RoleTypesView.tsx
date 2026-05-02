@@ -130,6 +130,21 @@ export default function RoleTypesView({ theme = "LIGHT" }: { theme?: "LIGHT" | "
     }
   };
 
+  const handleCopyFromRole = (fromRoleId: string) => {
+    const fromRole = roles.find(r => r.id === fromRoleId);
+    if (fromRole) {
+      setSelectedPerms([...new Set([...selectedPerms, ...(fromRole.permissions || [])])]);
+    }
+  };
+
+  const handleSelectAll = (permsList: string[]) => {
+    setSelectedPerms(prev => [...new Set([...prev, ...permsList])]);
+  };
+
+  const handleUnselectAll = (permsList: string[]) => {
+    setSelectedPerms(prev => prev.filter(p => !permsList.includes(p)));
+  };
+
   const handleDeleteRole = async (id: string) => {
     try {
       await deleteDoc(doc(db, "role_types", id));
@@ -528,10 +543,50 @@ export default function RoleTypesView({ theme = "LIGHT" }: { theme?: "LIGHT" | "
           </label>
         </div>
 
-        <div className="mt-8">
+        <div className="mt-8 border-t pt-8">
           <label className={`text-[10px] font-black tracking-[0.2em] uppercase mb-3 block transition-colors ${
             theme === "DARK" ? "text-stone-400" : "text-stone-900"
-          }`}>Permissions</label>
+          }`}>Copy Permissions From Role</label>
+          <select 
+            onChange={(e) => handleCopyFromRole(e.target.value)}
+            value=""
+            className={`w-full border-none rounded-2xl px-6 py-4 text-sm font-bold outline-none transition-colors appearance-none cursor-pointer ${
+              theme === "DARK" 
+                ? "bg-stone-900 text-white focus:ring-2 focus:ring-[#ccff00]" 
+                : theme === "VINTAGE"
+                  ? "bg-[#f7f9fb] text-black focus:ring-2 focus:ring-black shadow-sm"
+                  : "bg-stone-100 text-stone-900 focus:ring-2 focus:ring-[#4f6b28]"
+            }`}
+          >
+            <option value="" disabled>Select a role to copy permissions from...</option>
+            {roles.filter(r => r.id !== editingRole?.id).map(r => (
+              <option key={r.id} value={r.id}>{r.role_name} ({r.role_id})</option>
+            ))}
+          </select>
+        </div>
+
+        <div className="mt-8">
+          <div className="flex justify-between items-end mb-3">
+            <label className={`text-[10px] font-black tracking-[0.2em] uppercase transition-colors ${
+              theme === "DARK" ? "text-stone-400" : "text-stone-900"
+            }`}>Permissions</label>
+            <div className="flex gap-4">
+              <button 
+                onClick={() => handleSelectAll(permissions)}
+                className={`text-[9px] font-black uppercase tracking-widest hover:underline transition-colors ${
+                  theme === "DARK" ? "text-[#ccff00]" : theme === "VINTAGE" ? "text-stone-900" : "text-[#4f6b28]"
+                }`}
+              >
+                Select All
+              </button>
+              <button 
+                onClick={() => handleUnselectAll(permissions)}
+                className="text-[9px] font-black uppercase tracking-widest text-stone-400 hover:text-red-500 hover:underline transition-colors"
+              >
+                Unselect All
+              </button>
+            </div>
+          </div>
           <div className={`rounded-[32px] p-6 max-h-64 overflow-y-auto border flex flex-wrap gap-2 transition-colors ${
             theme === "DARK" ? "bg-stone-900 border-stone-800" : 
             theme === "VINTAGE" ? "bg-[#f7f9fb] border-stone-100" :
@@ -557,10 +612,28 @@ export default function RoleTypesView({ theme = "LIGHT" }: { theme?: "LIGHT" | "
         </div>
 
         {isGlobal && (
-          <div className="mt-8 animate-in fade-in slide-in-from-top-2">
-            <label className={`text-[10px] font-black tracking-[0.2em] uppercase mb-3 block transition-colors ${
-              theme === "DARK" ? "text-stone-400" : "text-stone-900"
-            }`}>Platform Admin Permissions</label>
+          <div className="mt-8 animate-in fade-in slide-in-from-top-2 border-t pt-8">
+            <div className="flex justify-between items-end mb-3">
+              <label className={`text-[10px] font-black tracking-[0.2em] uppercase transition-colors ${
+                theme === "DARK" ? "text-stone-400" : "text-stone-900"
+              }`}>Platform Admin Permissions</label>
+              <div className="flex gap-4">
+                <button 
+                  onClick={() => handleSelectAll(globalPermissions)}
+                  className={`text-[9px] font-black uppercase tracking-widest hover:underline transition-colors ${
+                    theme === "DARK" ? "text-[#ccff00]" : theme === "VINTAGE" ? "text-stone-900" : "text-[#4f6b28]"
+                  }`}
+                >
+                  Select All
+                </button>
+                <button 
+                  onClick={() => handleUnselectAll(globalPermissions)}
+                  className="text-[9px] font-black uppercase tracking-widest text-stone-400 hover:text-red-500 hover:underline transition-colors"
+                >
+                  Unselect All
+                </button>
+              </div>
+            </div>
             <div className={`rounded-[32px] p-6 max-h-48 overflow-y-auto border flex flex-wrap gap-2 transition-colors ${
               theme === "DARK" ? "bg-stone-900 border-stone-800" : 
               theme === "VINTAGE" ? "bg-amber-50/30 border-amber-100" :
