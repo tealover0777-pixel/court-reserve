@@ -54,6 +54,7 @@ export default function PlatformTenantAdminView({ theme = "LIGHT" }: { theme?: "
     invite_user: true,
     internal_notes: ""
   });
+  const [editingTenantId, setEditingTenantId] = useState<string | null>(null);
 
   useEffect(() => {
     const q = query(collection(db, "tenants"), orderBy("tenant_id", "asc"));
@@ -112,6 +113,23 @@ export default function PlatformTenantAdminView({ theme = "LIGHT" }: { theme?: "
     }
   };
 
+  const handleEditTenant = (tenant: Tenant) => {
+    setEditingTenantId(tenant.id);
+    setFormData({
+      tenant_id: tenant.tenant_id,
+      tenant_name: tenant.name,
+      owner_id: (tenant as any).owner_id || "",
+      owner_email: (tenant as any).owner_email || "", // Assuming these exist or will be handled
+      owner_first_name: "",
+      owner_last_name: "",
+      owner_phone: "",
+      owner_role: "Owner",
+      invite_user: false,
+      internal_notes: (tenant as any).Notes || ""
+    });
+    setShowNewModal(true);
+  };
+
   const handleSave = async () => {
     try {
       const tenantDocId = formData.tenant_id;
@@ -120,32 +138,35 @@ export default function PlatformTenantAdminView({ theme = "LIGHT" }: { theme?: "
         return;
       }
       
-      // 1. Create Tenant in Firestore
+      // 1. Create/Update Tenant in Firestore
       await setDoc(doc(db, "tenants", tenantDocId), {
         tenant_id: formData.tenant_id,
         name: formData.tenant_name,
         domain: `${formData.tenant_name.toLowerCase().replace(/\s+/g, '-')}.kinetic.com`,
         status: "Active",
-        created_at: new Date().toISOString().split('T')[0],
+        created_at: editingTenantId ? (tenants.find(t => t.id === editingTenantId) as any).created_at : new Date().toISOString().split('T')[0],
         Notes: formData.internal_notes,
         owner_id: formData.owner_id
       });
 
-      // 2. Invite Owner via Cloud Function
-      const inviteUserFn = httpsCallable(functions, "inviteUser");
-      await inviteUserFn({
-        email: formData.owner_email,
-        role: "R10005",
-        tenantId: tenantDocId,
-        user_id: formData.owner_id,
-        first_name: formData.owner_first_name,
-        last_name: formData.owner_last_name,
-        phone: formData.owner_phone,
-        notes: formData.internal_notes || `Created with New Tenant: ${tenantDocId}`,
-        inviteUser: formData.invite_user
-      });
+      // 2. Invite Owner via Cloud Function (Only if new or explicitly requested)
+      if (!editingTenantId || formData.invite_user) {
+        const inviteUserFn = httpsCallable(functions, "inviteUser");
+        await inviteUserFn({
+          email: formData.owner_email,
+          role: "R10005",
+          tenantId: tenantDocId,
+          user_id: formData.owner_id,
+          first_name: formData.owner_first_name,
+          last_name: formData.owner_last_name,
+          phone: formData.owner_phone,
+          notes: formData.internal_notes || `Created with New Tenant: ${tenantDocId}`,
+          inviteUser: formData.invite_user
+        });
+      }
 
       setShowNewModal(false);
+      setEditingTenantId(null);
       setFormData({
         tenant_id: "",
         tenant_name: "",
@@ -244,7 +265,10 @@ export default function PlatformTenantAdminView({ theme = "LIGHT" }: { theme?: "
                   "bg-white border-stone-100"
                 }`}>
                   <button 
-                    onClick={() => setShowMenu(false)}
+                    onClick={() => {
+                      handleEditTenant(props.row.original);
+                      setShowMenu(false);
+                    }}
                     className={`w-full flex items-center gap-3 px-4 py-2.5 text-[10px] font-black uppercase tracking-widest transition-colors ${
                       theme === "DARK" ? "text-stone-400 hover:bg-stone-800" : 
                       theme === "VINTAGE" ? "text-black hover:bg-stone-50" :
@@ -372,7 +396,7 @@ export default function PlatformTenantAdminView({ theme = "LIGHT" }: { theme?: "
         </div>
       </div>
 
-      <div className={`border rounded-xl overflow-hidden shadow-sm transition-colors duration-500 ${
+      <div className={`border rounded-xl shadow-sm transition-colors duration-500 ${
         theme === "DARK" ? "bg-stone-950 border-stone-800" : 
         theme === "VINTAGE" ? "bg-white border-transparent shadow-md" :
         "bg-white border-stone-200"
@@ -540,8 +564,11 @@ export default function PlatformTenantAdminView({ theme = "LIGHT" }: { theme?: "
       {/* New Tenant Modal */}
       <Modal
         isOpen={showNewModal}
-        onClose={() => setShowNewModal(false)}
-        title="New Tenant"
+        onClose={() => {
+          setShowNewModal(false);
+          setEditingTenantId(null);
+        }}
+        title={editingTenantId ? "Edit Tenant" : "New Tenant"}
         theme={theme}
         width={600}
         footer={
