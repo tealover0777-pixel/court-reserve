@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { db } from "../lib/firebase";
 import { 
   collection, 
@@ -222,20 +222,34 @@ export default function DimensionsView({ theme = "LIGHT" }: { theme?: "LIGHT" | 
       size: 120,
       cell: props => {
         const [showMenu, setShowMenu] = useState(false);
+        const [menuPos, setMenuPos] = useState({ top: 0, right: 0 });
+        const buttonRef = useRef<HTMLButtonElement>(null);
+
+        const handleToggle = () => {
+          if (!showMenu && buttonRef.current) {
+            const rect = buttonRef.current.getBoundingClientRect();
+            setMenuPos({ top: rect.bottom + 4, right: window.innerWidth - rect.right });
+          }
+          setShowMenu(!showMenu);
+        };
+
         return (
-          <div className="flex justify-end items-center h-full pr-2 relative">
-            <button 
-              onClick={() => setShowMenu(!showMenu)}
+          <div className="flex justify-end items-center h-full pr-2">
+            <button
+              ref={buttonRef}
+              onClick={handleToggle}
               className="text-stone-400 hover:text-stone-900 transition-colors p-2"
             >
               <span className="material-symbols-outlined text-xl">more_horiz</span>
             </button>
-            
+
             {showMenu && (
               <>
                 <div className="fixed inset-0 z-40" onClick={() => setShowMenu(false)}></div>
-                <div className={`absolute right-0 top-10 border rounded-xl shadow-xl py-2 w-32 z-50 animate-in fade-in zoom-in-95 duration-200 transition-colors ${
-                  theme === "DARK" ? "bg-stone-900 border-stone-800" : 
+                <div
+                  style={{ top: menuPos.top, right: menuPos.right }}
+                  className={`fixed border rounded-xl shadow-xl py-2 w-32 z-50 animate-in fade-in zoom-in-95 duration-200 transition-colors ${
+                  theme === "DARK" ? "bg-stone-900 border-stone-800" :
                   theme === "VINTAGE" ? "bg-white border-stone-100 shadow-xl" :
                   "bg-white border-stone-100"
                 }`}>
