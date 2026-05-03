@@ -60,6 +60,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             setProfile(null);
           }
           setLoading(false);
+        }, (error) => {
+          console.error("Profile fetch error:", error);
+          setLoading(false);
         });
       } else {
         setProfile(null);
