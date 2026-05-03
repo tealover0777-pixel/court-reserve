@@ -15,6 +15,7 @@ interface UserProfile {
   address_city?: string;
   address_state?: string;
   address_zip?: string;
+  tenant_id?: string;
 }
 
 interface AuthContextType {
