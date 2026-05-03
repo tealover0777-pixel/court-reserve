@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { db, storage } from "../lib/firebase";
-import { doc, onSnapshot, updateDoc, serverTimestamp } from "firebase/firestore";
+import { doc, onSnapshot, setDoc, serverTimestamp } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { useTenant } from "../context/TenantContext";
 
@@ -35,10 +35,10 @@ export default function OrganizationView({ theme }: OrganizationViewProps) {
     if (!tenantId) return;
     setIsSaving(true);
     try {
-      await updateDoc(doc(db, "tenants", tenantId), {
+      await setDoc(doc(db, "tenants", tenantId), {
         ...data,
         updated_at: serverTimestamp()
-      });
+      }, { merge: true });
       setNotification({ message: "Organization updated successfully", type: "SUCCESS" });
     } catch (err) {
       console.error(err);
@@ -198,10 +198,10 @@ function BrandingTab({ data, onSave, isSaving, theme }: any) {
       
       setFormData({ ...formData, logo_url: downloadURL });
       // Auto-save the logo URL to Firestore
-      await updateDoc(doc(db, "tenants", tenantId), {
+      await setDoc(doc(db, "tenants", tenantId), {
         logo_url: downloadURL,
         updated_at: serverTimestamp()
-      });
+      }, { merge: true });
     } catch (err) {
       console.error("Logo upload failed:", err);
     } finally {
