@@ -24,7 +24,7 @@ interface User {
 
 
 import { db } from "../lib/firebase";
-import { collection, onSnapshot, query, orderBy, doc, deleteDoc } from "firebase/firestore";
+import { collection, onSnapshot, query, orderBy, doc, deleteDoc, setDoc } from "firebase/firestore";
 import { useEffect } from "react";
 
 export default function UserAdminView({ theme = "LIGHT" }: { theme?: "LIGHT" | "DARK" | "VINTAGE" }) {
@@ -32,6 +32,15 @@ export default function UserAdminView({ theme = "LIGHT" }: { theme?: "LIGHT" | "
   const [loading, setLoading] = useState(true);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editingUser, setEditingUser] = useState<User | null>(null);
+  const [formData, setFormData] = useState({
+    first_name: "",
+    last_name: "",
+    email: "",
+    role: "",
+    status: "Active" as "Active" | "Inactive"
+  });
 
   useEffect(() => {
     const q = query(collection(db, "global_users"), orderBy("user_id", "asc"));
@@ -57,6 +66,34 @@ export default function UserAdminView({ theme = "LIGHT" }: { theme?: "LIGHT" | "
     } catch (err) {
       console.error("Failed to delete user:", err);
       alert("Failed to delete user.");
+    }
+  };
+
+  const handleEditUser = (user: User) => {
+    setEditingUser(user);
+    setFormData({
+      first_name: user.first_name || "",
+      last_name: user.last_name || "",
+      email: user.email || "",
+      role: user.role || "",
+      status: user.status || "Active"
+    });
+    setShowEditModal(true);
+  };
+
+  const handleSaveUser = async () => {
+    if (!editingUser) return;
+    try {
+      const userRef = doc(db, "global_users", editingUser.id);
+      await setDoc(userRef, {
+        ...formData,
+        updated_at: new Date().toISOString()
+      }, { merge: true });
+      setShowEditModal(false);
+      setEditingUser(null);
+    } catch (err) {
+      console.error("Failed to save user:", err);
+      alert("Failed to save user.");
     }
   };
 
@@ -162,7 +199,10 @@ export default function UserAdminView({ theme = "LIGHT" }: { theme?: "LIGHT" | "
                   "bg-white border-stone-100"
                 }`}>
                   <button 
-                    onClick={() => setShowMenu(false)}
+                    onClick={() => {
+                      handleEditUser(props.row.original);
+                      setShowMenu(false);
+                    }}
                     className={`w-full flex items-center gap-3 px-4 py-2.5 text-[10px] font-black uppercase tracking-widest transition-colors ${
                       theme === "DARK" ? "text-stone-400 hover:bg-stone-800" : 
                       theme === "VINTAGE" ? "text-black hover:bg-stone-50" :
@@ -267,7 +307,7 @@ export default function UserAdminView({ theme = "LIGHT" }: { theme?: "LIGHT" | "
         </div>
       </div>
 
-      <div className={`border rounded-xl overflow-hidden shadow-sm transition-colors duration-500 ${
+      <div className={`border rounded-xl shadow-sm transition-colors duration-500 ${
         theme === "DARK" ? "bg-stone-950 border-stone-800" : 
         theme === "VINTAGE" ? "bg-white border-transparent shadow-md" :
         "bg-white border-stone-200"
@@ -293,7 +333,7 @@ export default function UserAdminView({ theme = "LIGHT" }: { theme?: "LIGHT" | "
                       <div className="space-y-3">
                         <div className="flex items-center justify-between">
                           <div className="flex-1">
-                            <div className={header.column.id === 'actions' ? 'text-right w-full' : ''}>
+                            <div className={header.column.id === 'actions' ? 'text-left w-full' : ''}>
                               {flexRender(header.column.columnDef.header, header.getContext())}
                             </div>
                           </div>
@@ -394,6 +434,92 @@ export default function UserAdminView({ theme = "LIGHT" }: { theme?: "LIGHT" | "
           }`}>
             Are you sure you want to remove this user from the platform? This action cannot be undone.
           </p>
+        </div>
+      </Modal>
+
+      {/* Edit User Modal */}
+      <Modal
+        isOpen={showEditModal}
+        onClose={() => {
+          setShowEditModal(false);
+          setEditingUser(null);
+        }}
+        title="Edit User"
+        theme={theme}
+        width={500}
+        footer={
+          <div className="flex gap-4">
+            <button 
+              onClick={() => setShowEditModal(false)}
+              className={`flex-1 py-4 border-2 rounded-2xl text-[10px] font-black tracking-widest transition-all uppercase ${
+                theme === "DARK" ? "border-stone-800 text-stone-400 hover:bg-stone-900" : 
+                theme === "VINTAGE" ? "border-stone-100 text-black hover:bg-stone-50" :
+                "border-stone-100 text-stone-400 hover:bg-stone-50"
+              }`}
+            >
+              Cancel
+            </button>
+            <button 
+              onClick={handleSaveUser}
+              className={`flex-1 py-4 rounded-2xl text-[10px] font-black tracking-widest transition-all uppercase shadow-lg ${
+                theme === "DARK" ? "bg-[#ccff00] text-stone-950 shadow-[#ccff00]/20" : 
+                theme === "VINTAGE" ? "bg-black text-white shadow-black/20" :
+                "bg-[#4f6b28] text-white shadow-[#4f6b28]/20"
+              } hover:opacity-90`}
+            >
+              Save Changes
+            </button>
+          </div>
+        }
+      >
+        <div className="space-y-6">
+          <div className="grid grid-cols-2 gap-6">
+            <div>
+              <label className={`text-[10px] font-black tracking-widest uppercase mb-3 block ${theme === "DARK" ? "text-stone-500" : "text-stone-400"}`}>First Name</label>
+              <input 
+                value={formData.first_name}
+                onChange={e => setFormData({ ...formData, first_name: e.target.value })}
+                className={`w-full border-none rounded-2xl px-6 py-4 text-sm font-bold outline-none transition-colors ${
+                  theme === "DARK" ? "bg-stone-900 text-white focus:ring-2 focus:ring-[#ccff00]" : "bg-stone-50 text-stone-900 focus:ring-2 focus:ring-[#4f6b28]"
+                }`}
+              />
+            </div>
+            <div>
+              <label className={`text-[10px] font-black tracking-widest uppercase mb-3 block ${theme === "DARK" ? "text-stone-500" : "text-stone-400"}`}>Last Name</label>
+              <input 
+                value={formData.last_name}
+                onChange={e => setFormData({ ...formData, last_name: e.target.value })}
+                className={`w-full border-none rounded-2xl px-6 py-4 text-sm font-bold outline-none transition-colors ${
+                  theme === "DARK" ? "bg-stone-900 text-white focus:ring-2 focus:ring-[#ccff00]" : "bg-stone-50 text-stone-900 focus:ring-2 focus:ring-[#4f6b28]"
+                }`}
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className={`text-[10px] font-black tracking-widest uppercase mb-3 block ${theme === "DARK" ? "text-stone-500" : "text-stone-400"}`}>Email Address</label>
+            <input 
+              value={formData.email}
+              onChange={e => setFormData({ ...formData, email: e.target.value })}
+              className={`w-full border-none rounded-2xl px-6 py-4 text-sm font-bold outline-none transition-colors ${
+                theme === "DARK" ? "bg-stone-900 text-white focus:ring-2 focus:ring-[#ccff00]" : "bg-stone-50 text-stone-900 focus:ring-2 focus:ring-[#4f6b28]"
+              }`}
+            />
+          </div>
+
+          <div>
+            <label className={`text-[10px] font-black tracking-widest uppercase mb-3 block ${theme === "DARK" ? "text-stone-500" : "text-stone-400"}`}>Status</label>
+            <select 
+              value={formData.status}
+              onChange={e => setFormData({ ...formData, status: e.target.value as any })}
+              className={`w-full border-none rounded-2xl px-6 py-4 text-sm font-bold outline-none transition-colors appearance-none cursor-pointer ${
+                theme === "DARK" ? "bg-stone-900 text-white focus:ring-2 focus:ring-[#ccff00]" : "bg-stone-50 text-stone-900 focus:ring-2 focus:ring-[#4f6b28]"
+              }`}
+            >
+              <option value="Active">Active</option>
+              <option value="Inactive">Inactive</option>
+            </select>
+          </div>
         </div>
       </Modal>
     </div>
