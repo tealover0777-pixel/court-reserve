@@ -9,6 +9,7 @@ import RoleTypesView from "./RoleTypesView";
 import UserAdminView from "./UserAdminView";
 import PlatformTenantAdminView from "./PlatformTenantAdminView";
 import AIAdminView from "./AIAdminView";
+import OrganizationView from "./OrganizationView";
 import { useAuth } from "../context/AuthContext";
 import { collection, onSnapshot, query, orderBy, doc, updateDoc, serverTimestamp } from "firebase/firestore";
 import { db } from "../lib/firebase";
@@ -23,7 +24,7 @@ const US_STATES = [
 
 export default function DashboardClient({ params }: { params: { tenantId: string } }) {
   const { tenantId: contextTenantId, loading } = useTenant();
-  const [activeView, setActiveView] = React.useState<"DASHBOARD" | "COURT BOOKING" | "PROGRAMS" | "MEMBERSHIP" | "SETTINGS" | "PROFILE" | "AI_ADMIN" | "DIMENSIONS" | "ROLE_TYPES" | "USER_ADMIN" | "PLATFORM_TENANT_ADMIN">("DASHBOARD");
+  const [activeView, setActiveView] = React.useState<"DASHBOARD" | "COURT BOOKING" | "PROGRAMS" | "MEMBERSHIP" | "SETTINGS" | "PROFILE" | "AI_ADMIN" | "DIMENSIONS" | "ROLE_TYPES" | "USER_ADMIN" | "PLATFORM_TENANT_ADMIN" | "ORGANIZATION">("DASHBOARD");
   const [platformAdminOpen, setPlatformAdminOpen] = React.useState(false);
   const [administrationOpen, setAdministrationOpen] = React.useState(false);
   const [theme, setTheme] = React.useState<"LIGHT" | "DARK" | "VINTAGE">("LIGHT");
@@ -114,6 +115,12 @@ export default function DashboardClient({ params }: { params: { tenantId: string
                 label="Role Types"
                 active={activeView === "ROLE_TYPES"}
                 onClick={() => setActiveView("ROLE_TYPES")}
+                theme={theme}
+              />
+              <SubNavItem
+                label="Organization"
+                active={activeView === "ORGANIZATION"}
+                onClick={() => setActiveView("ORGANIZATION")}
                 theme={theme}
               />
             </div>
@@ -242,7 +249,7 @@ export default function DashboardClient({ params }: { params: { tenantId: string
           <div className="flex items-center gap-2">
             <span className={`text-[10px] font-black tracking-widest uppercase opacity-40 ${theme === "DARK" ? "text-white" : "text-stone-950"}`}>
               {activeView === "DASHBOARD" || activeView === "PROGRAMS" || activeView === "MEMBERSHIP" ? "PLATFORM" : 
-               activeView === "ROLE_TYPES" ? "ADMINISTRATION" : "MANAGEMENT"}
+               activeView === "ROLE_TYPES" || activeView === "ORGANIZATION" ? "ADMINISTRATION" : "MANAGEMENT"}
             </span>
             <span className="text-stone-300">/</span>
             <span className={`text-xs font-black tracking-widest uppercase ${theme === "DARK" ? "text-white" : "text-stone-950"}`}>
@@ -283,6 +290,8 @@ export default function DashboardClient({ params }: { params: { tenantId: string
           <DimensionsView theme={theme} />
         ) : activeView === "ROLE_TYPES" ? (
           <RoleTypesView theme={theme} />
+        ) : activeView === "ORGANIZATION" ? (
+          <OrganizationView theme={theme} />
         ) : activeView === "USER_ADMIN" ? (
           <UserAdminView theme={theme} />
         ) : activeView === "PLATFORM_TENANT_ADMIN" ? (
