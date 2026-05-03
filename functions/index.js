@@ -53,9 +53,10 @@ exports.inviteUser = functions.https.onCall(async (data, context) => {
     // 3. Set Custom Claims
     await admin.auth().setCustomUserClaims(uid, { tenantId: tenantId || 'global', role });
 
-    // 4. Update Firestore with final Auth UID
+    // 4. Update Firestore with final Auth UID and ensure "Invited" status
     await db.collection("global_users").doc(user_id).update({
       auth_uid: uid,
+      status: "Invited",
       updated_at: admin.firestore.FieldValue.serverTimestamp()
     });
 
@@ -102,9 +103,9 @@ exports.syncUserOnCreate = functions.auth.user().onCreate(async (user) => {
       created_at: admin.firestore.FieldValue.serverTimestamp()
     });
   } else {
-    // If they exist but lack auth_uid, update it
+    // If they exist but lack auth_uid, update it (Keep existing status)
     const doc = userSnapshot.docs[0];
-    await doc.ref.update({ auth_uid: uid, status: "Active" });
+    await doc.ref.update({ auth_uid: uid });
   }
 });
 
