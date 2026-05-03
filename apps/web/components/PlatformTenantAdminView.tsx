@@ -220,6 +220,19 @@ export default function PlatformTenantAdminView({ theme = "LIGHT" }: { theme?: "
         address_state: formData.address_state,
         address_zip: formData.address_zip
       });
+      
+      // 1.5 Sync Address to Owner in global_users if owner_id exists
+      if (formData.owner_id) {
+        const ownerRef = doc(db, "global_users", formData.owner_id);
+        await setDoc(ownerRef, {
+          address_street_1: formData.address_street_1,
+          address_street_2: formData.address_street_2,
+          address_city: formData.address_city,
+          address_state: formData.address_state,
+          address_zip: formData.address_zip,
+          updated_at: serverTimestamp()
+        }, { merge: true });
+      }
 
       // 2. Invite Owner via Cloud Function (Only if new or explicitly requested)
       if (!editingTenantId || formData.invite_user) {

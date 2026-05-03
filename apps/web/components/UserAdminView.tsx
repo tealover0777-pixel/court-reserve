@@ -22,6 +22,7 @@ interface User {
   status: string;
   phone?: string;
   notes?: string;
+  tenant_id?: string;
   address_street_1?: string;
   address_street_2?: string;
   address_city?: string;
@@ -40,7 +41,7 @@ const US_STATES = [
 
 
 import { db, functions } from "../lib/firebase";
-import { collection, onSnapshot, query, orderBy, doc, deleteDoc, setDoc } from "firebase/firestore";
+import { collection, onSnapshot, query, orderBy, doc, deleteDoc, setDoc, where, getDocs } from "firebase/firestore";
 import { httpsCallable } from "firebase/functions";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { useEffect } from "react";
@@ -69,6 +70,7 @@ export default function UserAdminView({ theme = "LIGHT" }: { theme?: "LIGHT" | "
     status: "Invited",
     phone: "",
     notes: "",
+    tenant_id: "",
     invite_user: true,
     address_street_1: "",
     address_street_2: "",
@@ -200,6 +202,7 @@ export default function UserAdminView({ theme = "LIGHT" }: { theme?: "LIGHT" | "
       status: user.status || "Invited",
       phone: user.phone || "",
       notes: user.notes || "",
+      tenant_id: user.tenant_id || "",
       invite_user: false,
       address_street_1: user.address_street_1 || "",
       address_street_2: user.address_street_2 || "",
@@ -221,6 +224,19 @@ export default function UserAdminView({ theme = "LIGHT" }: { theme?: "LIGHT" | "
       }, { merge: true });
       setShowEditModal(false);
       setEditingUser(null);
+
+      // Sync reverse to tenants if this user owns any
+      const tenantsQuery = query(collection(db, "tenants"), where("owner_id", "==", editingUser.user_id));
+      const tenantSnaps = await getDocs(tenantsQuery);
+      for (const tDoc of tenantSnaps.docs) {
+        await setDoc(doc(db, "tenants", tDoc.id), {
+          address_street_1: formData.address_street_1,
+          address_street_2: formData.address_street_2,
+          address_city: formData.address_city,
+          address_state: formData.address_state,
+          address_zip: formData.address_zip
+        }, { merge: true });
+      }
     } catch (err) {
       console.error("Failed to save user:", err);
       alert("Failed to save user.");
@@ -248,6 +264,7 @@ export default function UserAdminView({ theme = "LIGHT" }: { theme?: "LIGHT" | "
         status: "Invited",
         phone: formData.phone,
         notes: formData.notes,
+        tenant_id: formData.tenant_id,
         address_street_1: formData.address_street_1,
         address_street_2: formData.address_street_2,
         address_city: formData.address_city,
@@ -269,6 +286,7 @@ export default function UserAdminView({ theme = "LIGHT" }: { theme?: "LIGHT" | "
           last_name: formData.last_name,
           phone: formData.phone,
           notes: formData.notes,
+          tenantId: formData.tenant_id,
           address_street_1: formData.address_street_1,
           address_street_2: formData.address_street_2,
           address_city: formData.address_city,
@@ -281,6 +299,19 @@ export default function UserAdminView({ theme = "LIGHT" }: { theme?: "LIGHT" | "
           setInvitationLink(result.data.invitationLink);
           setShowInviteSuccess(true);
         }
+      }
+
+      // Sync reverse to tenants if this user owns any (shouldn't happen on create but for safety)
+      const tenantsQuery = query(collection(db, "tenants"), where("owner_id", "==", newId));
+      const tenantSnaps = await getDocs(tenantsQuery);
+      for (const tDoc of tenantSnaps.docs) {
+        await setDoc(doc(db, "tenants", tDoc.id), {
+          address_street_1: formData.address_street_1,
+          address_street_2: formData.address_street_2,
+          address_city: formData.address_city,
+          address_state: formData.address_state,
+          address_zip: formData.address_zip
+        }, { merge: true });
       }
 
       setShowCreateModal(false);
@@ -338,6 +369,7 @@ export default function UserAdminView({ theme = "LIGHT" }: { theme?: "LIGHT" | "
       status: "Invited",
       phone: "",
       notes: "",
+      tenant_id: "",
       invite_user: true,
       address_street_1: "",
       address_street_2: "",
@@ -357,6 +389,15 @@ export default function UserAdminView({ theme = "LIGHT" }: { theme?: "LIGHT" | "
         theme === "VINTAGE" ? "text-stone-600" :
         "text-stone-900"
       }`}>{info.getValue()}</span>,
+    }),
+    columnHelper.accessor("tenant_id", {
+      header: "TENANT ID",
+      size: 120,
+      cell: info => <span className={`font-mono text-[10px] font-black transition-colors duration-500 ${
+        theme === "DARK" ? "text-[#ccff00]" : 
+        theme === "VINTAGE" ? "text-stone-900" :
+        "text-stone-500"
+      }`}>{info.getValue() || "-"}</span>,
     }),
     columnHelper.accessor("first_name", {
       header: "FIRST NAME",
@@ -864,6 +905,18 @@ export default function UserAdminView({ theme = "LIGHT" }: { theme?: "LIGHT" | "
             </div>
           </div>
 
+          <div>
+            <label className={`text-[10px] font-black tracking-widest uppercase mb-3 block ${theme === "DARK" ? "text-stone-500" : "text-stone-400"}`}>Tenant ID</label>
+            <input 
+              value={formData.tenant_id}
+              onChange={e => setFormData({ ...formData, tenant_id: e.target.value })}
+              placeholder="e.g. T10001"
+              className={`w-full border rounded-2xl px-6 py-4 text-sm font-bold outline-none transition-colors ${
+                theme === "DARK" ? "bg-stone-950 text-white border-stone-800 focus:border-[#ccff00]" : "bg-white text-stone-900 border-stone-200 focus:border-stone-400 shadow-sm"
+              }`}
+            />
+          </div>
+
           <div className="grid grid-cols-2 gap-6">
             <div>
               <label className={`text-[10px] font-black tracking-widest uppercase mb-3 block ${theme === "DARK" ? "text-stone-500" : "text-stone-400"}`}>First Name</label>
@@ -1094,6 +1147,18 @@ export default function UserAdminView({ theme = "LIGHT" }: { theme?: "LIGHT" | "
             }`}>
               {nextUserId}
             </div>
+          </div>
+
+          <div>
+            <label className={`text-[10px] font-black tracking-widest uppercase mb-3 block ${theme === "DARK" ? "text-stone-500" : "text-stone-400"}`}>Tenant ID</label>
+            <input 
+              value={formData.tenant_id}
+              onChange={e => setFormData({ ...formData, tenant_id: e.target.value })}
+              placeholder="e.g. T10001"
+              className={`w-full border rounded-2xl px-6 py-4 text-sm font-bold outline-none transition-colors ${
+                theme === "DARK" ? "bg-stone-950 text-white border-stone-800 focus:border-[#ccff00]" : "bg-white text-stone-900 border-stone-200 focus:border-stone-400 shadow-sm"
+              }`}
+            />
           </div>
 
           <div>
