@@ -26,8 +26,9 @@ interface User {
 
 
 
-import { db } from "../lib/firebase";
+import { db, functions } from "../lib/firebase";
 import { collection, onSnapshot, query, orderBy, doc, deleteDoc, setDoc } from "firebase/firestore";
+import { httpsCallable } from "firebase/functions";
 import { useEffect } from "react";
 
 export default function UserAdminView({ theme = "LIGHT" }: { theme?: "LIGHT" | "DARK" | "VINTAGE" }) {
@@ -36,7 +37,9 @@ export default function UserAdminView({ theme = "LIGHT" }: { theme?: "LIGHT" | "
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [showCreateModal, setShowCreateModal] = useState(false);
   const [editingUser, setEditingUser] = useState<User | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
   const [userStatuses, setUserStatuses] = useState<string[]>([]);
   const [roles, setRoles] = useState<any[]>([]);
   const [formData, setFormData] = useState({
@@ -48,8 +51,19 @@ export default function UserAdminView({ theme = "LIGHT" }: { theme?: "LIGHT" | "
     role: "",
     status: "Invited",
     phone: "",
-    notes: ""
+    notes: "",
+    invite_user: true
   });
+
+  const nextUserId = useMemo(() => {
+    if (users.length === 0) return "U10001";
+    const ids = users.map(u => {
+      const match = u.user_id?.match(/^U(\d+)$/);
+      return (match && match[1]) ? parseInt(match[1]) : 0;
+    });
+    const max = Math.max(...ids);
+    return `U${(max + 1).toString().padStart(4, '0')}`;
+  }, [users]);
 
   useEffect(() => {
     const q = query(collection(db, "global_users"), orderBy("user_id", "asc"));
@@ -109,13 +123,15 @@ export default function UserAdminView({ theme = "LIGHT" }: { theme?: "LIGHT" | "
       role: user.role || "",
       status: user.status || "Invited",
       phone: user.phone || "",
-      notes: user.notes || ""
+      notes: user.notes || "",
+      invite_user: false
     });
     setShowEditModal(true);
   };
 
   const handleSaveUser = async () => {
     if (!editingUser) return;
+    setIsSaving(true);
     try {
       const userRef = doc(db, "global_users", editingUser.id);
       await setDoc(userRef, {
@@ -127,7 +143,73 @@ export default function UserAdminView({ theme = "LIGHT" }: { theme?: "LIGHT" | "
     } catch (err) {
       console.error("Failed to save user:", err);
       alert("Failed to save user.");
+    } finally {
+      setIsSaving(false);
     }
+  };
+
+  const handleCreateUser = async () => {
+    if (!formData.email) {
+      alert("Email is required.");
+      return;
+    }
+    setIsSaving(true);
+    try {
+      const newId = nextUserId;
+      const userRef = doc(db, "global_users", newId);
+      
+      const userData = {
+        user_id: newId,
+        first_name: formData.first_name,
+        last_name: formData.last_name,
+        email: formData.email,
+        role: formData.role,
+        status: "Invited",
+        phone: formData.phone,
+        notes: formData.notes,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      };
+
+      await setDoc(userRef, userData);
+
+      if (formData.invite_user) {
+        const inviteUserFn = httpsCallable(functions, "inviteUser");
+        await inviteUserFn({
+          email: formData.email,
+          role: formData.role,
+          user_id: newId,
+          first_name: formData.first_name,
+          last_name: formData.last_name,
+          phone: formData.phone,
+          notes: formData.notes,
+          inviteUser: true
+        });
+      }
+
+      setShowCreateModal(false);
+      resetForm();
+    } catch (err) {
+      console.error("Failed to create user:", err);
+      alert("Failed to create user.");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const resetForm = () => {
+    setFormData({
+      user_id: "",
+      auth_uid: "",
+      first_name: "",
+      last_name: "",
+      email: "",
+      role: "",
+      status: "Invited",
+      phone: "",
+      notes: "",
+      invite_user: true
+    });
   };
 
   const columnHelper = createColumnHelper<User>();
@@ -361,7 +443,12 @@ export default function UserAdminView({ theme = "LIGHT" }: { theme?: "LIGHT" | "
               onChange={(e) => table.setGlobalFilter(e.target.value)}
             />
           </div>
-          <button className={`px-8 py-3 rounded-full font-black text-xs tracking-widest transition-all uppercase shadow-lg flex items-center gap-2 ${
+          <button 
+            onClick={() => {
+              resetForm();
+              setShowCreateModal(true);
+            }}
+            className={`px-8 py-3 rounded-full font-black text-xs tracking-widest transition-all uppercase shadow-lg flex items-center gap-2 ${
             theme === "DARK"
               ? "bg-[#ccff00] text-stone-950 shadow-[#ccff00]/10 hover:opacity-90"
               : theme === "VINTAGE"
@@ -517,22 +604,34 @@ export default function UserAdminView({ theme = "LIGHT" }: { theme?: "LIGHT" | "
         footer={
           <div className="flex gap-4">
             <button 
-              onClick={() => setShowEditModal(false)}
+              onClick={() => {
+                setShowEditModal(false);
+                setEditingUser(null);
+              }}
+              disabled={isSaving}
               className={`flex-1 py-4 border rounded-2xl text-[10px] font-black tracking-widest transition-all uppercase ${
                 theme === "DARK" ? "border-stone-800 text-stone-400 hover:bg-stone-900" : 
                 "bg-white border-stone-200 text-stone-900 hover:bg-stone-50 shadow-sm"
-              }`}
+              } ${isSaving ? "opacity-30 cursor-not-allowed" : ""}`}
             >
               Cancel
             </button>
             <button 
               onClick={handleSaveUser}
-              className={`flex-1 py-4 rounded-2xl text-[10px] font-black tracking-widest transition-all uppercase shadow-lg ${
+              disabled={isSaving}
+              className={`flex-1 py-4 rounded-2xl text-[10px] font-black tracking-widest transition-all uppercase shadow-lg flex items-center justify-center gap-3 ${
                 theme === "DARK" ? "bg-[#ccff00] text-stone-950 shadow-[#ccff00]/20" : 
                 "bg-[#6348eb] text-white shadow-[#6348eb]/20"
-              } hover:opacity-90`}
+              } ${isSaving ? "opacity-70 cursor-not-allowed" : "hover:opacity-90"}`}
             >
-              Save Changes
+              {isSaving ? (
+                <>
+                  <div className={`h-3 w-3 animate-spin rounded-full border-2 border-t-transparent ${
+                    theme === "DARK" ? "border-stone-950" : "border-white"
+                  }`}></div>
+                  Processing...
+                </>
+              ) : "Save Changes"}
             </button>
           </div>
         }
@@ -643,6 +742,166 @@ export default function UserAdminView({ theme = "LIGHT" }: { theme?: "LIGHT" | "
               rows={4}
               className={`w-full border rounded-2xl px-6 py-4 text-sm font-bold outline-none transition-colors resize-none ${
                 theme === "DARK" ? "bg-stone-950 text-white border-stone-800 focus:border-[#ccff00]" : "bg-white text-stone-900 border-stone-200 focus:border-stone-400"
+              }`}
+            />
+          </div>
+        </div>
+      </Modal>
+
+      {/* Create User Modal */}
+      <Modal
+        isOpen={showCreateModal}
+        onClose={() => {
+          setShowCreateModal(false);
+          resetForm();
+        }}
+        title="Create New User"
+        theme={theme}
+        width={600}
+        footer={
+          <div className="flex gap-4">
+            <button 
+              onClick={() => {
+                setShowCreateModal(false);
+                resetForm();
+              }}
+              disabled={isSaving}
+              className={`flex-1 py-4 border rounded-2xl text-[10px] font-black tracking-widest transition-all uppercase ${
+                theme === "DARK" ? "border-stone-800 text-stone-400 hover:bg-stone-900" : 
+                "bg-white border-stone-200 text-stone-900 hover:bg-stone-50 shadow-sm"
+              } ${isSaving ? "opacity-30 cursor-not-allowed" : ""}`}
+            >
+              Cancel
+            </button>
+            <button 
+              onClick={handleCreateUser}
+              disabled={isSaving}
+              className={`flex-1 py-4 rounded-2xl text-[10px] font-black tracking-widest transition-all uppercase shadow-lg flex items-center justify-center gap-3 ${
+                theme === "DARK" ? "bg-[#ccff00] text-stone-950 shadow-[#ccff00]/20" : 
+                "bg-[#6348eb] text-white shadow-[#6348eb]/20"
+              } ${isSaving ? "opacity-70 cursor-not-allowed" : "hover:opacity-90"}`}
+            >
+              {isSaving ? (
+                <>
+                  <div className={`h-3 w-3 animate-spin rounded-full border-2 border-t-transparent ${
+                    theme === "DARK" ? "border-stone-950" : "border-white"
+                  }`}></div>
+                  Processing...
+                </>
+              ) : "Create User"}
+            </button>
+          </div>
+        }
+      >
+        <div className="space-y-6">
+          <p className={`text-sm leading-relaxed ${theme === "DARK" ? "text-stone-400" : "text-stone-500"}`}>
+            This will create a user in your organization responsible for monitoring operations and managing users associated with your business processes.
+          </p>
+
+          <div>
+            <label className={`text-[10px] font-black tracking-widest uppercase mb-3 block ${theme === "DARK" ? "text-stone-500" : "text-stone-400"}`}>Upcoming User ID</label>
+            <div className={`w-full border rounded-2xl px-6 py-4 text-sm font-bold transition-colors ${
+              theme === "DARK" ? "bg-stone-900 text-stone-400 border-stone-800" : "bg-stone-50 text-stone-500 border-stone-100"
+            }`}>
+              {nextUserId}
+            </div>
+          </div>
+
+          <div>
+            <label className={`text-[10px] font-black tracking-widest uppercase mb-3 block ${theme === "DARK" ? "text-stone-500" : "text-stone-400"}`}>Email Address</label>
+            <input 
+              value={formData.email}
+              onChange={e => setFormData({ ...formData, email: e.target.value })}
+              placeholder="user@company.com"
+              className={`w-full border rounded-2xl px-6 py-4 text-sm font-bold outline-none transition-colors ${
+                theme === "DARK" ? "bg-stone-950 text-white border-stone-800 focus:border-[#ccff00]" : "bg-white text-stone-900 border-stone-200 focus:border-stone-400 shadow-sm"
+              }`}
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-6">
+            <div>
+              <label className={`text-[10px] font-black tracking-widest uppercase mb-3 block ${theme === "DARK" ? "text-stone-500" : "text-stone-400"}`}>First Name (Optional)</label>
+              <input 
+                value={formData.first_name}
+                onChange={e => setFormData({ ...formData, first_name: e.target.value })}
+                placeholder="Jane"
+                className={`w-full border rounded-2xl px-6 py-4 text-sm font-bold outline-none transition-colors ${
+                  theme === "DARK" ? "bg-stone-950 text-white border-stone-800 focus:border-[#ccff00]" : "bg-white text-stone-900 border-stone-200 focus:border-stone-400 shadow-sm"
+                }`}
+              />
+            </div>
+            <div>
+              <label className={`text-[10px] font-black tracking-widest uppercase mb-3 block ${theme === "DARK" ? "text-stone-500" : "text-stone-400"}`}>Last Name (Optional)</label>
+              <input 
+                value={formData.last_name}
+                onChange={e => setFormData({ ...formData, last_name: e.target.value })}
+                placeholder="Doe"
+                className={`w-full border rounded-2xl px-6 py-4 text-sm font-bold outline-none transition-colors ${
+                  theme === "DARK" ? "bg-stone-950 text-white border-stone-800 focus:border-[#ccff00]" : "bg-white text-stone-900 border-stone-200 focus:border-stone-400 shadow-sm"
+                }`}
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className={`text-[10px] font-black tracking-widest uppercase mb-3 block ${theme === "DARK" ? "text-stone-500" : "text-stone-400"}`}>Phone (Optional)</label>
+            <input 
+              value={formData.phone}
+              onChange={e => setFormData({ ...formData, phone: e.target.value })}
+              placeholder="+1 555 000 0000"
+              className={`w-full border rounded-2xl px-6 py-4 text-sm font-bold outline-none transition-colors ${
+                theme === "DARK" ? "bg-stone-950 text-white border-stone-800 focus:border-[#ccff00]" : "bg-white text-stone-900 border-stone-200 focus:border-stone-400 shadow-sm"
+              }`}
+            />
+          </div>
+
+          <div>
+            <label className={`text-[10px] font-black tracking-widest uppercase mb-3 block ${theme === "DARK" ? "text-stone-500" : "text-stone-400"}`}>Role</label>
+            <select 
+              value={formData.role}
+              onChange={e => setFormData({ ...formData, role: e.target.value })}
+              className={`w-full border rounded-2xl px-6 py-4 text-sm font-bold outline-none transition-colors appearance-none cursor-pointer ${
+                theme === "DARK" ? "bg-stone-950 text-white border-stone-800 focus:border-[#ccff00]" : "bg-white text-stone-900 border-stone-200 focus:border-stone-400 shadow-sm"
+              }`}
+            >
+              <option value="">Select a role...</option>
+              {roles.map(r => (
+                <option key={r.id} value={r.role_id || r.id}>
+                  {r.role_id} - {r.role_name} {r.is_global ? "[GLOBAL]" : ""}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <label className="flex items-center gap-4 cursor-pointer group">
+            <div className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all ${
+              formData.invite_user 
+                ? "bg-[#6348eb] border-[#6348eb]" 
+                : (theme === "DARK" ? "border-stone-800" : "border-stone-200 shadow-sm")
+            }`}>
+              {formData.invite_user && <span className="material-symbols-outlined text-white text-lg">check</span>}
+            </div>
+            <input 
+              type="checkbox"
+              className="hidden"
+              checked={formData.invite_user}
+              onChange={e => setFormData({ ...formData, invite_user: e.target.checked })}
+            />
+            <span className={`text-sm font-bold transition-colors ${
+              theme === "DARK" ? "text-white" : "text-stone-900"
+            }`}>Invite user (Send verification email)</span>
+          </label>
+
+          <div>
+            <label className={`text-[10px] font-black tracking-widest uppercase mb-3 block ${theme === "DARK" ? "text-stone-500" : "text-stone-400"}`}>Internal Notes</label>
+            <textarea 
+              value={formData.notes}
+              onChange={e => setFormData({ ...formData, notes: e.target.value })}
+              placeholder="Private notes about this user..."
+              rows={4}
+              className={`w-full border rounded-2xl px-6 py-4 text-sm font-bold outline-none transition-colors resize-none ${
+                theme === "DARK" ? "bg-stone-950 text-white border-stone-800 focus:border-[#ccff00]" : "bg-white text-stone-900 border-stone-200 focus:border-stone-400 shadow-sm"
               }`}
             />
           </div>
