@@ -117,3 +117,36 @@ exports.syncUserOnDelete = functions.auth.user().onDelete(async (user) => {
   
   return batch.commit();
 });
+
+/**
+ * Deletes a user from both Firestore and Firebase Authentication.
+ */
+exports.deleteUserAccount = functions.https.onCall(async (data, context) => {
+  const { user_id, auth_uid } = data;
+
+  if (!user_id) {
+    throw new functions.https.HttpsError("invalid-argument", "Missing user_id");
+  }
+
+  try {
+    // 1. Delete from Firestore
+    await db.collection("global_users").doc(user_id).delete();
+
+    // 2. Delete from Auth (if UID is provided)
+    if (auth_uid) {
+      try {
+        await admin.auth().deleteUser(auth_uid);
+      } catch (authError) {
+        // If user already doesn't exist in Auth, we can ignore
+        if (authError.code !== 'auth/user-not-found') {
+          throw authError;
+        }
+      }
+    }
+
+    return { status: "success", message: `User ${user_id} deleted from Firestore and Auth.` };
+  } catch (error) {
+    console.error("Error in deleteUserAccount:", error);
+    throw new functions.https.HttpsError("internal", error.message);
+  }
+});

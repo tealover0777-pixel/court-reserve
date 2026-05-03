@@ -151,12 +151,20 @@ export default function UserAdminView({ theme = "LIGHT" }: { theme?: "LIGHT" | "
 
   const handleDeleteUser = async () => {
     if (!confirmDelete) return;
+    setIsSaving(true);
     try {
-      await deleteDoc(doc(db, "global_users", confirmDelete));
+      const userToDelete = users.find(u => u.id === confirmDelete);
+      const deleteFn = httpsCallable(functions, "deleteUserAccount");
+      await deleteFn({
+        user_id: confirmDelete,
+        auth_uid: userToDelete?.auth_uid
+      });
       setConfirmDelete(null);
     } catch (err) {
       console.error("Failed to delete user:", err);
-      alert("Failed to delete user.");
+      alert("Failed to delete user account synchronization.");
+    } finally {
+      setIsSaving(false);
     }
   };
 
