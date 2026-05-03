@@ -14,11 +14,14 @@ import { Modal } from "@repo/ui/modal";
 interface User {
   id: string;
   user_id: string;
+  auth_uid?: string;
   first_name: string;
   last_name: string;
   email: string;
   role: string;
-  status: "Active" | "Inactive";
+  status: string;
+  phone?: string;
+  notes?: string;
 }
 
 
@@ -34,12 +37,17 @@ export default function UserAdminView({ theme = "LIGHT" }: { theme?: "LIGHT" | "
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
   const [showEditModal, setShowEditModal] = useState(false);
   const [editingUser, setEditingUser] = useState<User | null>(null);
+  const [userStatuses, setUserStatuses] = useState<string[]>([]);
   const [formData, setFormData] = useState({
+    user_id: "",
+    auth_uid: "",
     first_name: "",
     last_name: "",
     email: "",
     role: "",
-    status: "Active" as "Active" | "Inactive"
+    status: "Invited",
+    phone: "",
+    notes: ""
   });
 
   useEffect(() => {
@@ -55,7 +63,18 @@ export default function UserAdminView({ theme = "LIGHT" }: { theme?: "LIGHT" | "
       console.error("Error fetching users:", error);
       setLoading(false);
     });
-    return () => unsubscribe();
+
+    const unsubscribeStatus = onSnapshot(query(collection(db, "dimensions"), orderBy("category", "asc")), (snapshot) => {
+      const statusDim = snapshot.docs.find(doc => doc.data().category === "USERSTATUS");
+      if (statusDim) {
+        setUserStatuses(statusDim.data().items || []);
+      }
+    });
+
+    return () => {
+      unsubscribe();
+      unsubscribeStatus();
+    };
   }, []);
 
   const handleDeleteUser = async () => {
@@ -72,11 +91,15 @@ export default function UserAdminView({ theme = "LIGHT" }: { theme?: "LIGHT" | "
   const handleEditUser = (user: User) => {
     setEditingUser(user);
     setFormData({
+      user_id: user.user_id || "",
+      auth_uid: user.auth_uid || "",
       first_name: user.first_name || "",
       last_name: user.last_name || "",
       email: user.email || "",
       role: user.role || "",
-      status: user.status || "Active"
+      status: user.status || "Invited",
+      phone: user.phone || "",
+      notes: user.notes || ""
     });
     setShowEditModal(true);
   };
@@ -107,6 +130,13 @@ export default function UserAdminView({ theme = "LIGHT" }: { theme?: "LIGHT" | "
         theme === "VINTAGE" ? "text-stone-600" :
         "text-stone-900"
       }`}>{info.getValue()}</span>,
+    }),
+    columnHelper.accessor("auth_uid", {
+      header: "AUTH UID",
+      size: 250,
+      cell: info => <span className={`font-mono text-[10px] transition-colors duration-500 ${
+        theme === "DARK" ? "text-stone-500" : "text-stone-400"
+      }`}>{info.getValue() || "-"}</span>,
     }),
     columnHelper.accessor("first_name", {
       header: "FIRST NAME",
@@ -155,11 +185,27 @@ export default function UserAdminView({ theme = "LIGHT" }: { theme?: "LIGHT" | "
         <span className={`text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-widest border ${
           info.getValue() === "Active" 
             ? (theme === "VINTAGE" ? "bg-stone-50 text-stone-900 border-stone-200" : "bg-green-50 text-green-600 border-green-200")
-            : "bg-red-50 text-red-600 border-red-200"
+            : info.getValue() === "Invited"
+              ? "bg-amber-50 text-amber-600 border-amber-200"
+              : "bg-red-50 text-red-600 border-red-200"
         }`}>
           {info.getValue()}
         </span>
       ),
+    }),
+    columnHelper.accessor("phone", {
+      header: "PHONE",
+      size: 150,
+      cell: info => <span className={`text-xs transition-colors duration-500 ${
+        theme === "DARK" ? "text-stone-400" : "text-stone-600"
+      }`}>{info.getValue() || "-"}</span>,
+    }),
+    columnHelper.accessor("notes", {
+      header: "NOTES",
+      size: 200,
+      cell: info => <span className={`text-xs transition-colors duration-500 truncate max-w-[200px] block ${
+        theme === "DARK" ? "text-stone-500" : "text-stone-400"
+      }`}>{info.getValue() || "-"}</span>,
     }),
     columnHelper.display({
       id: "actions",
@@ -444,17 +490,16 @@ export default function UserAdminView({ theme = "LIGHT" }: { theme?: "LIGHT" | "
           setShowEditModal(false);
           setEditingUser(null);
         }}
-        title="Edit User"
+        title="Edit User Profile"
         theme={theme}
-        width={500}
+        width={600}
         footer={
           <div className="flex gap-4">
             <button 
               onClick={() => setShowEditModal(false)}
-              className={`flex-1 py-4 border-2 rounded-2xl text-[10px] font-black tracking-widest transition-all uppercase ${
+              className={`flex-1 py-4 border rounded-2xl text-[10px] font-black tracking-widest transition-all uppercase ${
                 theme === "DARK" ? "border-stone-800 text-stone-400 hover:bg-stone-900" : 
-                theme === "VINTAGE" ? "border-stone-100 text-black hover:bg-stone-50" :
-                "border-stone-100 text-stone-400 hover:bg-stone-50"
+                "bg-white border-stone-200 text-stone-900 hover:bg-stone-50 shadow-sm"
               }`}
             >
               Cancel
@@ -463,8 +508,7 @@ export default function UserAdminView({ theme = "LIGHT" }: { theme?: "LIGHT" | "
               onClick={handleSaveUser}
               className={`flex-1 py-4 rounded-2xl text-[10px] font-black tracking-widest transition-all uppercase shadow-lg ${
                 theme === "DARK" ? "bg-[#ccff00] text-stone-950 shadow-[#ccff00]/20" : 
-                theme === "VINTAGE" ? "bg-black text-white shadow-black/20" :
-                "bg-[#4f6b28] text-white shadow-[#4f6b28]/20"
+                "bg-[#6348eb] text-white shadow-[#6348eb]/20"
               } hover:opacity-90`}
             >
               Save Changes
@@ -473,14 +517,32 @@ export default function UserAdminView({ theme = "LIGHT" }: { theme?: "LIGHT" | "
         }
       >
         <div className="space-y-6">
+          <div>
+            <label className={`text-[10px] font-black tracking-widest uppercase mb-3 block ${theme === "DARK" ? "text-stone-500" : "text-stone-400"}`}>User ID</label>
+            <div className={`w-full border rounded-2xl px-6 py-4 text-sm font-bold transition-colors ${
+              theme === "DARK" ? "bg-stone-900 text-stone-400 border-stone-800" : "bg-stone-50 text-stone-500 border-stone-100"
+            }`}>
+              {formData.user_id}
+            </div>
+          </div>
+
+          <div>
+            <label className={`text-[10px] font-black tracking-widest uppercase mb-3 block ${theme === "DARK" ? "text-stone-500" : "text-stone-400"}`}>Auth UID (Firebase)</label>
+            <div className={`w-full border rounded-2xl px-6 py-4 text-sm font-bold transition-colors break-all ${
+              theme === "DARK" ? "bg-stone-900 text-stone-500 border-stone-800" : "bg-stone-50 text-stone-400 border-stone-100"
+            }`}>
+              {formData.auth_uid || "No UID Linked"}
+            </div>
+          </div>
+
           <div className="grid grid-cols-2 gap-6">
             <div>
               <label className={`text-[10px] font-black tracking-widest uppercase mb-3 block ${theme === "DARK" ? "text-stone-500" : "text-stone-400"}`}>First Name</label>
               <input 
                 value={formData.first_name}
                 onChange={e => setFormData({ ...formData, first_name: e.target.value })}
-                className={`w-full border-none rounded-2xl px-6 py-4 text-sm font-bold outline-none transition-colors ${
-                  theme === "DARK" ? "bg-stone-900 text-white focus:ring-2 focus:ring-[#ccff00]" : "bg-stone-50 text-stone-900 focus:ring-2 focus:ring-[#4f6b28]"
+                className={`w-full border rounded-2xl px-6 py-4 text-sm font-bold outline-none transition-colors ${
+                  theme === "DARK" ? "bg-stone-950 text-white border-stone-800 focus:border-[#ccff00]" : "bg-white text-stone-900 border-stone-200 focus:border-stone-400"
                 }`}
               />
             </div>
@@ -489,20 +551,31 @@ export default function UserAdminView({ theme = "LIGHT" }: { theme?: "LIGHT" | "
               <input 
                 value={formData.last_name}
                 onChange={e => setFormData({ ...formData, last_name: e.target.value })}
-                className={`w-full border-none rounded-2xl px-6 py-4 text-sm font-bold outline-none transition-colors ${
-                  theme === "DARK" ? "bg-stone-900 text-white focus:ring-2 focus:ring-[#ccff00]" : "bg-stone-50 text-stone-900 focus:ring-2 focus:ring-[#4f6b28]"
+                className={`w-full border rounded-2xl px-6 py-4 text-sm font-bold outline-none transition-colors ${
+                  theme === "DARK" ? "bg-stone-950 text-white border-stone-800 focus:border-[#ccff00]" : "bg-white text-stone-900 border-stone-200 focus:border-stone-400"
                 }`}
               />
             </div>
           </div>
 
           <div>
-            <label className={`text-[10px] font-black tracking-widest uppercase mb-3 block ${theme === "DARK" ? "text-stone-500" : "text-stone-400"}`}>Email Address</label>
+            <label className={`text-[10px] font-black tracking-widest uppercase mb-3 block ${theme === "DARK" ? "text-stone-500" : "text-stone-400"}`}>Email</label>
             <input 
               value={formData.email}
               onChange={e => setFormData({ ...formData, email: e.target.value })}
-              className={`w-full border-none rounded-2xl px-6 py-4 text-sm font-bold outline-none transition-colors ${
-                theme === "DARK" ? "bg-stone-900 text-white focus:ring-2 focus:ring-[#ccff00]" : "bg-stone-50 text-stone-900 focus:ring-2 focus:ring-[#4f6b28]"
+              className={`w-full border rounded-2xl px-6 py-4 text-sm font-bold outline-none transition-colors ${
+                theme === "DARK" ? "bg-stone-950 text-white border-stone-800 focus:border-[#ccff00]" : "bg-white text-stone-900 border-stone-200 focus:border-stone-400"
+              }`}
+            />
+          </div>
+
+          <div>
+            <label className={`text-[10px] font-black tracking-widest uppercase mb-3 block ${theme === "DARK" ? "text-stone-500" : "text-stone-400"}`}>Role</label>
+            <input 
+              value={formData.role}
+              onChange={e => setFormData({ ...formData, role: e.target.value })}
+              className={`w-full border rounded-2xl px-6 py-4 text-sm font-bold outline-none transition-colors ${
+                theme === "DARK" ? "bg-stone-950 text-white border-stone-800 focus:border-[#ccff00]" : "bg-white text-stone-900 border-stone-200 focus:border-stone-400"
               }`}
             />
           </div>
@@ -511,14 +584,39 @@ export default function UserAdminView({ theme = "LIGHT" }: { theme?: "LIGHT" | "
             <label className={`text-[10px] font-black tracking-widest uppercase mb-3 block ${theme === "DARK" ? "text-stone-500" : "text-stone-400"}`}>Status</label>
             <select 
               value={formData.status}
-              onChange={e => setFormData({ ...formData, status: e.target.value as any })}
-              className={`w-full border-none rounded-2xl px-6 py-4 text-sm font-bold outline-none transition-colors appearance-none cursor-pointer ${
-                theme === "DARK" ? "bg-stone-900 text-white focus:ring-2 focus:ring-[#ccff00]" : "bg-stone-50 text-stone-900 focus:ring-2 focus:ring-[#4f6b28]"
+              onChange={e => setFormData({ ...formData, status: e.target.value })}
+              className={`w-full border rounded-2xl px-6 py-4 text-sm font-bold outline-none transition-colors appearance-none cursor-pointer ${
+                theme === "DARK" ? "bg-stone-950 text-white border-stone-800 focus:border-[#ccff00]" : "bg-white text-stone-900 border-stone-200 focus:border-stone-400"
               }`}
             >
-              <option value="Active">Active</option>
-              <option value="Inactive">Inactive</option>
+              {userStatuses.map(s => <option key={s} value={s}>{s}</option>)}
+              {userStatuses.length === 0 && <option value="Invited">Invited</option>}
             </select>
+          </div>
+
+          <div>
+            <label className={`text-[10px] font-black tracking-widest uppercase mb-3 block ${theme === "DARK" ? "text-stone-500" : "text-stone-400"}`}>Phone</label>
+            <input 
+              value={formData.phone}
+              onChange={e => setFormData({ ...formData, phone: e.target.value })}
+              placeholder="e.g. 123-456-7890"
+              className={`w-full border rounded-2xl px-6 py-4 text-sm font-bold outline-none transition-colors ${
+                theme === "DARK" ? "bg-stone-950 text-white border-stone-800 focus:border-[#ccff00]" : "bg-white text-stone-900 border-stone-200 focus:border-stone-400"
+              }`}
+            />
+          </div>
+
+          <div>
+            <label className={`text-[10px] font-black tracking-widest uppercase mb-3 block ${theme === "DARK" ? "text-stone-500" : "text-stone-400"}`}>Internal Notes</label>
+            <textarea 
+              value={formData.notes}
+              onChange={e => setFormData({ ...formData, notes: e.target.value })}
+              placeholder="Private notes..."
+              rows={4}
+              className={`w-full border rounded-2xl px-6 py-4 text-sm font-bold outline-none transition-colors resize-none ${
+                theme === "DARK" ? "bg-stone-950 text-white border-stone-800 focus:border-[#ccff00]" : "bg-white text-stone-900 border-stone-200 focus:border-stone-400"
+              }`}
+            />
           </div>
         </div>
       </Modal>
