@@ -227,10 +227,29 @@ export default function DashboardClient({ params }: { params: { tenantId: string
           theme === "VINTAGE" ? "bg-white/80 border-b border-[#f0f0f0]" :
             "bg-white/60"
         }`}>
-        <h2 className={`text-4xl font-black italic tracking-tighter uppercase ${theme === "DARK" ? "text-[#ccff00]" :
-            theme === "VINTAGE" ? "text-black" :
-              "text-[#4f6b28]"
-          }`} style={{ fontFamily: 'Lexend, sans-serif' }}>{activeView}</h2>
+        <div className="flex items-center gap-3">
+          <div className={`w-8 h-8 rounded-xl flex items-center justify-center transition-all ${
+            theme === "DARK" ? "bg-stone-900 text-[#ccff00]" : 
+            theme === "VINTAGE" ? "bg-black text-white" : 
+            "bg-stone-100 text-[#4f6b28]"
+          }`}>
+            <span className="material-symbols-outlined text-sm">
+              {activeView === "DASHBOARD" ? "dashboard" : 
+               activeView.includes("ADMIN") ? "admin_panel_settings" : 
+               activeView === "ROLE_TYPES" ? "rule" : "grid_view"}
+            </span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className={`text-[10px] font-black tracking-widest uppercase opacity-40 ${theme === "DARK" ? "text-white" : "text-stone-950"}`}>
+              {activeView === "DASHBOARD" || activeView === "PROGRAMS" || activeView === "MEMBERSHIP" ? "PLATFORM" : 
+               activeView === "ROLE_TYPES" ? "ADMINISTRATION" : "MANAGEMENT"}
+            </span>
+            <span className="text-stone-300">/</span>
+            <span className={`text-xs font-black tracking-widest uppercase ${theme === "DARK" ? "text-white" : "text-stone-950"}`}>
+              {activeView.replace(/_/g, ' ')}
+            </span>
+          </div>
+        </div>
         <div className="flex items-center gap-8">
           <ThemeSelector theme={theme} setTheme={setTheme} />
           <div className="relative hidden lg:block">
