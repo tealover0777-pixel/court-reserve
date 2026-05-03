@@ -62,6 +62,7 @@ export default function PlatformTenantAdminView({ theme = "LIGHT" }: { theme?: "
   });
   const [editingTenantId, setEditingTenantId] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [isInviting, setIsInviting] = useState(false);
   const [users, setUsers] = useState<any[]>([]);
   const [showInviteSuccess, setShowInviteSuccess] = useState(false);
   const [invitationLink, setInvitationLink] = useState("");
@@ -240,7 +241,7 @@ export default function PlatformTenantAdminView({ theme = "LIGHT" }: { theme?: "
       alert("Owner email is missing.");
       return;
     }
-    setIsSaving(true);
+    setIsInviting(true);
     try {
       const inviteUserFn = httpsCallable(functions, "inviteUser");
       const result: any = await inviteUserFn({
@@ -263,9 +264,9 @@ export default function PlatformTenantAdminView({ theme = "LIGHT" }: { theme?: "
       }
     } catch (err) {
       console.error("Failed to invite owner:", err);
-      alert("Failed to send invitation.");
+      alert("Failed to send invitation: " + (err instanceof Error ? err.message : "Unknown error"));
     } finally {
-      setIsSaving(false);
+      setIsInviting(false);
     }
   };
 
@@ -376,7 +377,9 @@ export default function PlatformTenantAdminView({ theme = "LIGHT" }: { theme?: "
                       handleInviteOwner(props.row.original);
                       setShowMenu(false);
                     }}
+                    disabled={isInviting || isSaving}
                     className={`w-full flex items-center gap-3 px-4 py-2.5 text-[10px] font-black uppercase tracking-widest transition-colors border-b ${
+                      (isInviting || isSaving) ? "opacity-30 cursor-not-allowed" :
                       theme === "DARK" ? "text-[#ccff00] border-stone-800 hover:bg-stone-800" : 
                       theme === "VINTAGE" ? "text-black border-stone-50 hover:bg-stone-50" :
                       "text-[#4f6b28] border-stone-50 hover:bg-stone-50"
@@ -516,6 +519,25 @@ export default function PlatformTenantAdminView({ theme = "LIGHT" }: { theme?: "
           </button>
         </div>
       </div>
+
+      {(isSaving || isInviting) && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-stone-950/20 backdrop-blur-sm animate-in fade-in duration-300">
+          <div className={`p-8 rounded-3xl shadow-2xl flex flex-col items-center gap-4 transition-colors ${
+            theme === "DARK" ? "bg-stone-900 border border-stone-800" : "bg-white border border-stone-100"
+          }`}>
+            <div className={`h-12 w-12 animate-spin rounded-full border-4 border-t-transparent ${
+              theme === "DARK" ? "border-[#ccff00]" : 
+              theme === "VINTAGE" ? "border-black" :
+              "border-[#4f6b28]"
+            }`}></div>
+            <p className={`text-[10px] font-black uppercase tracking-[0.2em] animate-pulse ${
+              theme === "DARK" ? "text-stone-400" : "text-stone-500"
+            }`}>
+              Processing request...
+            </p>
+          </div>
+        </div>
+      )}
 
       <div className={`border rounded-xl shadow-sm transition-colors duration-500 ${
         theme === "DARK" ? "bg-stone-950 border-stone-800" : 
