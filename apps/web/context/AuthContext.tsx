@@ -41,7 +41,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       if (firebaseUser) {
         // Fetch profile from Firestore
         const { db } = await import("../lib/firebase");
-        const { collection, query, where, onSnapshot } = await import("firebase/firestore");
+        const { collection, query, where, onSnapshot, updateDoc } = await import("firebase/firestore");
         
         const q = query(collection(db, "global_users"), where("auth_uid", "==", firebaseUser.uid));
         unsubscribeProfile = onSnapshot(q, (snapshot) => {
@@ -51,7 +51,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             
             // Auto-activate if Invited
             if (data.status === "Invited") {
-              const { updateDoc } = require("firebase/firestore");
               updateDoc(snapshot.docs[0].ref, { 
                 status: "Active",
                 last_login: new Date().toISOString()
