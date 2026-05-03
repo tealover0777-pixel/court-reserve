@@ -18,6 +18,7 @@ import {
   doc, 
   setDoc, 
   deleteDoc,
+  getDoc,
   serverTimestamp, 
   query, 
   orderBy 
@@ -280,6 +281,23 @@ export default function PlatformTenantAdminView({ theme = "LIGHT" }: { theme?: "
         if (result.data?.invitationLink) {
           setInvitationLink(result.data.invitationLink);
           setShowInviteSuccess(true);
+        }
+
+        // 3. Cleanup Duplicate Global Record
+        // The cloud function might create a record at docId=owner_id without tenant_id.
+        // We ensure only our composite record (Tenant_User) exists.
+        try {
+          const legacyRef = doc(db, "global_users", formData.owner_id);
+          const legacySnap = await getDoc(legacyRef);
+          if (legacySnap.exists()) {
+            const data = legacySnap.data();
+            // Only delete if it's actually a duplicate (missing tenant_id or matching our auto-note)
+            if (!data.tenant_id || data.notes?.includes("Created with New Tenant:")) {
+              await deleteDoc(legacyRef);
+            }
+          }
+        } catch (cleanupErr) {
+          console.error("Cleanup duplicate error:", cleanupErr);
         }
       }
 

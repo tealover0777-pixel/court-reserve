@@ -60,6 +60,7 @@ export default function UserAdminView({ theme = "LIGHT" }: { theme?: "LIGHT" | "
   const [isSaving, setIsSaving] = useState(false);
   const [userStatuses, setUserStatuses] = useState<string[]>([]);
   const [roles, setRoles] = useState<any[]>([]);
+  const [tenants, setTenants] = useState<any[]>([]);
   const [formData, setFormData] = useState({
     user_id: "",
     auth_uid: "",
@@ -135,10 +136,15 @@ export default function UserAdminView({ theme = "LIGHT" }: { theme?: "LIGHT" | "
       setRoles(roleData);
     });
 
+    const unsubscribeTenants = onSnapshot(collection(db, "tenants"), (snapshot) => {
+      setTenants(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+    });
+
     return () => {
       unsubscribe();
       unsubscribeStatus();
       unsubscribeRoles();
+      unsubscribeTenants();
     };
   }, []);
 
@@ -409,13 +415,49 @@ export default function UserAdminView({ theme = "LIGHT" }: { theme?: "LIGHT" | "
       }`}>{info.getValue()}</span>,
     }),
     columnHelper.accessor("tenant_id", {
-      header: "TENANT ID",
-      size: 120,
-      cell: info => <span className={`font-mono text-[10px] font-black transition-colors duration-500 ${
-        theme === "DARK" ? "text-[#ccff00]" : 
-        theme === "VINTAGE" ? "text-stone-900" :
-        "text-stone-500"
-      }`}>{info.getValue() || "Global"}</span>,
+      header: "TENANT",
+      size: 160,
+      cell: info => {
+        const tid = info.getValue();
+        if (!tid) return (
+          <span className={`font-mono text-[10px] font-black transition-colors duration-500 ${
+            theme === "DARK" ? "text-stone-500" : 
+            theme === "VINTAGE" ? "text-stone-400" :
+            "text-stone-400"
+          }`}>Global</span>
+        );
+        const tenant = tenants.find(t => t.tenant_id === tid);
+        return (
+          <div className="flex flex-col gap-0.5">
+            <span className={`text-[11px] font-bold tracking-tight transition-colors duration-500 ${
+              theme === "DARK" ? "text-[#ccff00]" : 
+              theme === "VINTAGE" ? "text-stone-900" :
+              "text-stone-900"
+            }`}>
+              {tenant?.name || "Unknown"}
+            </span>
+            <span className={`font-mono text-[9px] font-black transition-colors duration-500 opacity-40 ${
+              theme === "DARK" ? "text-white" : 
+              theme === "VINTAGE" ? "text-stone-600" :
+              "text-stone-500"
+            }`}>
+              {tid}
+            </span>
+          </div>
+        );
+      },
+      filterFn: (row, columnId, filterValue) => {
+        const tid = row.getValue(columnId) as string;
+        const search = filterValue.toLowerCase();
+        
+        if (!tid) return "global".includes(search);
+        
+        const tenant = tenants.find(t => t.tenant_id === tid);
+        const nameMatch = tenant?.name?.toLowerCase().includes(search);
+        const idMatch = tid.toLowerCase().includes(search);
+        
+        return !!(nameMatch || idMatch);
+      }
     }),
     columnHelper.accessor("first_name", {
       header: "FIRST NAME",
