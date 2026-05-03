@@ -3,28 +3,65 @@ import React, { createContext, useContext, useEffect, useState } from "react";
 import { onAuthStateChanged, User, getAuth, signOut } from "firebase/auth";
 import { auth } from "../lib/firebase";
 
+interface UserProfile {
+  first_name: string;
+  last_name: string;
+  role: string;
+  email: string;
+  auth_uid: string;
+  user_id: string;
+}
+
 interface AuthContextType {
   user: User | null;
+  profile: UserProfile | null;
   loading: boolean;
   logout: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType>({
   user: null,
+  profile: null,
   loading: true,
   logout: async () => {},
 });
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
+  const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setUser(user);
-      setLoading(false);
+    let unsubscribeProfile: (() => void) | null = null;
+
+    const unsubscribeAuth = onAuthStateChanged(auth, async (firebaseUser) => {
+      setUser(firebaseUser);
+      
+      if (firebaseUser) {
+        // Fetch profile from Firestore
+        const { db } = await import("../lib/firebase");
+        const { collection, query, where, onSnapshot } = await import("firebase/firestore");
+        
+        const q = query(collection(db, "global_users"), where("auth_uid", "==", firebaseUser.uid));
+        unsubscribeProfile = onSnapshot(q, (snapshot) => {
+          if (!snapshot.empty && snapshot.docs[0]) {
+            setProfile(snapshot.docs[0].data() as UserProfile);
+          } else {
+            setProfile(null);
+          }
+          setLoading(false);
+        });
+      } else {
+        setProfile(null);
+        if (unsubscribeProfile) unsubscribeProfile();
+        setLoading(false);
+      }
     });
-    return () => unsubscribe();
+
+    return () => {
+      unsubscribeAuth();
+      if (unsubscribeProfile) unsubscribeProfile();
+    };
   }, []);
 
   const logout = async () => {
@@ -32,7 +69,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, logout }}>
+    <AuthContext.Provider value={{ user, profile, loading, logout }}>
       {children}
     </AuthContext.Provider>
   );

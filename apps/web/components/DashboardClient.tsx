@@ -9,6 +9,9 @@ import RoleTypesView from "./RoleTypesView";
 import UserAdminView from "./UserAdminView";
 import PlatformTenantAdminView from "./PlatformTenantAdminView";
 import AIAdminView from "./AIAdminView";
+import { useAuth } from "../context/AuthContext";
+import { collection, onSnapshot, query, orderBy } from "firebase/firestore";
+import { db } from "../lib/firebase";
 
 export default function DashboardClient({ params }: { params: { tenantId: string } }) {
   const { tenantId: contextTenantId, loading } = useTenant();
@@ -16,9 +19,19 @@ export default function DashboardClient({ params }: { params: { tenantId: string
   const [platformAdminOpen, setPlatformAdminOpen] = React.useState(false);
   const [administrationOpen, setAdministrationOpen] = React.useState(false);
   const [theme, setTheme] = React.useState<"LIGHT" | "DARK" | "VINTAGE">("LIGHT");
+  const [roles, setRoles] = React.useState<any[]>([]);
+  const { profile, loading: authLoading } = useAuth();
   const tenantId = params.tenantId || contextTenantId;
 
-  if (loading) {
+  React.useEffect(() => {
+    const q = query(collection(db, "role_types"), orderBy("role_id", "asc"));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      setRoles(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+    });
+    return () => unsubscribe();
+  }, []);
+
+  if (loading || authLoading) {
     return (
       <div className="flex h-screen w-full items-center justify-center bg-background">
         <div className="h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
@@ -167,11 +180,18 @@ export default function DashboardClient({ params }: { params: { tenantId: string
               <p className={`text-xs font-black transition-colors uppercase ${theme === "DARK" ? "group-hover:text-[#ccff00]" :
                   theme === "VINTAGE" ? "group-hover:text-black" :
                     "group-hover:text-[#4f6b28]"
-                }`}>ALEX STERLING</p>
-              <p className={`text-xs font-black uppercase tracking-widest ${theme === "DARK" ? "text-stone-500" :
+                }`}>
+                {profile ? `${profile.first_name} ${profile.last_name}` : "ALEX STERLING"}
+              </p>
+              <p className={`text-[10px] font-black uppercase tracking-widest ${theme === "DARK" ? "text-stone-500" :
                   theme === "VINTAGE" ? "text-stone-400" :
                     "text-stone-900"
-                }`}>Gold Tier Member</p>
+                }`}>
+                {profile 
+                  ? (roles.find(r => r.role_id === profile.role)?.role_name || profile.role)
+                  : "Gold Tier Member"
+                }
+              </p>
             </div>
           </div>
 
@@ -223,7 +243,7 @@ export default function DashboardClient({ params }: { params: { tenantId: string
             "bg-stone-50"
         }`}>
         {activeView === "DASHBOARD" ? (
-          <DashboardHome theme={theme} />
+          <DashboardHome theme={theme} profile={profile} />
         ) : activeView === "AI_ADMIN" ? (
           <AIAdminView theme={theme} />
         ) : activeView === "DIMENSIONS" ? (
@@ -256,7 +276,7 @@ export default function DashboardClient({ params }: { params: { tenantId: string
   );
 }
 
-function DashboardHome({ theme }: { theme: "LIGHT" | "DARK" | "VINTAGE" }) {
+function DashboardHome({ theme, profile }: { theme: "LIGHT" | "DARK" | "VINTAGE", profile: any }) {
   return (
     <>
       {/* Welcome Hero */}
@@ -279,7 +299,9 @@ function DashboardHome({ theme }: { theme: "LIGHT" | "DARK" | "VINTAGE" }) {
           <span className={`font-black tracking-widest text-sm uppercase mb-4 block transition-colors ${theme === "DARK" ? "text-[#ccff00]" :
               theme === "VINTAGE" ? "text-stone-400" :
                 "text-[#4f6b28]"
-            }`}>Welcome Back, Alex</span>
+            }`}>
+            Welcome Back, {profile?.first_name || "Alex"}
+          </span>
           <h3 className={`text-7xl font-black tracking-tighter leading-tight max-w-2xl transition-colors ${theme === "DARK" ? "text-white" : "text-black"
             }`}>READY TO DOMINATE THE COURT?</h3>
         </div>
