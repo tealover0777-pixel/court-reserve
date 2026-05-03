@@ -79,12 +79,22 @@ export default function DashboardClient({ params }: { params: { tenantId: string
             "bg-white border-stone-200"
         } flex flex-col z-50`}>
         <div className="py-10 px-8">
-          <h1 className={`text-3xl font-black italic tracking-tighter ${theme === "DARK" ? "text-[#ccff00]" :
-              theme === "VINTAGE" ? "text-black" :
-                "text-[#4f6b28]"
-            }`}>
-            {tenantId ? tenantId.toUpperCase() : "KINETIC COURT"}
-          </h1>
+          {allTenants.find(t => t.id === tenantId)?.logo_url ? (
+            <div className="h-16 w-full relative mb-4">
+              <img 
+                src={allTenants.find(t => t.id === tenantId).logo_url} 
+                alt="Logo" 
+                className="h-full w-auto object-contain object-left"
+              />
+            </div>
+          ) : (
+            <h1 className={`text-3xl font-black italic tracking-tighter ${theme === "DARK" ? "text-[#ccff00]" :
+                theme === "VINTAGE" ? "text-black" :
+                  "text-[#4f6b28]"
+              }`}>
+              {tenantId ? tenantId.toUpperCase() : "KINETIC COURT"}
+            </h1>
+          )}
           <p className={`text-xs font-bold uppercase tracking-[0.2em] mt-1 ${theme === "DARK" ? "text-stone-400" :
               theme === "VINTAGE" ? "text-stone-500" :
                 "text-stone-900"
