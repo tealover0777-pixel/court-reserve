@@ -62,6 +62,9 @@ export default function PlatformTenantAdminView({ theme = "LIGHT" }: { theme?: "
   });
   const [editingTenantId, setEditingTenantId] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [users, setUsers] = useState<any[]>([]);
+  const [showInviteSuccess, setShowInviteSuccess] = useState(false);
+  const [invitationLink, setInvitationLink] = useState("");
 
   useEffect(() => {
     const q = query(collection(db, "tenants"), orderBy("tenant_id", "asc"));
@@ -76,7 +79,15 @@ export default function PlatformTenantAdminView({ theme = "LIGHT" }: { theme?: "
       console.error("Error fetching tenants:", error);
       setLoading(false);
     });
-    return () => unsubscribe();
+
+    const unsubscribeUsers = onSnapshot(collection(db, "global_users"), (snapshot) => {
+      setUsers(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+    });
+
+    return () => {
+      unsubscribe();
+      unsubscribeUsers();
+    };
   }, []);
 
   const nextTenantId = (() => {
@@ -88,7 +99,15 @@ export default function PlatformTenantAdminView({ theme = "LIGHT" }: { theme?: "
     return "T" + (maxNum + 1);
   })();
 
-  const nextOwnerId = "U10001"; // Simplify for now or fetch from global_users count
+  const nextOwnerId = (() => {
+    if (users.length === 0) return "U00001";
+    const ids = users.map(u => {
+      const match = u.user_id?.match(/^U(\d+)$/);
+      return (match && match[1]) ? parseInt(match[1]) : 0;
+    });
+    const max = Math.max(...ids);
+    return `U${(max + 1).toString().padStart(5, '0')}`;
+  })();
 
   useEffect(() => {
     if (showNewModal && !editingTenantId) {
@@ -165,7 +184,7 @@ export default function PlatformTenantAdminView({ theme = "LIGHT" }: { theme?: "
       // 2. Invite Owner via Cloud Function (Only if new or explicitly requested)
       if (!editingTenantId || formData.invite_user) {
         const inviteUserFn = httpsCallable(functions, "inviteUser");
-        await inviteUserFn({
+        const result: any = await inviteUserFn({
           email: formData.owner_email,
           role: "R10005",
           tenantId: tenantDocId,
@@ -176,6 +195,11 @@ export default function PlatformTenantAdminView({ theme = "LIGHT" }: { theme?: "
           notes: formData.internal_notes || `Created with New Tenant: ${tenantDocId}`,
           inviteUser: formData.invite_user
         });
+
+        if (result.data?.invitationLink) {
+          setInvitationLink(result.data.invitationLink);
+          setShowInviteSuccess(true);
+        }
       }
 
       setShowNewModal(false);
@@ -597,6 +621,64 @@ export default function PlatformTenantAdminView({ theme = "LIGHT" }: { theme?: "
         }`}>
           Are you sure you want to remove this tenant from the platform? This will revoke all access for their users.
         </p>
+      </Modal>
+
+      {/* Invite Success Modal */}
+      <Modal
+        isOpen={showInviteSuccess}
+        onClose={() => setShowInviteSuccess(false)}
+        title="Owner Invited Successfully"
+        theme={theme}
+        width={500}
+        footer={
+          <button 
+            onClick={() => setShowInviteSuccess(false)}
+            className={`w-full py-4 rounded-2xl text-[10px] font-black tracking-widest transition-all uppercase shadow-lg ${
+              theme === "DARK" ? "bg-[#ccff00] text-stone-950" : "bg-black text-white"
+            }`}
+          >
+            Done
+          </button>
+        }
+      >
+        <div className="space-y-8 text-center py-4">
+          <div className={`w-20 h-20 rounded-3xl flex items-center justify-center mx-auto ${
+            theme === "DARK" ? "bg-[#ccff00]/10 text-[#ccff00]" : "bg-green-50 text-green-600"
+          }`}>
+            <span className="material-symbols-outlined text-4xl">mark_email_read</span>
+          </div>
+          
+          <div className="space-y-2">
+            <h4 className={`text-xl font-black transition-colors ${theme === "DARK" ? "text-white" : "text-black"}`}>Tenant & Owner Synchronized</h4>
+            <p className={`text-sm font-medium transition-colors ${theme === "DARK" ? "text-stone-400" : "text-stone-500"}`}>
+              The tenant record has been saved and the owner's authentication account is ready.
+            </p>
+          </div>
+
+          <div className={`p-6 rounded-2xl border text-left space-y-4 ${
+            theme === "DARK" ? "bg-stone-900 border-stone-800" : "bg-stone-50 border-stone-100"
+          }`}>
+            <div className={`text-[10px] font-black uppercase tracking-widest ${theme === "DARK" ? "text-stone-500" : "text-stone-400"}`}>
+              Direct Password Setup Link for Owner
+            </div>
+            <div className={`p-4 rounded-xl font-mono text-[10px] break-all border transition-colors ${
+              theme === "DARK" ? "bg-stone-950 border-stone-800 text-[#ccff00]" : "bg-white border-stone-200 text-blue-600"
+            }`}>
+              {invitationLink}
+            </div>
+            <button 
+              onClick={() => {
+                navigator.clipboard.writeText(invitationLink);
+                alert("Link copied to clipboard!");
+              }}
+              className={`w-full py-2 rounded-lg text-[8px] font-black tracking-widest uppercase transition-all ${
+                theme === "DARK" ? "bg-stone-800 text-white hover:bg-stone-700" : "bg-white border text-stone-600 hover:bg-stone-50"
+              }`}
+            >
+              Copy Link
+            </button>
+          </div>
+        </div>
       </Modal>
 
       {/* New Tenant Modal */}
