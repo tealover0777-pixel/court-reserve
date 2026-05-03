@@ -217,7 +217,34 @@ export default function PlatformTenantAdminView({ theme = "LIGHT" }: { theme?: "
       
       setIsSaving(true);
       
-      // 1. Create/Update Tenant in Firestore
+      // 1. Prepare Invitation Logic
+      // Logic: Invite if explicitly checked OR if this is a brand new owner record
+      const ownerExists = users.some(u => u.user_id === formData.owner_id && u.tenant_id === formData.tenant_id);
+      const shouldInvite = formData.invite_user || !ownerExists;
+      
+      // 2. Invite Owner FIRST (if needed)
+      // This prevents "ghost tenants" if the email check or invitation fails
+      if (shouldInvite) {
+        const inviteUserFn = httpsCallable(functions, "inviteUser");
+        const result: any = await inviteUserFn({
+          email: formData.owner_email,
+          role: "R10005",
+          tenantId: tenantDocId,
+          user_id: formData.owner_id,
+          first_name: formData.owner_first_name,
+          last_name: formData.owner_last_name,
+          phone: formData.owner_phone,
+          notes: formData.internal_notes || `Created with New Tenant: ${tenantDocId}`,
+          inviteUser: formData.invite_user
+        });
+
+        if (result.data?.invitationLink) {
+          setInvitationLink(result.data.invitationLink);
+          setShowInviteSuccess(true);
+        }
+      }
+
+      // 3. Create/Update Tenant in Firestore ONLY AFTER successful invitation/check
       await setDoc(doc(db, "tenants", tenantDocId), {
         tenant_id: formData.tenant_id,
         name: formData.tenant_name,
@@ -237,7 +264,7 @@ export default function PlatformTenantAdminView({ theme = "LIGHT" }: { theme?: "
         address_zip: formData.address_zip
       });
       
-      // 1.5 Sync Address to Owner in global_users if owner_id exists
+      // 4. Sync Address to Owner in global_users
       if (formData.owner_id) {
         const compositeUserId = `${formData.tenant_id}_${formData.owner_id}`;
         const ownerRef = doc(db, "global_users", compositeUserId);
@@ -260,45 +287,21 @@ export default function PlatformTenantAdminView({ theme = "LIGHT" }: { theme?: "
         }, { merge: true });
       }
 
-      // 2. Invite Owner via Cloud Function
-      // Logic: Invite if explicitly checked OR if this is a brand new owner record
-      const ownerExists = users.some(u => u.user_id === formData.owner_id && u.tenant_id === formData.tenant_id);
-      
-      if (formData.invite_user || !ownerExists) {
-        const inviteUserFn = httpsCallable(functions, "inviteUser");
-        const result: any = await inviteUserFn({
-          email: formData.owner_email,
-          role: "R10005",
-          tenantId: tenantDocId,
-          user_id: formData.owner_id,
-          first_name: formData.owner_first_name,
-          last_name: formData.owner_last_name,
-          phone: formData.owner_phone,
-          notes: formData.internal_notes || `Created with New Tenant: ${tenantDocId}`,
-          inviteUser: formData.invite_user
-        });
-
-        if (result.data?.invitationLink) {
-          setInvitationLink(result.data.invitationLink);
-          setShowInviteSuccess(true);
-        }
-
-        // 3. Cleanup Duplicate Global Record
-        // The cloud function might create a record at docId=owner_id without tenant_id.
-        // We ensure only our composite record (Tenant_User) exists.
-        try {
-          const legacyRef = doc(db, "global_users", formData.owner_id);
-          const legacySnap = await getDoc(legacyRef);
-          if (legacySnap.exists()) {
-            const data = legacySnap.data();
-            // Only delete if it's actually a duplicate (missing tenant_id or matching our auto-note)
-            if (!data.tenant_id || data.notes?.includes("Created with New Tenant:")) {
-              await deleteDoc(legacyRef);
-            }
+      // 5. Cleanup Duplicate Global Record
+      // The cloud function might create a record at docId=owner_id without tenant_id.
+      // We ensure only our composite record (Tenant_User) exists.
+      try {
+        const legacyRef = doc(db, "global_users", formData.owner_id);
+        const legacySnap = await getDoc(legacyRef);
+        if (legacySnap.exists()) {
+          const data = legacySnap.data();
+          // Only delete if it's actually a duplicate (missing tenant_id or matching our auto-note)
+          if (!data.tenant_id || data.notes?.includes("Created with New Tenant:")) {
+            await deleteDoc(legacyRef);
           }
-        } catch (cleanupErr) {
-          console.error("Cleanup duplicate error:", cleanupErr);
         }
+      } catch (cleanupErr) {
+        console.error("Cleanup duplicate error:", cleanupErr);
       }
 
       setShowNewModal(false);
