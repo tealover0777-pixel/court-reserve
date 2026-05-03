@@ -37,6 +37,11 @@ interface Tenant {
   owner_first_name?: string;
   owner_last_name?: string;
   owner_phone?: string;
+  address_street_1?: string;
+  address_street_2?: string;
+  address_city?: string;
+  address_state?: string;
+  address_zip?: string;
   Notes?: string;
 }
 
@@ -58,7 +63,12 @@ export default function PlatformTenantAdminView({ theme = "LIGHT" }: { theme?: "
     owner_phone: "",
     owner_role: "Owner",
     invite_user: true,
-    internal_notes: ""
+    internal_notes: "",
+    address_street_1: "",
+    address_street_2: "",
+    address_city: "",
+    address_state: "",
+    address_zip: ""
   });
   const [editingTenantId, setEditingTenantId] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
@@ -163,7 +173,12 @@ export default function PlatformTenantAdminView({ theme = "LIGHT" }: { theme?: "
       owner_phone: tenant.owner_phone || "",
       owner_role: "Owner",
       invite_user: false,
-      internal_notes: tenant.Notes || ""
+      internal_notes: tenant.Notes || "",
+      address_street_1: tenant.address_street_1 || "",
+      address_street_2: tenant.address_street_2 || "",
+      address_city: tenant.address_city || "",
+      address_state: tenant.address_state || "",
+      address_zip: tenant.address_zip || ""
     });
     setShowNewModal(true);
   };
@@ -190,7 +205,12 @@ export default function PlatformTenantAdminView({ theme = "LIGHT" }: { theme?: "
         owner_email: formData.owner_email,
         owner_first_name: formData.owner_first_name,
         owner_last_name: formData.owner_last_name,
-        owner_phone: formData.owner_phone
+        owner_phone: formData.owner_phone,
+        address_street_1: formData.address_street_1,
+        address_street_2: formData.address_street_2,
+        address_city: formData.address_city,
+        address_state: formData.address_state,
+        address_zip: formData.address_zip
       });
 
       // 2. Invite Owner via Cloud Function (Only if new or explicitly requested)
@@ -226,7 +246,12 @@ export default function PlatformTenantAdminView({ theme = "LIGHT" }: { theme?: "
         owner_phone: "",
         owner_role: "Owner",
         invite_user: true,
-        internal_notes: ""
+        internal_notes: "",
+        address_street_1: "",
+        address_street_2: "",
+        address_city: "",
+        address_state: "",
+        address_zip: ""
       });
     } catch (err) {
       console.error("Failed to save tenant:", err);
@@ -828,6 +853,59 @@ export default function PlatformTenantAdminView({ theme = "LIGHT" }: { theme?: "
               className={inputClasses(theme)}
             />
           </FormField>
+
+          <div className={`pt-4 pb-2 border-b transition-colors ${
+            theme === "DARK" ? "border-stone-800" : "border-stone-100"
+          }`}>
+            <span className={`text-[10px] font-black uppercase tracking-[0.2em] ${
+              theme === "DARK" ? "text-stone-500" : "text-stone-400"
+            }`}>Tenant Address</span>
+          </div>
+
+          <FormField label="STREET ADDRESS 1" theme={theme}>
+            <input 
+              value={formData.address_street_1}
+              onChange={e => setFormData({ ...formData, address_street_1: e.target.value })}
+              placeholder="123 Main St"
+              className={inputClasses(theme)}
+            />
+          </FormField>
+
+          <FormField label="STREET ADDRESS 2 (APT, STE, ETC.)" theme={theme}>
+            <input 
+              value={formData.address_street_2}
+              onChange={e => setFormData({ ...formData, address_street_2: e.target.value })}
+              placeholder="Apt 4B"
+              className={inputClasses(theme)}
+            />
+          </FormField>
+
+          <div className="grid grid-cols-3 gap-6">
+            <FormField label="CITY" theme={theme}>
+              <input 
+                value={formData.address_city}
+                onChange={e => setFormData({ ...formData, address_city: e.target.value })}
+                placeholder="New York"
+                className={inputClasses(theme)}
+              />
+            </FormField>
+            <FormField label="STATE" theme={theme}>
+              <input 
+                value={formData.address_state}
+                onChange={e => setFormData({ ...formData, address_state: e.target.value })}
+                placeholder="NY"
+                className={inputClasses(theme)}
+              />
+            </FormField>
+            <FormField label="ZIP" theme={theme}>
+              <input 
+                value={formData.address_zip}
+                onChange={e => setFormData({ ...formData, address_zip: e.target.value })}
+                placeholder="10001"
+                className={inputClasses(theme)}
+              />
+            </FormField>
+          </div>
 
           <div className={`pt-4 pb-2 border-b transition-colors ${
             theme === "DARK" ? "border-stone-800" : "border-stone-100"
