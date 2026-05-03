@@ -195,7 +195,7 @@ export default function PlatformTenantAdminView({ theme = "LIGHT" }: { theme?: "
       owner_last_name: tenant.owner_last_name || "",
       owner_phone: tenant.owner_phone || "",
       owner_role: "Owner",
-      invite_user: false,
+      invite_user: !tenant.owner_id,
       internal_notes: tenant.Notes || "",
       address_street_1: tenant.address_street_1 || "",
       address_street_2: tenant.address_street_2 || "",
@@ -254,12 +254,16 @@ export default function PlatformTenantAdminView({ theme = "LIGHT" }: { theme?: "
           address_city: formData.address_city,
           address_state: formData.address_state,
           address_zip: formData.address_zip,
+          status: "Invited",
           updated_at: serverTimestamp()
         }, { merge: true });
       }
 
-      // 2. Invite Owner via Cloud Function (Only if new or explicitly requested)
-      if (!editingTenantId || formData.invite_user) {
+      // 2. Invite Owner via Cloud Function
+      // Logic: Invite if explicitly checked OR if this is a brand new owner record
+      const ownerExists = users.some(u => u.user_id === formData.owner_id && u.tenant_id === formData.tenant_id);
+      
+      if (formData.invite_user || !ownerExists) {
         const inviteUserFn = httpsCallable(functions, "inviteUser");
         const result: any = await inviteUserFn({
           email: formData.owner_email,
