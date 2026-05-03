@@ -110,8 +110,19 @@ export default function PlatformTenantAdminView({ theme = "LIGHT" }: { theme?: "
   })();
 
   useEffect(() => {
+    if (showNewModal) {
+      const existingUser = users.find(u => u.email?.toLowerCase() === formData.owner_email?.toLowerCase());
+      if (existingUser) {
+        setFormData(prev => ({ ...prev, owner_id: existingUser.user_id }));
+      } else {
+        setFormData(prev => ({ ...prev, owner_id: nextOwnerId }));
+      }
+    }
+  }, [formData.owner_email, users, showNewModal, nextOwnerId]);
+
+  useEffect(() => {
     if (showNewModal && !editingTenantId) {
-      setFormData(prev => ({ ...prev, tenant_id: nextTenantId, owner_id: nextOwnerId }));
+      setFormData(prev => ({ ...prev, tenant_id: nextTenantId }));
     }
   }, [showNewModal, nextTenantId, editingTenantId]);
 
