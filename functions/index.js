@@ -16,10 +16,24 @@ exports.inviteUser = functions.https.onCall(async (data, context) => {
   }
 
   try {
+    // 1. Pre-create in Firestore to prevent sync race condition
+    await db.collection("global_users").doc(user_id).set({
+      user_id,
+      email,
+      first_name: first_name || "",
+      last_name: last_name || "",
+      phone: phone || "",
+      tenantId: tenantId || "global",
+      role,
+      notes: notes || "",
+      status: "Invited",
+      updated_at: admin.firestore.FieldValue.serverTimestamp()
+    }, { merge: true });
+
     let uid;
     let userRecord;
 
-    // 1. Check if user exists in Auth, or create them
+    // 2. Check if user exists in Auth, or create them
     try {
       userRecord = await admin.auth().getUserByEmail(email);
       uid = userRecord.uid;
@@ -36,25 +50,16 @@ exports.inviteUser = functions.https.onCall(async (data, context) => {
       }
     }
 
-    // 2. Set Custom Claims
+    // 3. Set Custom Claims
     await admin.auth().setCustomUserClaims(uid, { tenantId: tenantId || 'global', role });
 
-    // 3. Create/Update user in global_users collection
-    await db.collection("global_users").doc(user_id).set({
-      user_id,
+    // 4. Update Firestore with final Auth UID
+    await db.collection("global_users").doc(user_id).update({
       auth_uid: uid,
-      email,
-      first_name: first_name || "",
-      last_name: last_name || "",
-      phone: phone || "",
-      tenantId: tenantId || "global",
-      role,
-      notes: notes || "",
-      status: "Invited",
       updated_at: admin.firestore.FieldValue.serverTimestamp()
-    }, { merge: true });
+    });
 
-    // 4. Generate Password Reset Link (Setup Link)
+    // 5. Generate Password Reset Link (Setup Link)
     const invitationLink = await admin.auth().generatePasswordResetLink(email);
     
     return { 
@@ -84,10 +89,10 @@ exports.syncUserOnCreate = functions.auth.user().onCreate(async (user) => {
     const lastName = nameParts.slice(1).join(" ") || "";
 
     // Generate a temporary user_id if not present
-    const tempUserId = `U${Math.floor(Math.random() * 100000).toString().padStart(5, '0')}`;
+    const nextId = `U${Math.floor(Math.random() * 100000).toString().padStart(5, '0')}`;
 
-    await db.collection("global_users").doc(tempUserId).set({
-      user_id: tempUserId,
+    await db.collection("global_users").doc(nextId).set({
+      user_id: nextId,
       auth_uid: uid,
       email,
       first_name: firstName,
