@@ -14,7 +14,8 @@ import { Modal } from "@repo/ui/modal";
 interface User {
   id: string;
   user_id: string;
-  name: string;
+  first_name: string;
+  last_name: string;
   email: string;
   role: string;
   status: "Active" | "Inactive";
@@ -70,14 +71,23 @@ export default function UserAdminView({ theme = "LIGHT" }: { theme?: "LIGHT" | "
         "text-stone-900"
       }`}>{info.getValue()}</span>,
     }),
-    columnHelper.accessor("name", {
-      header: "NAME",
-      size: 200,
+    columnHelper.accessor("first_name", {
+      header: "FIRST NAME",
+      size: 150,
       cell: info => <span className={`text-sm font-bold transition-colors duration-500 ${
         theme === "DARK" ? "text-white" : 
         theme === "VINTAGE" ? "text-black" :
         "text-stone-900"
-      }`}>{info.getValue()}</span>,
+      }`}>{info.getValue() || "-"}</span>,
+    }),
+    columnHelper.accessor("last_name", {
+      header: "LAST NAME",
+      size: 150,
+      cell: info => <span className={`text-sm font-bold transition-colors duration-500 ${
+        theme === "DARK" ? "text-white" : 
+        theme === "VINTAGE" ? "text-black" :
+        "text-stone-900"
+      }`}>{info.getValue() || "-"}</span>,
     }),
     columnHelper.accessor("email", {
       header: "EMAIL",
