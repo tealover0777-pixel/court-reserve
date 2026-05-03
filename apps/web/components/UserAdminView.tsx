@@ -184,14 +184,20 @@ export default function UserAdminView({ theme = "LIGHT" }: { theme?: "LIGHT" | "
         if (!roleMatch) return <span className="text-xs text-stone-400">{roleId || "-"}</span>;
         
         return (
-          <div className="flex flex-col gap-1">
-            <span className={`text-sm font-bold ${theme === "DARK" ? "text-white" : "text-stone-900"}`}>
-              {roleMatch.role_name}
+          <div className="flex flex-col py-1">
+            <span className={`text-[10px] font-mono uppercase tracking-tight mb-0.5 ${
+              theme === "DARK" ? "text-stone-500" : "text-stone-400"
+            }`}>
+              {roleMatch.role_id}
             </span>
             <div className="flex items-center gap-2">
-              <span className="text-[10px] font-mono text-stone-400 uppercase tracking-wider">{roleMatch.role_id}</span>
+              <span className={`text-sm font-bold leading-tight ${
+                theme === "DARK" ? "text-white" : "text-stone-900"
+              }`}>
+                {roleMatch.role_name}
+              </span>
               {roleMatch.is_global && (
-                <span className="text-[8px] font-black bg-purple-50 text-purple-600 px-1.5 py-0.5 rounded border border-purple-100 uppercase tracking-tighter">
+                <span className="text-[8px] font-black bg-[#eef2ff] text-[#4f46e5] px-2 py-0.5 rounded-full border border-[#e0e7ff] uppercase tracking-widest shadow-sm">
                   Global
                 </span>
               )}

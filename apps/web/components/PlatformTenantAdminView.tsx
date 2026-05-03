@@ -61,6 +61,7 @@ export default function PlatformTenantAdminView({ theme = "LIGHT" }: { theme?: "
     internal_notes: ""
   });
   const [editingTenantId, setEditingTenantId] = useState<string | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     const q = query(collection(db, "tenants"), orderBy("tenant_id", "asc"));
@@ -137,12 +138,14 @@ export default function PlatformTenantAdminView({ theme = "LIGHT" }: { theme?: "
   };
 
   const handleSave = async () => {
+    const tenantDocId = editingTenantId || formData.tenant_id;
     try {
-      const tenantDocId = editingTenantId || formData.tenant_id;
       if (!formData.tenant_name || !formData.owner_email) {
         alert("Please fill in the tenant name and owner email.");
         return;
       }
+      
+      setIsSaving(true);
       
       // 1. Create/Update Tenant in Firestore
       await setDoc(doc(db, "tenants", tenantDocId), {
@@ -192,6 +195,8 @@ export default function PlatformTenantAdminView({ theme = "LIGHT" }: { theme?: "
     } catch (err) {
       console.error("Failed to save tenant:", err);
       alert("Failed to save tenant: " + (err instanceof Error ? err.message : "Unknown error"));
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -608,7 +613,9 @@ export default function PlatformTenantAdminView({ theme = "LIGHT" }: { theme?: "
           <div className="flex gap-4">
             <button 
               onClick={() => setShowNewModal(false)}
+              disabled={isSaving}
               className={`flex-1 py-4 border-2 rounded-2xl text-[10px] font-black tracking-widest transition-all uppercase ${
+                isSaving ? "opacity-30 cursor-not-allowed" :
                 theme === "DARK" ? "border-stone-800 text-stone-400 hover:bg-stone-900" : 
                 theme === "VINTAGE" ? "border-stone-100 text-black hover:bg-stone-50" :
                 "border-stone-100 text-stone-400 hover:bg-stone-50"
@@ -618,13 +625,25 @@ export default function PlatformTenantAdminView({ theme = "LIGHT" }: { theme?: "
             </button>
             <button 
               onClick={handleSave}
-              className={`flex-1 py-4 rounded-2xl text-[10px] font-black tracking-widest transition-all uppercase shadow-lg ${
+              disabled={isSaving}
+              className={`flex-1 py-4 rounded-2xl text-[10px] font-black tracking-widest transition-all uppercase shadow-lg flex items-center justify-center gap-3 ${
+                isSaving ? "opacity-70 cursor-not-allowed" : "hover:opacity-90"
+              } ${
                 theme === "DARK" ? "bg-[#ccff00] text-stone-950 shadow-[#ccff00]/20" : 
                 theme === "VINTAGE" ? "bg-black text-white shadow-black/20" :
                 "bg-[#4f6b28] text-white shadow-[#4f6b28]/20"
-              } hover:opacity-90`}
+              }`}
             >
-              Save
+              {isSaving ? (
+                <>
+                  <div className={`h-3 w-3 animate-spin rounded-full border-2 border-t-transparent ${
+                    theme === "DARK" ? "border-stone-950" : "border-white"
+                  }`}></div>
+                  Processing... Please wait
+                </>
+              ) : (
+                "Save"
+              )}
             </button>
           </div>
         }
