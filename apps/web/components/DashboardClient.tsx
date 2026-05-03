@@ -29,15 +29,35 @@ export default function DashboardClient({ params }: { params: { tenantId: string
   const [administrationOpen, setAdministrationOpen] = React.useState(false);
   const [theme, setTheme] = React.useState<"LIGHT" | "DARK" | "VINTAGE">("LIGHT");
   const [roles, setRoles] = React.useState<any[]>([]);
+  const [allTenants, setAllTenants] = React.useState<any[]>([]);
+  const [isTenantSelectorOpen, setIsTenantSelectorOpen] = React.useState(false);
   const { user: authUser, profile, loading: authLoading } = useAuth();
   const tenantId = params.tenantId || contextTenantId;
+  const tenantSelectorRef = React.useRef<HTMLDivElement>(null);
 
   React.useEffect(() => {
     const q = query(collection(db, "role_types"), orderBy("role_id", "asc"));
     const unsubscribe = onSnapshot(q, (snapshot) => {
       setRoles(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
     });
-    return () => unsubscribe();
+
+    const unsubscribeTenants = onSnapshot(collection(db, "tenants"), (snapshot) => {
+      setAllTenants(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+    });
+
+    // Click outside listener
+    const handleClickOutside = (event: MouseEvent) => {
+      if (tenantSelectorRef.current && !tenantSelectorRef.current.contains(event.target as Node)) {
+        setIsTenantSelectorOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+
+    return () => {
+      unsubscribe();
+      unsubscribeTenants();
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
   }, []);
 
   if (loading || authLoading) {
@@ -256,6 +276,51 @@ export default function DashboardClient({ params }: { params: { tenantId: string
               {activeView.replace(/_/g, ' ')}
             </span>
           </div>
+        </div>
+
+        {/* Tenant Selector */}
+        <div className="relative flex items-center gap-3 ml-6 pl-6 border-l border-stone-200 dark:border-stone-800" ref={tenantSelectorRef}>
+          <button 
+            onClick={() => setIsTenantSelectorOpen(!isTenantSelectorOpen)}
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-all ${
+              theme === "DARK" ? "bg-stone-900 text-[#ccff00] hover:bg-stone-800 shadow-lg shadow-black/20" : "bg-stone-100 text-stone-950 hover:bg-stone-200"
+            }`}
+          >
+            <span className="material-symbols-outlined text-sm">corporate_fare</span>
+            <span className="text-[10px] font-black tracking-widest uppercase truncate max-w-[120px]">
+              {allTenants.find(t => t.tenant_id === tenantId)?.name || "Select Tenant"}
+            </span>
+            <span className={`material-symbols-outlined text-xs transition-transform duration-300 ${isTenantSelectorOpen ? "rotate-180" : ""}`}>unfold_more</span>
+          </button>
+          
+          {isTenantSelectorOpen && (
+            <div className={`absolute top-full left-6 mt-4 w-72 rounded-3xl shadow-2xl z-50 border p-2 animate-in fade-in slide-in-from-top-2 duration-300 ${
+              theme === "DARK" ? "bg-stone-950 border-stone-800" : "bg-white border-stone-100"
+            }`}>
+              <div className="px-4 py-3 mb-2">
+                <p className="text-[8px] font-black tracking-[0.2em] uppercase opacity-40">Available Organizations</p>
+              </div>
+              <div className="max-h-80 overflow-y-auto space-y-1 pr-1 custom-scrollbar">
+                {allTenants.map((t) => (
+                  <button
+                    key={t.id}
+                    onClick={() => {
+                      window.location.href = `/${t.tenant_id}`;
+                      setIsTenantSelectorOpen(false);
+                    }}
+                    className={`w-full flex flex-col gap-0.5 items-start px-4 py-3 rounded-2xl transition-all ${
+                      t.tenant_id === tenantId 
+                        ? (theme === "DARK" ? "bg-[#ccff00] text-stone-950 shadow-lg shadow-[#ccff00]/10" : "bg-stone-900 text-white shadow-lg")
+                        : (theme === "DARK" ? "hover:bg-stone-900 text-stone-400 hover:text-white" : "hover:bg-stone-50 text-stone-500 hover:text-stone-900")
+                    }`}
+                  >
+                    <span className="text-[10px] font-black tracking-tight uppercase truncate w-full text-left">{t.name}</span>
+                    <span className={`text-[8px] font-mono opacity-50 ${t.tenant_id === tenantId ? "opacity-70" : ""}`}>{t.tenant_id}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
         <div className="flex items-center gap-8">
           <ThemeSelector theme={theme} setTheme={setTheme} />

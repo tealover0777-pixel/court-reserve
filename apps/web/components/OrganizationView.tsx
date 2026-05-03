@@ -1,7 +1,8 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { db } from "../lib/firebase";
+import { db, storage } from "../lib/firebase";
 import { doc, onSnapshot, updateDoc, serverTimestamp } from "firebase/firestore";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { useTenant } from "../context/TenantContext";
 
 interface OrganizationViewProps {
@@ -180,7 +181,33 @@ function InfoTab({ data, onSave, isSaving, theme }: any) {
 
 function BrandingTab({ data, onSave, isSaving, theme }: any) {
   const isDark = theme === "DARK";
+  const { tenantId } = useTenant();
   const [formData, setFormData] = useState(data || {});
+  const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
+
+  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !tenantId) return;
+
+    setIsUploading(true);
+    try {
+      const storageRef = ref(storage, `tenants/${tenantId}/branding/logo_${Date.now()}`);
+      const snapshot = await uploadBytes(storageRef, file);
+      const downloadURL = await getDownloadURL(snapshot.ref);
+      
+      setFormData({ ...formData, logo_url: downloadURL });
+      // Auto-save the logo URL to Firestore
+      await updateDoc(doc(db, "tenants", tenantId), {
+        logo_url: downloadURL,
+        updated_at: serverTimestamp()
+      });
+    } catch (err) {
+      console.error("Logo upload failed:", err);
+    } finally {
+      setIsUploading(false);
+    }
+  };
 
   const colorPresets = ["#ccff00", "#4f6b28", "#000000", "#ffffff", "#3b82f6", "#ef4444"];
 
@@ -189,11 +216,36 @@ function BrandingTab({ data, onSave, isSaving, theme }: any) {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
         <div className="space-y-6">
           <FormField label="Organization Logo" theme={theme}>
-            <div className={`h-48 rounded-3xl border-2 border-dashed flex flex-col items-center justify-center gap-4 transition-colors ${
-              isDark ? "border-stone-800 hover:border-stone-600 bg-stone-900/50" : "border-stone-200 hover:border-stone-300 bg-stone-50/50"
-            }`}>
-              <span className="material-symbols-outlined text-4xl opacity-20">add_a_photo</span>
-              <p className="text-[10px] font-black tracking-widest uppercase opacity-40">Upload New Logo</p>
+            <input 
+              type="file" 
+              ref={fileInputRef} 
+              onChange={handleLogoUpload} 
+              className="hidden" 
+              accept="image/*"
+            />
+            <div 
+              onClick={() => fileInputRef.current?.click()}
+              className={`h-48 rounded-3xl border-2 border-dashed flex flex-col items-center justify-center gap-4 transition-all cursor-pointer relative overflow-hidden group ${
+                isDark ? "border-stone-800 hover:border-[#ccff00]/50 bg-stone-900/50" : "border-stone-200 hover:border-stone-400 bg-stone-50/50"
+              }`}
+            >
+              {formData.logo_url ? (
+                <>
+                  <img src={formData.logo_url} alt="Logo" className="h-24 w-auto object-contain z-10 transition-transform group-hover:scale-105" />
+                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                    <span className="text-white text-[10px] font-black tracking-widest uppercase">Change Logo</span>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <span className={`material-symbols-outlined text-4xl opacity-20 ${isDark ? "text-white" : "text-stone-900"}`}>
+                    {isUploading ? "sync" : "add_a_photo"}
+                  </span>
+                  <p className="text-[10px] font-black tracking-widest uppercase opacity-40">
+                    {isUploading ? "Uploading..." : "Upload New Logo"}
+                  </p>
+                </>
+              )}
             </div>
           </FormField>
         </div>
