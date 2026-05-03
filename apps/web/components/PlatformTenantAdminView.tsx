@@ -90,10 +90,10 @@ export default function PlatformTenantAdminView({ theme = "LIGHT" }: { theme?: "
   const nextOwnerId = "U10001"; // Simplify for now or fetch from global_users count
 
   useEffect(() => {
-    if (showNewModal) {
+    if (showNewModal && !editingTenantId) {
       setFormData(prev => ({ ...prev, tenant_id: nextTenantId, owner_id: nextOwnerId }));
     }
-  }, [showNewModal, nextTenantId]);
+  }, [showNewModal, nextTenantId, editingTenantId]);
 
   const handleDeleteTenant = async (id?: string) => {
     const targetId = id || confirmDelete;
@@ -138,7 +138,7 @@ export default function PlatformTenantAdminView({ theme = "LIGHT" }: { theme?: "
 
   const handleSave = async () => {
     try {
-      const tenantDocId = formData.tenant_id;
+      const tenantDocId = editingTenantId || formData.tenant_id;
       if (!formData.tenant_name || !formData.owner_email) {
         alert("Please fill in the tenant name and owner email.");
         return;
@@ -223,6 +223,15 @@ export default function PlatformTenantAdminView({ theme = "LIGHT" }: { theme?: "
         theme === "VINTAGE" ? "text-stone-600 font-medium" :
         "text-stone-600"
       }`}>{info.getValue()}</span>,
+    }),
+    columnHelper.accessor("owner_email", {
+      header: "OWNER",
+      size: 200,
+      cell: info => <span className={`text-xs font-bold transition-colors duration-500 ${
+        theme === "DARK" ? "text-stone-400" : 
+        theme === "VINTAGE" ? "text-stone-500" :
+        "text-stone-700"
+      }`}>{info.getValue() || "-"}</span>,
     }),
     columnHelper.accessor("status", {
       header: "STATUS",
