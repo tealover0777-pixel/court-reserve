@@ -38,6 +38,7 @@ export default function UserAdminView({ theme = "LIGHT" }: { theme?: "LIGHT" | "
   const [showEditModal, setShowEditModal] = useState(false);
   const [editingUser, setEditingUser] = useState<User | null>(null);
   const [userStatuses, setUserStatuses] = useState<string[]>([]);
+  const [roles, setRoles] = useState<any[]>([]);
   const [formData, setFormData] = useState({
     user_id: "",
     auth_uid: "",
@@ -71,9 +72,18 @@ export default function UserAdminView({ theme = "LIGHT" }: { theme?: "LIGHT" | "
       }
     });
 
+    const unsubscribeRoles = onSnapshot(query(collection(db, "role_types"), orderBy("role_id", "asc")), (snapshot) => {
+      const roleData = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+      setRoles(roleData);
+    });
+
     return () => {
       unsubscribe();
       unsubscribeStatus();
+      unsubscribeRoles();
     };
   }, []);
 
@@ -167,16 +177,28 @@ export default function UserAdminView({ theme = "LIGHT" }: { theme?: "LIGHT" | "
     }),
     columnHelper.accessor("role", {
       header: "ROLE",
-      size: 150,
-      cell: info => (
-        <span className={`text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-widest border ${
-          theme === "VINTAGE" 
-            ? "bg-white text-black border-stone-100 shadow-sm" 
-            : "bg-blue-50 text-blue-600 border-blue-200"
-        }`}>
-          {info.getValue()}
-        </span>
-      ),
+      size: 200,
+      cell: info => {
+        const roleId = info.getValue();
+        const roleMatch = roles.find(r => r.role_id === roleId || r.id === roleId);
+        if (!roleMatch) return <span className="text-xs text-stone-400">{roleId || "-"}</span>;
+        
+        return (
+          <div className="flex flex-col gap-1">
+            <span className={`text-sm font-bold ${theme === "DARK" ? "text-white" : "text-stone-900"}`}>
+              {roleMatch.role_name}
+            </span>
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] font-mono text-stone-400 uppercase tracking-wider">{roleMatch.role_id}</span>
+              {roleMatch.is_global && (
+                <span className="text-[8px] font-black bg-purple-50 text-purple-600 px-1.5 py-0.5 rounded border border-purple-100 uppercase tracking-tighter">
+                  Global
+                </span>
+              )}
+            </div>
+          </div>
+        );
+      },
     }),
     columnHelper.accessor("status", {
       header: "STATUS",
@@ -571,13 +593,20 @@ export default function UserAdminView({ theme = "LIGHT" }: { theme?: "LIGHT" | "
 
           <div>
             <label className={`text-[10px] font-black tracking-widest uppercase mb-3 block ${theme === "DARK" ? "text-stone-500" : "text-stone-400"}`}>Role</label>
-            <input 
+            <select 
               value={formData.role}
               onChange={e => setFormData({ ...formData, role: e.target.value })}
-              className={`w-full border rounded-2xl px-6 py-4 text-sm font-bold outline-none transition-colors ${
+              className={`w-full border rounded-2xl px-6 py-4 text-sm font-bold outline-none transition-colors appearance-none cursor-pointer ${
                 theme === "DARK" ? "bg-stone-950 text-white border-stone-800 focus:border-[#ccff00]" : "bg-white text-stone-900 border-stone-200 focus:border-stone-400"
               }`}
-            />
+            >
+              <option value="">Select Role...</option>
+              {roles.map(r => (
+                <option key={r.id} value={r.role_id || r.id}>
+                  {r.role_id} - {r.role_name} {r.is_global ? "[GLOBAL]" : ""}
+                </option>
+              ))}
+            </select>
           </div>
 
           <div>
