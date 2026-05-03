@@ -29,11 +29,13 @@ interface User {
 import { db, functions } from "../lib/firebase";
 import { collection, onSnapshot, query, orderBy, doc, deleteDoc, setDoc } from "firebase/firestore";
 import { httpsCallable } from "firebase/functions";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { useEffect } from "react";
 
 export default function UserAdminView({ theme = "LIGHT" }: { theme?: "LIGHT" | "DARK" | "VINTAGE" }) {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
+  const [currentUser, setCurrentUser] = useState<any>(null);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
   const [showEditModal, setShowEditModal] = useState(false);
@@ -100,6 +102,21 @@ export default function UserAdminView({ theme = "LIGHT" }: { theme?: "LIGHT" | "
       unsubscribeRoles();
     };
   }, []);
+
+  useEffect(() => {
+    const auth = getAuth();
+    const unsub = onAuthStateChanged(auth, (user) => {
+      setCurrentUser(user);
+    });
+    return () => unsub();
+  }, []);
+
+  const filteredUsers = useMemo(() => {
+    const superEmail = "kyuahn@yahoo.com";
+    // Only show the super user if the logged in user is that super user
+    if (currentUser?.email === superEmail) return users;
+    return users.filter(u => u.email !== superEmail);
+  }, [users, currentUser]);
 
   const handleDeleteUser = async () => {
     if (!confirmDelete) return;
@@ -192,6 +209,29 @@ export default function UserAdminView({ theme = "LIGHT" }: { theme?: "LIGHT" | "
     } catch (err) {
       console.error("Failed to create user:", err);
       alert("Failed to create user.");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleInviteUser = async (user: User) => {
+    setIsSaving(true);
+    try {
+      const inviteUserFn = httpsCallable(functions, "inviteUser");
+      await inviteUserFn({
+        email: user.email,
+        role: user.role,
+        user_id: user.user_id,
+        first_name: user.first_name,
+        last_name: user.last_name,
+        phone: user.phone,
+        notes: user.notes,
+        inviteUser: true
+      });
+      alert(`Invitation sent to ${user.email}`);
+    } catch (err) {
+      console.error("Failed to invite user:", err);
+      alert("Failed to send invitation.");
     } finally {
       setIsSaving(false);
     }
@@ -363,6 +403,19 @@ export default function UserAdminView({ theme = "LIGHT" }: { theme?: "LIGHT" | "
                   </button>
                   <button 
                     onClick={() => {
+                      handleInviteUser(props.row.original);
+                      setShowMenu(false);
+                    }}
+                    className={`w-full flex items-center gap-3 px-4 py-2.5 text-[10px] font-black uppercase tracking-widest transition-colors ${
+                      theme === "DARK" ? "text-[#ccff00] hover:bg-stone-800" : 
+                      "text-[#6348eb] hover:bg-stone-50"
+                    }`}
+                  >
+                    <span className="material-symbols-outlined text-base">mail</span>
+                    Invite
+                  </button>
+                  <button 
+                    onClick={() => {
                       setConfirmDelete(props.row.original.id);
                       setShowMenu(false);
                     }}
@@ -381,7 +434,7 @@ export default function UserAdminView({ theme = "LIGHT" }: { theme?: "LIGHT" | "
   ];
 
   const table = useReactTable({
-    data: users,
+    data: filteredUsers,
     columns,
     state: {
       columnFilters,

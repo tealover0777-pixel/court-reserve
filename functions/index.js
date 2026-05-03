@@ -6,38 +6,55 @@ const db = admin.firestore();
 
 /**
  * Invites a user to a tenant and sets their role/claims.
+ * Ensures the user exists in Firebase Authentication.
  */
 exports.inviteUser = functions.https.onCall(async (data, context) => {
   const { email, role, tenantId, user_id, first_name, last_name, phone, notes } = data;
 
-  if (!email || !tenantId || !user_id) {
-    throw new functions.https.HttpsError("invalid-argument", "Missing required fields: email, tenantId, or user_id");
+  if (!email || !user_id) {
+    throw new functions.https.HttpsError("invalid-argument", "Missing required fields: email or user_id");
   }
 
   try {
-    // 1. Create/Update user in global_users collection
-    await db.collection("global_users").doc(user_id).set({
-      user_id,
-      email,
-      first_name,
-      last_name,
-      phone,
-      tenantId,
-      role,
-      notes,
-      status: "Invited",
-      created_at: admin.firestore.FieldValue.serverTimestamp()
-    }, { merge: true });
+    let uid;
+    let userRecord;
 
-    // 2. Set Custom Claims for the user if they already exist in Auth
+    // 1. Check if user exists in Auth, or create them
     try {
-      const userRecord = await admin.auth().getUserByEmail(email);
-      await admin.auth().setCustomUserClaims(userRecord.uid, { tenantId, role });
-    } catch (authError) {
-      console.log("User not found in Auth yet, claims will be set upon first login or sign up.");
+      userRecord = await admin.auth().getUserByEmail(email);
+      uid = userRecord.uid;
+    } catch (error) {
+      if (error.code === 'auth/user-not-found') {
+        userRecord = await admin.auth().createUser({
+          email: email,
+          displayName: `${first_name || ''} ${last_name || ''}`.trim(),
+          disabled: false,
+        });
+        uid = userRecord.uid;
+      } else {
+        throw error;
+      }
     }
 
-    return { status: "success", message: `User ${email} invited to tenant ${tenantId}` };
+    // 2. Set Custom Claims
+    await admin.auth().setCustomUserClaims(uid, { tenantId: tenantId || 'global', role });
+
+    // 3. Create/Update user in global_users collection
+    await db.collection("global_users").doc(user_id).set({
+      user_id,
+      auth_uid: uid,
+      email,
+      first_name: first_name || "",
+      last_name: last_name || "",
+      phone: phone || "",
+      tenantId: tenantId || "global",
+      role,
+      notes: notes || "",
+      status: "Invited",
+      updated_at: admin.firestore.FieldValue.serverTimestamp()
+    }, { merge: true });
+
+    return { status: "success", message: `User ${email} invited and synced. Auth UID: ${uid}` };
   } catch (error) {
     console.error("Error in inviteUser:", error);
     throw new functions.https.HttpsError("internal", error.message);
@@ -45,20 +62,50 @@ exports.inviteUser = functions.https.onCall(async (data, context) => {
 });
 
 /**
- * Sets the tenantId custom claim for a user.
+ * Sync Auth users to Firestore on creation
  */
-exports.setTenantClaim = functions.https.onRequest(async (req, res) => {
-  const { uid, tenantId } = req.body;
+exports.syncUserOnCreate = functions.auth.user().onCreate(async (user) => {
+  const { uid, email, displayName } = user;
+  
+  // Only sync if they don't already exist in global_users (checked by email)
+  const userSnapshot = await db.collection("global_users").where("email", "==", email).get();
+  
+  if (userSnapshot.empty) {
+    const nameParts = (displayName || "").split(" ");
+    const firstName = nameParts[0] || "";
+    const lastName = nameParts.slice(1).join(" ") || "";
 
-  if (!uid || !tenantId) {
-    return res.status(400).send("Missing uid or tenantId");
-  }
+    // Generate a temporary user_id if not present
+    const tempUserId = `U${Math.floor(Math.random() * 100000).toString().padStart(5, '0')}`;
 
-  try {
-    await admin.auth().setCustomUserClaims(uid, { tenantId });
-    res.status(200).send({ status: "success", message: `User ${uid} assigned to tenant ${tenantId}` });
-  } catch (error) {
-    console.error("Error setting custom claims:", error);
-    res.status(500).send({ status: "error", message: error.message });
+    await db.collection("global_users").doc(tempUserId).set({
+      user_id: tempUserId,
+      auth_uid: uid,
+      email,
+      first_name: firstName,
+      last_name: lastName,
+      role: "Member", // Default role
+      status: "Active",
+      created_at: admin.firestore.FieldValue.serverTimestamp()
+    });
+  } else {
+    // If they exist but lack auth_uid, update it
+    const doc = userSnapshot.docs[0];
+    await doc.ref.update({ auth_uid: uid, status: "Active" });
   }
+});
+
+/**
+ * Cleanup Firestore when Auth user is deleted
+ */
+exports.syncUserOnDelete = functions.auth.user().onDelete(async (user) => {
+  const { uid } = user;
+  const userSnapshot = await db.collection("global_users").where("auth_uid", "==", uid).get();
+  
+  const batch = db.batch();
+  userSnapshot.forEach(doc => {
+    batch.delete(doc.ref);
+  });
+  
+  return batch.commit();
 });

@@ -17,6 +17,7 @@ export const metadata: Metadata = {
 };
 
 import { TenantProvider } from "../context/TenantContext";
+import { AuthProvider } from "../context/AuthContext";
 
 export default function RootLayout({
   children,
@@ -30,9 +31,11 @@ export default function RootLayout({
         <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&family=Lexend:wght@100..900&family=Manrope:wght@200..800&display=swap" />
       </head>
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
-        <TenantProvider>
-          {children}
-        </TenantProvider>
+        <AuthProvider>
+          <TenantProvider>
+            {children}
+          </TenantProvider>
+        </AuthProvider>
       </body>
     </html>
   );
