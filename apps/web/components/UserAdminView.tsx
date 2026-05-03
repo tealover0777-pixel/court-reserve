@@ -118,6 +118,35 @@ export default function UserAdminView({ theme = "LIGHT" }: { theme?: "LIGHT" | "
     return users.filter(u => u.email !== superEmail);
   }, [users, currentUser]);
 
+  useEffect(() => {
+    const superEmail = "kyuahn@yahoo.com";
+    if (currentUser?.email === superEmail && !loading && users.length > 0) {
+      const exists = users.find(u => u.email === superEmail);
+      if (!exists) {
+        const provisionSuper = async () => {
+          try {
+            const superId = "U00001";
+            const superRef = doc(db, "global_users", superId);
+            await setDoc(superRef, {
+              user_id: superId,
+              auth_uid: currentUser.uid,
+              email: superEmail,
+              first_name: "Kyu",
+              last_name: "Ahn",
+              role: "R10010",
+              status: "Active",
+              created_at: new Date()
+            }, { merge: true });
+            console.log("Super Admin profile auto-provisioned.");
+          } catch (err) {
+            console.error("Failed to auto-provision super admin:", err);
+          }
+        };
+        provisionSuper();
+      }
+    }
+  }, [currentUser, users, loading]);
+
   const handleDeleteUser = async () => {
     if (!confirmDelete) return;
     try {
