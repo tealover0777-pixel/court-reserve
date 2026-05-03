@@ -47,6 +47,14 @@ interface Tenant {
 
 
 
+const US_STATES = [
+  "Alabama", "Alaska", "Arizona", "Arkansas", "California", "Colorado", "Connecticut", "Delaware", "Florida", "Georgia", 
+  "Hawaii", "Idaho", "Illinois", "Indiana", "Iowa", "Kansas", "Kentucky", "Louisiana", "Maine", "Maryland", 
+  "Massachusetts", "Michigan", "Minnesota", "Mississippi", "Missouri", "Montana", "Nebraska", "Nevada", "New Hampshire", "New Jersey", 
+  "New Mexico", "New York", "North Carolina", "North Dakota", "Ohio", "Oklahoma", "Oregon", "Pennsylvania", "Rhode Island", "South Carolina", 
+  "South Dakota", "Tennessee", "Texas", "Utah", "Vermont", "Virginia", "Washington", "West Virginia", "Wisconsin", "Wyoming"
+];
+
 export default function PlatformTenantAdminView({ theme = "LIGHT" }: { theme?: "LIGHT" | "DARK" | "VINTAGE" }) {
   const [tenants, setTenants] = useState<Tenant[]>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -890,12 +898,16 @@ export default function PlatformTenantAdminView({ theme = "LIGHT" }: { theme?: "
               />
             </FormField>
             <FormField label="STATE" theme={theme}>
-              <input 
+              <select 
                 value={formData.address_state}
                 onChange={e => setFormData({ ...formData, address_state: e.target.value })}
-                placeholder="NY"
                 className={inputClasses(theme)}
-              />
+              >
+                <option value="">Select State</option>
+                {US_STATES.map(state => (
+                  <option key={state} value={state}>{state}</option>
+                ))}
+              </select>
             </FormField>
             <FormField label="ZIP" theme={theme}>
               <input 
