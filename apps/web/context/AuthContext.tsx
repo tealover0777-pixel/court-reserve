@@ -10,6 +10,7 @@ interface UserProfile {
   email: string;
   auth_uid: string;
   user_id: string;
+  status?: string;
 }
 
 interface AuthContextType {
@@ -45,7 +46,17 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         const q = query(collection(db, "global_users"), where("auth_uid", "==", firebaseUser.uid));
         unsubscribeProfile = onSnapshot(q, (snapshot) => {
           if (!snapshot.empty && snapshot.docs[0]) {
-            setProfile(snapshot.docs[0].data() as UserProfile);
+            const data = snapshot.docs[0].data() as UserProfile;
+            setProfile(data);
+            
+            // Auto-activate if Invited
+            if (data.status === "Invited") {
+              const { updateDoc } = require("firebase/firestore");
+              updateDoc(snapshot.docs[0].ref, { 
+                status: "Active",
+                last_login: new Date().toISOString()
+              }).catch((err: any) => console.error("Failed to auto-activate user:", err));
+            }
           } else {
             setProfile(null);
           }
