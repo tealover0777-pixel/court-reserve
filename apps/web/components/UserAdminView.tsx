@@ -415,7 +415,7 @@ export default function UserAdminView({ theme = "LIGHT" }: { theme?: "LIGHT" | "
         theme === "DARK" ? "text-[#ccff00]" : 
         theme === "VINTAGE" ? "text-stone-900" :
         "text-stone-500"
-      }`}>{info.getValue() || "-"}</span>,
+      }`}>{info.getValue() || "Global"}</span>,
     }),
     columnHelper.accessor("first_name", {
       header: "FIRST NAME",

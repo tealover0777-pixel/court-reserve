@@ -243,6 +243,12 @@ export default function PlatformTenantAdminView({ theme = "LIGHT" }: { theme?: "
         await setDoc(ownerRef, {
           user_id: formData.owner_id,
           tenant_id: formData.tenant_id,
+          first_name: formData.owner_first_name,
+          last_name: formData.owner_last_name,
+          email: formData.owner_email,
+          phone: formData.owner_phone,
+          notes: formData.internal_notes || `Created with Tenant: ${formData.tenant_id}`,
+          role: "R10005",
           address_street_1: formData.address_street_1,
           address_street_2: formData.address_street_2,
           address_city: formData.address_city,
