@@ -81,6 +81,18 @@ export default function PlatformTenantAdminView({ theme = "LIGHT" }: { theme?: "
   const [editingTenantId, setEditingTenantId] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [isInviting, setIsInviting] = useState(false);
+  const [notification, setNotification] = useState<{ message: string; type: "SUCCESS" | "ERROR" | "INFO" } | null>(null);
+
+  useEffect(() => {
+    if (notification) {
+      const timer = setTimeout(() => setNotification(null), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [notification]);
+
+  const showAppMessage = (message: string, type: "SUCCESS" | "ERROR" | "INFO" = "INFO") => {
+    setNotification({ message, type });
+  };
   const [users, setUsers] = useState<any[]>([]);
   const [showInviteSuccess, setShowInviteSuccess] = useState(false);
   const [invitationLink, setInvitationLink] = useState("");
@@ -156,7 +168,7 @@ export default function PlatformTenantAdminView({ theme = "LIGHT" }: { theme?: "
       if (!id) setConfirmDelete(null);
     } catch (err) {
       console.error("Failed to delete tenant:", err);
-      alert("Failed to delete tenant.");
+      showAppMessage("Failed to delete tenant.", "ERROR");
     }
   };
 
@@ -166,7 +178,7 @@ export default function PlatformTenantAdminView({ theme = "LIGHT" }: { theme?: "
       for (const id of samples) {
         await deleteDoc(doc(db, "tenants", id));
       }
-      alert("Samples cleaned up successfully.");
+      showAppMessage("Samples cleaned up successfully.", "SUCCESS");
     } catch (err) {
       console.error("Cleanup failed:", err);
     }
@@ -198,7 +210,7 @@ export default function PlatformTenantAdminView({ theme = "LIGHT" }: { theme?: "
     const tenantDocId = editingTenantId || formData.tenant_id;
     try {
       if (!formData.tenant_name || !formData.owner_email) {
-        alert("Please fill in the tenant name and owner email.");
+        showAppMessage("Please fill in the tenant name and owner email.", "ERROR");
         return;
       }
       
@@ -282,7 +294,7 @@ export default function PlatformTenantAdminView({ theme = "LIGHT" }: { theme?: "
       });
     } catch (err) {
       console.error("Failed to save tenant:", err);
-      alert("Failed to save tenant: " + (err instanceof Error ? err.message : "Unknown error"));
+      showAppMessage("Failed to save tenant: " + (err instanceof Error ? err.message : "Unknown error"), "ERROR");
     } finally {
       setIsSaving(false);
     }
@@ -290,7 +302,7 @@ export default function PlatformTenantAdminView({ theme = "LIGHT" }: { theme?: "
 
   const handleInviteOwner = async (tenant: Tenant) => {
     if (!tenant.owner_email) {
-      alert("Owner email is missing.");
+      showAppMessage("Owner email is missing.", "ERROR");
       return;
     }
     setIsInviting(true);
@@ -312,11 +324,11 @@ export default function PlatformTenantAdminView({ theme = "LIGHT" }: { theme?: "
         setInvitationLink(result.data.invitationLink);
         setShowInviteSuccess(true);
       } else {
-        alert("Invitation sent successfully.");
+        showAppMessage("Invitation sent successfully.", "SUCCESS");
       }
     } catch (err) {
-      console.error("Failed to invite owner:", err);
-      alert("Failed to send invitation: " + (err instanceof Error ? err.message : "Unknown error"));
+      console.error("Invite error:", err);
+      showAppMessage("Failed to send invitation: " + (err instanceof Error ? err.message : "Unknown error"), "ERROR");
     } finally {
       setIsInviting(false);
     }
@@ -802,7 +814,7 @@ export default function PlatformTenantAdminView({ theme = "LIGHT" }: { theme?: "
             <button 
               onClick={() => {
                 navigator.clipboard.writeText(invitationLink);
-                alert("Link copied to clipboard!");
+                showAppMessage("Link copied to clipboard!", "SUCCESS");
               }}
               className={`w-full py-2 rounded-lg text-[8px] font-black tracking-widest uppercase transition-all ${
                 theme === "DARK" ? "bg-stone-800 text-white hover:bg-stone-700" : "bg-white border text-stone-600 hover:bg-stone-50"
@@ -1036,6 +1048,27 @@ export default function PlatformTenantAdminView({ theme = "LIGHT" }: { theme?: "
           </FormField>
         </div>
       </Modal>
+
+      {/* App Notification Toast */}
+      {notification && (
+        <div className="fixed top-8 left-1/2 -translate-x-1/2 z-[9999] animate-in fade-in slide-in-from-top-4 duration-300">
+          <div className={`px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-4 border ${
+            notification.type === "SUCCESS" 
+              ? (theme === "DARK" ? "bg-[#ccff00] text-stone-950 border-[#ccff00]" : "bg-green-600 text-white border-green-500")
+              : notification.type === "ERROR"
+              ? "bg-red-600 text-white border-red-500"
+              : (theme === "DARK" ? "bg-stone-800 text-white border-stone-700" : "bg-white text-stone-900 border-stone-200")
+          }`}>
+            <span className="material-symbols-outlined text-xl">
+              {notification.type === "SUCCESS" ? "check_circle" : notification.type === "ERROR" ? "error" : "info"}
+            </span>
+            <span className="text-sm font-bold tracking-tight">{notification.message}</span>
+            <button onClick={() => setNotification(null)} className="ml-2 hover:opacity-70">
+              <span className="material-symbols-outlined text-lg">close</span>
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
