@@ -80,14 +80,17 @@ export default function UserAdminView({ theme = "LIGHT" }: { theme?: "LIGHT" | "
   });
 
   const nextUserId = useMemo(() => {
-    if (users.length === 0) return "U00001";
-    const ids = users.map(u => {
+    if (!formData.tenant_id) return "U10001";
+    const tenantUsers = users.filter(u => u.tenant_id === formData.tenant_id);
+    if (tenantUsers.length === 0) return "U10001";
+    const ids = tenantUsers.map(u => {
       const match = u.user_id?.match(/^U(\d+)$/);
       return (match && match[1]) ? parseInt(match[1]) : 0;
     });
     const max = Math.max(...ids);
-    return `U${(max + 1).toString().padStart(5, '0')}`;
-  }, [users]);
+    const nextNum = Math.max(10001, max + 1);
+    return `U${nextNum}`;
+  }, [users, formData.tenant_id]);
 
   useEffect(() => {
     const q = query(collection(db, "global_users"), orderBy("user_id", "asc"));
@@ -217,7 +220,8 @@ export default function UserAdminView({ theme = "LIGHT" }: { theme?: "LIGHT" | "
     if (!editingUser) return;
     setIsSaving(true);
     try {
-      const userRef = doc(db, "global_users", editingUser.id);
+      const compositeId = `${formData.tenant_id}_${formData.user_id}`;
+      const userRef = doc(db, "global_users", compositeId);
       await setDoc(userRef, {
         ...formData,
         updated_at: new Date().toISOString()
@@ -252,11 +256,13 @@ export default function UserAdminView({ theme = "LIGHT" }: { theme?: "LIGHT" | "
     }
     setIsSaving(true);
     try {
-      const newId = nextUserId;
-      const userRef = doc(db, "global_users", newId);
+      const newUserId = nextUserId;
+      const compositeId = `${formData.tenant_id}_${newUserId}`;
+      const userRef = doc(db, "global_users", compositeId);
       
       const userData = {
-        user_id: newId,
+        user_id: newUserId,
+        tenant_id: formData.tenant_id,
         first_name: formData.first_name,
         last_name: formData.last_name,
         email: formData.email,
@@ -264,7 +270,6 @@ export default function UserAdminView({ theme = "LIGHT" }: { theme?: "LIGHT" | "
         status: "Invited",
         phone: formData.phone,
         notes: formData.notes,
-        tenant_id: formData.tenant_id,
         address_street_1: formData.address_street_1,
         address_street_2: formData.address_street_2,
         address_city: formData.address_city,
@@ -281,7 +286,7 @@ export default function UserAdminView({ theme = "LIGHT" }: { theme?: "LIGHT" | "
         const result: any = await inviteUserFn({
           email: formData.email,
           role: formData.role,
-          user_id: newId,
+          user_id: newUserId,
           first_name: formData.first_name,
           last_name: formData.last_name,
           phone: formData.phone,
@@ -302,7 +307,7 @@ export default function UserAdminView({ theme = "LIGHT" }: { theme?: "LIGHT" | "
       }
 
       // Sync reverse to tenants if this user owns any (shouldn't happen on create but for safety)
-      const tenantsQuery = query(collection(db, "tenants"), where("owner_id", "==", newId));
+      const tenantsQuery = query(collection(db, "tenants"), where("owner_id", "==", newUserId));
       const tenantSnaps = await getDocs(tenantsQuery);
       for (const tDoc of tenantSnaps.docs) {
         await setDoc(doc(db, "tenants", tDoc.id), {
@@ -910,9 +915,12 @@ export default function UserAdminView({ theme = "LIGHT" }: { theme?: "LIGHT" | "
             <input 
               value={formData.tenant_id}
               onChange={e => setFormData({ ...formData, tenant_id: e.target.value })}
+              readOnly={!!editingUser}
               placeholder="e.g. T10001"
               className={`w-full border rounded-2xl px-6 py-4 text-sm font-bold outline-none transition-colors ${
-                theme === "DARK" ? "bg-stone-950 text-white border-stone-800 focus:border-[#ccff00]" : "bg-white text-stone-900 border-stone-200 focus:border-stone-400 shadow-sm"
+                theme === "DARK" 
+                  ? (editingUser ? "bg-stone-900 text-stone-500 border-stone-800" : "bg-stone-950 text-white border-stone-800 focus:border-[#ccff00]") 
+                  : (editingUser ? "bg-stone-50 text-stone-400 border-stone-100" : "bg-white text-stone-900 border-stone-200 focus:border-stone-400 shadow-sm")
               }`}
             />
           </div>

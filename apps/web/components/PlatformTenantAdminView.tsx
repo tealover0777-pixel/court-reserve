@@ -119,13 +119,16 @@ export default function PlatformTenantAdminView({ theme = "LIGHT" }: { theme?: "
   })();
 
   const nextOwnerId = (() => {
-    if (users.length === 0) return "U00001";
-    const ids = users.map(u => {
+    const tenantId = formData.tenant_id || nextTenantId;
+    const tenantUsers = users.filter(u => u.tenant_id === tenantId);
+    if (tenantUsers.length === 0) return "U10001";
+    const ids = tenantUsers.map(u => {
       const match = u.user_id?.match(/^U(\d+)$/);
       return (match && match[1]) ? parseInt(match[1]) : 0;
     });
     const max = Math.max(...ids);
-    return `U${(max + 1).toString().padStart(5, '0')}`;
+    const nextNum = Math.max(10001, max + 1);
+    return `U${nextNum}`;
   })();
 
   useEffect(() => {
@@ -223,8 +226,11 @@ export default function PlatformTenantAdminView({ theme = "LIGHT" }: { theme?: "
       
       // 1.5 Sync Address to Owner in global_users if owner_id exists
       if (formData.owner_id) {
-        const ownerRef = doc(db, "global_users", formData.owner_id);
+        const compositeUserId = `${formData.tenant_id}_${formData.owner_id}`;
+        const ownerRef = doc(db, "global_users", compositeUserId);
         await setDoc(ownerRef, {
+          user_id: formData.owner_id,
+          tenant_id: formData.tenant_id,
           address_street_1: formData.address_street_1,
           address_street_2: formData.address_street_2,
           address_city: formData.address_city,
@@ -940,12 +946,18 @@ export default function PlatformTenantAdminView({ theme = "LIGHT" }: { theme?: "
             }`}>Primary Owner Details</span>
           </div>
 
-          <FormField label="OWNER ID (UPCOMING)" theme={theme}>
-            <div className={`px-6 py-4 rounded-2xl font-mono text-sm transition-colors ${
-              theme === "DARK" ? "bg-stone-900 text-stone-400" : "bg-stone-50 text-stone-500"
-            }`}>
-              {formData.owner_id}
-            </div>
+          <FormField label="OWNER ID" theme={theme}>
+            <input 
+              value={formData.owner_id}
+              onChange={e => setFormData({ ...formData, owner_id: e.target.value })}
+              readOnly={!!editingTenantId}
+              placeholder="e.g. U10001"
+              className={`w-full border rounded-2xl px-6 py-4 text-sm font-bold outline-none transition-colors ${
+                theme === "DARK" 
+                  ? (editingTenantId ? "bg-stone-900 text-stone-500 border-stone-800" : "bg-stone-950 text-white border-stone-800 focus:border-[#ccff00]") 
+                  : (editingTenantId ? "bg-stone-50 text-stone-400 border-stone-100" : "bg-white text-stone-900 border-stone-200 focus:border-stone-400")
+              }`}
+            />
           </FormField>
 
           <FormField label="EMAIL ADDRESS" theme={theme}>
