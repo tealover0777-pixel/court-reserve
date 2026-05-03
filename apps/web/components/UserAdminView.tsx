@@ -84,9 +84,11 @@ export default function UserAdminView({ theme = "LIGHT" }: { theme?: "LIGHT" | "
     });
 
     const unsubscribeStatus = onSnapshot(query(collection(db, "dimensions"), orderBy("category", "asc")), (snapshot) => {
-      const statusDim = snapshot.docs.find(doc => doc.data().category === "USERSTATUS");
+      const statusDim = snapshot.docs.find(doc => doc.data().category?.toUpperCase() === "USERSTATUS");
       if (statusDim) {
         setUserStatuses(statusDim.data().items || []);
+      } else {
+        setUserStatuses([]); // Fallback to empty if not found
       }
     });
 
@@ -880,10 +882,16 @@ export default function UserAdminView({ theme = "LIGHT" }: { theme?: "LIGHT" | "
                 theme === "DARK" ? "bg-stone-950 text-white border-stone-800 focus:border-[#ccff00]" : "bg-white text-stone-900 border-stone-200 focus:border-stone-400"
               }`}
             >
-              <option value="">Select status...</option>
-              {userStatuses.map(s => (
-                <option key={s} value={s}>{s}</option>
-              ))}
+              {userStatuses.length === 0 ? (
+                <option value="" disabled className="text-red-500 italic">Error: USERSTATUS dimension missing</option>
+              ) : (
+                <>
+                  <option value="">Select status...</option>
+                  {userStatuses.map(s => (
+                    <option key={s} value={s}>{s}</option>
+                  ))}
+                </>
+              )}
             </select>
           </div>
 
