@@ -22,7 +22,20 @@ interface User {
   status: string;
   phone?: string;
   notes?: string;
+  address_street_1?: string;
+  address_street_2?: string;
+  address_city?: string;
+  address_state?: string;
+  address_zip?: string;
 }
+
+const US_STATES = [
+  "Alabama", "Alaska", "Arizona", "Arkansas", "California", "Colorado", "Connecticut", "Delaware", "Florida", "Georgia", 
+  "Hawaii", "Idaho", "Illinois", "Indiana", "Iowa", "Kansas", "Kentucky", "Louisiana", "Maine", "Maryland", 
+  "Massachusetts", "Michigan", "Minnesota", "Mississippi", "Missouri", "Montana", "Nebraska", "Nevada", "New Hampshire", "New Jersey", 
+  "New Mexico", "New York", "North Carolina", "North Dakota", "Ohio", "Oklahoma", "Oregon", "Pennsylvania", "Rhode Island", "South Carolina", 
+  "South Dakota", "Tennessee", "Texas", "Utah", "Vermont", "Virginia", "Washington", "West Virginia", "Wisconsin", "Wyoming"
+];
 
 
 
@@ -56,7 +69,12 @@ export default function UserAdminView({ theme = "LIGHT" }: { theme?: "LIGHT" | "
     status: "Invited",
     phone: "",
     notes: "",
-    invite_user: true
+    invite_user: true,
+    address_street_1: "",
+    address_street_2: "",
+    address_city: "",
+    address_state: "",
+    address_zip: ""
   });
 
   const nextUserId = useMemo(() => {
@@ -182,7 +200,12 @@ export default function UserAdminView({ theme = "LIGHT" }: { theme?: "LIGHT" | "
       status: user.status || "Invited",
       phone: user.phone || "",
       notes: user.notes || "",
-      invite_user: false
+      invite_user: false,
+      address_street_1: user.address_street_1 || "",
+      address_street_2: user.address_street_2 || "",
+      address_city: user.address_city || "",
+      address_state: user.address_state || "",
+      address_zip: user.address_zip || ""
     });
     setShowEditModal(true);
   };
@@ -225,6 +248,11 @@ export default function UserAdminView({ theme = "LIGHT" }: { theme?: "LIGHT" | "
         status: "Invited",
         phone: formData.phone,
         notes: formData.notes,
+        address_street_1: formData.address_street_1,
+        address_street_2: formData.address_street_2,
+        address_city: formData.address_city,
+        address_state: formData.address_state,
+        address_zip: formData.address_zip,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString()
       };
@@ -241,6 +269,11 @@ export default function UserAdminView({ theme = "LIGHT" }: { theme?: "LIGHT" | "
           last_name: formData.last_name,
           phone: formData.phone,
           notes: formData.notes,
+          address_street_1: formData.address_street_1,
+          address_street_2: formData.address_street_2,
+          address_city: formData.address_city,
+          address_state: formData.address_state,
+          address_zip: formData.address_zip,
           inviteUser: true
         });
         
@@ -272,6 +305,11 @@ export default function UserAdminView({ theme = "LIGHT" }: { theme?: "LIGHT" | "
         last_name: user.last_name,
         phone: user.phone,
         notes: user.notes,
+        address_street_1: user.address_street_1,
+        address_street_2: user.address_street_2,
+        address_city: user.address_city,
+        address_state: user.address_state,
+        address_zip: user.address_zip,
         inviteUser: true
       });
       
@@ -300,7 +338,12 @@ export default function UserAdminView({ theme = "LIGHT" }: { theme?: "LIGHT" | "
       status: "Invited",
       phone: "",
       notes: "",
-      invite_user: true
+      invite_user: true,
+      address_street_1: "",
+      address_street_2: "",
+      address_city: "",
+      address_state: "",
+      address_zip: ""
     });
   };
 
@@ -907,6 +950,78 @@ export default function UserAdminView({ theme = "LIGHT" }: { theme?: "LIGHT" | "
             />
           </div>
 
+          <div className={`pt-4 pb-2 border-b transition-colors ${
+            theme === "DARK" ? "border-stone-800" : "border-stone-100"
+          }`}>
+            <span className={`text-[10px] font-black uppercase tracking-[0.2em] ${
+              theme === "DARK" ? "text-stone-500" : "text-stone-400"
+            }`}>Mailing Address</span>
+          </div>
+
+          <div>
+            <label className={`text-[10px] font-black tracking-widest uppercase mb-3 block ${theme === "DARK" ? "text-stone-500" : "text-stone-400"}`}>Street Address 1</label>
+            <input 
+              value={formData.address_street_1}
+              onChange={e => setFormData({ ...formData, address_street_1: e.target.value })}
+              placeholder="123 Main St"
+              className={`w-full border rounded-2xl px-6 py-4 text-sm font-bold outline-none transition-colors ${
+                theme === "DARK" ? "bg-stone-950 text-white border-stone-800 focus:border-[#ccff00]" : "bg-white text-stone-900 border-stone-200 focus:border-stone-400"
+              }`}
+            />
+          </div>
+
+          <div>
+            <label className={`text-[10px] font-black tracking-widest uppercase mb-3 block ${theme === "DARK" ? "text-stone-500" : "text-stone-400"}`}>Street Address 2</label>
+            <input 
+              value={formData.address_street_2}
+              onChange={e => setFormData({ ...formData, address_street_2: e.target.value })}
+              placeholder="Apt 4B"
+              className={`w-full border rounded-2xl px-6 py-4 text-sm font-bold outline-none transition-colors ${
+                theme === "DARK" ? "bg-stone-950 text-white border-stone-800 focus:border-[#ccff00]" : "bg-white text-stone-900 border-stone-200 focus:border-stone-400"
+              }`}
+            />
+          </div>
+
+          <div className="grid grid-cols-3 gap-6">
+            <div>
+              <label className={`text-[10px] font-black tracking-widest uppercase mb-3 block ${theme === "DARK" ? "text-stone-500" : "text-stone-400"}`}>City</label>
+              <input 
+                value={formData.address_city}
+                onChange={e => setFormData({ ...formData, address_city: e.target.value })}
+                placeholder="New York"
+                className={`w-full border rounded-2xl px-6 py-4 text-sm font-bold outline-none transition-colors ${
+                  theme === "DARK" ? "bg-stone-950 text-white border-stone-800 focus:border-[#ccff00]" : "bg-white text-stone-900 border-stone-200 focus:border-stone-400"
+                }`}
+              />
+            </div>
+            <div>
+              <label className={`text-[10px] font-black tracking-widest uppercase mb-3 block ${theme === "DARK" ? "text-stone-500" : "text-stone-400"}`}>State</label>
+              <select 
+                value={formData.address_state}
+                onChange={e => setFormData({ ...formData, address_state: e.target.value })}
+                className={`w-full border rounded-2xl px-6 py-4 text-sm font-bold outline-none transition-colors appearance-none cursor-pointer ${
+                  theme === "DARK" ? "bg-stone-950 text-white border-stone-800 focus:border-[#ccff00]" : "bg-white text-stone-900 border-stone-200 focus:border-stone-400"
+                }`}
+              >
+                <option value="">Select State...</option>
+                {US_STATES.map(state => (
+                  <option key={state} value={state}>{state}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className={`text-[10px] font-black tracking-widest uppercase mb-3 block ${theme === "DARK" ? "text-stone-500" : "text-stone-400"}`}>Zip</label>
+              <input 
+                value={formData.address_zip}
+                onChange={e => setFormData({ ...formData, address_zip: e.target.value })}
+                placeholder="10001"
+                className={`w-full border rounded-2xl px-6 py-4 text-sm font-bold outline-none transition-colors ${
+                  theme === "DARK" ? "bg-stone-950 text-white border-stone-800 focus:border-[#ccff00]" : "bg-white text-stone-900 border-stone-200 focus:border-stone-400"
+                }`}
+              />
+            </div>
+          </div>
+
           <div>
             <label className={`text-[10px] font-black tracking-widest uppercase mb-3 block ${theme === "DARK" ? "text-stone-500" : "text-stone-400"}`}>Internal Notes</label>
             <textarea 
@@ -1028,6 +1143,78 @@ export default function UserAdminView({ theme = "LIGHT" }: { theme?: "LIGHT" | "
                 theme === "DARK" ? "bg-stone-950 text-white border-stone-800 focus:border-[#ccff00]" : "bg-white text-stone-900 border-stone-200 focus:border-stone-400 shadow-sm"
               }`}
             />
+          </div>
+
+          <div className={`pt-4 pb-2 border-b transition-colors ${
+            theme === "DARK" ? "border-stone-800" : "border-stone-100"
+          }`}>
+            <span className={`text-[10px] font-black uppercase tracking-[0.2em] ${
+              theme === "DARK" ? "text-stone-500" : "text-stone-400"
+            }`}>Mailing Address</span>
+          </div>
+
+          <div>
+            <label className={`text-[10px] font-black tracking-widest uppercase mb-3 block ${theme === "DARK" ? "text-stone-500" : "text-stone-400"}`}>Street Address 1</label>
+            <input 
+              value={formData.address_street_1}
+              onChange={e => setFormData({ ...formData, address_street_1: e.target.value })}
+              placeholder="123 Main St"
+              className={`w-full border rounded-2xl px-6 py-4 text-sm font-bold outline-none transition-colors ${
+                theme === "DARK" ? "bg-stone-950 text-white border-stone-800 focus:border-[#ccff00]" : "bg-white text-stone-900 border-stone-200 focus:border-stone-400 shadow-sm"
+              }`}
+            />
+          </div>
+
+          <div>
+            <label className={`text-[10px] font-black tracking-widest uppercase mb-3 block ${theme === "DARK" ? "text-stone-500" : "text-stone-400"}`}>Street Address 2</label>
+            <input 
+              value={formData.address_street_2}
+              onChange={e => setFormData({ ...formData, address_street_2: e.target.value })}
+              placeholder="Apt 4B"
+              className={`w-full border rounded-2xl px-6 py-4 text-sm font-bold outline-none transition-colors ${
+                theme === "DARK" ? "bg-stone-950 text-white border-stone-800 focus:border-[#ccff00]" : "bg-white text-stone-900 border-stone-200 focus:border-stone-400 shadow-sm"
+              }`}
+            />
+          </div>
+
+          <div className="grid grid-cols-3 gap-6">
+            <div>
+              <label className={`text-[10px] font-black tracking-widest uppercase mb-3 block ${theme === "DARK" ? "text-stone-500" : "text-stone-400"}`}>City</label>
+              <input 
+                value={formData.address_city}
+                onChange={e => setFormData({ ...formData, address_city: e.target.value })}
+                placeholder="New York"
+                className={`w-full border rounded-2xl px-6 py-4 text-sm font-bold outline-none transition-colors ${
+                  theme === "DARK" ? "bg-stone-950 text-white border-stone-800 focus:border-[#ccff00]" : "bg-white text-stone-900 border-stone-200 focus:border-stone-400 shadow-sm"
+                }`}
+              />
+            </div>
+            <div>
+              <label className={`text-[10px] font-black tracking-widest uppercase mb-3 block ${theme === "DARK" ? "text-stone-500" : "text-stone-400"}`}>State</label>
+              <select 
+                value={formData.address_state}
+                onChange={e => setFormData({ ...formData, address_state: e.target.value })}
+                className={`w-full border rounded-2xl px-6 py-4 text-sm font-bold outline-none transition-colors appearance-none cursor-pointer ${
+                  theme === "DARK" ? "bg-stone-950 text-white border-stone-800 focus:border-[#ccff00]" : "bg-white text-stone-900 border-stone-200 focus:border-stone-400 shadow-sm"
+                }`}
+              >
+                <option value="">Select State...</option>
+                {US_STATES.map(state => (
+                  <option key={state} value={state}>{state}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className={`text-[10px] font-black tracking-widest uppercase mb-3 block ${theme === "DARK" ? "text-stone-500" : "text-stone-400"}`}>Zip</label>
+              <input 
+                value={formData.address_zip}
+                onChange={e => setFormData({ ...formData, address_zip: e.target.value })}
+                placeholder="10001"
+                className={`w-full border rounded-2xl px-6 py-4 text-sm font-bold outline-none transition-colors ${
+                  theme === "DARK" ? "bg-stone-950 text-white border-stone-800 focus:border-[#ccff00]" : "bg-white text-stone-900 border-stone-200 focus:border-stone-400 shadow-sm"
+                }`}
+              />
+            </div>
           </div>
 
           <div>
