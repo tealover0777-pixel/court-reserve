@@ -11,6 +11,10 @@ interface UserProfile {
   auth_uid: string;
   user_id: string;
   status?: string;
+  address_street?: string;
+  address_city?: string;
+  address_state?: string;
+  address_zip?: string;
 }
 
 interface AuthContextType {

@@ -588,7 +588,16 @@ function ActivityItem({ icon, title, subtitle, color, fill = false, theme }: { i
   );
 }
 
-function BookingCard({ court, date, time, partner, avatar, isOpen = false, highlight = false, theme }: { court: string; date: string; time: string; partner?: string; avatar?: string; isOpen?: boolean; highlight?: boolean; theme: "LIGHT" | "DARK" | "VINTAGE" }) {
+function BookingCard({ court, date, time, partner, avatar, isOpen = false, highlight = false, theme }: { 
+  court: string; 
+  date: string; 
+  time: string; 
+  partner?: string; 
+  avatar?: string; 
+  isOpen?: boolean; 
+  highlight?: boolean; 
+  theme: "LIGHT" | "DARK" | "VINTAGE" 
+}) {
   const isDark = theme === "DARK";
   const isVintage = theme === "VINTAGE";
 
@@ -1028,7 +1037,11 @@ function ProfileView({ theme, profile, roles }: { theme: "LIGHT" | "DARK" | "VIN
   const [formData, setFormData] = React.useState({
     first_name: profile?.first_name || "",
     last_name: profile?.last_name || "",
-    phone: profile?.phone || ""
+    phone: profile?.phone || "",
+    address_street: profile?.address_street || "",
+    address_city: profile?.address_city || "",
+    address_state: profile?.address_state || "",
+    address_zip: profile?.address_zip || ""
   });
 
   React.useEffect(() => {
@@ -1036,7 +1049,11 @@ function ProfileView({ theme, profile, roles }: { theme: "LIGHT" | "DARK" | "VIN
       setFormData({
         first_name: profile.first_name || "",
         last_name: profile.last_name || "",
-        phone: profile.phone || ""
+        phone: profile.phone || "",
+        address_street: profile.address_street || "",
+        address_city: profile.address_city || "",
+        address_state: profile.address_state || "",
+        address_zip: profile.address_zip || ""
       });
     }
   }, [profile]);
@@ -1124,10 +1141,10 @@ function ProfileView({ theme, profile, roles }: { theme: "LIGHT" | "DARK" | "VIN
             {[
               { label: "REGISTERED EMAIL", value: profile?.email || "alex.sterling@pro.com" },
               { label: "PHONE VERIFIED", value: profile?.phone || "+1 (555) 042-9901" },
+              { label: "MAILING ADDRESS", value: profile?.address_street ? `${profile.address_street}, ${profile.address_city}, ${profile.address_state} ${profile.address_zip}` : "NOT PROVIDED" },
               { label: "INTERNAL ID", value: profile?.user_id || "U00001" },
-              { label: "AUTH UID", value: profile?.auth_uid ? `${profile.auth_uid.substring(0, 12)}...` : "VERIFIED" }
             ].map((item, i) => (
-              <div key={i}>
+              <div key={i} className={item.label === "MAILING ADDRESS" ? "col-span-2" : ""}>
                 <div className={`text-[10px] font-black mb-1 tracking-widest transition-colors ${isDark ? "text-stone-600" : "text-stone-400"
                   }`}>{item.label}</div>
                 <div className={`font-black text-lg transition-colors ${isDark ? "text-white" : "text-black"
@@ -1177,6 +1194,15 @@ function ProfileView({ theme, profile, roles }: { theme: "LIGHT" | "DARK" | "VIN
                 </div>
               </div>
               <div>
+                <label className="text-[10px] font-black uppercase tracking-widest text-stone-400 mb-3 block">Street Address</label>
+                <input 
+                  value={formData.address_street}
+                  onChange={e => setFormData({ ...formData, address_street: e.target.value })}
+                  placeholder="123 Tennis Court Lane"
+                  className={`w-full bg-transparent border-b-2 py-4 text-lg font-bold outline-none transition-colors ${isDark ? "border-stone-800 focus:border-[#ccff00] text-white" : "border-stone-100 focus:border-[#4f6b28] text-stone-900"}`}
+                />
+              </div>
+              <div>
                 <label className="text-[10px] font-black uppercase tracking-widest text-stone-400 mb-3 block">Phone Number</label>
                 <input 
                   value={formData.phone}
@@ -1184,6 +1210,35 @@ function ProfileView({ theme, profile, roles }: { theme: "LIGHT" | "DARK" | "VIN
                   placeholder="+1 (555) 000-0000"
                   className={`w-full bg-transparent border-b-2 py-4 text-lg font-bold outline-none transition-colors ${isDark ? "border-stone-800 focus:border-[#ccff00] text-white" : "border-stone-100 focus:border-[#4f6b28] text-stone-900"}`}
                 />
+              </div>
+              <div className="grid grid-cols-3 gap-8">
+                <div className="col-span-1">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-stone-400 mb-3 block">City</label>
+                  <input 
+                    value={formData.address_city}
+                    onChange={e => setFormData({ ...formData, address_city: e.target.value })}
+                    placeholder="Wimbledon"
+                    className={`w-full bg-transparent border-b-2 py-4 text-lg font-bold outline-none transition-colors ${isDark ? "border-stone-800 focus:border-[#ccff00] text-white" : "border-stone-100 focus:border-[#4f6b28] text-stone-900"}`}
+                  />
+                </div>
+                <div className="col-span-1">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-stone-400 mb-3 block">State</label>
+                  <input 
+                    value={formData.address_state}
+                    onChange={e => setFormData({ ...formData, address_state: e.target.value })}
+                    placeholder="London"
+                    className={`w-full bg-transparent border-b-2 py-4 text-lg font-bold outline-none transition-colors ${isDark ? "border-stone-800 focus:border-[#ccff00] text-white" : "border-stone-100 focus:border-[#4f6b28] text-stone-900"}`}
+                  />
+                </div>
+                <div className="col-span-1">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-stone-400 mb-3 block">Zip Code</label>
+                  <input 
+                    value={formData.address_zip}
+                    onChange={e => setFormData({ ...formData, address_zip: e.target.value })}
+                    placeholder="SW19"
+                    className={`w-full bg-transparent border-b-2 py-4 text-lg font-bold outline-none transition-colors ${isDark ? "border-stone-800 focus:border-[#ccff00] text-white" : "border-stone-100 focus:border-[#4f6b28] text-stone-900"}`}
+                  />
+                </div>
               </div>
             </div>
 
