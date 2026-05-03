@@ -288,7 +288,7 @@ export default function DashboardClient({ params }: { params: { tenantId: string
           >
             <span className="material-symbols-outlined text-sm">corporate_fare</span>
             <span className="text-[10px] font-black tracking-widest uppercase truncate max-w-[120px]">
-              {allTenants.find(t => t.tenant_id === tenantId)?.name || "Select Tenant"}
+              {tenantId === "consolidated" ? "Consolidated" : allTenants.find(t => t.tenant_id === tenantId)?.name || "Select Tenant"}
             </span>
             <span className={`material-symbols-outlined text-xs transition-transform duration-300 ${isTenantSelectorOpen ? "rotate-180" : ""}`}>unfold_more</span>
           </button>
@@ -300,7 +300,24 @@ export default function DashboardClient({ params }: { params: { tenantId: string
               <div className="px-4 py-3 mb-2">
                 <p className="text-[8px] font-black tracking-[0.2em] uppercase opacity-40">Available Organizations</p>
               </div>
-              <div className="max-h-80 overflow-y-auto space-y-1 pr-1 custom-scrollbar">
+              <div className="px-1 space-y-1">
+                <button
+                  onClick={() => {
+                    window.location.href = `/consolidated`;
+                    setIsTenantSelectorOpen(false);
+                  }}
+                  className={`w-full flex flex-col gap-0.5 items-start px-4 py-3 rounded-2xl transition-all ${
+                    tenantId === "consolidated" 
+                      ? (theme === "DARK" ? "bg-[#ccff00] text-stone-950 shadow-lg shadow-[#ccff00]/10" : "bg-stone-900 text-white shadow-lg")
+                      : (theme === "DARK" ? "hover:bg-stone-900 text-stone-400 hover:text-white" : "hover:bg-stone-50 text-stone-500 hover:text-stone-900")
+                  }`}
+                >
+                  <span className="text-[10px] font-black tracking-tight uppercase truncate w-full text-left italic">Consolidated (All Tenants)</span>
+                  <span className={`text-[8px] font-mono opacity-50 ${tenantId === "consolidated" ? "opacity-70" : ""}`}>GLOBAL_VIEW</span>
+                </button>
+                <div className={`h-px mx-4 my-2 ${theme === "DARK" ? "bg-stone-800" : "bg-stone-100"}`} />
+              </div>
+              <div className="max-h-64 overflow-y-auto space-y-1 pr-1 custom-scrollbar">
                 {allTenants.map((t) => (
                   <button
                     key={t.id}
