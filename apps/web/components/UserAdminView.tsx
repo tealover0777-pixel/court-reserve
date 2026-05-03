@@ -374,17 +374,20 @@ export default function UserAdminView({ theme = "LIGHT" }: { theme?: "LIGHT" | "
     columnHelper.accessor("status", {
       header: "STATUS",
       size: 120,
-      cell: info => (
-        <span className={`text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-widest border ${
-          info.getValue() === "Active" 
-            ? (theme === "VINTAGE" ? "bg-stone-50 text-stone-900 border-stone-200" : "bg-green-50 text-green-600 border-green-200")
-            : info.getValue() === "Invited"
-              ? "bg-amber-50 text-amber-600 border-amber-200"
-              : "bg-red-50 text-red-600 border-red-200"
-        }`}>
-          {info.getValue()}
-        </span>
-      ),
+      cell: info => {
+        const val = (info.getValue() || "").toString().toLowerCase();
+        return (
+          <span className={`text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-widest border ${
+            val === "active" 
+              ? (theme === "VINTAGE" ? "bg-stone-50 text-stone-900 border-stone-200" : "bg-green-50 text-green-600 border-green-200")
+              : val === "invited"
+                ? "bg-amber-50 text-amber-600 border-amber-200"
+                : "bg-red-50 text-red-600 border-red-200"
+          }`}>
+            {info.getValue()}
+          </span>
+        );
+      },
     }),
     columnHelper.accessor("phone", {
       header: "PHONE",
@@ -877,8 +880,10 @@ export default function UserAdminView({ theme = "LIGHT" }: { theme?: "LIGHT" | "
                 theme === "DARK" ? "bg-stone-950 text-white border-stone-800 focus:border-[#ccff00]" : "bg-white text-stone-900 border-stone-200 focus:border-stone-400"
               }`}
             >
-              {userStatuses.map(s => <option key={s} value={s}>{s}</option>)}
-              {userStatuses.length === 0 && <option value="Invited">Invited</option>}
+              <option value="">Select status...</option>
+              {userStatuses.map(s => (
+                <option key={s} value={s}>{s}</option>
+              ))}
             </select>
           </div>
 
