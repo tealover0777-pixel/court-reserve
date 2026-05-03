@@ -3,14 +3,14 @@ import React from "react";
 import Image from "next/image";
 import { useTenant } from "../context/TenantContext";
 import { auth } from "../lib/firebase";
-import { signOut } from "firebase/auth";
+import { signOut, sendPasswordResetEmail } from "firebase/auth";
 import DimensionsView from "./DimensionsView";
 import RoleTypesView from "./RoleTypesView";
 import UserAdminView from "./UserAdminView";
 import PlatformTenantAdminView from "./PlatformTenantAdminView";
 import AIAdminView from "./AIAdminView";
 import { useAuth } from "../context/AuthContext";
-import { collection, onSnapshot, query, orderBy } from "firebase/firestore";
+import { collection, onSnapshot, query, orderBy, doc, updateDoc, serverTimestamp } from "firebase/firestore";
 import { db } from "../lib/firebase";
 
 export default function DashboardClient({ params }: { params: { tenantId: string } }) {
@@ -1022,9 +1022,68 @@ function ProgramsView({ theme }: { theme: "LIGHT" | "DARK" | "VINTAGE" }) {
 function ProfileView({ theme, profile, roles }: { theme: "LIGHT" | "DARK" | "VINTAGE", profile: any, roles: any[] }) {
   const isDark = theme === "DARK";
   const isVintage = theme === "VINTAGE";
+  const [showEditModal, setShowEditModal] = React.useState(false);
+  const [isSaving, setIsSaving] = React.useState(false);
+  const [showSuccess, setShowSuccess] = React.useState<string | null>(null);
+  const [formData, setFormData] = React.useState({
+    first_name: profile?.first_name || "",
+    last_name: profile?.last_name || "",
+    phone: profile?.phone || ""
+  });
+
+  React.useEffect(() => {
+    if (profile) {
+      setFormData({
+        first_name: profile.first_name || "",
+        last_name: profile.last_name || "",
+        phone: profile.phone || ""
+      });
+    }
+  }, [profile]);
+
+  const handleSaveProfile = async () => {
+    if (!profile?.user_id) return;
+    setIsSaving(true);
+    try {
+      const userRef = doc(db, "global_users", profile.user_id);
+      await updateDoc(userRef, {
+        ...formData,
+        updated_at: serverTimestamp()
+      });
+      setShowEditModal(false);
+      setShowSuccess("Profile updated successfully!");
+      setTimeout(() => setShowSuccess(null), 3000);
+    } catch (err) {
+      console.error("Failed to update profile:", err);
+      alert("Failed to update profile. Please try again.");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleChangePassword = async () => {
+    if (!profile?.email) return;
+    try {
+      await sendPasswordResetEmail(auth, profile.email);
+      setShowSuccess("Password reset email sent!");
+      setTimeout(() => setShowSuccess(null), 5000);
+    } catch (err) {
+      console.error("Password reset error:", err);
+      alert("Failed to send reset email. Please try again.");
+    }
+  };
 
   return (
     <div className="max-w-4xl space-y-16 animate-in fade-in slide-in-from-bottom-4 duration-700">
+      {showSuccess && (
+        <div className={`fixed top-8 right-8 z-[100] px-8 py-4 rounded-2xl shadow-2xl animate-in slide-in-from-right-8 duration-500 border flex items-center gap-3 ${
+          isDark ? "bg-[#ccff00] text-stone-950 border-[#ccff00]" : "bg-[#4f6b28] text-white border-[#4f6b28]"
+        }`}>
+          <span className="material-symbols-outlined">check_circle</span>
+          <span className="text-xs font-black uppercase tracking-widest">{showSuccess}</span>
+        </div>
+      )}
+
       <div className="flex items-center gap-10">
         <div className={`w-40 h-40 rounded-[40px] overflow-hidden border-4 shadow-2xl transition-colors ${isDark ? "border-stone-800" : "border-white"
           }`}>
@@ -1077,14 +1136,77 @@ function ProfileView({ theme, profile, roles }: { theme: "LIGHT" | "DARK" | "VIN
             ))}
           </div>
           <div className="pt-8 flex gap-4">
-            <button className={`flex-1 py-4 rounded-2xl text-[10px] font-black tracking-widest uppercase transition-colors ${isDark ? "bg-stone-800 text-[#ccff00]" : isVintage ? "bg-black text-white" : "bg-[#4f6b28] text-white"
+            <button 
+              onClick={() => setShowEditModal(true)}
+              className={`flex-1 py-4 rounded-2xl text-[10px] font-black tracking-widest uppercase transition-colors ${isDark ? "bg-stone-800 text-[#ccff00]" : isVintage ? "bg-black text-white" : "bg-[#4f6b28] text-white"
               }`}>
               EDIT INFORMATION
             </button>
-            <button className={`flex-1 py-4 border-2 rounded-2xl text-[10px] font-black tracking-widest uppercase transition-colors ${isDark ? "border-stone-800 text-white hover:bg-stone-800" : isVintage ? "border-black text-black hover:bg-black hover:text-white" : "border-[#4f6b28] text-[#4f6b28] hover:bg-[#4f6b28] hover:text-white"
+            <button 
+              onClick={handleChangePassword}
+              className={`flex-1 py-4 border-2 rounded-2xl text-[10px] font-black tracking-widest uppercase transition-colors ${isDark ? "border-stone-800 text-white hover:bg-stone-800" : isVintage ? "border-black text-black hover:bg-black hover:text-white" : "border-[#4f6b28] text-[#4f6b28] hover:bg-[#4f6b28] hover:text-white"
               }`}>
               CHANGE PASSWORD
             </button>
+          </div>
+        </div>
+
+        {/* Edit Modal */}
+        <div className={`fixed inset-0 z-[100] flex items-center justify-center p-8 transition-opacity duration-300 ${showEditModal ? "opacity-100" : "opacity-0 pointer-events-none"}`}>
+          <div className="absolute inset-0 bg-stone-950/80 backdrop-blur-md" onClick={() => setShowEditModal(false)}></div>
+          <div className={`relative w-full max-w-xl rounded-[40px] p-12 shadow-2xl animate-in zoom-in-95 duration-300 border ${isDark ? "bg-stone-900 border-stone-800" : "bg-white border-stone-100"}`}>
+            <h3 className={`text-4xl font-black tracking-tighter uppercase mb-10 ${isDark ? "text-white" : "text-stone-900"}`}>Edit Information</h3>
+            
+            <div className="space-y-8">
+              <div className="grid grid-cols-2 gap-8">
+                <div>
+                  <label className="text-[10px] font-black uppercase tracking-widest text-stone-400 mb-3 block">First Name</label>
+                  <input 
+                    value={formData.first_name}
+                    onChange={e => setFormData({ ...formData, first_name: e.target.value })}
+                    className={`w-full bg-transparent border-b-2 py-4 text-lg font-bold outline-none transition-colors ${isDark ? "border-stone-800 focus:border-[#ccff00] text-white" : "border-stone-100 focus:border-[#4f6b28] text-stone-900"}`}
+                  />
+                </div>
+                <div>
+                  <label className="text-[10px] font-black uppercase tracking-widest text-stone-400 mb-3 block">Last Name</label>
+                  <input 
+                    value={formData.last_name}
+                    onChange={e => setFormData({ ...formData, last_name: e.target.value })}
+                    className={`w-full bg-transparent border-b-2 py-4 text-lg font-bold outline-none transition-colors ${isDark ? "border-stone-800 focus:border-[#ccff00] text-white" : "border-stone-100 focus:border-[#4f6b28] text-stone-900"}`}
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="text-[10px] font-black uppercase tracking-widest text-stone-400 mb-3 block">Phone Number</label>
+                <input 
+                  value={formData.phone}
+                  onChange={e => setFormData({ ...formData, phone: e.target.value })}
+                  placeholder="+1 (555) 000-0000"
+                  className={`w-full bg-transparent border-b-2 py-4 text-lg font-bold outline-none transition-colors ${isDark ? "border-stone-800 focus:border-[#ccff00] text-white" : "border-stone-100 focus:border-[#4f6b28] text-stone-900"}`}
+                />
+              </div>
+            </div>
+
+            <div className="flex gap-4 mt-16">
+              <button 
+                onClick={() => setShowEditModal(false)}
+                className={`flex-1 py-5 rounded-2xl text-[10px] font-black tracking-widest uppercase transition-colors border ${isDark ? "border-stone-800 text-stone-500 hover:bg-stone-800" : "border-stone-200 text-stone-400 hover:bg-stone-50"}`}
+              >
+                CANCEL
+              </button>
+              <button 
+                onClick={handleSaveProfile}
+                disabled={isSaving}
+                className={`flex-1 py-5 rounded-2xl text-[10px] font-black tracking-widest uppercase transition-all shadow-xl flex items-center justify-center gap-3 ${isDark ? "bg-[#ccff00] text-stone-950 shadow-[#ccff00]/20" : "bg-[#4f6b28] text-white shadow-[#4f6b28]/20"}`}
+              >
+                {isSaving ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
+                    SAVING...
+                  </>
+                ) : "SAVE CHANGES"}
+              </button>
+            </div>
           </div>
         </div>
 
