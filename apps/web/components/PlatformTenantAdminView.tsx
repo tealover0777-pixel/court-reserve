@@ -235,6 +235,40 @@ export default function PlatformTenantAdminView({ theme = "LIGHT" }: { theme?: "
     }
   };
 
+  const handleInviteOwner = async (tenant: Tenant) => {
+    if (!tenant.owner_email) {
+      alert("Owner email is missing.");
+      return;
+    }
+    setIsSaving(true);
+    try {
+      const inviteUserFn = httpsCallable(functions, "inviteUser");
+      const result: any = await inviteUserFn({
+        email: tenant.owner_email,
+        role: "R10005",
+        tenantId: tenant.id,
+        user_id: tenant.owner_id,
+        first_name: tenant.owner_first_name,
+        last_name: tenant.owner_last_name,
+        phone: tenant.owner_phone,
+        notes: tenant.Notes || `Re-invited from Tenant Admin: ${tenant.tenant_id}`,
+        inviteUser: true
+      });
+
+      if (result.data?.invitationLink) {
+        setInvitationLink(result.data.invitationLink);
+        setShowInviteSuccess(true);
+      } else {
+        alert("Invitation sent successfully.");
+      }
+    } catch (err) {
+      console.error("Failed to invite owner:", err);
+      alert("Failed to send invitation.");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   const columnHelper = createColumnHelper<Tenant>();
   const columns = [
     columnHelper.accessor("tenant_id", {
@@ -337,6 +371,20 @@ export default function PlatformTenantAdminView({ theme = "LIGHT" }: { theme?: "
                   theme === "VINTAGE" ? "bg-white border-stone-100 shadow-xl" :
                   "bg-white border-stone-100"
                 }`}>
+                  <button 
+                    onClick={() => {
+                      handleInviteOwner(props.row.original);
+                      setShowMenu(false);
+                    }}
+                    className={`w-full flex items-center gap-3 px-4 py-2.5 text-[10px] font-black uppercase tracking-widest transition-colors border-b ${
+                      theme === "DARK" ? "text-[#ccff00] border-stone-800 hover:bg-stone-800" : 
+                      theme === "VINTAGE" ? "text-black border-stone-50 hover:bg-stone-50" :
+                      "text-[#4f6b28] border-stone-50 hover:bg-stone-50"
+                    }`}
+                  >
+                    <span className="material-symbols-outlined text-base">mail</span>
+                    Invite
+                  </button>
                   <button 
                     onClick={() => {
                       handleEditTenant(props.row.original);
