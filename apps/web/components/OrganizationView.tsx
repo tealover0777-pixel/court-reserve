@@ -184,12 +184,11 @@ function BrandingTab({ data, onSave, isSaving, theme }: any) {
   const { tenantId } = useTenant();
   const [formData, setFormData] = useState(data || {});
   const [isUploading, setIsUploading] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = React.useRef<HTMLInputElement>(null);
 
-  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
+  const processLogoFile = async (file: File) => {
     if (!file || !tenantId) return;
-
     setIsUploading(true);
     try {
       const storageRef = ref(storage, `tenants/${tenantId}/branding/logo_${Date.now()}`);
@@ -197,7 +196,6 @@ function BrandingTab({ data, onSave, isSaving, theme }: any) {
       const downloadURL = await getDownloadURL(snapshot.ref);
       
       setFormData({ ...formData, logo_url: downloadURL });
-      // Auto-save the logo URL to Firestore
       await setDoc(doc(db, "tenants", tenantId), {
         logo_url: downloadURL,
         updated_at: serverTimestamp()
@@ -206,6 +204,29 @@ function BrandingTab({ data, onSave, isSaving, theme }: any) {
       console.error("Logo upload failed:", err);
     } finally {
       setIsUploading(false);
+    }
+  };
+
+  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) await processLogoFile(file);
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = () => {
+    setIsDragging(false);
+  };
+
+  const handleDrop = async (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    const file = e.dataTransfer.files?.[0];
+    if (file && file.type.startsWith('image/')) {
+      await processLogoFile(file);
     }
   };
 
@@ -225,8 +246,13 @@ function BrandingTab({ data, onSave, isSaving, theme }: any) {
             />
             <div 
               onClick={() => fileInputRef.current?.click()}
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
+              onDrop={handleDrop}
               className={`h-48 rounded-3xl border-2 border-dashed flex flex-col items-center justify-center gap-4 transition-all cursor-pointer relative overflow-hidden group ${
-                isDark ? "border-stone-800 hover:border-[#ccff00]/50 bg-stone-900/50" : "border-stone-200 hover:border-stone-400 bg-stone-50/50"
+                isDragging 
+                  ? (isDark ? "border-[#ccff00] bg-[#ccff00]/10 scale-[1.02]" : "border-stone-900 bg-stone-100 scale-[1.02]")
+                  : (isDark ? "border-stone-800 hover:border-[#ccff00]/50 bg-stone-900/50" : "border-stone-200 hover:border-stone-400 bg-stone-50/50")
               }`}
             >
               {formData.logo_url ? (
