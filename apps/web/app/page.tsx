@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useState, useEffect } from "react";
 import DashboardClient from "../components/DashboardClient";
 import LoginView from "../components/LoginView";
 import { useTenant } from "../context/TenantContext";
@@ -8,8 +8,16 @@ import { useAuth } from "../context/AuthContext";
 export default function Home() {
   const { loading: tenantLoading } = useTenant();
   const { user, loading: authLoading } = useAuth();
+  const [urlTenantId, setUrlTenantId] = useState<string | null>(null);
 
-  if (tenantLoading || authLoading) {
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const path = window.location.pathname.split("/")[1];
+      setUrlTenantId(path && path !== "" ? path : "kinetic");
+    }
+  }, []);
+
+  if (tenantLoading || authLoading || urlTenantId === null) {
     return (
       <div className="flex h-screen w-full items-center justify-center bg-white">
         <div className="h-12 w-12 animate-spin rounded-full border-4 border-[#6348eb] border-t-transparent"></div>
@@ -21,6 +29,5 @@ export default function Home() {
     return <LoginView />;
   }
 
-  // Go directly to kinetic court dashboard as requested
-  return <DashboardClient params={{ tenantId: "kinetic" }} />;
+  return <DashboardClient params={{ tenantId: urlTenantId }} />;
 }
