@@ -39,6 +39,8 @@ export default function UserAdminView({ theme = "LIGHT" }: { theme?: "LIGHT" | "
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [showInviteSuccess, setShowInviteSuccess] = useState(false);
+  const [invitationLink, setInvitationLink] = useState("");
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [editingUser, setEditingUser] = useState<User | null>(null);
   const [isSaving, setIsSaving] = useState(false);
@@ -58,13 +60,13 @@ export default function UserAdminView({ theme = "LIGHT" }: { theme?: "LIGHT" | "
   });
 
   const nextUserId = useMemo(() => {
-    if (users.length === 0) return "U10001";
+    if (users.length === 0) return "U00001";
     const ids = users.map(u => {
       const match = u.user_id?.match(/^U(\d+)$/);
       return (match && match[1]) ? parseInt(match[1]) : 0;
     });
     const max = Math.max(...ids);
-    return `U${(max + 1).toString().padStart(4, '0')}`;
+    return `U${(max + 1).toString().padStart(5, '0')}`;
   }, [users]);
 
   useEffect(() => {
@@ -221,7 +223,7 @@ export default function UserAdminView({ theme = "LIGHT" }: { theme?: "LIGHT" | "
 
       if (formData.invite_user) {
         const inviteUserFn = httpsCallable(functions, "inviteUser");
-        await inviteUserFn({
+        const result: any = await inviteUserFn({
           email: formData.email,
           role: formData.role,
           user_id: newId,
@@ -231,6 +233,11 @@ export default function UserAdminView({ theme = "LIGHT" }: { theme?: "LIGHT" | "
           notes: formData.notes,
           inviteUser: true
         });
+        
+        if (result.data?.invitationLink) {
+          setInvitationLink(result.data.invitationLink);
+          setShowInviteSuccess(true);
+        }
       }
 
       setShowCreateModal(false);
@@ -247,7 +254,7 @@ export default function UserAdminView({ theme = "LIGHT" }: { theme?: "LIGHT" | "
     setIsSaving(true);
     try {
       const inviteUserFn = httpsCallable(functions, "inviteUser");
-      await inviteUserFn({
+      const result: any = await inviteUserFn({
         email: user.email,
         role: user.role,
         user_id: user.user_id,
@@ -257,7 +264,13 @@ export default function UserAdminView({ theme = "LIGHT" }: { theme?: "LIGHT" | "
         notes: user.notes,
         inviteUser: true
       });
-      alert(`Invitation sent to ${user.email}`);
+      
+      if (result.data?.invitationLink) {
+        setInvitationLink(result.data.invitationLink);
+        setShowInviteSuccess(true);
+      } else {
+        alert(`Invitation sent to ${user.email}`);
+      }
     } catch (err) {
       console.error("Failed to invite user:", err);
       alert("Failed to send invitation.");
@@ -673,7 +686,65 @@ export default function UserAdminView({ theme = "LIGHT" }: { theme?: "LIGHT" | "
         </div>
       </Modal>
 
-      {/* Edit User Modal */}
+      {/* Invite Success Modal */}
+      <Modal
+        isOpen={showInviteSuccess}
+        onClose={() => setShowInviteSuccess(false)}
+        title="Invitation Sent"
+        theme={theme}
+        width={500}
+        footer={
+          <button 
+            onClick={() => setShowInviteSuccess(false)}
+            className={`w-full py-4 rounded-2xl text-[10px] font-black tracking-widest transition-all uppercase shadow-lg ${
+              theme === "DARK" ? "bg-[#ccff00] text-stone-950" : "bg-black text-white"
+            }`}
+          >
+            Done
+          </button>
+        }
+      >
+        <div className="space-y-8 text-center py-4">
+          <div className={`w-20 h-20 rounded-3xl flex items-center justify-center mx-auto ${
+            theme === "DARK" ? "bg-[#ccff00]/10 text-[#ccff00]" : "bg-green-50 text-green-600"
+          }`}>
+            <span className="material-symbols-outlined text-4xl">mark_email_read</span>
+          </div>
+          
+          <div className="space-y-2">
+            <h4 className={`text-xl font-black transition-colors ${theme === "DARK" ? "text-white" : "text-black"}`}>Success!</h4>
+            <p className={`text-sm font-medium transition-colors ${theme === "DARK" ? "text-stone-400" : "text-stone-500"}`}>
+              The user has been created in both the platform and authentication records.
+            </p>
+          </div>
+
+          <div className={`p-6 rounded-2xl border text-left space-y-4 ${
+            theme === "DARK" ? "bg-stone-900 border-stone-800" : "bg-stone-50 border-stone-100"
+          }`}>
+            <div className={`text-[10px] font-black uppercase tracking-widest ${theme === "DARK" ? "text-stone-500" : "text-stone-400"}`}>
+              Direct Password Setup Link
+            </div>
+            <div className={`p-4 rounded-xl font-mono text-[10px] break-all border transition-colors ${
+              theme === "DARK" ? "bg-stone-950 border-stone-800 text-[#ccff00]" : "bg-white border-stone-200 text-blue-600"
+            }`}>
+              {invitationLink}
+            </div>
+            <button 
+              onClick={() => {
+                navigator.clipboard.writeText(invitationLink);
+                alert("Link copied to clipboard!");
+              }}
+              className={`w-full py-2 rounded-lg text-[8px] font-black tracking-widest uppercase transition-all ${
+                theme === "DARK" ? "bg-stone-800 text-white hover:bg-stone-700" : "bg-white border text-stone-600 hover:bg-stone-50"
+              }`}
+            >
+              Copy Link
+            </button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Existing modals below... */}
       <Modal
         isOpen={showEditModal}
         onClose={() => {

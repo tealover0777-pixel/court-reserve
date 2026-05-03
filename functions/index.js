@@ -54,7 +54,15 @@ exports.inviteUser = functions.https.onCall(async (data, context) => {
       updated_at: admin.firestore.FieldValue.serverTimestamp()
     }, { merge: true });
 
-    return { status: "success", message: `User ${email} invited and synced. Auth UID: ${uid}` };
+    // 4. Generate Password Reset Link (Setup Link)
+    const invitationLink = await admin.auth().generatePasswordResetLink(email);
+    
+    return { 
+      status: "success", 
+      message: `User ${email} invited and synced. Auth UID: ${uid}`,
+      invitationLink,
+      uid
+    };
   } catch (error) {
     console.error("Error in inviteUser:", error);
     throw new functions.https.HttpsError("internal", error.message);
