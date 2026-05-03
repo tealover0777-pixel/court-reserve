@@ -385,7 +385,7 @@ export default function DashboardClient({ params }: { params: { tenantId: string
         ) : activeView === "ROLE_TYPES" ? (
           <RoleTypesView theme={theme} />
         ) : activeView === "ORGANIZATION" ? (
-          <OrganizationView theme={theme} />
+          <OrganizationView theme={theme} tenantId={tenantId} />
         ) : activeView === "USER_ADMIN" ? (
           <UserAdminView theme={theme} />
         ) : activeView === "PLATFORM_TENANT_ADMIN" ? (

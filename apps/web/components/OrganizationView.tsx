@@ -5,12 +5,22 @@ import { doc, onSnapshot, setDoc, serverTimestamp } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { useTenant } from "../context/TenantContext";
 
+const US_STATES = [
+  "AL", "AK", "AZ", "AR", "CA", "CO", "CT", "DE", "FL", "GA", 
+  "HI", "ID", "IL", "IN", "IA", "KS", "KY", "LA", "ME", "MD", 
+  "MA", "MI", "MN", "MS", "MO", "MT", "NE", "NV", "NH", "NJ", 
+  "NM", "NY", "NC", "ND", "OH", "OK", "OR", "PA", "RI", "SC", 
+  "SD", "TN", "TX", "UT", "VT", "VA", "WA", "WV", "WI", "WY"
+];
+
 interface OrganizationViewProps {
   theme: "LIGHT" | "DARK" | "VINTAGE";
+  tenantId?: string | null;
 }
 
-export default function OrganizationView({ theme }: OrganizationViewProps) {
-  const { tenantId } = useTenant();
+export default function OrganizationView({ theme, tenantId: tenantIdProp }: OrganizationViewProps) {
+  const { tenantId: contextTenantId } = useTenant();
+  const tenantId = tenantIdProp ?? contextTenantId;
   const [activeTab, setActiveTab] = useState<"INFO" | "BRANDING" | "EMAIL" | "PAYMENT">("INFO");
   const [tenantData, setTenantData] = useState<any>(null);
   const [isSaving, setIsSaving] = useState(false);
@@ -92,7 +102,7 @@ export default function OrganizationView({ theme }: OrganizationViewProps) {
         isDark ? "bg-stone-950 border-stone-800" : "bg-white border-stone-100 shadow-xl shadow-stone-200/50"
       }`}>
         {activeTab === "INFO" && <InfoTab data={tenantData} onSave={handleSave} isSaving={isSaving} theme={theme} />}
-        {activeTab === "BRANDING" && <BrandingTab data={tenantData} onSave={handleSave} isSaving={isSaving} theme={theme} />}
+        {activeTab === "BRANDING" && <BrandingTab data={tenantData} onSave={handleSave} isSaving={isSaving} theme={theme} tenantId={tenantId} />}
         {activeTab === "EMAIL" && <EmailTab data={tenantData} onSave={handleSave} isSaving={isSaving} theme={theme} />}
         {activeTab === "PAYMENT" && <PaymentTab data={tenantData} onSave={handleSave} isSaving={isSaving} theme={theme} />}
       </div>
@@ -132,60 +142,139 @@ function InfoTab({ data, onSave, isSaving, theme }: any) {
   const [formData, setFormData] = useState(data || {});
   const isDark = theme === "DARK";
 
+  useEffect(() => {
+    if (data) setFormData(data);
+  }, [data]);
+
   const inputClasses = `w-full border rounded-2xl px-6 py-4 text-sm font-bold outline-none transition-all ${
     isDark ? "bg-stone-900 border-stone-800 text-white focus:border-[#ccff00]" : "bg-stone-50 border-stone-100 text-stone-900 focus:border-stone-400"
   }`;
 
   return (
     <div className="space-y-12">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        <FormField label="Organization Name" theme={theme}>
-          <input 
-            value={formData.name || ""} 
-            onChange={(e) => setFormData({...formData, name: e.target.value})}
-            className={inputClasses}
-          />
-        </FormField>
-        <FormField label="Organization ID" theme={theme}>
-          <div className={`px-6 py-4 rounded-2xl font-mono text-sm opacity-50 ${isDark ? "bg-stone-900 text-white" : "bg-stone-100 text-stone-500"}`}>
-            {formData.tenant_id}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8">
+        <div className="space-y-8">
+          <h4 className={`text-[10px] font-black tracking-[0.2em] uppercase opacity-40 ${isDark ? "text-white" : "text-stone-900"}`}>General Info</h4>
+          <FormField label="Organization Name" theme={theme}>
+            <input 
+              value={formData.name || ""} 
+              onChange={(e) => setFormData({...formData, name: e.target.value})}
+              className={inputClasses}
+            />
+          </FormField>
+          <FormField label="Organization ID" theme={theme}>
+            <div className={`px-6 py-4 rounded-2xl font-mono text-sm opacity-50 ${isDark ? "bg-stone-900 text-white" : "bg-stone-100 text-stone-500"}`}>
+              {formData.tenant_id}
+            </div>
+          </FormField>
+          <FormField label="Primary Phone" theme={theme}>
+            <input 
+              value={formData.owner_phone || formData.phone || ""} 
+              onChange={(e) => setFormData({...formData, owner_phone: e.target.value})}
+              className={inputClasses}
+            />
+          </FormField>
+          <FormField label="Support Email" theme={theme}>
+            <input 
+              value={formData.owner_email || formData.support_email || ""} 
+              onChange={(e) => setFormData({...formData, owner_email: e.target.value})}
+              className={inputClasses}
+            />
+          </FormField>
+        </div>
+
+        <div className="space-y-8">
+          <h4 className={`text-[10px] font-black tracking-[0.2em] uppercase opacity-40 ${isDark ? "text-white" : "text-stone-900"}`}>Address</h4>
+          <FormField label="Street Address" theme={theme}>
+            <input 
+              value={formData.address_street_1 || ""} 
+              onChange={(e) => setFormData({...formData, address_street_1: e.target.value})}
+              className={inputClasses}
+              placeholder="123 Tennis Ave"
+            />
+          </FormField>
+          <FormField label="Suite / Unit" theme={theme}>
+            <input 
+              value={formData.address_street_2 || ""} 
+              onChange={(e) => setFormData({...formData, address_street_2: e.target.value})}
+              className={inputClasses}
+              placeholder="Suite 100"
+            />
+          </FormField>
+          <div className="grid grid-cols-2 gap-4">
+            <FormField label="City" theme={theme}>
+              <input 
+                value={formData.address_city || ""} 
+                onChange={(e) => setFormData({...formData, address_city: e.target.value})}
+                className={inputClasses}
+              />
+            </FormField>
+            <FormField label="State" theme={theme}>
+              <select 
+                value={formData.address_state || ""} 
+                onChange={(e) => setFormData({...formData, address_state: e.target.value})}
+                className={`${inputClasses} appearance-none`}
+              >
+                <option value="">Select State</option>
+                {US_STATES.map(s => <option key={s} value={s}>{s}</option>)}
+              </select>
+            </FormField>
           </div>
-        </FormField>
-        <FormField label="Primary Phone" theme={theme}>
-          <input 
-            value={formData.phone || ""} 
-            onChange={(e) => setFormData({...formData, phone: e.target.value})}
-            className={inputClasses}
-          />
-        </FormField>
-        <FormField label="Support Email" theme={theme}>
-          <input 
-            value={formData.support_email || ""} 
-            onChange={(e) => setFormData({...formData, support_email: e.target.value})}
-            className={inputClasses}
-          />
-        </FormField>
+          <FormField label="Zip Code" theme={theme}>
+            <input 
+              value={formData.address_zip || ""} 
+              onChange={(e) => setFormData({...formData, address_zip: e.target.value})}
+              className={inputClasses}
+            />
+          </FormField>
+        </div>
+
+        <div className="md:col-span-2 pt-8 border-t border-stone-100 dark:border-stone-800">
+          <h4 className={`text-[10px] font-black tracking-[0.2em] uppercase opacity-40 mb-8 ${isDark ? "text-white" : "text-stone-900"}`}>Owner Details</h4>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <FormField label="First Name" theme={theme}>
+              <input 
+                value={formData.owner_first_name || ""} 
+                onChange={(e) => setFormData({...formData, owner_first_name: e.target.value})}
+                className={inputClasses}
+              />
+            </FormField>
+            <FormField label="Last Name" theme={theme}>
+              <input 
+                value={formData.owner_last_name || ""} 
+                onChange={(e) => setFormData({...formData, owner_last_name: e.target.value})}
+                className={inputClasses}
+              />
+            </FormField>
+          </div>
+        </div>
       </div>
-      <button 
-        onClick={() => onSave(formData)}
-        disabled={isSaving}
-        className={`px-12 py-5 rounded-2xl text-xs font-black tracking-[0.2em] uppercase transition-all ${
-          isDark ? "bg-[#ccff00] text-stone-950 hover:scale-[1.02]" : "bg-stone-900 text-white hover:shadow-xl"
-        }`}
-      >
-        {isSaving ? "Saving..." : "Update Information"}
-      </button>
+
+      <div className="flex justify-end">
+        <button 
+          onClick={() => onSave(formData)}
+          disabled={isSaving}
+          className={`px-12 py-5 rounded-2xl text-xs font-black tracking-[0.2em] uppercase transition-all ${
+            isDark ? "bg-[#ccff00] text-stone-950 hover:scale-[1.02]" : "bg-stone-900 text-white hover:shadow-xl"
+          }`}
+        >
+          {isSaving ? "Saving..." : "Save All Changes"}
+        </button>
+      </div>
     </div>
   );
 }
 
-function BrandingTab({ data, onSave, isSaving, theme }: any) {
+function BrandingTab({ data, onSave, isSaving, theme, tenantId }: any) {
   const isDark = theme === "DARK";
-  const { tenantId } = useTenant();
   const [formData, setFormData] = useState(data || {});
   const [isUploading, setIsUploading] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = React.useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (data) setFormData(data);
+  }, [data]);
 
   const processLogoFile = async (file: File) => {
     if (!file || !tenantId) return;
