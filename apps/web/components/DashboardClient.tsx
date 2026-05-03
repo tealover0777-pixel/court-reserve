@@ -20,7 +20,7 @@ export default function DashboardClient({ params }: { params: { tenantId: string
   const [administrationOpen, setAdministrationOpen] = React.useState(false);
   const [theme, setTheme] = React.useState<"LIGHT" | "DARK" | "VINTAGE">("LIGHT");
   const [roles, setRoles] = React.useState<any[]>([]);
-  const { profile, loading: authLoading } = useAuth();
+  const { user: authUser, profile, loading: authLoading } = useAuth();
   const tenantId = params.tenantId || contextTenantId;
 
   React.useEffect(() => {
@@ -166,30 +166,36 @@ export default function DashboardClient({ params }: { params: { tenantId: string
             onClick={() => setActiveView("PROFILE")}
             className="mt-8 flex items-center gap-3 cursor-pointer group"
           >
-            <div className={`w-10 h-10 rounded-full overflow-hidden border-2 border-transparent transition-all ${theme === "DARK" ? "bg-stone-800 group-hover:border-[#ccff00]" :
+            <div className={`w-10 h-10 rounded-full overflow-hidden border-2 border-transparent transition-all flex items-center justify-center ${theme === "DARK" ? "bg-stone-800 group-hover:border-[#ccff00]" :
                 theme === "VINTAGE" ? "bg-stone-100 group-hover:border-black" :
                   "bg-stone-100 group-hover:border-[#4f6b28]"
               }`}>
-              <img
-                src="https://lh3.googleusercontent.com/aida-public/AB6AXuCIVNG3lcWVm-Ge5NEEZUf-GdmgLwhFzcFnGsboAMqruvOsGoG2KsUaJnNi7egzkBHc-8ccIDPAhhUoKLhZ-6htVuQieJX6w20tMHdUP6wvr91JZaIcvqIJEmHuGFa4z4EtafMvMDZVDCE0FvjKCsjs2BQO27LBpb-zAw7Vj2lY1t1lbEH1wcnRQt6l-9LceLngmvluUeTcJdDm9RVYiiwiCLuDdYSnjSgJK13-P326RgshwnopS9Qa-T0LE8kRyriIPjwU5NIlUVY"
-                alt="Profile"
-                className="w-full h-full object-cover"
-              />
+              {authUser?.photoURL ? (
+                <img
+                  src={authUser.photoURL}
+                  alt="Profile"
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <span className={`text-xs font-black uppercase ${theme === "DARK" ? "text-stone-300" : "text-stone-600"}`}>
+                  {profile ? `${profile.first_name[0]}${profile.last_name[0]}` : "?"}
+                </span>
+              )}
             </div>
             <div>
               <p className={`text-xs font-black transition-colors uppercase ${theme === "DARK" ? "group-hover:text-[#ccff00]" :
                   theme === "VINTAGE" ? "group-hover:text-black" :
                     "group-hover:text-[#4f6b28]"
                 }`}>
-                {profile ? `${profile.first_name} ${profile.last_name}` : "ALEX STERLING"}
+                {profile ? `${profile.first_name} ${profile.last_name}` : ""}
               </p>
               <p className={`text-[10px] font-black uppercase tracking-widest ${theme === "DARK" ? "text-stone-500" :
                   theme === "VINTAGE" ? "text-stone-400" :
                     "text-stone-900"
                 }`}>
-                {profile 
-                  ? (roles.find(r => r.role_id === profile.role)?.role_name || profile.role)
-                  : "Gold Tier Member"
+                {profile
+                  ? (roles.find(r => r.role_id === profile.role || r.id === profile.role)?.role_name || profile.role)
+                  : ""
                 }
               </p>
             </div>
