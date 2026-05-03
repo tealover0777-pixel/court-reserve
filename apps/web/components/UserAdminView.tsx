@@ -141,13 +141,6 @@ export default function UserAdminView({ theme = "LIGHT" }: { theme?: "LIGHT" | "
         "text-stone-900"
       }`}>{info.getValue()}</span>,
     }),
-    columnHelper.accessor("auth_uid", {
-      header: "AUTH UID",
-      size: 250,
-      cell: info => <span className={`font-mono text-[10px] transition-colors duration-500 ${
-        theme === "DARK" ? "text-stone-500" : "text-stone-400"
-      }`}>{info.getValue() || "-"}</span>,
-    }),
     columnHelper.accessor("first_name", {
       header: "FIRST NAME",
       size: 150,
