@@ -269,7 +269,7 @@ export default function DashboardClient({ params }: { params: { tenantId: string
         ) : activeView === "SETTINGS" ? (
           <SettingsView theme={theme} />
         ) : activeView === "PROFILE" ? (
-          <ProfileView theme={theme} />
+          <ProfileView theme={theme} profile={profile} roles={roles} />
         ) : (
           <div className="flex flex-col items-center justify-center min-h-[60vh] text-stone-400">
             <span className="material-symbols-outlined text-6xl mb-4">construction</span>
@@ -1019,7 +1019,7 @@ function ProgramsView({ theme }: { theme: "LIGHT" | "DARK" | "VINTAGE" }) {
   );
 }
 
-function ProfileView({ theme }: { theme: "LIGHT" | "DARK" | "VINTAGE" }) {
+function ProfileView({ theme, profile, roles }: { theme: "LIGHT" | "DARK" | "VINTAGE", profile: any, roles: any[] }) {
   const isDark = theme === "DARK";
   const isVintage = theme === "VINTAGE";
 
@@ -1039,12 +1039,12 @@ function ProfileView({ theme }: { theme: "LIGHT" | "DARK" | "VINTAGE" }) {
             }`}>Member Profile</div>
           <h2 className={`text-6xl font-black tracking-tighter uppercase leading-none transition-colors ${isDark ? "text-white" : "text-black"
             }`} style={{ fontFamily: 'Lexend, sans-serif' }}>
-            ALEX STERLING
+            {profile ? `${profile.first_name} ${profile.last_name}` : "ALEX STERLING"}
           </h2>
           <div className="flex gap-4 mt-6">
             <span className={`px-5 py-2 rounded-full text-[10px] font-black tracking-widest uppercase transition-colors ${isDark ? "bg-stone-800 text-[#ccff00]" : isVintage ? "bg-black text-white" : "bg-[#4f6b28] text-white"
               }`}>
-              GOLD TIER MEMBER
+              {profile ? (roles.find(r => r.role_id === profile.role)?.role_name || profile.role) : "GOLD TIER MEMBER"}
             </span>
             <span className={`px-5 py-2 border-2 rounded-full text-[10px] font-black tracking-widest uppercase transition-colors ${isDark ? "border-stone-800 text-stone-500" : isVintage ? "border-black text-black" : "border-[#4f6b28] text-[#4f6b28]"
               }`}>
@@ -1063,10 +1063,10 @@ function ProfileView({ theme }: { theme: "LIGHT" | "DARK" | "VINTAGE" }) {
             }`}>Account Security</h3>
           <div className="grid grid-cols-2 gap-10">
             {[
-              { label: "REGISTERED EMAIL", value: "alex.sterling@pro.com" },
-              { label: "PHONE VERIFIED", value: "+1 (555) 042-9901" },
-              { label: "MEMBER SINCE", value: "January 2024" },
-              { label: "LAST LOGIN", value: "2 hours ago" }
+              { label: "REGISTERED EMAIL", value: profile?.email || "alex.sterling@pro.com" },
+              { label: "PHONE VERIFIED", value: profile?.phone || "+1 (555) 042-9901" },
+              { label: "INTERNAL ID", value: profile?.user_id || "U00001" },
+              { label: "AUTH UID", value: profile?.auth_uid ? `${profile.auth_uid.substring(0, 12)}...` : "VERIFIED" }
             ].map((item, i) => (
               <div key={i}>
                 <div className={`text-[10px] font-black mb-1 tracking-widest transition-colors ${isDark ? "text-stone-600" : "text-stone-400"
