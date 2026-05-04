@@ -252,6 +252,10 @@ export default function UserAdminView({ theme = "LIGHT" }: { theme?: "LIGHT" | "
       const tenantSnaps = await getDocs(tenantsQuery);
       for (const tDoc of tenantSnaps.docs) {
         await setDoc(doc(db, "tenants", tDoc.id), {
+          owner_email: formData.email,
+          owner_first_name: formData.first_name,
+          owner_last_name: formData.last_name,
+          owner_phone: formData.phone,
           address_street_1: formData.address_street_1,
           address_street_2: formData.address_street_2,
           address_city: formData.address_city,
