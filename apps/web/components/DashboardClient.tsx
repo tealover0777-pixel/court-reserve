@@ -98,13 +98,13 @@ export default function DashboardClient({ params }: { params: { tenantId: string
           theme === "VINTAGE" ? "bg-white border-transparent" :
             "bg-white border-stone-200"
         } flex flex-col z-50`}>
-        <div className="py-10 px-8">
-          {allTenants.find(t => t.id === tenantId)?.logo_url ? (
-            <div className="h-16 w-full relative mb-4">
+        <div className="py-6 px-4">
+          {allTenants.find(t => t.tenant_id === tenantId || t.id === tenantId)?.logo_url ? (
+            <div className="w-full mb-6 flex justify-center">
               <img 
-                src={allTenants.find(t => t.id === tenantId).logo_url} 
+                src={allTenants.find(t => t.tenant_id === tenantId || t.id === tenantId).logo_url} 
                 alt="Logo" 
-                className="h-full w-auto object-contain object-left"
+                className="w-full h-auto max-h-32 object-contain"
               />
             </div>
           ) : (

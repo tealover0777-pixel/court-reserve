@@ -323,7 +323,7 @@ function BrandingTab({ data, onSave, isSaving, theme, tenantId }: any) {
 
   return (
     <div className="space-y-12">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+      <div className="max-w-2xl mx-auto space-y-12">
         <div className="space-y-6">
           <FormField label="Organization Logo" theme={theme}>
             <input 
@@ -338,7 +338,7 @@ function BrandingTab({ data, onSave, isSaving, theme, tenantId }: any) {
               onDragOver={handleDragOver}
               onDragLeave={handleDragLeave}
               onDrop={handleDrop}
-              className={`h-48 rounded-3xl border-2 border-dashed flex flex-col items-center justify-center gap-4 transition-all cursor-pointer relative overflow-hidden group ${
+              className={`h-64 rounded-[40px] border-2 border-dashed flex flex-col items-center justify-center gap-6 transition-all cursor-pointer relative overflow-hidden group ${
                 isDragging 
                   ? (isDark ? "border-[#ccff00] bg-[#ccff00]/10 scale-[1.02]" : "border-stone-900 bg-stone-100 scale-[1.02]")
                   : (isDark ? "border-stone-800 hover:border-[#ccff00]/50 bg-stone-900/50" : "border-stone-200 hover:border-stone-400 bg-stone-50/50")
@@ -346,62 +346,24 @@ function BrandingTab({ data, onSave, isSaving, theme, tenantId }: any) {
             >
               {formData.logo_url ? (
                 <>
-                  <img src={formData.logo_url} alt="Logo" className="h-24 w-auto object-contain z-10 transition-transform group-hover:scale-105" />
+                  <img src={formData.logo_url} alt="Logo" className="h-32 w-auto object-contain z-10 transition-transform group-hover:scale-105" />
                   <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
                     <span className="text-white text-[10px] font-black tracking-widest uppercase">Change Logo</span>
                   </div>
                 </>
               ) : (
                 <>
-                  <span className={`material-symbols-outlined text-4xl opacity-20 ${isDark ? "text-white" : "text-stone-900"}`}>
+                  <span className={`material-symbols-outlined text-5xl opacity-20 ${isDark ? "text-white" : "text-stone-900"}`}>
                     {isUploading ? "sync" : "add_a_photo"}
                   </span>
-                  <p className="text-[10px] font-black tracking-widest uppercase opacity-40">
-                    {isUploading ? "Uploading..." : "Upload New Logo"}
-                  </p>
+                  <div className="text-center space-y-2">
+                    <p className="text-[10px] font-black tracking-widest uppercase opacity-40">
+                      {isUploading ? "Uploading..." : "Upload Organization Logo"}
+                    </p>
+                    <p className="text-[8px] font-bold text-stone-400 uppercase tracking-[0.2em]">Drag and drop or click to browse</p>
+                  </div>
                 </>
               )}
-            </div>
-          </FormField>
-        </div>
-        <div className="space-y-8">
-          <FormField label="Primary Brand Color" theme={theme}>
-            <div className="flex flex-wrap gap-4">
-              {colorPresets.map(color => (
-                <button
-                  key={color}
-                  onClick={() => setFormData({...formData, brand_color: color})}
-                  className={`w-12 h-12 rounded-xl transition-all ${formData.brand_color === color ? "ring-4 ring-offset-4 ring-blue-500 scale-110" : "hover:scale-105"}`}
-                  style={{ backgroundColor: color }}
-                />
-              ))}
-              <div className="flex items-center gap-4 ml-4">
-                <input 
-                  type="color" 
-                  value={formData.brand_color || "#ccff00"} 
-                  onChange={(e) => setFormData({...formData, brand_color: e.target.value})}
-                  className="w-12 h-12 rounded-xl cursor-pointer"
-                />
-                <span className="font-mono text-xs opacity-50 uppercase">{formData.brand_color || "#ccff00"}</span>
-              </div>
-            </div>
-          </FormField>
-          
-          <FormField label="Typography Style" theme={theme}>
-            <div className="grid grid-cols-2 gap-4">
-              {["MODERN", "CLASSIC", "MINIMAL", "BOLD"].map(style => (
-                <button
-                  key={style}
-                  onClick={() => setFormData({...formData, typo_style: style})}
-                  className={`p-6 rounded-2xl border text-[10px] font-black tracking-widest uppercase transition-all ${
-                    formData.typo_style === style
-                      ? (isDark ? "bg-white text-stone-950 border-white" : "bg-stone-900 text-white border-stone-900")
-                      : (isDark ? "bg-stone-900 border-stone-800 text-stone-500 hover:text-white" : "bg-white border-stone-100 text-stone-400 hover:text-stone-900 shadow-sm")
-                  }`}
-                >
-                  {style}
-                </button>
-              ))}
             </div>
           </FormField>
         </div>
