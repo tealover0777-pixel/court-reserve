@@ -204,7 +204,7 @@ export default function DashboardClient({ params }: { params: { tenantId: string
                 theme={theme}
               />
               <SubNavItem
-                label="User Admin"
+                label="Platform User"
                 active={activeView === "USER_ADMIN"}
                 onClick={() => handleViewChange("USER_ADMIN")}
                 theme={theme}
