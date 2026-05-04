@@ -32,7 +32,7 @@ export default function DashboardClient({ params }: { params: { tenantId: string
   const [allTenants, setAllTenants] = React.useState<any[]>([]);
   const [isTenantSelectorOpen, setIsTenantSelectorOpen] = React.useState(false);
   const { user: authUser, profile, loading: authLoading } = useAuth();
-  const tenantId = params.tenantId || contextTenantId;
+  const tenantId = params.tenantId || (profile?.tenant_id && profile.tenant_id !== "Global" ? profile.tenant_id : contextTenantId);
   const tenantSelectorRef = React.useRef<HTMLDivElement>(null);
 
   React.useEffect(() => {
