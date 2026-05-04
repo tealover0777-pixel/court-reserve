@@ -13,7 +13,7 @@ export default function Home() {
   useEffect(() => {
     if (typeof window !== "undefined") {
       const path = window.location.pathname.split("/")[1];
-      setUrlTenantId(path && path !== "" ? path : "kinetic");
+      setUrlTenantId(path && path !== "" ? path : "");
     }
   }, []);
 
