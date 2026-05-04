@@ -323,7 +323,20 @@ function BrandingTab({ data, onSave, isSaving, theme, tenantId }: any) {
 
   return (
     <div className="space-y-12">
-      <div className="max-w-2xl mx-auto space-y-12">
+      <div className="max-w-4xl space-y-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8">
+          <FormField label="Organization Name" theme={theme}>
+            <input 
+              value={formData.name || ""} 
+              onChange={(e) => setFormData({...formData, name: e.target.value})}
+              className={`w-full border rounded-2xl px-6 py-4 text-sm font-bold outline-none transition-all ${
+                isDark ? "bg-stone-900 border-stone-800 text-white focus:border-[#ccff00]" : "bg-stone-50 border-stone-100 text-stone-900 focus:border-stone-400"
+              }`}
+              placeholder="Enter organization name"
+            />
+          </FormField>
+        </div>
+
         <div className="space-y-6">
           <FormField label="Organization Logo" theme={theme}>
             <input 
@@ -338,7 +351,7 @@ function BrandingTab({ data, onSave, isSaving, theme, tenantId }: any) {
               onDragOver={handleDragOver}
               onDragLeave={handleDragLeave}
               onDrop={handleDrop}
-              className={`h-64 rounded-[40px] border-2 border-dashed flex flex-col items-center justify-center gap-6 transition-all cursor-pointer relative overflow-hidden group ${
+              className={`h-64 rounded-[40px] border-2 border-dashed flex flex-col items-center justify-center gap-6 transition-all cursor-pointer relative overflow-hidden group max-w-2xl ${
                 isDragging 
                   ? (isDark ? "border-[#ccff00] bg-[#ccff00]/10 scale-[1.02]" : "border-stone-900 bg-stone-100 scale-[1.02]")
                   : (isDark ? "border-stone-800 hover:border-[#ccff00]/50 bg-stone-900/50" : "border-stone-200 hover:border-stone-400 bg-stone-50/50")
@@ -368,15 +381,27 @@ function BrandingTab({ data, onSave, isSaving, theme, tenantId }: any) {
           </FormField>
         </div>
       </div>
-      <button 
-        onClick={() => onSave(formData)}
-        disabled={isSaving}
-        className={`px-12 py-5 rounded-2xl text-xs font-black tracking-[0.2em] uppercase transition-all ${
-          isDark ? "bg-[#ccff00] text-stone-950 hover:scale-[1.02]" : "bg-stone-900 text-white hover:shadow-xl"
-        }`}
-      >
-        {isSaving ? "Saving..." : "Apply Branding"}
-      </button>
+
+      <div className="flex items-center gap-4">
+        <button 
+          onClick={() => onSave(formData)}
+          disabled={isSaving}
+          className={`px-12 py-5 rounded-2xl text-xs font-black tracking-[0.2em] uppercase transition-all ${
+            isDark ? "bg-[#ccff00] text-stone-950 hover:scale-[1.02]" : "bg-stone-900 text-white hover:shadow-xl"
+          }`}
+        >
+          {isSaving ? "Saving..." : "Apply Branding"}
+        </button>
+
+        <button 
+          onClick={() => fileInputRef.current?.click()}
+          className={`px-10 py-5 rounded-2xl text-xs font-black tracking-[0.2em] uppercase transition-all border ${
+            isDark ? "border-stone-700 text-stone-400 hover:text-white hover:border-white" : "border-stone-200 text-stone-500 hover:text-stone-900 hover:border-stone-900"
+          }`}
+        >
+          Replace LOGO
+        </button>
+      </div>
     </div>
   );
 }
