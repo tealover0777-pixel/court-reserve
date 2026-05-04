@@ -408,62 +408,231 @@ function BrandingTab({ data, onSave, isSaving, theme, tenantId }: any) {
 
 function EmailTab({ data, onSave, isSaving, theme }: any) {
   const isDark = theme === "DARK";
-  const [formData, setFormData] = useState(data || {});
+  const [formData, setFormData] = useState({
+    delivery_method: "API",
+    smtp_service: "Gmail",
+    smtp_2fa: true,
+    smtp_tls: true,
+    ...data
+  });
 
-  const toggleClasses = (active: boolean) => `relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-    active ? (isDark ? "bg-[#ccff00]" : "bg-[#4f6b28]") : (isDark ? "bg-stone-800" : "bg-stone-200")
-  }`;
-
-  const toggleCircle = (active: boolean) => `inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-    active ? "translate-x-6" : "translate-x-1"
+  const inputClasses = `w-full border rounded-2xl px-6 py-4 text-sm font-bold outline-none transition-all ${
+    isDark ? "bg-stone-900 border-stone-800 text-white focus:border-[#ccff00]" : "bg-stone-50 border-stone-100 text-stone-900 focus:border-stone-400"
   }`;
 
   return (
-    <div className="space-y-12">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-        <div className="space-y-8">
-          {[
-            { id: "notify_booking", label: "Booking Confirmation Emails", desc: "Send automated emails when a court is booked" },
-            { id: "notify_payment", label: "Payment Receipt Emails", desc: "Automatically send receipts after transactions" },
-            { id: "notify_program", label: "Program Enrollment Alerts", desc: "Notify staff of new program sign-ups" },
-          ].map(setting => (
-            <div key={setting.id} className="flex items-center justify-between p-6 rounded-3xl bg-stone-100/30 dark:bg-stone-900/30 border border-stone-100 dark:border-stone-800">
-              <div className="space-y-1">
-                <h6 className={`text-xs font-bold uppercase tracking-tight ${isDark ? "text-white" : "text-stone-900"}`}>{setting.label}</h6>
-                <p className="text-[10px] text-stone-400 font-medium">{setting.desc}</p>
-              </div>
+    <div className="space-y-16 animate-in fade-in duration-700">
+      <div className="space-y-2">
+        <h3 className={`text-3xl font-black tracking-tighter uppercase transition-colors ${isDark ? "text-white" : "text-black"}`}>Email Setup</h3>
+        <p className="text-stone-400 text-xs font-medium">Configure how your marketing and system emails are delivered.</p>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-16 gap-y-12">
+        {/* Left Column: Common Fields */}
+        <div className="space-y-12">
+          <div className="space-y-8">
+            <h4 className={`text-[10px] font-black tracking-[0.2em] uppercase opacity-40 ${isDark ? "text-white" : "text-stone-900"}`}>Common Fields (Required)</h4>
+            <div className="space-y-6">
+              <FormField label="From Email Address" theme={theme}>
+                <input 
+                  value={formData.from_email || ""} 
+                  onChange={(e) => setFormData({...formData, from_email: e.target.value})}
+                  className={inputClasses}
+                  placeholder="e.g. hello@organization.com"
+                />
+              </FormField>
+              <FormField label="From Name" theme={theme}>
+                <input 
+                  value={formData.from_name || ""} 
+                  onChange={(e) => setFormData({...formData, from_name: e.target.value})}
+                  className={inputClasses}
+                  placeholder="e.g. Organization Team"
+                />
+              </FormField>
+            </div>
+          </div>
+
+          <div className="space-y-8 pt-8 border-t border-stone-100 dark:border-stone-800">
+            <h4 className={`text-[10px] font-black tracking-[0.2em] uppercase opacity-40 ${isDark ? "text-white" : "text-stone-900"}`}>Delivery Method</h4>
+            <div className={`p-1 rounded-2xl flex items-center bg-stone-100 dark:bg-stone-950 w-full`}>
               <button 
-                onClick={() => setFormData({...formData, [setting.id]: !formData[setting.id]})}
-                className={toggleClasses(formData[setting.id])}
+                onClick={() => setFormData({...formData, delivery_method: "API"})}
+                className={`flex-1 py-3 px-4 rounded-xl text-[10px] font-black tracking-widest uppercase transition-all ${
+                  formData.delivery_method === "API" 
+                    ? (isDark ? "bg-[#ccff00] text-stone-950 shadow-lg shadow-[#ccff00]/10" : "bg-white text-stone-900 shadow-sm")
+                    : "text-stone-400 hover:text-stone-600"
+                }`}
               >
-                <span className={toggleCircle(formData[setting.id])} />
+                Service Provider (API)
+              </button>
+              <button 
+                onClick={() => setFormData({...formData, delivery_method: "SMTP"})}
+                className={`flex-1 py-3 px-4 rounded-xl text-[10px] font-black tracking-widest uppercase transition-all relative ${
+                  formData.delivery_method === "SMTP" 
+                    ? (isDark ? "bg-[#ccff00] text-stone-950 shadow-lg shadow-[#ccff00]/10" : "bg-stone-900 text-white shadow-lg")
+                    : "text-stone-400 hover:text-stone-600"
+                }`}
+              >
+                Custom SMTP
+                {formData.delivery_method === "SMTP" && (
+                  <span className="absolute -top-1 -right-1 bg-green-500 text-white text-[8px] px-1.5 py-0.5 rounded-full ring-2 ring-white dark:ring-stone-900">ACTIVE</span>
+                )}
               </button>
             </div>
-          ))}
+          </div>
+
+          <div className={`p-10 rounded-[40px] space-y-6 transition-all ${
+            isDark ? "bg-stone-900/30 border border-stone-800" : "bg-stone-100/50 border border-stone-200"
+          }`}>
+            <div className="flex gap-4">
+              <div className={`w-10 h-10 rounded-full flex items-center justify-center ${isDark ? "bg-[#ccff00]/10 text-[#ccff00]" : "bg-green-100 text-green-700"}`}>
+                <span className="material-symbols-outlined text-xl">send</span>
+              </div>
+              <div className="space-y-1">
+                <h6 className={`text-sm font-black uppercase tracking-tight ${isDark ? "text-white" : "text-stone-900"}`}>Test Verification</h6>
+                <p className="text-[10px] text-stone-400 font-medium">Verify your credentials by sending a test message to the configured test address.</p>
+              </div>
+            </div>
+            <button className={`w-full py-4 rounded-2xl border-2 text-[10px] font-black tracking-widest uppercase transition-all ${
+              isDark ? "border-white text-white hover:bg-white hover:text-stone-950" : "border-stone-900 text-stone-900 hover:bg-stone-900 hover:text-white"
+            }`}>
+              Send Verification Email
+            </button>
+            <p className="text-[8px] text-center font-black text-stone-400 uppercase tracking-widest">
+              Target: <span className={isDark ? "text-white/60" : "text-stone-900/60"}>{formData.test_email || "Not Configured"}</span>
+            </p>
+          </div>
         </div>
-        <div className="space-y-6">
-          <FormField label="Custom Email Signature" theme={theme}>
-            <textarea 
-              rows={6}
-              value={formData.email_signature || ""}
-              onChange={(e) => setFormData({...formData, email_signature: e.target.value})}
-              className={`w-full border rounded-2xl px-6 py-4 text-sm font-bold outline-none transition-all resize-none ${
-                isDark ? "bg-stone-900 border-stone-800 text-white focus:border-[#ccff00]" : "bg-stone-50 border-stone-100 text-stone-900 focus:border-stone-400"
-              }`}
-              placeholder="Best regards,\nElite Tennis Team"
-            />
-          </FormField>
+
+        {/* Right Column: Optional & SMTP Relay */}
+        <div className="space-y-12">
+          <div className="space-y-8">
+            <h4 className={`text-[10px] font-black tracking-[0.2em] uppercase opacity-40 ${isDark ? "text-white" : "text-stone-900"}`}>Optional / Testing</h4>
+            <div className="space-y-6">
+              <FormField label="Reply-To Email" theme={theme}>
+                <input 
+                  value={formData.reply_to_email || ""} 
+                  onChange={(e) => setFormData({...formData, reply_to_email: e.target.value})}
+                  className={inputClasses}
+                  placeholder="e.g. support@organization.com"
+                />
+              </FormField>
+              <FormField label="Test Email Address" theme={theme}>
+                <input 
+                  value={formData.test_email || ""} 
+                  onChange={(e) => setFormData({...formData, test_email: e.target.value})}
+                  className={inputClasses}
+                  placeholder="e.g. test@organization.com"
+                />
+              </FormField>
+            </div>
+          </div>
+
+          <div className="space-y-8 pt-8 border-t border-stone-100 dark:border-stone-800">
+            <h4 className={`text-[10px] font-black tracking-[0.2em] uppercase opacity-40 ${isDark ? "text-white" : "text-stone-900"}`}>SMTP Relay Configuration</h4>
+            <div className="space-y-6">
+              <FormField label="Email Service" theme={theme}>
+                <select 
+                  value={formData.smtp_service}
+                  onChange={(e) => setFormData({...formData, smtp_service: e.target.value})}
+                  className={`${inputClasses} appearance-none cursor-pointer`}
+                >
+                  <option>Select Service</option>
+                  <option>Gmail</option>
+                  <option>Outlook / Office 365</option>
+                  <option>SendGrid</option>
+                  <option>Amazon SES</option>
+                  <option>Custom SMTP</option>
+                </select>
+                <p className="text-[8px] mt-2 font-bold text-stone-400 uppercase tracking-widest italic">Selecting a service will auto-populate host and port details.</p>
+              </FormField>
+
+              <div className="grid grid-cols-4 gap-4">
+                <div className="col-span-3">
+                  <FormField label="SMTP Host" theme={theme}>
+                    <input 
+                      value={formData.smtp_host || ""} 
+                      onChange={(e) => setFormData({...formData, smtp_host: e.target.value})}
+                      className={inputClasses}
+                      placeholder="e.g. smtp.gmail.com"
+                    />
+                  </FormField>
+                </div>
+                <div className="col-span-1">
+                  <FormField label="Port" theme={theme}>
+                    <input 
+                      value={formData.smtp_port || ""} 
+                      onChange={(e) => setFormData({...formData, smtp_port: e.target.value})}
+                      className={inputClasses}
+                      placeholder="587"
+                    />
+                  </FormField>
+                </div>
+              </div>
+
+              <FormField label="SMTP Username" theme={theme}>
+                <input 
+                  value={formData.smtp_user || ""} 
+                  onChange={(e) => setFormData({...formData, smtp_user: e.target.value})}
+                  className={inputClasses}
+                  placeholder="Organization Login"
+                />
+              </FormField>
+
+              <div className="space-y-4 pt-4">
+                <label className="flex items-center gap-3 cursor-pointer group">
+                  <input 
+                    type="checkbox" 
+                    checked={formData.smtp_2fa} 
+                    onChange={(e) => setFormData({...formData, smtp_2fa: e.target.checked})}
+                    className="w-4 h-4 rounded-md border-stone-300 text-stone-900 focus:ring-stone-500"
+                  />
+                  <span className={`text-[10px] font-black uppercase tracking-widest ${isDark ? "text-stone-300 group-hover:text-white" : "text-stone-600 group-hover:text-stone-900"}`}>
+                    My account has 2FA enabled (requires App Password)
+                  </span>
+                </label>
+
+                {formData.smtp_2fa && (
+                  <FormField label="App Password 🔐" theme={theme}>
+                    <input 
+                      type="password"
+                      value={formData.smtp_app_password || ""} 
+                      onChange={(e) => setFormData({...formData, smtp_app_password: e.target.value})}
+                      className={inputClasses}
+                      placeholder="••••••••••••••••"
+                    />
+                    <p className="text-[8px] mt-2 font-bold text-stone-400 uppercase tracking-widest">Generate this in your Google Account Security settings. Use it instead of your regular password.</p>
+                  </FormField>
+                )}
+
+                <label className="flex items-center gap-3 cursor-pointer group">
+                  <input 
+                    type="checkbox" 
+                    checked={formData.smtp_tls} 
+                    onChange={(e) => setFormData({...formData, smtp_tls: e.target.checked})}
+                    className="w-4 h-4 rounded-md border-stone-300 text-stone-900 focus:ring-stone-500"
+                  />
+                  <span className={`text-[10px] font-black uppercase tracking-widest ${isDark ? "text-stone-300 group-hover:text-white" : "text-stone-600 group-hover:text-stone-900"}`}>
+                    Use TLS / SSL for secure connection
+                  </span>
+                </label>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
-      <button 
-        onClick={() => onSave(formData)}
-        disabled={isSaving}
-        className={`px-12 py-5 rounded-2xl text-xs font-black tracking-[0.2em] uppercase transition-all ${
-          isDark ? "bg-[#ccff00] text-stone-950 hover:scale-[1.02]" : "bg-stone-900 text-white hover:shadow-xl"
-        }`}
-      >
-        {isSaving ? "Saving..." : "Save Email Preferences"}
-      </button>
+
+      <div className="pt-12 border-t border-stone-100 dark:border-stone-800 flex justify-end">
+        <button 
+          onClick={() => onSave(formData)}
+          disabled={isSaving}
+          className={`px-12 py-5 rounded-2xl text-xs font-black tracking-[0.2em] uppercase transition-all ${
+            isDark ? "bg-[#ccff00] text-stone-950 hover:scale-[1.02]" : "bg-stone-900 text-white hover:shadow-xl shadow-stone-900/20"
+          }`}
+        >
+          {isSaving ? "Saving..." : "Save Email Configuration"}
+        </button>
+      </div>
     </div>
   );
 }
