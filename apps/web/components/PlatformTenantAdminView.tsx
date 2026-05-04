@@ -19,6 +19,7 @@ import {
   setDoc, 
   deleteDoc,
   getDoc,
+  updateDoc,
   serverTimestamp, 
   query, 
   orderBy 
@@ -264,11 +265,11 @@ export default function PlatformTenantAdminView({ theme = "LIGHT" }: { theme?: "
         address_zip: formData.address_zip
       });
       
-      // 4. Sync Address to Owner in global_users
+      // 4. Sync Address to Owner in global_users (Tenant-Scoped Record)
       if (formData.owner_id) {
         const compositeUserId = `${formData.tenant_id}_${formData.owner_id}`;
         const ownerRef = doc(db, "global_users", compositeUserId);
-        await setDoc(ownerRef, {
+        const ownerData = {
           user_id: formData.owner_id,
           tenant_id: formData.tenant_id,
           first_name: formData.owner_first_name,
@@ -284,24 +285,26 @@ export default function PlatformTenantAdminView({ theme = "LIGHT" }: { theme?: "
           address_zip: formData.address_zip,
           status: "Invited",
           updated_at: serverTimestamp()
-        }, { merge: true });
-      }
+        };
+        await setDoc(ownerRef, ownerData, { merge: true });
 
-      // 5. Cleanup Duplicate Global Record
-      // The cloud function might create a record at docId=owner_id without tenant_id.
-      // We ensure only our composite record (Tenant_User) exists.
-      try {
-        const legacyRef = doc(db, "global_users", formData.owner_id);
-        const legacySnap = await getDoc(legacyRef);
-        if (legacySnap.exists()) {
-          const data = legacySnap.data();
-          // Only delete if it's actually a duplicate (missing tenant_id or matching our auto-note)
-          if (!data.tenant_id || data.notes?.includes("Created with New Tenant:")) {
-            await deleteDoc(legacyRef);
+        // 5. Cleanup Duplicate Global Record
+        // Ensure the owner exists as a Tenant User, not a Global User.
+        try {
+          const legacyRef = doc(db, "global_users", formData.owner_id);
+          const legacySnap = await getDoc(legacyRef);
+          if (legacySnap.exists()) {
+            const data = legacySnap.data();
+            // If it's a global record (no tenant_id), update status to Invited and then remove 
+            // to ensure it doesn't clutter the global user list as a "Ghost Global"
+            if (!data.tenant_id || data.notes?.includes("Created with Tenant:")) {
+              await updateDoc(legacyRef, { status: "Invited" });
+              await deleteDoc(legacyRef);
+            }
           }
+        } catch (cleanupErr) {
+          console.error("Cleanup duplicate error:", cleanupErr);
         }
-      } catch (cleanupErr) {
-        console.error("Cleanup duplicate error:", cleanupErr);
       }
 
       setShowNewModal(false);
