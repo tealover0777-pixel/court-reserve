@@ -1,5 +1,6 @@
 "use client";
 import React from "react";
+import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import Image from "next/image";
 import { useTenant } from "../context/TenantContext";
 import { auth } from "../lib/firebase";
@@ -24,6 +25,10 @@ const US_STATES = [
 
 export default function DashboardClient({ params }: { params: { tenantId: string } }) {
   const { tenantId: contextTenantId, loading } = useTenant();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
+  
   const [activeView, setActiveView] = React.useState<"DASHBOARD" | "COURT BOOKING" | "PROGRAMS" | "MEMBERSHIP" | "SETTINGS" | "PROFILE" | "AI_ADMIN" | "DIMENSIONS" | "ROLE_TYPES" | "USER_ADMIN" | "PLATFORM_TENANT_ADMIN" | "ORGANIZATION">("DASHBOARD");
   const [platformAdminOpen, setPlatformAdminOpen] = React.useState(false);
   const [administrationOpen, setAdministrationOpen] = React.useState(false);
@@ -34,6 +39,21 @@ export default function DashboardClient({ params }: { params: { tenantId: string
   const { user: authUser, profile, loading: authLoading } = useAuth();
   const tenantId = params.tenantId || (profile?.tenant_id && profile.tenant_id !== "Global" ? profile.tenant_id : contextTenantId);
   const tenantSelectorRef = React.useRef<HTMLDivElement>(null);
+
+  // Sync state with URL
+  const handleViewChange = (view: typeof activeView) => {
+    setActiveView(view);
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("view", view);
+    router.push(`${pathname}?${params.toString()}`);
+  };
+
+  React.useEffect(() => {
+    const viewParam = searchParams.get("view");
+    if (viewParam) {
+      setActiveView(viewParam as any);
+    }
+  }, [searchParams]);
 
   React.useEffect(() => {
     const q = query(collection(db, "role_types"), orderBy("role_id", "asc"));
@@ -108,28 +128,28 @@ export default function DashboardClient({ params }: { params: { tenantId: string
             icon="grid_view"
             label="Dashboard"
             active={activeView === "DASHBOARD"}
-            onClick={() => setActiveView("DASHBOARD")}
+            onClick={() => handleViewChange("DASHBOARD")}
             theme={theme}
           />
           <NavItem
             icon="sports_tennis"
             label="My Schedule"
             active={activeView === "COURT BOOKING"}
-            onClick={() => setActiveView("COURT BOOKING")}
+            onClick={() => handleViewChange("COURT BOOKING")}
             theme={theme}
           />
           <NavItem
             icon="calendar_today"
             label="Programs"
             active={activeView === "PROGRAMS"}
-            onClick={() => setActiveView("PROGRAMS")}
+            onClick={() => handleViewChange("PROGRAMS")}
             theme={theme}
           />
           <NavItem
             icon="card_membership"
             label="Membership"
             active={activeView === "MEMBERSHIP"}
-            onClick={() => setActiveView("MEMBERSHIP")}
+            onClick={() => handleViewChange("MEMBERSHIP")}
             theme={theme}
           />
           <NavItem
@@ -144,13 +164,13 @@ export default function DashboardClient({ params }: { params: { tenantId: string
               <SubNavItem
                 label="Role Types"
                 active={activeView === "ROLE_TYPES"}
-                onClick={() => setActiveView("ROLE_TYPES")}
+                onClick={() => handleViewChange("ROLE_TYPES")}
                 theme={theme}
               />
               <SubNavItem
                 label="Organization"
                 active={activeView === "ORGANIZATION"}
-                onClick={() => setActiveView("ORGANIZATION")}
+                onClick={() => handleViewChange("ORGANIZATION")}
                 theme={theme}
               />
             </div>
@@ -159,7 +179,7 @@ export default function DashboardClient({ params }: { params: { tenantId: string
             icon="settings"
             label="Settings"
             active={activeView === "SETTINGS"}
-            onClick={() => setActiveView("SETTINGS")}
+            onClick={() => handleViewChange("SETTINGS")}
             theme={theme}
           />
           <NavItem
@@ -174,25 +194,25 @@ export default function DashboardClient({ params }: { params: { tenantId: string
               <SubNavItem
                 label="AI Admin"
                 active={activeView === "AI_ADMIN"}
-                onClick={() => setActiveView("AI_ADMIN")}
+                onClick={() => handleViewChange("AI_ADMIN")}
                 theme={theme}
               />
               <SubNavItem
                 label="Dimensions"
                 active={activeView === "DIMENSIONS"}
-                onClick={() => setActiveView("DIMENSIONS")}
+                onClick={() => handleViewChange("DIMENSIONS")}
                 theme={theme}
               />
               <SubNavItem
                 label="User Admin"
                 active={activeView === "USER_ADMIN"}
-                onClick={() => setActiveView("USER_ADMIN")}
+                onClick={() => handleViewChange("USER_ADMIN")}
                 theme={theme}
               />
               <SubNavItem
                 label="Tenant Admin"
                 active={activeView === "PLATFORM_TENANT_ADMIN"}
-                onClick={() => setActiveView("PLATFORM_TENANT_ADMIN")}
+                onClick={() => handleViewChange("PLATFORM_TENANT_ADMIN")}
                 theme={theme}
               />
             </div>
@@ -201,14 +221,14 @@ export default function DashboardClient({ params }: { params: { tenantId: string
 
         <div className="mt-auto p-8 border-t border-stone-200">
           <button
-            onClick={() => setActiveView("COURT BOOKING")}
+            onClick={() => handleViewChange("COURT BOOKING")}
             className="w-full py-4 bg-[#4f6b28] text-white font-black rounded-lg text-xs tracking-widest hover:opacity-90 transition-all uppercase shadow-lg shadow-[#4f6b28]/10"
           >
             BOOK A COURT
           </button>
 
           <div
-            onClick={() => setActiveView("PROFILE")}
+            onClick={() => handleViewChange("PROFILE")}
             className="mt-8 flex items-center gap-3 cursor-pointer group"
           >
             <div className={`w-10 h-10 rounded-full overflow-hidden border-2 border-transparent transition-all flex items-center justify-center ${theme === "DARK" ? "bg-stone-800 group-hover:border-[#ccff00]" :
