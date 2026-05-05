@@ -40,20 +40,30 @@ export default function DashboardClient({ params }: { params: { tenantId: string
   const tenantId = params.tenantId || (profile?.tenant_id && profile.tenant_id !== "Global" ? profile.tenant_id : contextTenantId);
   const tenantSelectorRef = React.useRef<HTMLDivElement>(null);
 
-  // Sync state with URL
+  // Sync state with History API for clean URL + Back/Forward support
   const handleViewChange = (view: typeof activeView) => {
     setActiveView(view);
-    const params = new URLSearchParams(searchParams.toString());
-    params.set("view", view);
-    router.push(`${pathname}?${params.toString()}`);
+    // Push to history state without changing the visible URL info
+    window.history.pushState({ view }, "", pathname);
   };
 
   React.useEffect(() => {
-    const viewParam = searchParams.get("view");
-    if (viewParam) {
-      setActiveView(viewParam as any);
+    // Listen for browser navigation (Back/Forward)
+    const handlePopState = (event: PopStateEvent) => {
+      if (event.state && event.state.view) {
+        setActiveView(event.state.view);
+      }
+    };
+
+    window.addEventListener("popstate", handlePopState);
+
+    // Initial state setup for current view if needed
+    if (!window.history.state) {
+      window.history.replaceState({ view: activeView }, "", pathname);
     }
-  }, [searchParams]);
+
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, [activeView, pathname]);
 
   React.useEffect(() => {
     const q = query(collection(db, "role_types"), orderBy("role_id", "asc"));
