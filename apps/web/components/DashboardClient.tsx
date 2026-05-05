@@ -16,10 +16,10 @@ import { collection, onSnapshot, query, orderBy, doc, updateDoc, serverTimestamp
 import { db } from "../lib/firebase";
 
 const US_STATES = [
-  "AL", "AK", "AZ", "AR", "CA", "CO", "CT", "DE", "FL", "GA", 
-  "HI", "ID", "IL", "IN", "IA", "KS", "KY", "LA", "ME", "MD", 
-  "MA", "MI", "MN", "MS", "MO", "MT", "NE", "NV", "NH", "NJ", 
-  "NM", "NY", "NC", "ND", "OH", "OK", "OR", "PA", "RI", "SC", 
+  "AL", "AK", "AZ", "AR", "CA", "CO", "CT", "DE", "FL", "GA",
+  "HI", "ID", "IL", "IN", "IA", "KS", "KY", "LA", "ME", "MD",
+  "MA", "MI", "MN", "MS", "MO", "MT", "NE", "NV", "NH", "NJ",
+  "NM", "NY", "NC", "ND", "OH", "OK", "OR", "PA", "RI", "SC",
   "SD", "TN", "TX", "UT", "VT", "VA", "WA", "WV", "WI", "WY"
 ];
 
@@ -28,7 +28,7 @@ export default function DashboardClient({ params }: { params: { tenantId: string
   const router = useRouter();
   const searchParams = useSearchParams();
   const pathname = usePathname();
-  
+
   const [activeView, setActiveView] = React.useState<"DASHBOARD" | "COURT BOOKING" | "PROGRAMS" | "MEMBERSHIP" | "SETTINGS" | "PROFILE" | "AI_ADMIN" | "DIMENSIONS" | "ROLE_TYPES" | "USER_ADMIN" | "PLATFORM_TENANT_ADMIN" | "ORGANIZATION">("DASHBOARD");
   const [platformAdminOpen, setPlatformAdminOpen] = React.useState(false);
   const [administrationOpen, setAdministrationOpen] = React.useState(false);
@@ -100,36 +100,36 @@ export default function DashboardClient({ params }: { params: { tenantId: string
 
   return (
     <div className={`min-h-screen transition-colors duration-500 ${theme === "DARK" ? "bg-stone-950 text-white" :
-        theme === "VINTAGE" ? "bg-[#f7f9fb] text-black" :
-          "bg-background text-on-background"
+      theme === "VINTAGE" ? "bg-[#f7f9fb] text-black" :
+        "bg-background text-on-background"
       } selection:bg-primary/30`}>
       {/* SideNavBar Component */}
       <aside className={`fixed left-0 top-0 h-full w-72 border-r transition-colors duration-500 ${theme === "DARK" ? "bg-stone-950 border-stone-800" :
-          theme === "VINTAGE" ? "bg-white border-transparent" :
-            "bg-white border-stone-200"
+        theme === "VINTAGE" ? "bg-white border-transparent" :
+          "bg-white border-stone-200"
         } flex flex-col z-50`}>
         <div className="py-6 px-4">
           {allTenants.find(t => t.tenant_id === tenantId || t.id === tenantId)?.logo_url ? (
             <div className="w-full mb-6 flex justify-center">
-              <img 
-                src={allTenants.find(t => t.tenant_id === tenantId || t.id === tenantId).logo_url} 
-                alt="Logo" 
+              <img
+                src={allTenants.find(t => t.tenant_id === tenantId || t.id === tenantId).logo_url}
+                alt="Logo"
                 className="w-full h-auto max-h-32 object-contain"
               />
             </div>
           ) : (
             <h1 className={`text-3xl font-black italic tracking-tighter ${theme === "DARK" ? "text-[#ccff00]" :
-                theme === "VINTAGE" ? "text-black" :
-                  "text-[#4f6b28]"
+              theme === "VINTAGE" ? "text-black" :
+                "text-[#4f6b28]"
               }`}>
               {tenantId ? tenantId.toUpperCase() : "KINETIC COURT"}
             </h1>
           )}
           <p className={`text-xs font-bold uppercase tracking-[0.2em] mt-1 ${theme === "DARK" ? "text-stone-400" :
-              theme === "VINTAGE" ? "text-stone-500" :
-                "text-stone-900"
+            theme === "VINTAGE" ? "text-stone-500" :
+              "text-stone-900"
             }`}>
-            Elite Membership
+
           </p>
         </div>
 
@@ -242,8 +242,8 @@ export default function DashboardClient({ params }: { params: { tenantId: string
             className="mt-8 flex items-center gap-3 cursor-pointer group"
           >
             <div className={`w-10 h-10 rounded-full overflow-hidden border-2 border-transparent transition-all flex items-center justify-center ${theme === "DARK" ? "bg-stone-800 group-hover:border-[#ccff00]" :
-                theme === "VINTAGE" ? "bg-stone-100 group-hover:border-black" :
-                  "bg-stone-100 group-hover:border-[#4f6b28]"
+              theme === "VINTAGE" ? "bg-stone-100 group-hover:border-black" :
+                "bg-stone-100 group-hover:border-[#4f6b28]"
               }`}>
               {authUser?.photoURL ? (
                 <img
@@ -259,14 +259,14 @@ export default function DashboardClient({ params }: { params: { tenantId: string
             </div>
             <div>
               <p className={`text-xs font-black transition-colors uppercase ${theme === "DARK" ? "group-hover:text-[#ccff00]" :
-                  theme === "VINTAGE" ? "group-hover:text-black" :
-                    "group-hover:text-[#4f6b28]"
+                theme === "VINTAGE" ? "group-hover:text-black" :
+                  "group-hover:text-[#4f6b28]"
                 }`}>
                 {profile ? `${profile.first_name} ${profile.last_name}` : ""}
               </p>
               <p className={`text-[10px] font-black uppercase tracking-widest ${theme === "DARK" ? "text-stone-500" :
-                  theme === "VINTAGE" ? "text-stone-400" :
-                    "text-stone-900"
+                theme === "VINTAGE" ? "text-stone-400" :
+                  "text-stone-900"
                 }`}>
                 {profile
                   ? (roles.find(r => r.role_id === profile.role || r.id === profile.role)?.role_name || profile.role)
@@ -279,8 +279,8 @@ export default function DashboardClient({ params }: { params: { tenantId: string
           <button
             onClick={() => signOut(auth)}
             className={`mt-6 flex items-center gap-3 transition-colors px-1 ${theme === "DARK" ? "text-stone-400 hover:text-red-400" :
-                theme === "VINTAGE" ? "text-stone-500 hover:text-black" :
-                  "text-stone-900 hover:text-red-500"
+              theme === "VINTAGE" ? "text-stone-500 hover:text-black" :
+                "text-stone-900 hover:text-red-500"
               }`}
           >
             <span className="material-symbols-outlined text-sm">logout</span>
@@ -291,25 +291,24 @@ export default function DashboardClient({ params }: { params: { tenantId: string
 
       {/* TopAppBar Component */}
       <header className={`sticky top-0 z-40 w-full backdrop-blur-xl flex justify-between items-center ml-72 px-12 py-6 max-w-[calc(100%-18rem)] transition-colors duration-500 ${theme === "DARK" ? "bg-stone-950/60 border-b border-stone-800" :
-          theme === "VINTAGE" ? "bg-white/80 border-b border-[#f0f0f0]" :
-            "bg-white/60"
+        theme === "VINTAGE" ? "bg-white/80 border-b border-[#f0f0f0]" :
+          "bg-white/60"
         }`}>
         <div className="flex items-center gap-3">
-          <div className={`w-8 h-8 rounded-xl flex items-center justify-center transition-all ${
-            theme === "DARK" ? "bg-stone-900 text-[#ccff00]" : 
-            theme === "VINTAGE" ? "bg-black text-white" : 
-            "bg-stone-100 text-[#4f6b28]"
-          }`}>
+          <div className={`w-8 h-8 rounded-xl flex items-center justify-center transition-all ${theme === "DARK" ? "bg-stone-900 text-[#ccff00]" :
+              theme === "VINTAGE" ? "bg-black text-white" :
+                "bg-stone-100 text-[#4f6b28]"
+            }`}>
             <span className="material-symbols-outlined text-sm">
-              {activeView === "DASHBOARD" ? "dashboard" : 
-               activeView.includes("ADMIN") ? "admin_panel_settings" : 
-               activeView === "ROLE_TYPES" ? "rule" : "grid_view"}
+              {activeView === "DASHBOARD" ? "dashboard" :
+                activeView.includes("ADMIN") ? "admin_panel_settings" :
+                  activeView === "ROLE_TYPES" ? "rule" : "grid_view"}
             </span>
           </div>
           <div className="flex items-center gap-2">
             <span className={`text-[10px] font-black tracking-widest uppercase opacity-40 ${theme === "DARK" ? "text-white" : "text-stone-950"}`}>
-              {activeView === "DASHBOARD" || activeView === "PROGRAMS" || activeView === "MEMBERSHIP" ? "PLATFORM" : 
-               activeView === "ROLE_TYPES" || activeView === "ORGANIZATION" ? "ADMINISTRATION" : "MANAGEMENT"}
+              {activeView === "DASHBOARD" || activeView === "PROGRAMS" || activeView === "MEMBERSHIP" ? "PLATFORM" :
+                activeView === "ROLE_TYPES" || activeView === "ORGANIZATION" ? "ADMINISTRATION" : "MANAGEMENT"}
             </span>
             <span className="text-stone-300">/</span>
             <span className={`text-xs font-black tracking-widest uppercase ${theme === "DARK" ? "text-white" : "text-stone-950"}`}>
@@ -321,11 +320,10 @@ export default function DashboardClient({ params }: { params: { tenantId: string
         {/* Tenant Selector - Only visible to Global users */}
         {(!profile?.tenant_id || profile?.tenant_id === "Global") && (
           <div className="relative flex items-center gap-3 ml-6 pl-6 border-l border-stone-200 dark:border-stone-800" ref={tenantSelectorRef}>
-            <button 
+            <button
               onClick={() => setIsTenantSelectorOpen(!isTenantSelectorOpen)}
-              className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-all ${
-                theme === "DARK" ? "bg-stone-900 text-[#ccff00] hover:bg-stone-800 shadow-lg shadow-black/20" : "bg-stone-100 text-stone-950 hover:bg-stone-200"
-              }`}
+              className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-all ${theme === "DARK" ? "bg-stone-900 text-[#ccff00] hover:bg-stone-800 shadow-lg shadow-black/20" : "bg-stone-100 text-stone-950 hover:bg-stone-200"
+                }`}
             >
               <span className="material-symbols-outlined text-sm">corporate_fare</span>
               <span className="text-[10px] font-black tracking-widest uppercase truncate max-w-[120px]">
@@ -333,11 +331,10 @@ export default function DashboardClient({ params }: { params: { tenantId: string
               </span>
               <span className={`material-symbols-outlined text-xs transition-transform duration-300 ${isTenantSelectorOpen ? "rotate-180" : ""}`}>unfold_more</span>
             </button>
-            
+
             {isTenantSelectorOpen && (
-              <div className={`absolute top-full left-6 mt-4 w-72 rounded-3xl shadow-2xl z-50 border p-2 animate-in fade-in slide-in-from-top-2 duration-300 ${
-                theme === "DARK" ? "bg-stone-950 border-stone-800" : "bg-white border-stone-100"
-              }`}>
+              <div className={`absolute top-full left-6 mt-4 w-72 rounded-3xl shadow-2xl z-50 border p-2 animate-in fade-in slide-in-from-top-2 duration-300 ${theme === "DARK" ? "bg-stone-950 border-stone-800" : "bg-white border-stone-100"
+                }`}>
                 <div className="px-4 py-3 mb-2">
                   <p className="text-[8px] font-black tracking-[0.2em] uppercase opacity-40">Available Organizations</p>
                 </div>
@@ -347,11 +344,10 @@ export default function DashboardClient({ params }: { params: { tenantId: string
                       window.location.href = `/consolidated`;
                       setIsTenantSelectorOpen(false);
                     }}
-                    className={`w-full flex flex-col gap-0.5 items-start px-4 py-3 rounded-2xl transition-all ${
-                      tenantId === "consolidated" 
+                    className={`w-full flex flex-col gap-0.5 items-start px-4 py-3 rounded-2xl transition-all ${tenantId === "consolidated"
                         ? (theme === "DARK" ? "bg-[#ccff00] text-stone-950 shadow-lg shadow-[#ccff00]/10" : "bg-stone-900 text-white shadow-lg")
                         : (theme === "DARK" ? "hover:bg-stone-900 text-stone-400 hover:text-white" : "hover:bg-stone-50 text-stone-500 hover:text-stone-900")
-                    }`}
+                      }`}
                   >
                     <span className="text-[10px] font-black tracking-tight uppercase truncate w-full text-left italic">Consolidated (All Tenants)</span>
                     <span className={`text-[8px] font-mono opacity-50 ${tenantId === "consolidated" ? "opacity-70" : ""}`}>GLOBAL_VIEW</span>
@@ -366,11 +362,10 @@ export default function DashboardClient({ params }: { params: { tenantId: string
                         window.location.href = `/${t.tenant_id}`;
                         setIsTenantSelectorOpen(false);
                       }}
-                      className={`w-full flex flex-col gap-0.5 items-start px-4 py-3 rounded-2xl transition-all ${
-                        t.tenant_id === tenantId 
+                      className={`w-full flex flex-col gap-0.5 items-start px-4 py-3 rounded-2xl transition-all ${t.tenant_id === tenantId
                           ? (theme === "DARK" ? "bg-[#ccff00] text-stone-950 shadow-lg shadow-[#ccff00]/10" : "bg-stone-900 text-white shadow-lg")
                           : (theme === "DARK" ? "hover:bg-stone-900 text-stone-400 hover:text-white" : "hover:bg-stone-50 text-stone-500 hover:text-stone-900")
-                      }`}
+                        }`}
                     >
                       <span className="text-[10px] font-black tracking-tight uppercase truncate w-full text-left">{t.name}</span>
                       <span className={`text-[8px] font-mono opacity-50 ${t.tenant_id === tenantId ? "opacity-70" : ""}`}>{t.tenant_id}</span>
@@ -388,8 +383,8 @@ export default function DashboardClient({ params }: { params: { tenantId: string
               type="text"
               placeholder="Search platform..."
               className={`rounded-full px-6 py-2 w-64 text-sm outline-none transition-all ${theme === "DARK"
-                  ? "bg-stone-900 text-white focus:ring-2 focus:ring-[#ccff00] placeholder:text-stone-600"
-                  : "bg-stone-100 text-stone-900 focus:ring-2 focus:ring-[#4f6b28] placeholder:text-stone-400"
+                ? "bg-stone-900 text-white focus:ring-2 focus:ring-[#ccff00] placeholder:text-stone-600"
+                : "bg-stone-100 text-stone-900 focus:ring-2 focus:ring-[#4f6b28] placeholder:text-stone-400"
                 }`}
             />
             <span className={`material-symbols-outlined absolute right-4 top-2 transition-colors ${theme === "DARK" ? "text-stone-600" : "text-stone-400"}`}>search</span>
@@ -403,8 +398,8 @@ export default function DashboardClient({ params }: { params: { tenantId: string
 
       {/* Main Content Area */}
       <main className={`ml-72 p-12 min-h-screen transition-colors duration-500 ${theme === "DARK" ? "bg-stone-900" :
-          theme === "VINTAGE" ? "bg-[#f7f9fb]" :
-            "bg-stone-50"
+        theme === "VINTAGE" ? "bg-[#f7f9fb]" :
+          "bg-stone-50"
         }`}>
         {activeView === "DASHBOARD" ? (
           <DashboardHome theme={theme} profile={profile} />
@@ -447,8 +442,8 @@ function DashboardHome({ theme, profile }: { theme: "LIGHT" | "DARK" | "VINTAGE"
     <>
       {/* Welcome Hero */}
       <section className={`mb-12 relative overflow-hidden rounded-2xl p-12 flex items-end min-h-[320px] shadow-sm transition-colors duration-500 ${theme === "DARK" ? "bg-stone-900" :
-          theme === "VINTAGE" ? "bg-white" :
-            "bg-white"
+        theme === "VINTAGE" ? "bg-white" :
+          "bg-white"
         }`}>
         <div className="absolute inset-0 z-0">
           <img
@@ -457,14 +452,14 @@ function DashboardHome({ theme, profile }: { theme: "LIGHT" | "DARK" | "VINTAGE"
             className={`w-full h-full object-cover transition-opacity duration-500 ${theme === "DARK" ? "opacity-10" : "opacity-30"} scale-105`}
           />
           <div className={`absolute inset-0 ${theme === "DARK" ? "bg-gradient-to-t from-stone-900 via-stone-900/40 to-transparent" :
-              theme === "VINTAGE" ? "bg-gradient-to-t from-white via-white/20 to-transparent" :
-                "bg-gradient-to-t from-white via-white/40 to-transparent"
+            theme === "VINTAGE" ? "bg-gradient-to-t from-white via-white/20 to-transparent" :
+              "bg-gradient-to-t from-white via-white/40 to-transparent"
             }`}></div>
         </div>
         <div className="relative z-10 w-full">
           <span className={`font-black tracking-widest text-sm uppercase mb-4 block transition-colors ${theme === "DARK" ? "text-[#ccff00]" :
-              theme === "VINTAGE" ? "text-stone-400" :
-                "text-[#4f6b28]"
+            theme === "VINTAGE" ? "text-stone-400" :
+              "text-[#4f6b28]"
             }`}>
             Welcome Back, {profile?.first_name || "Alex"}
           </span>
@@ -482,23 +477,23 @@ function DashboardHome({ theme, profile }: { theme: "LIGHT" | "DARK" | "VINTAGE"
 
           {/* Next Match Card */}
           <div className={`col-span-3 rounded-2xl p-8 relative overflow-hidden shadow-xl transition-colors duration-500 ${theme === "DARK" ? "bg-stone-800 text-white" :
-              theme === "VINTAGE" ? "bg-black text-white" :
-                "bg-[#4f6b28] text-white"
+            theme === "VINTAGE" ? "bg-black text-white" :
+              "bg-[#4f6b28] text-white"
             }`}>
             <div className={`absolute right-0 top-0 h-full w-1/3 opacity-10 skew-x-12 translate-x-12 ${theme === "DARK" ? "bg-[#ccff00]" : "bg-white"
               }`}></div>
             <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-8">
               <div>
                 <span className={`inline-block px-3 py-1 rounded-full text-[10px] font-black tracking-widest uppercase mb-4 ${theme === "DARK" ? "bg-[#ccff00] text-stone-950" :
-                    theme === "VINTAGE" ? "bg-white text-black" :
-                      "bg-white text-[#4f6b28]"
+                  theme === "VINTAGE" ? "bg-white text-black" :
+                    "bg-white text-[#4f6b28]"
                   }`}>Upcoming: Tomorrow</span>
                 <h4 className="text-3xl font-black tracking-tighter">QUARTER FINAL MATCH</h4>
                 <p className="opacity-60 font-medium mt-2">Center Court • 10:00 AM vs. Marcus V.</p>
               </div>
               <button className={`px-8 py-4 rounded-full font-black text-xs tracking-widest transition-all uppercase shadow-lg ${theme === "DARK" ? "bg-[#ccff00] text-stone-950" :
-                  theme === "VINTAGE" ? "bg-white text-black" :
-                    "bg-white text-[#4f6b28]"
+                theme === "VINTAGE" ? "bg-white text-black" :
+                  "bg-white text-[#4f6b28]"
                 }`}>
                 MATCH PREVIEW
               </button>
@@ -509,15 +504,15 @@ function DashboardHome({ theme, profile }: { theme: "LIGHT" | "DARK" | "VINTAGE"
         {/* Recent Activity Section */}
         <div className="col-span-12 lg:col-span-4">
           <div className={`rounded-2xl p-8 h-full shadow-sm border transition-colors duration-500 ${theme === "DARK" ? "bg-stone-950 border-stone-800" :
-              theme === "VINTAGE" ? "bg-white border-transparent" :
-                "bg-white border-stone-100"
+            theme === "VINTAGE" ? "bg-white border-transparent" :
+              "bg-white border-stone-100"
             }`}>
             <div className="flex justify-between items-center mb-6">
               <h4 className={`font-headline font-black text-xl tracking-tighter uppercase transition-colors ${theme === "DARK" ? "text-white" : "text-black"
                 }`}>Recent Activity</h4>
               <button className={`font-black text-[10px] tracking-widest uppercase hover:underline ${theme === "DARK" ? "text-[#ccff00]" :
-                  theme === "VINTAGE" ? "text-black" :
-                    "text-[#4f6b28]"
+                theme === "VINTAGE" ? "text-black" :
+                  "text-[#4f6b28]"
                 }`}>View All</button>
             </div>
             <div className="space-y-6">
@@ -592,8 +587,8 @@ function DashboardHome({ theme, profile }: { theme: "LIGHT" | "DARK" | "VINTAGE"
 function ThemeSelector({ theme, setTheme }: { theme: "LIGHT" | "DARK" | "VINTAGE", setTheme: (t: "LIGHT" | "DARK" | "VINTAGE") => void }) {
   return (
     <div className={`flex items-center gap-1 p-1 rounded-full border transition-colors duration-500 ${theme === "DARK" ? "bg-stone-900 border-stone-800" :
-        theme === "VINTAGE" ? "bg-[#f2f4f6] border-stone-200" :
-          "bg-stone-100 border-stone-200"
+      theme === "VINTAGE" ? "bg-[#f2f4f6] border-stone-200" :
+        "bg-stone-100 border-stone-200"
       }`}>
       <div className={`px-4 py-1.5 flex items-center gap-2 border-r mr-1 transition-colors ${theme === "DARK" ? "border-stone-800" : "border-stone-200"
         }`}>
@@ -632,8 +627,8 @@ function SubNavItem({ label, active = false, onClick, theme }: { label: string; 
     <button
       onClick={onClick}
       className={`w-full flex items-center gap-5 py-3 transition-all duration-300 ease-in-out pl-20 relative group ${active
-          ? (theme === "DARK" ? "text-[#ccff00]" : theme === "VINTAGE" ? "text-black" : "text-[#4f6b28]")
-          : (theme === "DARK" ? "text-stone-400 hover:text-[#ccff00]" : theme === "VINTAGE" ? "text-stone-400 hover:text-black" : "text-black hover:bg-stone-50")
+        ? (theme === "DARK" ? "text-[#ccff00]" : theme === "VINTAGE" ? "text-black" : "text-[#4f6b28]")
+        : (theme === "DARK" ? "text-stone-400 hover:text-[#ccff00]" : theme === "VINTAGE" ? "text-stone-400 hover:text-black" : "text-black hover:bg-stone-50")
         }`}
     >
       <span className={`text-sm font-black uppercase tracking-[0.2em] transition-all ${active ? "translate-x-1" : "group-hover:translate-x-1"}`} style={{ fontFamily: 'Lexend, sans-serif' }}>
@@ -648,14 +643,14 @@ function NavItem({ icon, label, active = false, onClick, theme }: { icon: string
     <button
       onClick={onClick}
       className={`w-full flex items-center gap-5 py-4 transition-all duration-300 ease-in-out px-8 relative group ${active
-          ? (theme === "DARK" ? "text-[#ccff00] bg-stone-900" : theme === "VINTAGE" ? "text-black bg-[#f7f9fb]" : "text-[#4f6b28] bg-stone-100")
-          : (theme === "DARK" ? "text-stone-400 hover:text-[#ccff00]" : theme === "VINTAGE" ? "text-stone-400 hover:text-black" : "text-black hover:bg-stone-50")
+        ? (theme === "DARK" ? "text-[#ccff00] bg-stone-900" : theme === "VINTAGE" ? "text-black bg-[#f7f9fb]" : "text-[#4f6b28] bg-stone-100")
+        : (theme === "DARK" ? "text-stone-400 hover:text-[#ccff00]" : theme === "VINTAGE" ? "text-stone-400 hover:text-black" : "text-black hover:bg-stone-50")
         }`}
     >
       {active && (
         <div className={`absolute left-0 top-0 bottom-0 w-2 rounded-r-full ${theme === "DARK" ? "bg-[#ccff00]" :
-            theme === "VINTAGE" ? "bg-black" :
-              "bg-[#4f6b28]"
+          theme === "VINTAGE" ? "bg-black" :
+            "bg-[#4f6b28]"
           }`} />
       )}
       <span className={`material-symbols-outlined text-2xl transition-all ${active ? "opacity-100 scale-110" : "opacity-60 group-hover:opacity-100"}`} style={active ? { fontVariationSettings: "'FILL' 1" } : {}}>
@@ -735,8 +730,8 @@ function ActivityItem({ icon, title, subtitle, color, fill = false, theme }: { i
   return (
     <div className="flex gap-4 items-center">
       <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors ${isDark ? "bg-stone-800 text-[#ccff00]" :
-          isVintage ? "bg-[#f7f9fb] text-black" :
-            color
+        isVintage ? "bg-[#f7f9fb] text-black" :
+          color
         }`}>
         <span className="material-symbols-outlined text-xl" style={fill ? { fontVariationSettings: "'FILL' 1" } : {}}>{icon}</span>
       </div>
@@ -748,15 +743,15 @@ function ActivityItem({ icon, title, subtitle, color, fill = false, theme }: { i
   );
 }
 
-function BookingCard({ court, date, time, partner, avatar, isOpen = false, highlight = false, theme }: { 
-  court: string; 
-  date: string; 
-  time: string; 
-  partner?: string; 
-  avatar?: string; 
-  isOpen?: boolean; 
-  highlight?: boolean; 
-  theme: "LIGHT" | "DARK" | "VINTAGE" 
+function BookingCard({ court, date, time, partner, avatar, isOpen = false, highlight = false, theme }: {
+  court: string;
+  date: string;
+  time: string;
+  partner?: string;
+  avatar?: string;
+  isOpen?: boolean;
+  highlight?: boolean;
+  theme: "LIGHT" | "DARK" | "VINTAGE"
 }) {
   const isDark = theme === "DARK";
   const isVintage = theme === "VINTAGE";
@@ -835,8 +830,8 @@ function CourtBookingView({ theme }: { theme: "LIGHT" | "DARK" | "VINTAGE" }) {
             <p className="text-stone-400 text-[10px] font-black uppercase tracking-widest mt-1">Showing availability for October 2023</p>
           </div>
           <button className={`flex items-center gap-2 px-6 py-2.5 rounded-full font-black text-[10px] uppercase tracking-widest border transition-all ${isDark ? "bg-stone-900 border-stone-800 text-[#ccff00]" :
-              isVintage ? "bg-white border-transparent text-black" :
-                "bg-stone-100 border-stone-200 text-[#4f6b28]"
+            isVintage ? "bg-white border-transparent text-black" :
+              "bg-stone-100 border-stone-200 text-[#4f6b28]"
             }`}>
             <span className="material-symbols-outlined text-sm">calendar_month</span>
             October 2023
@@ -848,8 +843,8 @@ function CourtBookingView({ theme }: { theme: "LIGHT" | "DARK" | "VINTAGE" }) {
             <button
               key={day}
               className={`flex-shrink-0 w-20 h-24 rounded-2xl flex flex-col items-center justify-center transition-all ${day === 14
-                  ? (isDark ? "bg-[#ccff00] text-stone-950 scale-105" : isVintage ? "bg-black text-white scale-105" : "bg-[#4f6b28] text-white scale-105 shadow-lg")
-                  : (isDark ? "bg-stone-900 text-stone-400 hover:text-white" : isVintage ? "bg-white text-stone-400 hover:text-black" : "bg-stone-100 text-stone-500 hover:bg-stone-200")
+                ? (isDark ? "bg-[#ccff00] text-stone-950 scale-105" : isVintage ? "bg-black text-white scale-105" : "bg-[#4f6b28] text-white scale-105 shadow-lg")
+                : (isDark ? "bg-stone-900 text-stone-400 hover:text-white" : isVintage ? "bg-white text-stone-400 hover:text-black" : "bg-stone-100 text-stone-500 hover:bg-stone-200")
                 }`}
             >
               <span className="text-[10px] font-black uppercase tracking-widest opacity-60">
@@ -891,8 +886,8 @@ function CourtSection({ title, theme }: { title: string; theme: "LIGHT" | "DARK"
 
   return (
     <div className={`rounded-3xl p-8 shadow-sm transition-colors duration-500 ${isDark ? "bg-stone-900 border border-stone-800" :
-        isVintage ? "bg-white border border-transparent" :
-          "bg-white border border-stone-100"
+      isVintage ? "bg-white border border-transparent" :
+        "bg-white border border-stone-100"
       }`}>
       <div className="flex justify-between items-center mb-8">
         <h4 className={`font-black tracking-tighter uppercase text-xl ${isDark ? "text-white" : "text-black"}`}>{title}</h4>
@@ -905,17 +900,17 @@ function CourtSection({ title, theme }: { title: string; theme: "LIGHT" | "DARK"
             key={i}
             disabled={slot.status === "booked"}
             className={`p-6 rounded-2xl flex flex-col items-start transition-all border ${slot.status === "booked"
-                ? (isDark ? "bg-stone-950 border-stone-800 opacity-40 cursor-not-allowed" : "bg-stone-50 border-stone-100 opacity-50 cursor-not-allowed")
-                : (isDark
-                  ? "bg-stone-900 border-stone-800 hover:border-[#ccff00] cursor-pointer group"
-                  : isVintage
-                    ? "bg-white border-stone-100 hover:border-black cursor-pointer group"
-                    : "bg-white border-stone-100 hover:border-[#4f6b28] cursor-pointer group")
+              ? (isDark ? "bg-stone-950 border-stone-800 opacity-40 cursor-not-allowed" : "bg-stone-50 border-stone-100 opacity-50 cursor-not-allowed")
+              : (isDark
+                ? "bg-stone-900 border-stone-800 hover:border-[#ccff00] cursor-pointer group"
+                : isVintage
+                  ? "bg-white border-stone-100 hover:border-black cursor-pointer group"
+                  : "bg-white border-stone-100 hover:border-[#4f6b28] cursor-pointer group")
               }`}
           >
             <span className={`text-sm font-black ${slot.status === "available"
-                ? (isDark ? "text-[#ccff00]" : isVintage ? "text-black" : "text-[#4f6b28]")
-                : "text-stone-400"
+              ? (isDark ? "text-[#ccff00]" : isVintage ? "text-black" : "text-[#4f6b28]")
+              : "text-stone-400"
               }`}>
               {slot.time}
             </span>
@@ -952,8 +947,8 @@ function ProgramsView({ theme }: { theme: "LIGHT" | "DARK" | "VINTAGE" }) {
             type="text"
             placeholder="Search training..."
             className={`border-none rounded-full px-8 py-3 w-80 focus:ring-2 text-sm font-black uppercase tracking-widest transition-colors ${isDark ? "bg-stone-900 text-white focus:ring-[#ccff00] placeholder-stone-600" :
-                isVintage ? "bg-white text-black focus:ring-black placeholder-stone-300" :
-                  "bg-stone-100 text-[#4f6b28] focus:ring-[#4f6b28] placeholder-stone-400"
+              isVintage ? "bg-white text-black focus:ring-black placeholder-stone-300" :
+                "bg-stone-100 text-[#4f6b28] focus:ring-[#4f6b28] placeholder-stone-400"
               }`}
           />
           <span className={`material-symbols-outlined absolute right-4 top-3 ${isDark ? "text-stone-700" : "text-stone-300"
@@ -982,26 +977,26 @@ function ProgramsView({ theme }: { theme: "LIGHT" | "DARK" | "VINTAGE" }) {
         </div>
 
         <div className={`col-span-12 lg:col-span-4 rounded-[40px] p-10 flex flex-col justify-between shadow-xl transition-colors ${isDark ? "bg-stone-900" :
-            isVintage ? "bg-white border border-stone-50" :
-              "bg-[#fdfbe6]"
+          isVintage ? "bg-white border border-stone-50" :
+            "bg-[#fdfbe6]"
           }`}>
           <div>
             <h4 className={`text-3xl font-black leading-tight mb-4 uppercase transition-colors ${isDark ? "text-[#ccff00]" :
-                isVintage ? "text-black" :
-                  "text-[#4f6b28]"
+              isVintage ? "text-black" :
+                "text-[#4f6b28]"
               }`}>
               PRO-FOCUS WEEKEND
             </h4>
             <p className={`font-medium leading-relaxed transition-colors ${isDark ? "text-stone-400" :
-                isVintage ? "text-stone-500" :
-                  "text-[#4f6b28]/70"
+              isVintage ? "text-stone-500" :
+                "text-[#4f6b28]/70"
               }`}>
               Join Coach Marcus for a 48-hour immersion into strategy and bio-mechanics. Limited to 8 participants.
             </p>
           </div>
           <button className={`w-full py-4 border-2 rounded-full text-[10px] font-black tracking-[0.2em] transition-all uppercase ${isDark ? "border-[#ccff00] text-[#ccff00] hover:bg-[#ccff00] hover:text-stone-950" :
-              isVintage ? "border-black text-black hover:bg-black hover:text-white" :
-                "border-[#4f6b28] text-[#4f6b28] hover:bg-[#4f6b28] hover:text-white"
+            isVintage ? "border-black text-black hover:bg-black hover:text-white" :
+              "border-[#4f6b28] text-[#4f6b28] hover:bg-[#4f6b28] hover:text-white"
             }`}>
             VIEW COACH BIO
           </button>
@@ -1018,8 +1013,8 @@ function ProgramsView({ theme }: { theme: "LIGHT" | "DARK" | "VINTAGE" }) {
           <div className="flex gap-8 text-[10px] font-black tracking-widest uppercase text-stone-400">
             <span>FILTER BY:</span>
             <button className={`pb-1 transition-colors ${isDark ? "text-[#ccff00] border-b-2 border-[#ccff00]" :
-                isVintage ? "text-black border-b-2 border-black" :
-                  "text-[#4f6b28] border-b-2 border-[#4f6b28]"
+              isVintage ? "text-black border-b-2 border-black" :
+                "text-[#4f6b28] border-b-2 border-[#4f6b28]"
               }`}>ALL</button>
             <button className="hover:text-stone-600 transition-colors">YOUTH</button>
             <button className="hover:text-stone-600 transition-colors">ADULT</button>
@@ -1030,8 +1025,8 @@ function ProgramsView({ theme }: { theme: "LIGHT" | "DARK" | "VINTAGE" }) {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {/* Active Clinics */}
           <div className={`rounded-[40px] overflow-hidden flex flex-col group shadow-lg transition-colors border ${isDark ? "bg-stone-900 border-stone-800" :
-              isVintage ? "bg-white border-stone-50" :
-                "bg-[#fdfbe6] border-transparent"
+            isVintage ? "bg-white border-stone-50" :
+              "bg-[#fdfbe6] border-transparent"
             }`}>
             <div className="h-64 overflow-hidden">
               <img src="/images/active_clinics.png" alt="Active Clinics" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
@@ -1062,8 +1057,8 @@ function ProgramsView({ theme }: { theme: "LIGHT" | "DARK" | "VINTAGE" }) {
 
           {/* Junior Academy */}
           <div className={`rounded-[40px] overflow-hidden flex flex-col group shadow-lg transition-colors ${isDark ? "bg-stone-900 border border-stone-800" :
-              isVintage ? "bg-white border border-stone-50" :
-                "bg-[#cfff00]"
+            isVintage ? "bg-white border border-stone-50" :
+              "bg-[#cfff00]"
             }`}>
             <div className="h-64 overflow-hidden relative">
               <img src="/images/junior_academy.png" alt="Junior Academy" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
@@ -1088,8 +1083,8 @@ function ProgramsView({ theme }: { theme: "LIGHT" | "DARK" | "VINTAGE" }) {
 
           {/* Social Mixers */}
           <div className={`rounded-[40px] overflow-hidden flex flex-col group shadow-lg transition-colors border ${isDark ? "bg-stone-900 border-stone-800" :
-              isVintage ? "bg-white border-stone-50" :
-                "bg-[#fdfbe6] border-transparent"
+            isVintage ? "bg-white border-stone-50" :
+              "bg-[#fdfbe6] border-transparent"
             }`}>
             <div className="p-10 pb-0">
               <div className="flex justify-between items-start mb-4">
@@ -1126,8 +1121,8 @@ function ProgramsView({ theme }: { theme: "LIGHT" | "DARK" | "VINTAGE" }) {
 
       {/* Spring Session Section */}
       <section className={`rounded-[40px] p-16 grid grid-cols-12 gap-12 transition-colors border ${isDark ? "bg-stone-950 border-stone-800" :
-          isVintage ? "bg-white border-stone-50 shadow-sm" :
-            "bg-stone-50 border-transparent"
+        isVintage ? "bg-white border-stone-50 shadow-sm" :
+          "bg-stone-50 border-transparent"
         }`}>
         <div className="col-span-12 lg:col-span-5 space-y-8">
           <div className="space-y-4">
@@ -1253,9 +1248,8 @@ function ProfileView({ theme, profile, roles }: { theme: "LIGHT" | "DARK" | "VIN
   return (
     <div className="max-w-4xl space-y-16 animate-in fade-in slide-in-from-bottom-4 duration-700">
       {showSuccess && (
-        <div className={`fixed top-8 right-8 z-[100] px-8 py-4 rounded-2xl shadow-2xl animate-in slide-in-from-right-8 duration-500 border flex items-center gap-3 ${
-          isDark ? "bg-[#ccff00] text-stone-950 border-[#ccff00]" : "bg-[#4f6b28] text-white border-[#4f6b28]"
-        }`}>
+        <div className={`fixed top-8 right-8 z-[100] px-8 py-4 rounded-2xl shadow-2xl animate-in slide-in-from-right-8 duration-500 border flex items-center gap-3 ${isDark ? "bg-[#ccff00] text-stone-950 border-[#ccff00]" : "bg-[#4f6b28] text-white border-[#4f6b28]"
+          }`}>
           <span className="material-symbols-outlined">check_circle</span>
           <span className="text-xs font-black uppercase tracking-widest">{showSuccess}</span>
         </div>
@@ -1292,8 +1286,8 @@ function ProfileView({ theme, profile, roles }: { theme: "LIGHT" | "DARK" | "VIN
 
       <div className="grid grid-cols-12 gap-8">
         <div className={`col-span-12 lg:col-span-7 rounded-[40px] p-12 shadow-xl space-y-10 transition-colors border ${isDark ? "bg-stone-900 border-stone-800" :
-            isVintage ? "bg-white border-stone-50" :
-              "bg-[#fdfbe6] border-transparent"
+          isVintage ? "bg-white border-stone-50" :
+            "bg-[#fdfbe6] border-transparent"
           }`}>
           <h3 className={`text-3xl font-black tracking-tighter uppercase transition-colors ${isDark ? "text-[#ccff00]" : "text-black"
             }`}>Account Security</h3>
@@ -1313,16 +1307,16 @@ function ProfileView({ theme, profile, roles }: { theme: "LIGHT" | "DARK" | "VIN
             ))}
           </div>
           <div className="pt-8 flex gap-4">
-            <button 
+            <button
               onClick={() => setShowEditModal(true)}
               className={`flex-1 py-4 rounded-2xl text-[10px] font-black tracking-widest uppercase transition-colors ${isDark ? "bg-stone-800 text-[#ccff00]" : isVintage ? "bg-black text-white" : "bg-[#4f6b28] text-white"
-              }`}>
+                }`}>
               EDIT INFORMATION
             </button>
-            <button 
+            <button
               onClick={handleChangePassword}
               className={`flex-1 py-4 border-2 rounded-2xl text-[10px] font-black tracking-widest uppercase transition-colors ${isDark ? "border-stone-800 text-white hover:bg-stone-800" : isVintage ? "border-black text-black hover:bg-black hover:text-white" : "border-[#4f6b28] text-[#4f6b28] hover:bg-[#4f6b28] hover:text-white"
-              }`}>
+                }`}>
               CHANGE PASSWORD
             </button>
           </div>
@@ -1333,12 +1327,12 @@ function ProfileView({ theme, profile, roles }: { theme: "LIGHT" | "DARK" | "VIN
           <div className="absolute inset-0 bg-stone-950/80 backdrop-blur-md" onClick={() => setShowEditModal(false)}></div>
           <div className={`relative w-full max-w-xl rounded-[40px] p-12 shadow-2xl animate-in zoom-in-95 duration-300 border ${isDark ? "bg-stone-900 border-stone-800" : "bg-white border-stone-100"}`}>
             <h3 className={`text-4xl font-black tracking-tighter uppercase mb-10 ${isDark ? "text-white" : "text-stone-900"}`}>Edit Information</h3>
-            
+
             <div className="space-y-8">
               <div className="grid grid-cols-2 gap-8">
                 <div>
                   <label className="text-[10px] font-black uppercase tracking-widest text-stone-400 mb-3 block">First Name</label>
-                  <input 
+                  <input
                     value={formData.first_name}
                     onChange={e => setFormData({ ...formData, first_name: e.target.value })}
                     className={`w-full bg-transparent border-b-2 py-4 text-lg font-bold outline-none transition-colors ${isDark ? "border-stone-800 focus:border-[#ccff00] text-white" : "border-stone-100 focus:border-[#4f6b28] text-stone-900"}`}
@@ -1346,7 +1340,7 @@ function ProfileView({ theme, profile, roles }: { theme: "LIGHT" | "DARK" | "VIN
                 </div>
                 <div>
                   <label className="text-[10px] font-black uppercase tracking-widest text-stone-400 mb-3 block">Last Name</label>
-                  <input 
+                  <input
                     value={formData.last_name}
                     onChange={e => setFormData({ ...formData, last_name: e.target.value })}
                     className={`w-full bg-transparent border-b-2 py-4 text-lg font-bold outline-none transition-colors ${isDark ? "border-stone-800 focus:border-[#ccff00] text-white" : "border-stone-100 focus:border-[#4f6b28] text-stone-900"}`}
@@ -1355,7 +1349,7 @@ function ProfileView({ theme, profile, roles }: { theme: "LIGHT" | "DARK" | "VIN
               </div>
               <div>
                 <label className="text-[10px] font-black uppercase tracking-widest text-stone-400 mb-3 block">Street Address</label>
-                <input 
+                <input
                   value={formData.address_street}
                   onChange={e => setFormData({ ...formData, address_street: e.target.value })}
                   placeholder="123 Tennis Court Lane"
@@ -1364,7 +1358,7 @@ function ProfileView({ theme, profile, roles }: { theme: "LIGHT" | "DARK" | "VIN
               </div>
               <div>
                 <label className="text-[10px] font-black uppercase tracking-widest text-stone-400 mb-3 block">Phone Number</label>
-                <input 
+                <input
                   value={formData.phone}
                   onChange={e => setFormData({ ...formData, phone: e.target.value })}
                   placeholder="+1 (555) 000-0000"
@@ -1374,7 +1368,7 @@ function ProfileView({ theme, profile, roles }: { theme: "LIGHT" | "DARK" | "VIN
               <div className="grid grid-cols-3 gap-8">
                 <div className="col-span-1">
                   <label className="text-[10px] font-black uppercase tracking-widest text-stone-400 mb-3 block">City</label>
-                  <input 
+                  <input
                     value={formData.address_city}
                     onChange={e => setFormData({ ...formData, address_city: e.target.value })}
                     placeholder="Wimbledon"
@@ -1383,7 +1377,7 @@ function ProfileView({ theme, profile, roles }: { theme: "LIGHT" | "DARK" | "VIN
                 </div>
                 <div className="col-span-1">
                   <label className="text-[10px] font-black uppercase tracking-widest text-stone-400 mb-3 block">State</label>
-                  <select 
+                  <select
                     value={formData.address_state}
                     onChange={e => setFormData({ ...formData, address_state: e.target.value })}
                     className={`w-full bg-transparent border-b-2 py-4 text-lg font-bold outline-none transition-colors appearance-none ${isDark ? "border-stone-800 focus:border-[#ccff00] text-white" : "border-stone-100 focus:border-[#4f6b28] text-stone-900"}`}
@@ -1396,7 +1390,7 @@ function ProfileView({ theme, profile, roles }: { theme: "LIGHT" | "DARK" | "VIN
                 </div>
                 <div className="col-span-1">
                   <label className="text-[10px] font-black uppercase tracking-widest text-stone-400 mb-3 block">Zip Code</label>
-                  <input 
+                  <input
                     value={formData.address_zip}
                     onChange={e => setFormData({ ...formData, address_zip: e.target.value })}
                     placeholder="SW19"
@@ -1407,13 +1401,13 @@ function ProfileView({ theme, profile, roles }: { theme: "LIGHT" | "DARK" | "VIN
             </div>
 
             <div className="flex gap-4 mt-16">
-              <button 
+              <button
                 onClick={() => setShowEditModal(false)}
                 className={`flex-1 py-5 rounded-2xl text-[10px] font-black tracking-widest uppercase transition-colors border ${isDark ? "border-stone-800 text-stone-500 hover:bg-stone-800" : "border-stone-200 text-stone-400 hover:bg-stone-50"}`}
               >
                 CANCEL
               </button>
-              <button 
+              <button
                 onClick={handleSaveProfile}
                 disabled={isSaving}
                 className={`flex-1 py-5 rounded-2xl text-[10px] font-black tracking-widest uppercase transition-all shadow-xl flex items-center justify-center gap-3 ${isDark ? "bg-[#ccff00] text-stone-950 shadow-[#ccff00]/20" : "bg-[#4f6b28] text-white shadow-[#4f6b28]/20"}`}
@@ -1430,8 +1424,8 @@ function ProfileView({ theme, profile, roles }: { theme: "LIGHT" | "DARK" | "VIN
         </div>
 
         <div className={`col-span-12 lg:col-span-5 rounded-[40px] p-12 shadow-xl flex flex-col justify-between transition-colors border ${isDark ? "bg-stone-950 border-stone-800" :
-            isVintage ? "bg-white border-stone-50" :
-              "bg-white border-stone-100"
+          isVintage ? "bg-white border-stone-50" :
+            "bg-white border-stone-100"
           }`}>
           <div>
             <h3 className={`text-3xl font-black tracking-tighter uppercase mb-8 transition-colors ${isDark ? "text-white" : "text-black"
@@ -1502,7 +1496,7 @@ function MembershipView({ theme }: { theme: "LIGHT" | "DARK" | "VINTAGE" }) {
               ))}
             </ul>
             <button className={`mt-12 w-full py-5 rounded-2xl text-[10px] font-black tracking-widest transition-all uppercase ${plan.popular ? (isDark ? "bg-stone-900 text-white" : isVintage ? "bg-white text-black" : "bg-white text-[#4f6b28]") :
-                "border-2 border-current hover:bg-current hover:text-white"
+              "border-2 border-current hover:bg-current hover:text-white"
               }`}>
               {plan.popular ? "CURRENT PLAN" : "UPGRADE NOW"}
             </button>
@@ -1532,8 +1526,8 @@ function SettingsView({ theme }: { theme: "LIGHT" | "DARK" | "VINTAGE" }) {
           { icon: "mail", title: "Newsletter", desc: "Weekly club updates and clinic openings", active: true }
         ].map((opt, i) => (
           <div key={i} className={`flex items-center justify-between p-8 rounded-3xl border shadow-sm transition-all border ${isDark ? "bg-stone-900 border-stone-800" :
-              isVintage ? "bg-white border-stone-50" :
-                "bg-white border-stone-100"
+            isVintage ? "bg-white border-stone-50" :
+              "bg-white border-stone-100"
             }`}>
             <div className="flex items-center gap-6">
               <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-colors ${isDark ? "bg-stone-800 text-[#ccff00]" : "bg-stone-50 text-[#4f6b28]"
