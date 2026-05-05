@@ -103,7 +103,7 @@ export default function OrganizationView({ theme, tenantId: tenantIdProp }: Orga
       }`}>
         {activeTab === "INFO" && <InfoTab data={tenantData} onSave={handleSave} isSaving={isSaving} theme={theme} />}
         {activeTab === "BRANDING" && <BrandingTab data={tenantData} onSave={handleSave} isSaving={isSaving} theme={theme} tenantId={tenantId} />}
-        {activeTab === "EMAIL" && <EmailTab data={tenantData} onSave={handleSave} isSaving={isSaving} theme={theme} />}
+        {activeTab === "EMAIL" && <EmailTab data={tenantData} onSave={handleSave} isSaving={isSaving} theme={theme} tenantId={tenantId} />}
         {activeTab === "PAYMENT" && <PaymentTab data={tenantData} onSave={handleSave} isSaving={isSaving} theme={theme} />}
       </div>
 
@@ -406,13 +406,14 @@ function BrandingTab({ data, onSave, isSaving, theme, tenantId }: any) {
   );
 }
 
-function EmailTab({ data, onSave, isSaving, theme }: any) {
+function EmailTab({ data, onSave, isSaving, theme, tenantId }: any) {
   const isDark = theme === "DARK";
   const [formData, setFormData] = useState({
     delivery_method: "API",
     smtp_service: "Gmail",
     smtp_2fa: true,
     smtp_tls: true,
+    use_platform_email: false,
     ...data
   });
 
@@ -422,12 +423,34 @@ function EmailTab({ data, onSave, isSaving, theme }: any) {
 
   return (
     <div className="space-y-16 animate-in fade-in duration-700">
-      <div className="space-y-2">
-        <h3 className={`text-3xl font-black tracking-tighter uppercase transition-colors ${isDark ? "text-white" : "text-black"}`}>Email Setup</h3>
-        <p className="text-stone-400 text-xs font-medium">Configure how your marketing and system emails are delivered.</p>
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8">
+        <div className="space-y-2">
+          <h3 className={`text-3xl font-black tracking-tighter uppercase transition-colors ${isDark ? "text-white" : "text-black"}`}>Email Setup</h3>
+          <p className="text-stone-400 text-xs font-medium">Configure how your marketing and system emails are delivered.</p>
+        </div>
+
+        {tenantId !== "Global" && (
+          <div className={`p-6 px-8 rounded-3xl border transition-all flex items-center gap-6 min-w-[320px] ${
+            isDark ? "bg-stone-900/50 border-stone-800" : "bg-stone-50 border-stone-100"
+          }`}>
+            <div className="flex-1 space-y-1">
+              <h4 className={`text-[10px] font-black uppercase tracking-widest ${isDark ? "text-white" : "text-stone-900"}`}>Use Platform Email Service</h4>
+              <p className="text-[8px] text-stone-400 font-bold uppercase tracking-tight">Inherit from master organization</p>
+            </div>
+            <label className="relative inline-flex items-center cursor-pointer">
+              <input 
+                type="checkbox" 
+                className="sr-only peer" 
+                checked={formData.use_platform_email}
+                onChange={(e) => setFormData({...formData, use_platform_email: e.target.checked})}
+              />
+              <div className="w-12 h-6 bg-stone-200 peer-focus:outline-none rounded-full peer dark:bg-stone-800 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-green-500"></div>
+            </label>
+          </div>
+        )}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-16 gap-y-12">
+      <div className={`grid grid-cols-1 lg:grid-cols-2 gap-x-16 gap-y-12 transition-opacity duration-300 ${formData.use_platform_email ? "opacity-40 pointer-events-none grayscale" : ""}`}>
         {/* Left Column: Common Fields */}
         <div className="space-y-12">
           <div className="space-y-8">

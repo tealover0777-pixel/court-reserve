@@ -29,7 +29,7 @@ export default function DashboardClient({ params }: { params: { tenantId: string
   const searchParams = useSearchParams();
   const pathname = usePathname();
 
-  const [activeView, setActiveView] = React.useState<"DASHBOARD" | "COURT BOOKING" | "PROGRAMS" | "MEMBERSHIP" | "SETTINGS" | "PROFILE" | "AI_ADMIN" | "DIMENSIONS" | "ROLE_TYPES" | "USER_ADMIN" | "PLATFORM_TENANT_ADMIN" | "ORGANIZATION">("DASHBOARD");
+  const [activeView, setActiveView] = React.useState<"DASHBOARD" | "COURT BOOKING" | "PROGRAMS" | "MEMBERSHIP" | "SETTINGS" | "PROFILE" | "AI_ADMIN" | "DIMENSIONS" | "ROLE_TYPES" | "USER_ADMIN" | "PLATFORM_TENANT_ADMIN" | "ORGANIZATION" | "PLATFORM_ORGANIZATION" | "TENANT_USER_ADMIN">("DASHBOARD");
   const [platformAdminOpen, setPlatformAdminOpen] = React.useState(false);
   const [administrationOpen, setAdministrationOpen] = React.useState(false);
   const [theme, setTheme] = React.useState<"LIGHT" | "DARK" | "VINTAGE">("LIGHT");
@@ -183,6 +183,12 @@ export default function DashboardClient({ params }: { params: { tenantId: string
                 onClick={() => handleViewChange("ORGANIZATION")}
                 theme={theme}
               />
+              <SubNavItem
+                label="Users"
+                active={activeView === "TENANT_USER_ADMIN"}
+                onClick={() => handleViewChange("TENANT_USER_ADMIN")}
+                theme={theme}
+              />
             </div>
           )}
           <NavItem
@@ -195,7 +201,7 @@ export default function DashboardClient({ params }: { params: { tenantId: string
           <NavItem
             icon="hub"
             label="Platform"
-            active={activeView === "AI_ADMIN" || activeView === "DIMENSIONS" || activeView === "USER_ADMIN" || activeView === "PLATFORM_TENANT_ADMIN"}
+            active={activeView === "AI_ADMIN" || activeView === "DIMENSIONS" || activeView === "USER_ADMIN" || activeView === "PLATFORM_TENANT_ADMIN" || activeView === "PLATFORM_ORGANIZATION"}
             onClick={() => setPlatformAdminOpen(!platformAdminOpen)}
             theme={theme}
           />
@@ -223,6 +229,12 @@ export default function DashboardClient({ params }: { params: { tenantId: string
                 label="Tenant Admin"
                 active={activeView === "PLATFORM_TENANT_ADMIN"}
                 onClick={() => handleViewChange("PLATFORM_TENANT_ADMIN")}
+                theme={theme}
+              />
+              <SubNavItem
+                label="Organization"
+                active={activeView === "PLATFORM_ORGANIZATION"}
+                onClick={() => handleViewChange("PLATFORM_ORGANIZATION")}
                 theme={theme}
               />
             </div>
@@ -307,8 +319,8 @@ export default function DashboardClient({ params }: { params: { tenantId: string
           </div>
           <div className="flex items-center gap-2">
             <span className={`text-[10px] font-black tracking-widest uppercase opacity-40 ${theme === "DARK" ? "text-white" : "text-stone-950"}`}>
-              {activeView === "DASHBOARD" || activeView === "PROGRAMS" || activeView === "MEMBERSHIP" ? "PLATFORM" :
-                activeView === "ROLE_TYPES" || activeView === "ORGANIZATION" ? "ADMINISTRATION" : "MANAGEMENT"}
+              {activeView === "DASHBOARD" || activeView === "PROGRAMS" || activeView === "MEMBERSHIP" || activeView.includes("PLATFORM") || activeView === "USER_ADMIN" || activeView === "AI_ADMIN" || activeView === "DIMENSIONS" ? "PLATFORM" :
+                activeView === "ROLE_TYPES" || activeView === "ORGANIZATION" || activeView === "TENANT_USER_ADMIN" ? "ADMINISTRATION" : "MANAGEMENT"}
             </span>
             <span className="text-stone-300">/</span>
             <span className={`text-xs font-black tracking-widest uppercase ${theme === "DARK" ? "text-white" : "text-stone-950"}`}>
@@ -411,6 +423,10 @@ export default function DashboardClient({ params }: { params: { tenantId: string
           <RoleTypesView theme={theme} />
         ) : activeView === "ORGANIZATION" ? (
           <OrganizationView theme={theme} tenantId={tenantId} />
+        ) : activeView === "TENANT_USER_ADMIN" ? (
+          <UserAdminView theme={theme} tenantId={tenantId} />
+        ) : activeView === "PLATFORM_ORGANIZATION" ? (
+          <OrganizationView theme={theme} tenantId="Global" />
         ) : activeView === "USER_ADMIN" ? (
           <UserAdminView theme={theme} />
         ) : activeView === "PLATFORM_TENANT_ADMIN" ? (

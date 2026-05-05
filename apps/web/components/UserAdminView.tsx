@@ -46,7 +46,7 @@ import { httpsCallable } from "firebase/functions";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { useEffect } from "react";
 
-export default function UserAdminView({ theme = "LIGHT" }: { theme?: "LIGHT" | "DARK" | "VINTAGE" }) {
+export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "LIGHT" | "DARK" | "VINTAGE", tenantId?: string | null }) {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentUser, setCurrentUser] = useState<any>(null);
@@ -106,7 +106,10 @@ export default function UserAdminView({ theme = "LIGHT" }: { theme?: "LIGHT" | "
   }, [users, formData.tenant_id]);
 
   useEffect(() => {
-    const q = query(collection(db, "global_users"), orderBy("user_id", "asc"));
+    let q = query(collection(db, "global_users"), orderBy("user_id", "asc"));
+    if (tenantId) {
+      q = query(collection(db, "global_users"), where("tenant_id", "==", tenantId), orderBy("user_id", "asc"));
+    }
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const data = snapshot.docs.map(doc => ({
         id: doc.id,
@@ -146,7 +149,7 @@ export default function UserAdminView({ theme = "LIGHT" }: { theme?: "LIGHT" | "
       unsubscribeRoles();
       unsubscribeTenants();
     };
-  }, []);
+  }, [tenantId]);
 
   useEffect(() => {
     const auth = getAuth();
@@ -397,7 +400,7 @@ export default function UserAdminView({ theme = "LIGHT" }: { theme?: "LIGHT" | "
       status: "Invited",
       phone: "",
       notes: "",
-      tenant_id: "",
+      tenant_id: tenantId || "",
       invite_user: true,
       address_street_1: "",
       address_street_2: "",
@@ -974,12 +977,12 @@ export default function UserAdminView({ theme = "LIGHT" }: { theme?: "LIGHT" | "
             <input 
               value={formData.tenant_id}
               onChange={e => setFormData({ ...formData, tenant_id: e.target.value })}
-              readOnly={!!editingUser}
+              readOnly={!!editingUser || !!tenantId}
               placeholder="e.g. T10001"
               className={`w-full border rounded-2xl px-6 py-4 text-sm font-bold outline-none transition-colors ${
                 theme === "DARK" 
-                  ? (editingUser ? "bg-stone-900 text-stone-500 border-stone-800" : "bg-stone-950 text-white border-stone-800 focus:border-[#ccff00]") 
-                  : (editingUser ? "bg-stone-50 text-stone-400 border-stone-100" : "bg-white text-stone-900 border-stone-200 focus:border-stone-400 shadow-sm")
+                  ? (editingUser || tenantId ? "bg-stone-900 text-stone-500 border-stone-800" : "bg-stone-950 text-white border-stone-800 focus:border-[#ccff00]") 
+                  : (editingUser || tenantId ? "bg-stone-50 text-stone-400 border-stone-100" : "bg-white text-stone-900 border-stone-200 focus:border-stone-400 shadow-sm")
               }`}
             />
           </div>
@@ -1221,9 +1224,12 @@ export default function UserAdminView({ theme = "LIGHT" }: { theme?: "LIGHT" | "
             <input 
               value={formData.tenant_id}
               onChange={e => setFormData({ ...formData, tenant_id: e.target.value })}
+              readOnly={!!tenantId}
               placeholder="e.g. T10001"
               className={`w-full border rounded-2xl px-6 py-4 text-sm font-bold outline-none transition-colors ${
-                theme === "DARK" ? "bg-stone-950 text-white border-stone-800 focus:border-[#ccff00]" : "bg-white text-stone-900 border-stone-200 focus:border-stone-400 shadow-sm"
+                theme === "DARK" 
+                  ? (tenantId ? "bg-stone-900 text-stone-500 border-stone-800" : "bg-stone-950 text-white border-stone-800 focus:border-[#ccff00]") 
+                  : (tenantId ? "bg-stone-50 text-stone-400 border-stone-100" : "bg-white text-stone-900 border-stone-200 focus:border-stone-400 shadow-sm")
               }`}
             />
           </div>
