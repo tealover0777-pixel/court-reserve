@@ -29,7 +29,7 @@ export default function DashboardClient({ params }: { params: { tenantId: string
   const searchParams = useSearchParams();
   const pathname = usePathname();
 
-  const [activeView, setActiveView] = React.useState<"DASHBOARD" | "COURT BOOKING" | "PROGRAMS" | "MEMBERSHIP" | "SETTINGS" | "PROFILE" | "AI_ADMIN" | "DIMENSIONS" | "ROLE_TYPES" | "USER_ADMIN" | "PLATFORM_TENANT_ADMIN" | "ORGANIZATION" | "PLATFORM_ORGANIZATION" | "TENANT_USER_ADMIN">("DASHBOARD");
+  const [activeView, setActiveView] = React.useState<"DASHBOARD" | "COURT BOOKING" | "PROGRAMS" | "MEMBERSHIP" | "SETTINGS" | "PROFILE" | "AI_ADMIN" | "DIMENSIONS" | "ROLE_TYPES" | "USER_ADMIN" | "PLATFORM_TENANT_ADMIN" | "ORGANIZATION" | "PLATFORM_ORGANIZATION" | "TENANT_USER_ADMIN" | "PLATFORM_ROLE_TYPES">("DASHBOARD");
   const [platformAdminOpen, setPlatformAdminOpen] = React.useState(false);
   const [administrationOpen, setAdministrationOpen] = React.useState(false);
   const [theme, setTheme] = React.useState<"LIGHT" | "DARK" | "VINTAGE">("LIGHT");
@@ -237,6 +237,12 @@ export default function DashboardClient({ params }: { params: { tenantId: string
                 onClick={() => handleViewChange("PLATFORM_ORGANIZATION")}
                 theme={theme}
               />
+              <SubNavItem
+                label="Role Types"
+                active={activeView === "PLATFORM_ROLE_TYPES"}
+                onClick={() => handleViewChange("PLATFORM_ROLE_TYPES")}
+                theme={theme}
+              />
             </div>
           )}
         </nav>
@@ -314,7 +320,7 @@ export default function DashboardClient({ params }: { params: { tenantId: string
             <span className="material-symbols-outlined text-sm">
               {activeView === "DASHBOARD" ? "dashboard" :
                 activeView.includes("ADMIN") ? "admin_panel_settings" :
-                  activeView === "ROLE_TYPES" ? "rule" : "grid_view"}
+                  activeView === "ROLE_TYPES" || activeView === "PLATFORM_ROLE_TYPES" ? "rule" : "grid_view"}
             </span>
           </div>
           <div className="flex items-center gap-2">
@@ -431,6 +437,8 @@ export default function DashboardClient({ params }: { params: { tenantId: string
           <UserAdminView theme={theme} />
         ) : activeView === "PLATFORM_TENANT_ADMIN" ? (
           <PlatformTenantAdminView theme={theme} />
+        ) : activeView === "PLATFORM_ROLE_TYPES" ? (
+          <RoleTypesView theme={theme} />
         ) : activeView === "COURT BOOKING" ? (
           <CourtBookingView theme={theme} />
         ) : activeView === "PROGRAMS" ? (
