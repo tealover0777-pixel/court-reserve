@@ -1211,24 +1211,14 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
           </p>
 
           {tenantId ? (
-            <>
-              <div>
-                <label className={`text-[10px] font-black tracking-widest uppercase mb-3 block ${theme === "DARK" ? "text-stone-500" : "text-stone-400"}`}>TENANT NAME</label>
-                <div className={`w-full border rounded-2xl px-6 py-4 text-sm font-bold transition-colors ${
-                  theme === "DARK" ? "bg-stone-900 text-stone-500 border-stone-800" : "bg-stone-50 text-stone-400 border-stone-100"
-                }`}>
-                  {tenants.find(t => t.id === tenantId)?.name || "Unknown Organization"}
-                </div>
+            <div>
+              <label className={`text-[10px] font-black tracking-widest uppercase mb-3 block ${theme === "DARK" ? "text-stone-500" : "text-stone-400"}`}>TENANT NAME</label>
+              <div className={`w-full border rounded-2xl px-6 py-4 text-sm font-bold transition-colors ${
+                theme === "DARK" ? "bg-stone-900 text-stone-500 border-stone-800" : "bg-stone-50 text-stone-400 border-stone-100"
+              }`}>
+                {tenants.find(t => t.id === tenantId)?.name || "Unknown Organization"}
               </div>
-              <div>
-                <label className={`text-[10px] font-black tracking-widest uppercase mb-3 block ${theme === "DARK" ? "text-stone-500" : "text-stone-400"}`}>Upcoming User ID</label>
-                <div className={`w-full border rounded-2xl px-6 py-4 text-sm font-bold transition-colors ${
-                  theme === "DARK" ? "bg-stone-900 text-stone-400 border-stone-800" : "bg-stone-50 text-stone-500 border-stone-100"
-                }`}>
-                  {nextUserId}
-                </div>
-              </div>
-            </>
+            </div>
           ) : (
             <>
               <div>
