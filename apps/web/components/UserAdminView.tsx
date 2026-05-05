@@ -1210,29 +1210,48 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
             This will create a user in your organization responsible for monitoring operations and managing users associated with your business processes.
           </p>
 
-          <div>
-            <label className={`text-[10px] font-black tracking-widest uppercase mb-3 block ${theme === "DARK" ? "text-stone-500" : "text-stone-400"}`}>Upcoming User ID</label>
-            <div className={`w-full border rounded-2xl px-6 py-4 text-sm font-bold transition-colors ${
-              theme === "DARK" ? "bg-stone-900 text-stone-400 border-stone-800" : "bg-stone-50 text-stone-500 border-stone-100"
-            }`}>
-              {nextUserId}
-            </div>
-          </div>
-
-          <div>
-            <label className={`text-[10px] font-black tracking-widest uppercase mb-3 block ${theme === "DARK" ? "text-stone-500" : "text-stone-400"}`}>Tenant ID</label>
-            <input 
-              value={formData.tenant_id}
-              onChange={e => setFormData({ ...formData, tenant_id: e.target.value })}
-              readOnly={!!tenantId}
-              placeholder="e.g. T10001"
-              className={`w-full border rounded-2xl px-6 py-4 text-sm font-bold outline-none transition-colors ${
-                theme === "DARK" 
-                  ? (tenantId ? "bg-stone-900 text-stone-500 border-stone-800" : "bg-stone-950 text-white border-stone-800 focus:border-[#ccff00]") 
-                  : (tenantId ? "bg-stone-50 text-stone-400 border-stone-100" : "bg-white text-stone-900 border-stone-200 focus:border-stone-400 shadow-sm")
-              }`}
-            />
-          </div>
+          {tenantId ? (
+            <>
+              <div>
+                <label className={`text-[10px] font-black tracking-widest uppercase mb-3 block ${theme === "DARK" ? "text-stone-500" : "text-stone-400"}`}>TENANT NAME</label>
+                <div className={`w-full border rounded-2xl px-6 py-4 text-sm font-bold transition-colors ${
+                  theme === "DARK" ? "bg-stone-900 text-stone-500 border-stone-800" : "bg-stone-50 text-stone-400 border-stone-100"
+                }`}>
+                  {tenants.find(t => t.id === tenantId)?.name || "Unknown Organization"}
+                </div>
+              </div>
+              <div>
+                <label className={`text-[10px] font-black tracking-widest uppercase mb-3 block ${theme === "DARK" ? "text-stone-500" : "text-stone-400"}`}>Upcoming User ID</label>
+                <div className={`w-full border rounded-2xl px-6 py-4 text-sm font-bold transition-colors ${
+                  theme === "DARK" ? "bg-stone-900 text-stone-400 border-stone-800" : "bg-stone-50 text-stone-500 border-stone-100"
+                }`}>
+                  {nextUserId}
+                </div>
+              </div>
+            </>
+          ) : (
+            <>
+              <div>
+                <label className={`text-[10px] font-black tracking-widest uppercase mb-3 block ${theme === "DARK" ? "text-stone-500" : "text-stone-400"}`}>Upcoming User ID</label>
+                <div className={`w-full border rounded-2xl px-6 py-4 text-sm font-bold transition-colors ${
+                  theme === "DARK" ? "bg-stone-900 text-stone-400 border-stone-800" : "bg-stone-50 text-stone-500 border-stone-100"
+                }`}>
+                  {nextUserId}
+                </div>
+              </div>
+              <div>
+                <label className={`text-[10px] font-black tracking-widest uppercase mb-3 block ${theme === "DARK" ? "text-stone-500" : "text-stone-400"}`}>Tenant ID</label>
+                <input 
+                  value={formData.tenant_id}
+                  onChange={e => setFormData({ ...formData, tenant_id: e.target.value })}
+                  placeholder="e.g. T10001"
+                  className={`w-full border rounded-2xl px-6 py-4 text-sm font-bold outline-none transition-colors ${
+                    theme === "DARK" ? "bg-stone-950 text-white border-stone-800 focus:border-[#ccff00]" : "bg-white text-stone-900 border-stone-200 focus:border-stone-400 shadow-sm"
+                  }`}
+                />
+              </div>
+            </>
+          )}
 
           <div>
             <label className={`text-[10px] font-black tracking-widest uppercase mb-3 block ${theme === "DARK" ? "text-stone-500" : "text-stone-400"}`}>Email Address</label>
