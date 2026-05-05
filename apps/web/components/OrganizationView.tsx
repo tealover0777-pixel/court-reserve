@@ -557,7 +557,26 @@ function EmailTab({ data, onSave, isSaving, theme, tenantId }: any) {
               <FormField label="Email Service" theme={theme}>
                 <select 
                   value={formData.smtp_service}
-                  onChange={(e) => setFormData({...formData, smtp_service: e.target.value})}
+                  onChange={(e) => {
+                    const service = e.target.value;
+                    const configs: Record<string, { host: string; port: string }> = {
+                      "Gmail": { host: "smtp.gmail.com", port: "587" },
+                      "Outlook / Office 365": { host: "smtp.office365.com", port: "587" },
+                      "SendGrid": { host: "smtp.sendgrid.net", port: "587" },
+                      "Amazon SES": { host: "email-smtp.us-east-1.amazonaws.com", port: "587" }
+                    };
+                    
+                    if (configs[service]) {
+                      setFormData({
+                        ...formData, 
+                        smtp_service: service,
+                        smtp_host: configs[service].host,
+                        smtp_port: configs[service].port
+                      });
+                    } else {
+                      setFormData({...formData, smtp_service: service});
+                    }
+                  }}
                   className={`${inputClasses} appearance-none cursor-pointer`}
                 >
                   <option>Select Service</option>

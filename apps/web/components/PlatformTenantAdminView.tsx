@@ -398,8 +398,26 @@ export default function PlatformTenantAdminView({ theme = "LIGHT" }: { theme?: "
       }`}>{info.getValue()}</span>,
     }),
     columnHelper.accessor("owner_email", {
-      header: "OWNER",
+      header: "OWNER EMAIL",
       size: 200,
+      cell: info => <span className={`text-xs font-bold transition-colors duration-500 ${
+        theme === "DARK" ? "text-stone-400" : 
+        theme === "VINTAGE" ? "text-stone-500" :
+        "text-stone-700"
+      }`}>{info.getValue() || "-"}</span>,
+    }),
+    columnHelper.accessor("owner_first_name", {
+      header: "FIRST NAME",
+      size: 150,
+      cell: info => <span className={`text-xs font-bold transition-colors duration-500 ${
+        theme === "DARK" ? "text-stone-400" : 
+        theme === "VINTAGE" ? "text-stone-500" :
+        "text-stone-700"
+      }`}>{info.getValue() || "-"}</span>,
+    }),
+    columnHelper.accessor("owner_last_name", {
+      header: "LAST NAME",
+      size: 150,
       cell: info => <span className={`text-xs font-bold transition-colors duration-500 ${
         theme === "DARK" ? "text-stone-400" : 
         theme === "VINTAGE" ? "text-stone-500" :
