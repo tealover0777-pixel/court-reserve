@@ -77,23 +77,23 @@ function KineticLemonSchedule({ selectedDate, onDateSelect }: { selectedDate: nu
 
       <div className="grid grid-cols-4 gap-8">
         <div className="col-span-1">
-          <div className="h-14 mb-4 border-b border-[#ccff00]/20 flex items-end pb-4">
-            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-stone-300">Time</span>
+          <div className="h-14 mb-4 border-b border-stone-800 flex items-end pb-4">
+            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-stone-400">Time</span>
           </div>
           {TIMES.map(t => (
-            <div key={t} className="h-20 flex items-center">
+            <div key={t} className="h-20 flex items-center border-b border-stone-800/20">
               <span className="text-sm font-black text-[#4f6b28] tabular-nums">{t}</span>
             </div>
           ))}
         </div>
 
         {COURTS.map(court => (
-          <div key={court} className="col-span-1">
-            <div className="h-14 mb-4 border-b border-[#ccff00]/20 flex items-end pb-4">
+          <div key={court} className="col-span-1 border-l border-stone-800/20 pl-8">
+            <div className="h-14 mb-4 border-b border-stone-800 flex items-end pb-4">
               <span className="text-xs font-black uppercase tracking-[0.2em] text-stone-900">{court}</span>
             </div>
             {TIMES.map((t, idx) => (
-              <div key={t} className="h-20 border-b border-stone-50 group cursor-pointer relative">
+              <div key={t} className="h-20 border-b border-stone-800/20 group cursor-pointer relative">
                 {idx === 3 && court === "OMEGA" ? (
                   <div className="absolute inset-0 m-1 bg-[#ccff00] rounded-xl p-4 flex flex-col justify-center shadow-lg">
                     <span className="text-[10px] font-black uppercase tracking-widest text-[#4f6b28] mb-1">PRO CLINIC</span>
@@ -148,23 +148,23 @@ function VintagePureSchedule({ selectedDate, onDateSelect }: { selectedDate: num
 
       <div className="grid grid-cols-4 gap-8">
         <div className="col-span-1">
-          <div className="h-14 mb-4 border-b border-stone-100 flex items-end pb-4">
-            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-stone-300">Time</span>
+          <div className="h-14 mb-4 border-b border-stone-800 flex items-end pb-4">
+            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-stone-400">Time</span>
           </div>
           {TIMES.map(t => (
-            <div key={t} className="h-20 flex items-center">
+            <div key={t} className="h-20 flex items-center border-b border-stone-800/20">
               <span className="text-sm font-black text-stone-900 tabular-nums">{t}</span>
             </div>
           ))}
         </div>
 
         {COURTS.map(court => (
-          <div key={court} className="col-span-1">
-            <div className="h-14 mb-4 border-b border-stone-100 flex items-end pb-4">
+          <div key={court} className="col-span-1 border-l border-stone-800/20 pl-8">
+            <div className="h-14 mb-4 border-b border-stone-800 flex items-end pb-4">
               <span className="text-xs font-black uppercase tracking-[0.2em] text-stone-900">{court}</span>
             </div>
             {TIMES.map((t, idx) => (
-              <div key={t} className="h-20 border-b border-stone-50 group cursor-pointer relative">
+              <div key={t} className="h-20 border-b border-stone-800/20 group cursor-pointer relative">
                 {idx === 2 && court === "ALPHA" ? (
                   <div className="absolute inset-0 m-1 bg-stone-100 rounded-xl p-4 flex flex-col justify-center border-l-4 border-stone-900">
                     <span className="text-[10px] font-black uppercase tracking-widest text-stone-400 mb-1">Booked</span>
@@ -214,30 +214,30 @@ function VintageNoirSchedule({ selectedDate, onDateSelect }: { selectedDate: num
 
       <div className="grid grid-cols-4 gap-8">
         <div className="col-span-1">
-          <div className="h-14 mb-4 border-b border-stone-800 flex items-end pb-4">
-            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-stone-700">Time-Log</span>
+          <div className="h-14 mb-4 border-b border-white flex items-end pb-4">
+            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-stone-300">Time-Log</span>
           </div>
           {TIMES.map(t => (
-            <div key={t} className="h-20 flex items-center">
-              <span className="text-sm font-black text-stone-500 tabular-nums">{t}</span>
+            <div key={t} className="h-20 flex items-center border-b border-white/20">
+              <span className="text-sm font-black text-stone-400 tabular-nums">{t}</span>
             </div>
           ))}
         </div>
 
         {COURTS.map(court => (
-          <div key={court} className="col-span-1">
-            <div className="h-14 mb-4 border-b border-stone-800 flex items-end pb-4">
+          <div key={court} className="col-span-1 border-l border-white/20 pl-8">
+            <div className="h-14 mb-4 border-b border-white flex items-end pb-4">
               <span className="text-xs font-black uppercase tracking-[0.2em] text-white">{court}</span>
             </div>
             {TIMES.map((t, idx) => (
-              <div key={t} className="h-20 border-b border-stone-900 group cursor-pointer relative">
+              <div key={t} className="h-20 border-b border-white/20 group cursor-pointer relative">
                 {idx === 4 && court === "SIGMA" ? (
-                  <div className="absolute inset-0 m-1 bg-[#00E5FF]/10 rounded-xl p-4 flex flex-col justify-center border-l-4 border-[#00E5FF] backdrop-blur-md">
+                  <div className="absolute inset-0 m-1 bg-[#00E5FF]/20 rounded-xl p-4 flex flex-col justify-center border-l-4 border-[#00E5FF] backdrop-blur-md">
                     <span className="text-[10px] font-black uppercase tracking-widest text-[#00E5FF] mb-1">Active</span>
                     <span className="text-xs font-black text-white italic">RESERVED</span>
                   </div>
                 ) : (
-                  <div className="absolute inset-0 m-1 rounded-xl group-hover:bg-stone-900/50 transition-all flex items-center justify-center opacity-0 group-hover:opacity-100">
+                  <div className="absolute inset-0 m-1 rounded-xl group-hover:bg-white/5 transition-all flex items-center justify-center opacity-0 group-hover:opacity-100">
                     <span className="text-[10px] font-black uppercase tracking-widest text-[#00E5FF]">Booking Active</span>
                   </div>
                 )}
