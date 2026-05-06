@@ -37,6 +37,7 @@ export default function DashboardClient({ params }: { params: { tenantId: string
   const [theme, setTheme] = React.useState<"LIGHT" | "DARK" | "VINTAGE">("LIGHT");
   const [roles, setRoles] = React.useState<any[]>([]);
   const [allTenants, setAllTenants] = React.useState<any[]>([]);
+  const [globalTenant, setGlobalTenant] = React.useState<any>(null);
   const [isTenantSelectorOpen, setIsTenantSelectorOpen] = React.useState(false);
   const { user: authUser, profile, loading: authLoading } = useAuth();
   const tenantId = params.tenantId || (profile?.tenant_id && profile.tenant_id !== "Global" ? profile.tenant_id : contextTenantId);
@@ -117,6 +118,12 @@ export default function DashboardClient({ params }: { params: { tenantId: string
       setAllTenants(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
     });
 
+    const unsubscribeGlobal = onSnapshot(doc(db, "tenants", "Global"), (snapshot) => {
+      if (snapshot.exists()) {
+        setGlobalTenant(snapshot.data());
+      }
+    });
+
     // Click outside listener
     const handleClickOutside = (event: MouseEvent) => {
       if (tenantSelectorRef.current && !tenantSelectorRef.current.contains(event.target as Node)) {
@@ -128,6 +135,7 @@ export default function DashboardClient({ params }: { params: { tenantId: string
     return () => {
       unsubscribe();
       unsubscribeTenants();
+      unsubscribeGlobal();
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
@@ -153,7 +161,6 @@ export default function DashboardClient({ params }: { params: { tenantId: string
         <div className="py-6 px-4">
           {(() => {
             const currentTenant = allTenants.find(t => t.tenant_id === tenantId || t.id === tenantId);
-            const globalTenant = allTenants.find(t => t.id === "Global");
             const logoUrl = currentTenant?.logo_url || ((!tenantId || tenantId === "consolidated") ? globalTenant?.logo_url : null);
             
             if (logoUrl) {
@@ -443,7 +450,9 @@ export default function DashboardClient({ params }: { params: { tenantId: string
                   <div className={`h-px mx-4 my-2 ${theme === "DARK" ? "bg-stone-800" : "bg-stone-100"}`} />
                 </div>
                 <div className="max-h-64 overflow-y-auto space-y-1 pr-1 custom-scrollbar">
-                  {allTenants.map((t) => (
+                  {allTenants
+                    .filter(t => t.id !== "Global" && t.tenant_id !== "Global")
+                    .map((t) => (
                     <button
                       key={t.id}
                       onClick={() => {

@@ -1,13 +1,23 @@
 "use client";
 import React, { useState } from "react";
 import { signInWithEmailAndPassword } from "firebase/auth";
-import { auth } from "../lib/firebase";
+import { auth, db } from "../lib/firebase";
+import { doc, onSnapshot } from "firebase/firestore";
+import { useEffect } from "react";
 
 export default function LoginView() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [globalTenant, setGlobalTenant] = useState<any>(null);
+
+  useEffect(() => {
+    const unsub = onSnapshot(doc(db, "tenants", "Global"), (snap) => {
+      if (snap.exists()) setGlobalTenant(snap.data());
+    });
+    return () => unsub();
+  }, []);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -32,12 +42,15 @@ export default function LoginView() {
       <div className="w-full max-w-[440px] px-6 relative z-10">
         <div className="bg-white rounded-[40px] shadow-[0_32px_64px_-16px_rgba(0,0,0,0.08)] border border-stone-100 p-12 animate-in fade-in zoom-in duration-700">
           {/* Logo/Brand */}
-          <div className="flex flex-col items-center mb-12">
-            <div className="w-16 h-16 bg-[#6348eb] rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-[#6348eb]/20 transform rotate-3">
-              <span className="material-symbols-outlined text-white text-3xl">sports_tennis</span>
-            </div>
+            {globalTenant?.logo_url ? (
+              <img src={globalTenant.logo_url} alt="Logo" className="h-16 w-auto object-contain mb-6" />
+            ) : (
+              <div className="w-16 h-16 bg-[#6348eb] rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-[#6348eb]/20 transform rotate-3">
+                <span className="material-symbols-outlined text-white text-3xl">sports_tennis</span>
+              </div>
+            )}
             <h1 className="text-3xl font-black italic tracking-tighter text-stone-900 uppercase" style={{ fontFamily: 'Lexend, sans-serif' }}>
-              Kinetic Court
+              {globalTenant?.name || "Platform Infrastructure"}
             </h1>
             <p className="text-[10px] font-black uppercase tracking-[0.2em] text-stone-400 mt-2">Platform Infrastructure</p>
           </div>
@@ -106,7 +119,7 @@ export default function LoginView() {
         </div>
         
         <p className="text-center mt-8 text-stone-400 text-[10px] font-medium uppercase tracking-widest">
-          &copy; 2026 Kinetic Infrastructure Labs
+          &copy; 2026 {globalTenant?.name || "Platform Infrastructure"}
         </p>
       </div>
     </div>
