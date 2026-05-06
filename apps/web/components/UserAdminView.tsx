@@ -23,6 +23,7 @@ interface User {
   phone?: string;
   notes?: string;
   company_user_id?: string;
+  portrait_url?: string;
   tenant_id?: string;
   address_street_1?: string;
   address_street_2?: string;
@@ -41,10 +42,11 @@ const US_STATES = [
 
 
 
-import { db, functions } from "../lib/firebase";
+import { db, functions, storage } from "../lib/firebase";
 import { collection, onSnapshot, query, orderBy, doc, deleteDoc, setDoc, where, getDocs } from "firebase/firestore";
 import { httpsCallable } from "firebase/functions";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { useEffect } from "react";
 
 export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "LIGHT" | "DARK" | "VINTAGE", tenantId?: string | null }) {
@@ -73,6 +75,7 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
     phone: "",
     notes: "",
     company_user_id: "",
+    portrait_url: "",
     tenant_id: "",
     invite_user: true,
     address_street_1: "",
@@ -81,6 +84,7 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
     address_state: "",
     address_zip: ""
   });
+  const [isUploadingPortrait, setIsUploadingPortrait] = useState(false);
   const [notification, setNotification] = useState<{ message: string; type: "SUCCESS" | "ERROR" | "INFO" } | null>(null);
 
   useEffect(() => {
@@ -229,6 +233,7 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
       phone: user.phone || "",
       notes: user.notes || "",
       company_user_id: user.company_user_id || "",
+      portrait_url: user.portrait_url || "",
       tenant_id: user.tenant_id || "",
       invite_user: false,
       address_street_1: user.address_street_1 || "",
@@ -240,6 +245,23 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
     setShowEditModal(true);
   };
 
+  const handlePortraitUpload = async (file: File, compositeId: string) => {
+    setIsUploadingPortrait(true);
+    try {
+      const storageRef = ref(storage, `users/${compositeId}/portrait`);
+      await uploadBytes(storageRef, file);
+      const url = await getDownloadURL(storageRef);
+      setFormData(prev => ({ ...prev, portrait_url: url }));
+      return url;
+    } catch (err) {
+      console.error("Portrait upload failed:", err);
+      showAppMessage("Failed to upload portrait image.", "ERROR");
+      return null;
+    } finally {
+      setIsUploadingPortrait(false);
+    }
+  };
+
   const handleSaveUser = async () => {
     if (!editingUser) return;
     setIsSaving(true);
@@ -248,6 +270,7 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
       const userRef = doc(db, "global_users", compositeId);
       await setDoc(userRef, {
         ...formData,
+        portrait_url: formData.portrait_url,
         updated_at: new Date().toISOString()
       }, { merge: true });
       setShowEditModal(false);
@@ -299,6 +322,7 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
         phone: formData.phone,
         notes: formData.notes,
         company_user_id: formData.company_user_id,
+        portrait_url: formData.portrait_url,
         address_street_1: formData.address_street_1,
         address_street_2: formData.address_street_2,
         address_city: formData.address_city,
@@ -309,6 +333,21 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
       };
 
       await setDoc(userRef, userData);
+
+      // If portrait was uploaded to a temp path, move it to the real compositeId path
+      if (formData.portrait_url && formData.portrait_url.includes("temp_")) {
+        // Re-fetch the blob and re-upload to correct path (can't "move" in Storage)
+        try {
+          const response = await fetch(formData.portrait_url);
+          const blob = await response.blob();
+          const storageRef = ref(storage, `users/${compositeId}/portrait`);
+          await uploadBytes(storageRef, blob);
+          const realUrl = await getDownloadURL(storageRef);
+          await setDoc(userRef, { portrait_url: realUrl }, { merge: true });
+        } catch {
+          // Non-fatal: portrait url stays as temp path
+        }
+      }
 
       if (formData.invite_user) {
         const inviteUserFn = httpsCallable(functions, "inviteUser");
@@ -406,6 +445,7 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
       phone: "",
       notes: "",
       company_user_id: "",
+      portrait_url: "",
       tenant_id: tenantId || "",
       invite_user: true,
       address_street_1: "",
@@ -969,6 +1009,52 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
         }
       >
         <div className="space-y-6">
+          {/* Portrait Upload */}
+          <div className="flex flex-col items-center gap-3">
+            <label className={`text-[10px] font-black tracking-widest uppercase ${theme === "DARK" ? "text-stone-500" : "text-stone-400"}`}>Portrait Photo</label>
+            <div className="relative group">
+              <div className={`w-24 h-24 rounded-full overflow-hidden flex items-center justify-center border-4 transition-colors ${
+                theme === "DARK" ? "border-stone-800 bg-stone-900" : "border-stone-200 bg-stone-100"
+              }`}>
+                {formData.portrait_url ? (
+                  <img src={formData.portrait_url} alt="Portrait" className="w-full h-full object-cover" />
+                ) : (
+                  <span className={`text-3xl font-black select-none ${theme === "DARK" ? "text-stone-600" : "text-stone-400"}`}>
+                    {(formData.first_name?.[0] || formData.email?.[0] || "?").toUpperCase()}
+                  </span>
+                )}
+                {isUploadingPortrait && (
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-full">
+                    <div className="h-6 w-6 animate-spin rounded-full border-2 border-white border-t-transparent"></div>
+                  </div>
+                )}
+              </div>
+              <label className={`absolute inset-0 flex items-center justify-center rounded-full cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity bg-black/50`}>
+                <span className="material-symbols-outlined text-white text-2xl">photo_camera</span>
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  disabled={isUploadingPortrait}
+                  onChange={async (e) => {
+                    const file = e.target.files?.[0];
+                    if (!file) return;
+                    const id = editingUser ? `${formData.tenant_id}_${formData.user_id}` : "";
+                    await handlePortraitUpload(file, id || `temp_${Date.now()}`);
+                  }}
+                />
+              </label>
+            </div>
+            {formData.portrait_url && (
+              <button
+                onClick={() => setFormData(prev => ({ ...prev, portrait_url: "" }))}
+                className="text-[10px] font-black tracking-widest uppercase text-red-400 hover:text-red-600 transition-colors"
+              >
+                Remove Photo
+              </button>
+            )}
+          </div>
+
           <div>
             <label className={`text-[10px] font-black tracking-widest uppercase mb-3 block ${theme === "DARK" ? "text-stone-500" : "text-stone-400"}`}>User ID</label>
             <div className={`w-full border rounded-2xl px-6 py-4 text-sm font-bold transition-colors ${
@@ -990,14 +1076,16 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
             />
           </div>
 
-          <div>
-            <label className={`text-[10px] font-black tracking-widest uppercase mb-3 block ${theme === "DARK" ? "text-stone-500" : "text-stone-400"}`}>Auth UID (Firebase)</label>
-            <div className={`w-full border rounded-2xl px-6 py-4 text-sm font-bold transition-colors break-all ${
-              theme === "DARK" ? "bg-stone-900 text-stone-500 border-stone-800" : "bg-stone-50 text-stone-400 border-stone-100"
-            }`}>
-              {formData.auth_uid || "No UID Linked"}
+          {!tenantId && (
+            <div>
+              <label className={`text-[10px] font-black tracking-widest uppercase mb-3 block ${theme === "DARK" ? "text-stone-500" : "text-stone-400"}`}>Auth UID (Firebase)</label>
+              <div className={`w-full border rounded-2xl px-6 py-4 text-sm font-bold transition-colors break-all ${
+                theme === "DARK" ? "bg-stone-900 text-stone-500 border-stone-800" : "bg-stone-50 text-stone-400 border-stone-100"
+              }`}>
+                {formData.auth_uid || "No UID Linked"}
+              </div>
             </div>
-          </div>
+          )}
 
           <div>
             <label className={`text-[10px] font-black tracking-widest uppercase mb-3 block ${theme === "DARK" ? "text-stone-500" : "text-stone-400"}`}>Tenant ID</label>
@@ -1236,6 +1324,51 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
           <p className={`text-sm leading-relaxed ${theme === "DARK" ? "text-stone-400" : "text-stone-500"}`}>
             This will create a user in your organization responsible for monitoring operations and managing users associated with your business processes.
           </p>
+
+          {/* Portrait Upload */}
+          <div className="flex flex-col items-center gap-3">
+            <label className={`text-[10px] font-black tracking-widest uppercase ${theme === "DARK" ? "text-stone-500" : "text-stone-400"}`}>Portrait Photo</label>
+            <div className="relative group">
+              <div className={`w-24 h-24 rounded-full overflow-hidden flex items-center justify-center border-4 transition-colors ${
+                theme === "DARK" ? "border-stone-800 bg-stone-900" : "border-stone-200 bg-stone-100"
+              }`}>
+                {formData.portrait_url ? (
+                  <img src={formData.portrait_url} alt="Portrait" className="w-full h-full object-cover" />
+                ) : (
+                  <span className={`text-3xl font-black select-none ${theme === "DARK" ? "text-stone-600" : "text-stone-400"}`}>
+                    {(formData.first_name?.[0] || formData.email?.[0] || "?").toUpperCase()}
+                  </span>
+                )}
+                {isUploadingPortrait && (
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-full">
+                    <div className="h-6 w-6 animate-spin rounded-full border-2 border-white border-t-transparent"></div>
+                  </div>
+                )}
+              </div>
+              <label className="absolute inset-0 flex items-center justify-center rounded-full cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity bg-black/50">
+                <span className="material-symbols-outlined text-white text-2xl">photo_camera</span>
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  disabled={isUploadingPortrait}
+                  onChange={async (e) => {
+                    const file = e.target.files?.[0];
+                    if (!file) return;
+                    await handlePortraitUpload(file, `temp_${Date.now()}`);
+                  }}
+                />
+              </label>
+            </div>
+            {formData.portrait_url && (
+              <button
+                onClick={() => setFormData(prev => ({ ...prev, portrait_url: "" }))}
+                className="text-[10px] font-black tracking-widest uppercase text-red-400 hover:text-red-600 transition-colors"
+              >
+                Remove Photo
+              </button>
+            )}
+          </div>
 
           {tenantId ? (
             <div>
