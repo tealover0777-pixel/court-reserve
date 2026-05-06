@@ -79,7 +79,7 @@ export default function OrganizationView({ theme, tenantId: tenantIdProp }: Orga
     { id: "INFO", label: "Information", icon: "info" },
     { id: "BRANDING", label: "Branding", icon: "palette" },
     { id: "EMAIL", label: "Email Settings", icon: "mail" },
-    { id: "COURT", label: "Court", icon: "sports_tennis" },
+    { id: "COURT", label: tenantId === "Global" ? "Default Court" : "Court", icon: "sports_tennis" },
     { id: "PAYMENT", label: "Payment & Billing", icon: "payments" },
   ];
 
@@ -122,7 +122,7 @@ export default function OrganizationView({ theme, tenantId: tenantIdProp }: Orga
         {activeTab === "INFO" && <InfoTab data={tenantData} onSave={handleSave} isSaving={isSaving} theme={theme} />}
         {activeTab === "BRANDING" && <BrandingTab data={tenantData} onSave={handleSave} isSaving={isSaving} theme={theme} tenantId={tenantId} />}
         {activeTab === "EMAIL" && <EmailTab data={tenantData} onSave={handleSave} isSaving={isSaving} theme={theme} tenantId={tenantId} />}
-        {activeTab === "COURT" && <CourtTab data={tenantData} onSave={handleSave} isSaving={isSaving} theme={theme} dimensions={dimensions} />}
+        {activeTab === "COURT" && <CourtTab data={tenantData} onSave={handleSave} isSaving={isSaving} theme={theme} dimensions={dimensions} tenantId={tenantId} />}
         {activeTab === "PAYMENT" && <PaymentTab data={tenantData} onSave={handleSave} isSaving={isSaving} theme={theme} />}
       </div>
 
@@ -754,7 +754,7 @@ function PaymentTab({ data, onSave, isSaving, theme }: any) {
   );
 }
 
-function CourtTab({ data, onSave, isSaving, theme, dimensions }: any) {
+function CourtTab({ data, onSave, isSaving, theme, dimensions, tenantId }: any) {
   const isDark = theme === "DARK";
   const [courts, setCourts] = useState<any[]>([]);
   const [courtName, setCourtName] = useState("");
@@ -878,13 +878,15 @@ function CourtTab({ data, onSave, isSaving, theme, dimensions }: any) {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
         <div className={`p-8 rounded-[32px] border space-y-6 ${isDark ? "bg-stone-900/40 border-stone-800" : "bg-stone-50 border-stone-100"}`}>
           <h4 className={`text-[10px] font-black tracking-[0.2em] uppercase opacity-50 ${isDark ? "text-white" : "text-stone-900"}`}>
-            {editingCourtId ? "Edit Court" : "Register Court"}
+            {editingCourtId 
+              ? (tenantId === "Global" ? "Edit Default Court" : "Edit Court") 
+              : (tenantId === "Global" ? "Register Default Court" : "Register Court")}
           </h4>
-          <FormField label="Court Name" theme={theme}>
+          <FormField label={tenantId === "Global" ? "Default Court Name" : "Court Name"} theme={theme}>
             <input value={courtName} onChange={(e) => setCourtName(e.target.value)} className={inputClasses} placeholder="e.g. Court 01" />
           </FormField>
 
-          <FormField label="Court Condition" theme={theme}>
+          <FormField label={tenantId === "Global" ? "Default Court Condition" : "Court Condition"} theme={theme}>
             <select value={courtCondition} onChange={(e) => setCourtCondition(e.target.value)} className={`${inputClasses} appearance-none`}>
               <option value="">Select condition</option>
               {conditionOptions.map((option: string) => (
@@ -895,7 +897,7 @@ function CourtTab({ data, onSave, isSaving, theme, dimensions }: any) {
             </select>
           </FormField>
 
-          <FormField label="Court Photo" theme={theme}>
+          <FormField label={tenantId === "Global" ? "Default Court Photo" : "Court Photo"} theme={theme}>
             <input type="file" ref={courtFileRef} onChange={handlePhotoUpload} className="hidden" accept="image/*" />
             <div 
               onClick={() => courtFileRef.current?.click()}
@@ -978,7 +980,7 @@ function CourtTab({ data, onSave, isSaving, theme, dimensions }: any) {
 
         <div className={`p-8 rounded-[32px] border ${isDark ? "bg-stone-900/20 border-stone-800" : "bg-white border-stone-100"}`}>
           <h4 className={`text-[10px] font-black tracking-[0.2em] uppercase mb-6 opacity-50 ${isDark ? "text-white" : "text-stone-900"}`}>
-            Registered Courts ({courts.length})
+            {tenantId === "Global" ? "Registered Default Courts" : "Registered Courts"} ({courts.length})
           </h4>
           <div className="space-y-4 max-h-[560px] overflow-y-auto pr-2">
             {courts.length === 0 && (
@@ -1036,7 +1038,7 @@ function CourtTab({ data, onSave, isSaving, theme, dimensions }: any) {
             isDark ? "bg-[#ccff00] text-stone-950 hover:scale-[1.02]" : "bg-stone-900 text-white hover:shadow-xl"
           }`}
         >
-          {isSaving ? "Saving..." : "Save Court Configuration"}
+          {isSaving ? "Saving..." : (tenantId === "Global" ? "Save Default Court Configuration" : "Save Court Configuration")}
         </button>
       </div>
     </div>
