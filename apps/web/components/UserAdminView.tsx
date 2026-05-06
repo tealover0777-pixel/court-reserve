@@ -19,6 +19,7 @@ interface User {
   last_name: string;
   email: string;
   role: string;
+  roles?: string[];
   status: string;
   phone?: string;
   notes?: string;
@@ -77,6 +78,7 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
     last_name: "",
     email: "",
     role: "",
+    roles: [] as string[],
     status: "Invited",
     phone: "",
     notes: "",
@@ -241,6 +243,7 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
       last_name: user.last_name || "",
       email: user.email || "",
       role: user.role || "",
+      roles: user.roles || (user.role ? [user.role] : []),
       status: user.status || "Invited",
       phone: user.phone || "",
       notes: user.notes || "",
@@ -342,6 +345,7 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
         last_name: formData.last_name,
         email: formData.email,
         role: formData.role,
+        roles: formData.roles,
         status: "Invited",
         phone: formData.phone,
         notes: formData.notes,
@@ -471,6 +475,7 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
       last_name: "",
       email: "",
       role: "",
+      roles: [],
       status: "Invited",
       phone: "",
       notes: "",
@@ -584,33 +589,38 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
         "text-stone-600"
       }`}>{info.getValue()}</span>,
     }),
-    columnHelper.accessor("role", {
-      header: "ROLE",
-      size: 200,
+    columnHelper.accessor("roles", {
+      header: "ROLES",
+      size: 240,
       cell: info => {
-        const roleId = info.getValue();
-        const roleMatch = roles.find(r => r.role_id === roleId || r.id === roleId);
-        if (!roleMatch) return <span className="text-xs text-stone-400">{roleId || "-"}</span>;
+        const roleIds = info.getValue() as string[] || [];
+        const singleRole = info.row.original.role;
+        const allRoleIds = roleIds.length > 0 ? roleIds : (singleRole ? [singleRole] : []);
         
+        if (allRoleIds.length === 0) return <span className="text-xs text-stone-400">—</span>;
+
         return (
-          <div className="flex flex-col py-1">
-            <span className={`text-[10px] font-mono uppercase tracking-tight mb-0.5 ${
-              theme === "DARK" ? "text-stone-500" : "text-stone-400"
-            }`}>
-              {roleMatch.role_id}
-            </span>
-            <div className="flex items-center gap-2">
-              <span className={`text-sm font-bold leading-tight ${
-                theme === "DARK" ? "text-white" : "text-stone-900"
-              }`}>
-                {roleMatch.role_name}
-              </span>
-              {roleMatch.is_global && (
-                <span className="text-[8px] font-black bg-[#eef2ff] text-[#4f46e5] px-2 py-0.5 rounded-full border border-[#e0e7ff] uppercase tracking-widest shadow-sm">
-                  Global
-                </span>
-              )}
-            </div>
+          <div className="flex flex-wrap gap-1 py-1">
+            {allRoleIds.map(rid => {
+              const roleMatch = roles.find(r => r.role_id === rid || r.id === rid);
+              if (!roleMatch) return (
+                <span key={rid} className={`text-[9px] font-mono px-2 py-0.5 rounded-full border ${
+                  theme === "DARK" ? "border-stone-800 text-stone-500" : "border-stone-200 text-stone-400"
+                }`}>{rid}</span>
+              );
+
+              return (
+                <div key={rid} className="flex flex-col">
+                  <span className={`text-[10px] font-black uppercase tracking-tight px-2 py-0.5 rounded-full border transition-colors ${
+                    theme === "DARK" 
+                      ? "border-stone-800 text-[#ccff00] bg-[#ccff00]/5" 
+                      : "border-stone-200 text-[#6348eb] bg-[#6348eb]/5"
+                  }`}>
+                    {roleMatch.role_name}
+                  </span>
+                </div>
+              );
+            })}
           </div>
         );
       },
@@ -1057,7 +1067,7 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
               <span className={`text-[10px] font-black uppercase tracking-[0.2em] ${theme === "DARK" ? "text-stone-500" : "text-stone-400"}`}>{title}</span>
             </div>
           );
-          const isCoach = formData.role === "R10002";
+          const isCoach = (formData.roles || []).includes("R10002") || formData.role === "R10002";
           const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
           const SLOTS = ["Morning", "Afternoon", "Evening"];
           const toggleAvailability = (day: string, slot: string) => {
@@ -1174,14 +1184,38 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
 
                 {sectionDivider("Account")}
 
-                <div>
-                  <label className={labelCls}>Role</label>
-                  <select value={formData.role} onChange={e => setFormData({ ...formData, role: e.target.value })} className={`${inputCls} appearance-none cursor-pointer`}>
-                    <option value="">Select Role...</option>
-                    {roles.map(r => (
-                      <option key={r.id} value={r.role_id || r.id}>{r.role_id} - {r.role_name}{r.is_global ? " [GLOBAL]" : ""}</option>
-                    ))}
-                  </select>
+                <div className="col-span-2">
+                  <label className={labelCls}>Assigned Roles</label>
+                  <div className="flex flex-wrap gap-2 mt-1">
+                    {roles.map(r => {
+                      const rid = r.role_id || r.id;
+                      const active = (formData.roles || []).includes(rid) || formData.role === rid;
+                      return (
+                        <button
+                          key={r.id}
+                          type="button"
+                          onClick={() => {
+                            const current = formData.roles || [];
+                            const next = active 
+                              ? current.filter(v => v !== rid) 
+                              : [...current, rid];
+                            setFormData(prev => ({ ...prev, roles: next, role: next[0] || "" }));
+                          }}
+                          className={`px-4 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest border-2 transition-all flex items-center gap-2 ${
+                            active
+                              ? (theme === "DARK" ? "bg-[#ccff00] text-stone-950 border-[#ccff00]" : "bg-[#6348eb] text-white border-[#6348eb]")
+                              : (theme === "DARK" ? "border-stone-800 text-stone-400 hover:border-stone-600" : "border-stone-200 text-stone-500 hover:border-stone-400")
+                          }`}
+                        >
+                          <span className="material-symbols-outlined text-sm">
+                            {active ? "check_circle" : "circle"}
+                          </span>
+                          {r.role_name}
+                          {r.is_global && <span className="opacity-50 ml-1">[G]</span>}
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
                 <div>
                   <label className={labelCls}>Status</label>
@@ -1645,21 +1679,36 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
           </div>
 
           <div>
-            <label className={`text-[10px] font-black tracking-widest uppercase mb-3 block ${theme === "DARK" ? "text-stone-500" : "text-stone-400"}`}>Role</label>
-            <select 
-              value={formData.role}
-              onChange={e => setFormData({ ...formData, role: e.target.value })}
-              className={`w-full border rounded-2xl px-6 py-4 text-sm font-bold outline-none transition-colors appearance-none cursor-pointer ${
-                theme === "DARK" ? "bg-stone-950 text-white border-stone-800 focus:border-[#ccff00]" : "bg-white text-stone-900 border-stone-200 focus:border-stone-400 shadow-sm"
-              }`}
-            >
-              <option value="">Select a role...</option>
-              {roles.map(r => (
-                <option key={r.id} value={r.role_id || r.id}>
-                  {r.role_id} - {r.role_name} {r.is_global ? "[GLOBAL]" : ""}
-                </option>
-              ))}
-            </select>
+            <label className={`text-[10px] font-black tracking-widest uppercase mb-3 block ${theme === "DARK" ? "text-stone-500" : "text-stone-400"}`}>Assigned Roles</label>
+            <div className="flex flex-wrap gap-3">
+              {roles.map(r => {
+                const rid = r.role_id || r.id;
+                const active = (formData.roles || []).includes(rid) || formData.role === rid;
+                return (
+                  <button
+                    key={r.id}
+                    type="button"
+                    onClick={() => {
+                      const current = formData.roles || [];
+                      const next = active 
+                        ? current.filter(v => v !== rid) 
+                        : [...current, rid];
+                      setFormData(prev => ({ ...prev, roles: next, role: next[0] || "" }));
+                    }}
+                    className={`px-5 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest border-2 transition-all flex items-center gap-2 ${
+                      active
+                        ? (theme === "DARK" ? "bg-[#ccff00] text-stone-950 border-[#ccff00]" : "bg-[#6348eb] text-white border-[#6348eb]")
+                        : (theme === "DARK" ? "border-stone-800 text-stone-400 hover:border-stone-600 bg-stone-950/50" : "border-stone-200 text-stone-500 hover:border-stone-400 bg-white shadow-sm")
+                    }`}
+                  >
+                    <span className="material-symbols-outlined text-sm">
+                      {active ? "check_circle" : "circle"}
+                    </span>
+                    {r.role_name}
+                  </button>
+                );
+              })}
+            </div>
           </div>
 
           <label className="flex items-center gap-4 cursor-pointer group">

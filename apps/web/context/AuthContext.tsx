@@ -7,6 +7,7 @@ interface UserProfile {
   first_name: string;
   last_name: string;
   role: string;
+  roles?: string[];
   email: string;
   auth_uid: string;
   user_id: string;

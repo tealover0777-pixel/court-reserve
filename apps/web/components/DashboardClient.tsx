@@ -44,13 +44,20 @@ export default function DashboardClient({ params }: { params: { tenantId: string
   const tenantSelectorRef = React.useRef<HTMLDivElement>(null);
 
   // --- Permission derivation ---
-  const userRole = React.useMemo(
-    () => roles.find(r => r.role_id === profile?.role || r.id === profile?.role),
-    [roles, profile]
-  );
-  const userPermissions: string[] = userRole?.permissions || [];
-  // Global role with no permission list = Super Admin = full access
-  const isSuperAdmin = (userRole?.is_global ?? false) && userPermissions.length === 0;
+  const userRoles = React.useMemo(() => {
+    const roleIds = profile?.roles || (profile?.role ? [profile.role] : []);
+    return roles.filter(r => roleIds.includes(r.role_id) || roleIds.includes(r.id));
+  }, [roles, profile]);
+
+  const userPermissions = React.useMemo(() => {
+    const perms = new Set<string>();
+    userRoles.forEach(r => {
+      (r.permissions || []).forEach((p: string) => perms.add(p));
+    });
+    return Array.from(perms);
+  }, [userRoles]);
+
+  const isSuperAdmin = userRoles.some(r => (r.is_global ?? false) && (!r.permissions || r.permissions.length === 0));
   const hasPermission = (perm: string) => isSuperAdmin || userPermissions.includes(perm);
 
   // View → required permission mapping
