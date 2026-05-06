@@ -6,10 +6,10 @@ import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { useTenant } from "../context/TenantContext";
 
 const US_STATES = [
-  "AL", "AK", "AZ", "AR", "CA", "CO", "CT", "DE", "FL", "GA", 
-  "HI", "ID", "IL", "IN", "IA", "KS", "KY", "LA", "ME", "MD", 
-  "MA", "MI", "MN", "MS", "MO", "MT", "NE", "NV", "NH", "NJ", 
-  "NM", "NY", "NC", "ND", "OH", "OK", "OR", "PA", "RI", "SC", 
+  "AL", "AK", "AZ", "AR", "CA", "CO", "CT", "DE", "FL", "GA",
+  "HI", "ID", "IL", "IN", "IA", "KS", "KY", "LA", "ME", "MD",
+  "MA", "MI", "MN", "MS", "MO", "MT", "NE", "NV", "NH", "NJ",
+  "NM", "NY", "NC", "ND", "OH", "OK", "OR", "PA", "RI", "SC",
   "SD", "TN", "TX", "UT", "VT", "VA", "WA", "WV", "WI", "WY"
 ];
 
@@ -89,12 +89,10 @@ export default function OrganizationView({ theme, tenantId: tenantIdProp }: Orga
   return (
     <div className="space-y-8 animate-in fade-in duration-700">
       <div className="flex flex-col gap-2">
-        <h3 className={`text-6xl font-black italic tracking-tighter transition-all duration-500 ${
-          isDark ? "text-white" : isVintage ? "text-black" : "text-stone-900"
-        }`}>ORGANIZATION</h3>
-        <p className={`text-xs font-bold tracking-[0.2em] uppercase ${
-          isDark ? "text-stone-500" : "text-stone-400"
-        }`}>Manage your brand and business core</p>
+        <h3 className={`text-6xl font-black italic tracking-tighter transition-all duration-500 ${isDark ? "text-white" : isVintage ? "text-black" : "text-stone-900"
+          }`}>ORGANIZATION</h3>
+        <p className={`text-xs font-bold tracking-[0.2em] uppercase ${isDark ? "text-stone-500" : "text-stone-400"
+          }`}>Manage your brand and business core</p>
       </div>
 
       {/* Tabs Navigation */}
@@ -103,11 +101,10 @@ export default function OrganizationView({ theme, tenantId: tenantIdProp }: Orga
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id as any)}
-            className={`flex items-center gap-2 px-6 py-3 rounded-xl text-[10px] font-black tracking-widest uppercase transition-all ${
-              activeTab === tab.id
+            className={`flex items-center gap-2 px-6 py-3 rounded-xl text-[10px] font-black tracking-widest uppercase transition-all ${activeTab === tab.id
                 ? (isDark ? "bg-[#ccff00] text-stone-950 shadow-lg shadow-[#ccff00]/20" : "bg-white text-stone-950 shadow-sm")
                 : (isDark ? "text-stone-500 hover:text-white" : "text-stone-400 hover:text-stone-900")
-            }`}
+              }`}
           >
             <span className="material-symbols-outlined text-sm">{tab.icon}</span>
             {tab.label}
@@ -116,9 +113,8 @@ export default function OrganizationView({ theme, tenantId: tenantIdProp }: Orga
       </div>
 
       {/* Tab Content */}
-      <div className={`p-12 rounded-[40px] border transition-all duration-500 ${
-        isDark ? "bg-stone-950 border-stone-800" : "bg-white border-stone-100 shadow-xl shadow-stone-200/50"
-      }`}>
+      <div className={`p-12 rounded-[40px] border transition-all duration-500 ${isDark ? "bg-stone-950 border-stone-800" : "bg-white border-stone-100 shadow-xl shadow-stone-200/50"
+        }`}>
         {activeTab === "INFO" && <InfoTab data={tenantData} onSave={handleSave} isSaving={isSaving} theme={theme} />}
         {activeTab === "BRANDING" && <BrandingTab data={tenantData} onSave={handleSave} isSaving={isSaving} theme={theme} tenantId={tenantId} />}
         {activeTab === "EMAIL" && <EmailTab data={tenantData} onSave={handleSave} isSaving={isSaving} theme={theme} tenantId={tenantId} />}
@@ -129,11 +125,10 @@ export default function OrganizationView({ theme, tenantId: tenantIdProp }: Orga
       {/* Notification Toast */}
       {notification && (
         <div className="fixed bottom-12 left-1/2 -translate-x-1/2 z-50 animate-in slide-in-from-bottom-4">
-          <div className={`px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-4 ${
-            notification.type === "SUCCESS" 
-              ? (isDark ? "bg-[#ccff00] text-stone-950" : "bg-stone-900 text-white") 
+          <div className={`px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-4 ${notification.type === "SUCCESS"
+              ? (isDark ? "bg-[#ccff00] text-stone-950" : "bg-stone-900 text-white")
               : "bg-red-500 text-white"
-          }`}>
+            }`}>
             <span className="material-symbols-outlined">
               {notification.type === "SUCCESS" ? "check_circle" : "error"}
             </span>
@@ -149,9 +144,8 @@ function FormField({ label, children, theme }: { label: string; children: React.
   const isDark = theme === "DARK";
   return (
     <div className="space-y-3">
-      <label className={`text-[10px] font-black tracking-widest uppercase ml-1 ${
-        isDark ? "text-stone-500" : "text-stone-400"
-      }`}>{label}</label>
+      <label className={`text-[10px] font-black tracking-widest uppercase ml-1 ${isDark ? "text-stone-500" : "text-stone-400"
+        }`}>{label}</label>
       {children}
     </div>
   );
@@ -165,9 +159,8 @@ function InfoTab({ data, onSave, isSaving, theme }: any) {
     if (data) setFormData(data);
   }, [data]);
 
-  const inputClasses = `w-full border rounded-2xl px-6 py-4 text-sm font-bold outline-none transition-all ${
-    isDark ? "bg-stone-900 border-stone-800 text-white focus:border-[#ccff00]" : "bg-stone-50 border-stone-100 text-stone-900 focus:border-stone-400"
-  }`;
+  const inputClasses = `w-full border rounded-2xl px-6 py-4 text-sm font-bold outline-none transition-all ${isDark ? "bg-stone-900 border-stone-800 text-white focus:border-[#ccff00]" : "bg-stone-50 border-stone-100 text-stone-900 focus:border-stone-400"
+    }`;
 
   return (
     <div className="space-y-12">
@@ -175,9 +168,9 @@ function InfoTab({ data, onSave, isSaving, theme }: any) {
         <div className="space-y-8">
           <h4 className={`text-[10px] font-black tracking-[0.2em] uppercase opacity-40 ${isDark ? "text-white" : "text-stone-900"}`}>General Info</h4>
           <FormField label="Organization Name" theme={theme}>
-            <input 
-              value={formData.name || ""} 
-              onChange={(e) => setFormData({...formData, name: e.target.value})}
+            <input
+              value={formData.name || ""}
+              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
               className={inputClasses}
             />
           </FormField>
@@ -187,16 +180,16 @@ function InfoTab({ data, onSave, isSaving, theme }: any) {
             </div>
           </FormField>
           <FormField label="Primary Phone" theme={theme}>
-            <input 
-              value={formData.owner_phone || formData.phone || ""} 
-              onChange={(e) => setFormData({...formData, owner_phone: e.target.value})}
+            <input
+              value={formData.owner_phone || formData.phone || ""}
+              onChange={(e) => setFormData({ ...formData, owner_phone: e.target.value })}
               className={inputClasses}
             />
           </FormField>
           <FormField label="Support Email" theme={theme}>
-            <input 
-              value={formData.owner_email || formData.support_email || ""} 
-              onChange={(e) => setFormData({...formData, owner_email: e.target.value})}
+            <input
+              value={formData.owner_email || formData.support_email || ""}
+              onChange={(e) => setFormData({ ...formData, owner_email: e.target.value })}
               className={inputClasses}
             />
           </FormField>
@@ -205,33 +198,33 @@ function InfoTab({ data, onSave, isSaving, theme }: any) {
         <div className="space-y-8">
           <h4 className={`text-[10px] font-black tracking-[0.2em] uppercase opacity-40 ${isDark ? "text-white" : "text-stone-900"}`}>Address</h4>
           <FormField label="Street Address" theme={theme}>
-            <input 
-              value={formData.address_street_1 || ""} 
-              onChange={(e) => setFormData({...formData, address_street_1: e.target.value})}
+            <input
+              value={formData.address_street_1 || ""}
+              onChange={(e) => setFormData({ ...formData, address_street_1: e.target.value })}
               className={inputClasses}
               placeholder="123 Tennis Ave"
             />
           </FormField>
           <FormField label="Suite / Unit" theme={theme}>
-            <input 
-              value={formData.address_street_2 || ""} 
-              onChange={(e) => setFormData({...formData, address_street_2: e.target.value})}
+            <input
+              value={formData.address_street_2 || ""}
+              onChange={(e) => setFormData({ ...formData, address_street_2: e.target.value })}
               className={inputClasses}
               placeholder="Suite 100"
             />
           </FormField>
           <div className="grid grid-cols-2 gap-4">
             <FormField label="City" theme={theme}>
-              <input 
-                value={formData.address_city || ""} 
-                onChange={(e) => setFormData({...formData, address_city: e.target.value})}
+              <input
+                value={formData.address_city || ""}
+                onChange={(e) => setFormData({ ...formData, address_city: e.target.value })}
                 className={inputClasses}
               />
             </FormField>
             <FormField label="State" theme={theme}>
-              <select 
-                value={formData.address_state || ""} 
-                onChange={(e) => setFormData({...formData, address_state: e.target.value})}
+              <select
+                value={formData.address_state || ""}
+                onChange={(e) => setFormData({ ...formData, address_state: e.target.value })}
                 className={`${inputClasses} appearance-none`}
               >
                 <option value="">Select State</option>
@@ -240,9 +233,9 @@ function InfoTab({ data, onSave, isSaving, theme }: any) {
             </FormField>
           </div>
           <FormField label="Zip Code" theme={theme}>
-            <input 
-              value={formData.address_zip || ""} 
-              onChange={(e) => setFormData({...formData, address_zip: e.target.value})}
+            <input
+              value={formData.address_zip || ""}
+              onChange={(e) => setFormData({ ...formData, address_zip: e.target.value })}
               className={inputClasses}
             />
           </FormField>
@@ -252,16 +245,16 @@ function InfoTab({ data, onSave, isSaving, theme }: any) {
           <h4 className={`text-[10px] font-black tracking-[0.2em] uppercase opacity-40 mb-8 ${isDark ? "text-white" : "text-stone-900"}`}>Owner Details</h4>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <FormField label="First Name" theme={theme}>
-              <input 
-                value={formData.owner_first_name || ""} 
-                onChange={(e) => setFormData({...formData, owner_first_name: e.target.value})}
+              <input
+                value={formData.owner_first_name || ""}
+                onChange={(e) => setFormData({ ...formData, owner_first_name: e.target.value })}
                 className={inputClasses}
               />
             </FormField>
             <FormField label="Last Name" theme={theme}>
-              <input 
-                value={formData.owner_last_name || ""} 
-                onChange={(e) => setFormData({...formData, owner_last_name: e.target.value})}
+              <input
+                value={formData.owner_last_name || ""}
+                onChange={(e) => setFormData({ ...formData, owner_last_name: e.target.value })}
                 className={inputClasses}
               />
             </FormField>
@@ -270,12 +263,11 @@ function InfoTab({ data, onSave, isSaving, theme }: any) {
       </div>
 
       <div className="flex justify-end">
-        <button 
+        <button
           onClick={() => onSave(formData)}
           disabled={isSaving}
-          className={`px-12 py-5 rounded-2xl text-xs font-black tracking-[0.2em] uppercase transition-all ${
-            isDark ? "bg-[#ccff00] text-stone-950 hover:scale-[1.02]" : "bg-stone-900 text-white hover:shadow-xl"
-          }`}
+          className={`px-12 py-5 rounded-2xl text-xs font-black tracking-[0.2em] uppercase transition-all ${isDark ? "bg-[#ccff00] text-stone-950 hover:scale-[1.02]" : "bg-stone-900 text-white hover:shadow-xl"
+            }`}
         >
           {isSaving ? "Saving..." : "Save All Changes"}
         </button>
@@ -302,7 +294,7 @@ function BrandingTab({ data, onSave, isSaving, theme, tenantId }: any) {
       const storageRef = ref(storage, `tenants/${tenantId}/branding/logo_${Date.now()}`);
       const snapshot = await uploadBytes(storageRef, file);
       const downloadURL = await getDownloadURL(snapshot.ref);
-      
+
       setFormData({ ...formData, logo_url: downloadURL });
       await setDoc(doc(db, "tenants", tenantId), {
         logo_url: downloadURL,
@@ -345,12 +337,11 @@ function BrandingTab({ data, onSave, isSaving, theme, tenantId }: any) {
       <div className="max-w-4xl space-y-12">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8">
           <FormField label="Organization Name" theme={theme}>
-            <input 
-              value={formData.name || ""} 
-              onChange={(e) => setFormData({...formData, name: e.target.value})}
-              className={`w-full border rounded-2xl px-6 py-4 text-sm font-bold outline-none transition-all ${
-                isDark ? "bg-stone-900 border-stone-800 text-white focus:border-[#ccff00]" : "bg-stone-50 border-stone-100 text-stone-900 focus:border-stone-400"
-              }`}
+            <input
+              value={formData.name || ""}
+              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              className={`w-full border rounded-2xl px-6 py-4 text-sm font-bold outline-none transition-all ${isDark ? "bg-stone-900 border-stone-800 text-white focus:border-[#ccff00]" : "bg-stone-50 border-stone-100 text-stone-900 focus:border-stone-400"
+                }`}
               placeholder="Enter organization name"
             />
           </FormField>
@@ -358,23 +349,22 @@ function BrandingTab({ data, onSave, isSaving, theme, tenantId }: any) {
 
         <div className="space-y-6">
           <FormField label="Organization Logo" theme={theme}>
-            <input 
-              type="file" 
-              ref={fileInputRef} 
-              onChange={handleLogoUpload} 
-              className="hidden" 
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={handleLogoUpload}
+              className="hidden"
               accept="image/*"
             />
-            <div 
+            <div
               onClick={() => fileInputRef.current?.click()}
               onDragOver={handleDragOver}
               onDragLeave={handleDragLeave}
               onDrop={handleDrop}
-              className={`h-64 rounded-[40px] border-2 border-dashed flex flex-col items-center justify-center gap-6 transition-all cursor-pointer relative overflow-hidden group max-w-2xl ${
-                isDragging 
+              className={`h-64 rounded-[40px] border-2 border-dashed flex flex-col items-center justify-center gap-6 transition-all cursor-pointer relative overflow-hidden group max-w-2xl ${isDragging
                   ? (isDark ? "border-[#ccff00] bg-[#ccff00]/10 scale-[1.02]" : "border-stone-900 bg-stone-100 scale-[1.02]")
                   : (isDark ? "border-stone-800 hover:border-[#ccff00]/50 bg-stone-900/50" : "border-stone-200 hover:border-stone-400 bg-stone-50/50")
-              }`}
+                }`}
             >
               {formData.logo_url ? (
                 <>
@@ -402,21 +392,19 @@ function BrandingTab({ data, onSave, isSaving, theme, tenantId }: any) {
       </div>
 
       <div className="flex items-center gap-4">
-        <button 
+        <button
           onClick={() => onSave(formData)}
           disabled={isSaving}
-          className={`px-12 py-5 rounded-2xl text-xs font-black tracking-[0.2em] uppercase transition-all ${
-            isDark ? "bg-[#ccff00] text-stone-950 hover:scale-[1.02]" : "bg-stone-900 text-white hover:shadow-xl"
-          }`}
+          className={`px-12 py-5 rounded-2xl text-xs font-black tracking-[0.2em] uppercase transition-all ${isDark ? "bg-[#ccff00] text-stone-950 hover:scale-[1.02]" : "bg-stone-900 text-white hover:shadow-xl"
+            }`}
         >
           {isSaving ? "Saving..." : "Apply Branding"}
         </button>
 
-        <button 
+        <button
           onClick={() => fileInputRef.current?.click()}
-          className={`px-10 py-5 rounded-2xl text-xs font-black tracking-[0.2em] uppercase transition-all border ${
-            isDark ? "border-stone-700 text-stone-400 hover:text-white hover:border-white" : "border-stone-200 text-stone-500 hover:text-stone-900 hover:border-stone-900"
-          }`}
+          className={`px-10 py-5 rounded-2xl text-xs font-black tracking-[0.2em] uppercase transition-all border ${isDark ? "border-stone-700 text-stone-400 hover:text-white hover:border-white" : "border-stone-200 text-stone-500 hover:text-stone-900 hover:border-stone-900"
+            }`}
         >
           Replace LOGO
         </button>
@@ -436,9 +424,8 @@ function EmailTab({ data, onSave, isSaving, theme, tenantId }: any) {
     ...data
   });
 
-  const inputClasses = `w-full border rounded-2xl px-6 py-4 text-sm font-bold outline-none transition-all ${
-    isDark ? "bg-stone-900 border-stone-800 text-white focus:border-[#ccff00]" : "bg-stone-50 border-stone-100 text-stone-900 focus:border-stone-400"
-  }`;
+  const inputClasses = `w-full border rounded-2xl px-6 py-4 text-sm font-bold outline-none transition-all ${isDark ? "bg-stone-900 border-stone-800 text-white focus:border-[#ccff00]" : "bg-stone-50 border-stone-100 text-stone-900 focus:border-stone-400"
+    }`;
 
   return (
     <div className="space-y-16 animate-in fade-in duration-700">
@@ -449,19 +436,18 @@ function EmailTab({ data, onSave, isSaving, theme, tenantId }: any) {
         </div>
 
         {tenantId !== "Global" && (
-          <div className={`p-6 px-8 rounded-3xl border transition-all flex items-center gap-6 min-w-[320px] ${
-            isDark ? "bg-stone-900/50 border-stone-800" : "bg-stone-50 border-stone-100"
-          }`}>
+          <div className={`p-6 px-8 rounded-3xl border transition-all flex items-center gap-6 min-w-[320px] ${isDark ? "bg-stone-900/50 border-stone-800" : "bg-stone-50 border-stone-100"
+            }`}>
             <div className="flex-1 space-y-1">
               <h4 className={`text-[10px] font-black uppercase tracking-widest ${isDark ? "text-white" : "text-stone-900"}`}>Use Platform Email Service</h4>
               <p className="text-[8px] text-stone-400 font-bold uppercase tracking-tight">Inherit from master organization</p>
             </div>
             <label className="relative inline-flex items-center cursor-pointer">
-              <input 
-                type="checkbox" 
-                className="sr-only peer" 
+              <input
+                type="checkbox"
+                className="sr-only peer"
                 checked={formData.use_platform_email}
-                onChange={(e) => setFormData({...formData, use_platform_email: e.target.checked})}
+                onChange={(e) => setFormData({ ...formData, use_platform_email: e.target.checked })}
               />
               <div className="w-12 h-6 bg-stone-200 peer-focus:outline-none rounded-full peer dark:bg-stone-800 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-green-500"></div>
             </label>
@@ -476,17 +462,17 @@ function EmailTab({ data, onSave, isSaving, theme, tenantId }: any) {
             <h4 className={`text-[10px] font-black tracking-[0.2em] uppercase opacity-40 ${isDark ? "text-white" : "text-stone-900"}`}>Common Fields (Required)</h4>
             <div className="space-y-6">
               <FormField label="From Email Address" theme={theme}>
-                <input 
-                  value={formData.from_email || ""} 
-                  onChange={(e) => setFormData({...formData, from_email: e.target.value})}
+                <input
+                  value={formData.from_email || ""}
+                  onChange={(e) => setFormData({ ...formData, from_email: e.target.value })}
                   className={inputClasses}
                   placeholder="e.g. hello@organization.com"
                 />
               </FormField>
               <FormField label="From Name" theme={theme}>
-                <input 
-                  value={formData.from_name || ""} 
-                  onChange={(e) => setFormData({...formData, from_name: e.target.value})}
+                <input
+                  value={formData.from_name || ""}
+                  onChange={(e) => setFormData({ ...formData, from_name: e.target.value })}
                   className={inputClasses}
                   placeholder="e.g. Organization Team"
                 />
@@ -497,23 +483,21 @@ function EmailTab({ data, onSave, isSaving, theme, tenantId }: any) {
           <div className="space-y-8 pt-8 border-t border-stone-100 dark:border-stone-800">
             <h4 className={`text-[10px] font-black tracking-[0.2em] uppercase opacity-40 ${isDark ? "text-white" : "text-stone-900"}`}>Delivery Method</h4>
             <div className={`p-1 rounded-2xl flex items-center bg-stone-100 dark:bg-stone-950 w-full`}>
-              <button 
-                onClick={() => setFormData({...formData, delivery_method: "API"})}
-                className={`flex-1 py-3 px-4 rounded-xl text-[10px] font-black tracking-widest uppercase transition-all ${
-                  formData.delivery_method === "API" 
+              <button
+                onClick={() => setFormData({ ...formData, delivery_method: "API" })}
+                className={`flex-1 py-3 px-4 rounded-xl text-[10px] font-black tracking-widest uppercase transition-all ${formData.delivery_method === "API"
                     ? (isDark ? "bg-[#ccff00] text-stone-950 shadow-lg shadow-[#ccff00]/10" : "bg-white text-stone-900 shadow-sm")
                     : "text-stone-400 hover:text-stone-600"
-                }`}
+                  }`}
               >
                 Service Provider (API)
               </button>
-              <button 
-                onClick={() => setFormData({...formData, delivery_method: "SMTP"})}
-                className={`flex-1 py-3 px-4 rounded-xl text-[10px] font-black tracking-widest uppercase transition-all relative ${
-                  formData.delivery_method === "SMTP" 
+              <button
+                onClick={() => setFormData({ ...formData, delivery_method: "SMTP" })}
+                className={`flex-1 py-3 px-4 rounded-xl text-[10px] font-black tracking-widest uppercase transition-all relative ${formData.delivery_method === "SMTP"
                     ? (isDark ? "bg-[#ccff00] text-stone-950 shadow-lg shadow-[#ccff00]/10" : "bg-stone-900 text-white shadow-lg")
                     : "text-stone-400 hover:text-stone-600"
-                }`}
+                  }`}
               >
                 Custom SMTP
                 {formData.delivery_method === "SMTP" && (
@@ -523,9 +507,8 @@ function EmailTab({ data, onSave, isSaving, theme, tenantId }: any) {
             </div>
           </div>
 
-          <div className={`p-10 rounded-[40px] space-y-6 transition-all ${
-            isDark ? "bg-stone-900/30 border border-stone-800" : "bg-stone-100/50 border border-stone-200"
-          }`}>
+          <div className={`p-10 rounded-[40px] space-y-6 transition-all ${isDark ? "bg-stone-900/30 border border-stone-800" : "bg-stone-100/50 border border-stone-200"
+            }`}>
             <div className="flex gap-4">
               <div className={`w-10 h-10 rounded-full flex items-center justify-center ${isDark ? "bg-[#ccff00]/10 text-[#ccff00]" : "bg-green-100 text-green-700"}`}>
                 <span className="material-symbols-outlined text-xl">send</span>
@@ -535,9 +518,8 @@ function EmailTab({ data, onSave, isSaving, theme, tenantId }: any) {
                 <p className="text-[10px] text-stone-400 font-medium">Verify your credentials by sending a test message to the configured test address.</p>
               </div>
             </div>
-            <button className={`w-full py-4 rounded-2xl border-2 text-[10px] font-black tracking-widest uppercase transition-all ${
-              isDark ? "border-white text-white hover:bg-white hover:text-stone-950" : "border-stone-900 text-stone-900 hover:bg-stone-900 hover:text-white"
-            }`}>
+            <button className={`w-full py-4 rounded-2xl border-2 text-[10px] font-black tracking-widest uppercase transition-all ${isDark ? "border-white text-white hover:bg-white hover:text-stone-950" : "border-stone-900 text-stone-900 hover:bg-stone-900 hover:text-white"
+              }`}>
               Send Verification Email
             </button>
             <p className="text-[8px] text-center font-black text-stone-400 uppercase tracking-widest">
@@ -552,17 +534,17 @@ function EmailTab({ data, onSave, isSaving, theme, tenantId }: any) {
             <h4 className={`text-[10px] font-black tracking-[0.2em] uppercase opacity-40 ${isDark ? "text-white" : "text-stone-900"}`}>Optional / Testing</h4>
             <div className="space-y-6">
               <FormField label="Reply-To Email" theme={theme}>
-                <input 
-                  value={formData.reply_to_email || ""} 
-                  onChange={(e) => setFormData({...formData, reply_to_email: e.target.value})}
+                <input
+                  value={formData.reply_to_email || ""}
+                  onChange={(e) => setFormData({ ...formData, reply_to_email: e.target.value })}
                   className={inputClasses}
                   placeholder="e.g. support@organization.com"
                 />
               </FormField>
               <FormField label="Test Email Address" theme={theme}>
-                <input 
-                  value={formData.test_email || ""} 
-                  onChange={(e) => setFormData({...formData, test_email: e.target.value})}
+                <input
+                  value={formData.test_email || ""}
+                  onChange={(e) => setFormData({ ...formData, test_email: e.target.value })}
                   className={inputClasses}
                   placeholder="e.g. test@organization.com"
                 />
@@ -574,7 +556,7 @@ function EmailTab({ data, onSave, isSaving, theme, tenantId }: any) {
             <h4 className={`text-[10px] font-black tracking-[0.2em] uppercase opacity-40 ${isDark ? "text-white" : "text-stone-900"}`}>SMTP Relay Configuration</h4>
             <div className="space-y-6">
               <FormField label="Email Service" theme={theme}>
-                <select 
+                <select
                   value={formData.smtp_service}
                   onChange={(e) => {
                     const service = e.target.value;
@@ -584,16 +566,16 @@ function EmailTab({ data, onSave, isSaving, theme, tenantId }: any) {
                       "SendGrid": { host: "smtp.sendgrid.net", port: "587" },
                       "Amazon SES": { host: "email-smtp.us-east-1.amazonaws.com", port: "587" }
                     };
-                    
+
                     if (configs[service]) {
                       setFormData({
-                        ...formData, 
+                        ...formData,
                         smtp_service: service,
                         smtp_host: configs[service].host,
                         smtp_port: configs[service].port
                       });
                     } else {
-                      setFormData({...formData, smtp_service: service});
+                      setFormData({ ...formData, smtp_service: service });
                     }
                   }}
                   className={`${inputClasses} appearance-none cursor-pointer`}
@@ -611,9 +593,9 @@ function EmailTab({ data, onSave, isSaving, theme, tenantId }: any) {
               <div className="grid grid-cols-4 gap-4">
                 <div className="col-span-3">
                   <FormField label="SMTP Host" theme={theme}>
-                    <input 
-                      value={formData.smtp_host || ""} 
-                      onChange={(e) => setFormData({...formData, smtp_host: e.target.value})}
+                    <input
+                      value={formData.smtp_host || ""}
+                      onChange={(e) => setFormData({ ...formData, smtp_host: e.target.value })}
                       className={inputClasses}
                       placeholder="e.g. smtp.gmail.com"
                     />
@@ -621,9 +603,9 @@ function EmailTab({ data, onSave, isSaving, theme, tenantId }: any) {
                 </div>
                 <div className="col-span-1">
                   <FormField label="Port" theme={theme}>
-                    <input 
-                      value={formData.smtp_port || ""} 
-                      onChange={(e) => setFormData({...formData, smtp_port: e.target.value})}
+                    <input
+                      value={formData.smtp_port || ""}
+                      onChange={(e) => setFormData({ ...formData, smtp_port: e.target.value })}
                       className={inputClasses}
                       placeholder="587"
                     />
@@ -632,9 +614,9 @@ function EmailTab({ data, onSave, isSaving, theme, tenantId }: any) {
               </div>
 
               <FormField label="SMTP Username" theme={theme}>
-                <input 
-                  value={formData.smtp_user || ""} 
-                  onChange={(e) => setFormData({...formData, smtp_user: e.target.value})}
+                <input
+                  value={formData.smtp_user || ""}
+                  onChange={(e) => setFormData({ ...formData, smtp_user: e.target.value })}
                   className={inputClasses}
                   placeholder="Organization Login"
                 />
@@ -642,10 +624,10 @@ function EmailTab({ data, onSave, isSaving, theme, tenantId }: any) {
 
               <div className="space-y-4 pt-4">
                 <label className="flex items-center gap-3 cursor-pointer group">
-                  <input 
-                    type="checkbox" 
-                    checked={formData.smtp_2fa} 
-                    onChange={(e) => setFormData({...formData, smtp_2fa: e.target.checked})}
+                  <input
+                    type="checkbox"
+                    checked={formData.smtp_2fa}
+                    onChange={(e) => setFormData({ ...formData, smtp_2fa: e.target.checked })}
                     className="w-4 h-4 rounded-md border-stone-300 text-stone-900 focus:ring-stone-500"
                   />
                   <span className={`text-[10px] font-black uppercase tracking-widest ${isDark ? "text-stone-300 group-hover:text-white" : "text-stone-600 group-hover:text-stone-900"}`}>
@@ -655,10 +637,10 @@ function EmailTab({ data, onSave, isSaving, theme, tenantId }: any) {
 
                 {formData.smtp_2fa && (
                   <FormField label="App Password 🔐" theme={theme}>
-                    <input 
+                    <input
                       type="password"
-                      value={formData.smtp_app_password || ""} 
-                      onChange={(e) => setFormData({...formData, smtp_app_password: e.target.value})}
+                      value={formData.smtp_app_password || ""}
+                      onChange={(e) => setFormData({ ...formData, smtp_app_password: e.target.value })}
                       className={inputClasses}
                       placeholder="••••••••••••••••"
                     />
@@ -667,10 +649,10 @@ function EmailTab({ data, onSave, isSaving, theme, tenantId }: any) {
                 )}
 
                 <label className="flex items-center gap-3 cursor-pointer group">
-                  <input 
-                    type="checkbox" 
-                    checked={formData.smtp_tls} 
-                    onChange={(e) => setFormData({...formData, smtp_tls: e.target.checked})}
+                  <input
+                    type="checkbox"
+                    checked={formData.smtp_tls}
+                    onChange={(e) => setFormData({ ...formData, smtp_tls: e.target.checked })}
                     className="w-4 h-4 rounded-md border-stone-300 text-stone-900 focus:ring-stone-500"
                   />
                   <span className={`text-[10px] font-black uppercase tracking-widest ${isDark ? "text-stone-300 group-hover:text-white" : "text-stone-600 group-hover:text-stone-900"}`}>
@@ -684,12 +666,11 @@ function EmailTab({ data, onSave, isSaving, theme, tenantId }: any) {
       </div>
 
       <div className="pt-12 border-t border-stone-100 dark:border-stone-800 flex justify-end">
-        <button 
+        <button
           onClick={() => onSave(formData)}
           disabled={isSaving}
-          className={`px-12 py-5 rounded-2xl text-xs font-black tracking-[0.2em] uppercase transition-all ${
-            isDark ? "bg-[#ccff00] text-stone-950 hover:scale-[1.02]" : "bg-stone-900 text-white hover:shadow-xl shadow-stone-900/20"
-          }`}
+          className={`px-12 py-5 rounded-2xl text-xs font-black tracking-[0.2em] uppercase transition-all ${isDark ? "bg-[#ccff00] text-stone-950 hover:scale-[1.02]" : "bg-stone-900 text-white hover:shadow-xl shadow-stone-900/20"
+            }`}
         >
           {isSaving ? "Saving..." : "Save Email Configuration"}
         </button>
@@ -716,15 +697,13 @@ function PaymentTab({ data, onSave, isSaving, theme }: any) {
               <p className="text-[10px] text-stone-400 font-medium uppercase tracking-widest">Expires 12/26</p>
             </div>
           </div>
-          <button className={`w-full py-5 rounded-2xl text-[10px] font-black tracking-widest uppercase transition-all border ${
-            isDark ? "border-stone-800 text-stone-400 hover:text-white hover:bg-stone-800" : "border-stone-200 text-stone-500 hover:text-stone-900 hover:bg-stone-50"
-          }`}>Update Payment Method</button>
+          <button className={`w-full py-5 rounded-2xl text-[10px] font-black tracking-widest uppercase transition-all border ${isDark ? "border-stone-800 text-stone-400 hover:text-white hover:bg-stone-800" : "border-stone-200 text-stone-500 hover:text-stone-900 hover:bg-stone-50"
+            }`}>Update Payment Method</button>
         </div>
         <div className="space-y-8">
           <FormField label="Currency" theme={theme}>
-            <select className={`w-full border rounded-2xl px-6 py-4 text-sm font-bold outline-none transition-all appearance-none ${
-              isDark ? "bg-stone-900 border-stone-800 text-white focus:border-[#ccff00]" : "bg-stone-50 border-stone-100 text-stone-900 focus:border-stone-400 shadow-sm"
-            }`}>
+            <select className={`w-full border rounded-2xl px-6 py-4 text-sm font-bold outline-none transition-all appearance-none ${isDark ? "bg-stone-900 border-stone-800 text-white focus:border-[#ccff00]" : "bg-stone-50 border-stone-100 text-stone-900 focus:border-stone-400 shadow-sm"
+              }`}>
               <option>USD ($) - US Dollar</option>
               <option>EUR (€) - Euro</option>
               <option>GBP (£) - British Pound</option>
@@ -741,12 +720,11 @@ function PaymentTab({ data, onSave, isSaving, theme }: any) {
           </div>
         </div>
       </div>
-      <button 
+      <button
         onClick={() => onSave(formData)}
         disabled={isSaving}
-        className={`px-12 py-5 rounded-2xl text-xs font-black tracking-[0.2em] uppercase transition-all ${
-          isDark ? "bg-[#ccff00] text-stone-950 hover:scale-[1.02]" : "bg-stone-900 text-white hover:shadow-xl"
-        }`}
+        className={`px-12 py-5 rounded-2xl text-xs font-black tracking-[0.2em] uppercase transition-all ${isDark ? "bg-[#ccff00] text-stone-950 hover:scale-[1.02]" : "bg-stone-900 text-white hover:shadow-xl"
+          }`}
       >
         {isSaving ? "Saving..." : "Update Billing Info"}
       </button>
@@ -880,23 +858,22 @@ function CourtTab({ data, onSave, isSaving, theme, dimensions, tenantId }: any) 
     onSave({ ...data, courts });
   };
 
-  const inputClasses = `w-full border rounded-2xl px-6 py-4 text-sm font-bold outline-none transition-all ${
-    isDark ? "bg-stone-900 border-stone-800 text-white focus:border-[#ccff00]" : "bg-stone-50 border-stone-100 text-stone-900 focus:border-stone-400"
-  }`;
+  const inputClasses = `w-full border rounded-2xl px-6 py-4 text-sm font-bold outline-none transition-all ${isDark ? "bg-stone-900 border-stone-800 text-white focus:border-[#ccff00]" : "bg-stone-50 border-stone-100 text-stone-900 focus:border-stone-400"
+    }`;
 
   return (
     <div className="space-y-10">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
         <div className={`p-8 rounded-[32px] border space-y-6 ${isDark ? "bg-stone-900/40 border-stone-800" : "bg-stone-50 border-stone-100"}`}>
           <h4 className={`text-[10px] font-black tracking-[0.2em] uppercase opacity-50 ${isDark ? "text-white" : "text-stone-900"}`}>
-            {editingCourtId 
-              ? (tenantId === "Global" ? "Edit Default Court" : "Edit Court") 
+            {editingCourtId
+              ? (tenantId === "Global" ? "Edit Default Court" : "Edit Court")
               : (tenantId === "Global" ? "Register Default Court" : "Register Court")}
           </h4>
 
           {tenantId !== "Global" && defaultCourts.length > 0 && !editingCourtId && (
             <div className="space-y-6">
-              <FormField label="Template Courts (From Platform)" theme={theme}>
+              <FormField label="Template Courts" theme={theme}>
                 <div className="grid grid-cols-2 gap-3">
                   {defaultCourts.map(dc => (
                     <button
@@ -908,9 +885,8 @@ function CourtTab({ data, onSave, isSaving, theme, dimensions, tenantId }: any) 
                         setCourtImageUrl(dc.image_url || "");
                         setRestrictions(dc.restrictions || "");
                       }}
-                      className={`flex items-center gap-3 p-3 rounded-2xl border transition-all text-left group ${
-                        isDark ? "bg-stone-800/40 border-stone-800 hover:border-[#ccff00]/50" : "bg-white border-stone-100 hover:border-stone-400 shadow-sm"
-                      }`}
+                      className={`flex items-center gap-3 p-3 rounded-2xl border transition-all text-left group ${isDark ? "bg-stone-800/40 border-stone-800 hover:border-[#ccff00]/50" : "bg-white border-stone-100 hover:border-stone-400 shadow-sm"
+                        }`}
                     >
                       {dc.image_url ? (
                         <img src={dc.image_url} className="w-10 h-10 rounded-xl object-cover flex-shrink-0" alt={dc.name} />
@@ -948,16 +924,15 @@ function CourtTab({ data, onSave, isSaving, theme, dimensions, tenantId }: any) 
 
           <FormField label={tenantId === "Global" ? "Default Court Photo" : "Court Photo"} theme={theme}>
             <input type="file" ref={courtFileRef} onChange={handlePhotoUpload} className="hidden" accept="image/*" />
-            <div 
+            <div
               onClick={() => courtFileRef.current?.click()}
               onDragOver={onPhotoDragOver}
               onDragLeave={onPhotoDragLeave}
               onDrop={onPhotoDrop}
-              className={`h-48 rounded-2xl border-2 border-dashed flex flex-col items-center justify-center gap-4 transition-all cursor-pointer overflow-hidden group relative ${
-                isDraggingPhoto 
+              className={`h-48 rounded-2xl border-2 border-dashed flex flex-col items-center justify-center gap-4 transition-all cursor-pointer overflow-hidden group relative ${isDraggingPhoto
                   ? (isDark ? "border-[#ccff00] bg-[#ccff00]/10 scale-[1.02]" : "border-stone-900 bg-stone-100 scale-[1.02]")
                   : (isDark ? "border-stone-800 bg-stone-900/50 hover:border-[#ccff00]/50" : "border-stone-200 bg-stone-50/50 hover:border-stone-400")
-              }`}
+                }`}
             >
               {courtImageUrl ? (
                 <>
@@ -986,9 +961,8 @@ function CourtTab({ data, onSave, isSaving, theme, dimensions, tenantId }: any) 
                 e.stopPropagation();
                 courtFileRef.current?.click();
               }}
-              className={`mt-3 w-full py-4 rounded-xl text-[9px] font-black tracking-[0.2em] uppercase border transition-all ${
-                isDark ? "border-stone-800 text-stone-400 hover:text-white hover:border-stone-600" : "border-stone-200 text-stone-500 hover:text-stone-900 hover:border-stone-300"
-              }`}
+              className={`mt-3 w-full py-4 rounded-xl text-[9px] font-black tracking-[0.2em] uppercase border transition-all ${isDark ? "border-stone-800 text-stone-400 hover:text-white hover:border-stone-600" : "border-stone-200 text-stone-500 hover:text-stone-900 hover:border-stone-300"
+                }`}
             >
               Load from Directory
             </button>
@@ -1008,18 +982,16 @@ function CourtTab({ data, onSave, isSaving, theme, dimensions, tenantId }: any) 
             <button
               onClick={handleSubmitCourt}
               disabled={!courtName.trim() || !courtCondition}
-              className={`px-8 py-4 rounded-2xl text-[10px] font-black tracking-[0.2em] uppercase transition-all disabled:opacity-40 ${
-                isDark ? "bg-[#ccff00] text-stone-950" : "bg-stone-900 text-white"
-              }`}
+              className={`px-8 py-4 rounded-2xl text-[10px] font-black tracking-[0.2em] uppercase transition-all disabled:opacity-40 ${isDark ? "bg-[#ccff00] text-stone-950" : "bg-stone-900 text-white"
+                }`}
             >
               {editingCourtId ? "Update Court" : "Add Court"}
             </button>
             {editingCourtId && (
               <button
                 onClick={resetForm}
-                className={`px-8 py-4 rounded-2xl text-[10px] font-black tracking-[0.2em] uppercase border ${
-                  isDark ? "border-stone-700 text-stone-300" : "border-stone-200 text-stone-600"
-                }`}
+                className={`px-8 py-4 rounded-2xl text-[10px] font-black tracking-[0.2em] uppercase border ${isDark ? "border-stone-700 text-stone-300" : "border-stone-200 text-stone-600"
+                  }`}
               >
                 Cancel
               </button>
@@ -1083,9 +1055,8 @@ function CourtTab({ data, onSave, isSaving, theme, dimensions, tenantId }: any) 
         <button
           onClick={handleSaveCourts}
           disabled={isSaving}
-          className={`px-12 py-5 rounded-2xl text-xs font-black tracking-[0.2em] uppercase transition-all ${
-            isDark ? "bg-[#ccff00] text-stone-950 hover:scale-[1.02]" : "bg-stone-900 text-white hover:shadow-xl"
-          }`}
+          className={`px-12 py-5 rounded-2xl text-xs font-black tracking-[0.2em] uppercase transition-all ${isDark ? "bg-[#ccff00] text-stone-950 hover:scale-[1.02]" : "bg-stone-900 text-white hover:shadow-xl"
+            }`}
         >
           {isSaving ? "Saving..." : (tenantId === "Global" ? "Save Default Court Configuration" : "Save Court Configuration")}
         </button>
