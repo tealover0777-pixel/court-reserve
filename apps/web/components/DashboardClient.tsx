@@ -11,6 +11,8 @@ import UserAdminView from "./UserAdminView";
 import PlatformTenantAdminView from "./PlatformTenantAdminView";
 import AIAdminView from "./AIAdminView";
 import OrganizationView from "./OrganizationView";
+import CourtBookingView from "./CourtBookingView";
+
 import { useAuth } from "../context/AuthContext";
 import { collection, onSnapshot, query, orderBy, doc, updateDoc, serverTimestamp } from "firebase/firestore";
 import { db } from "../lib/firebase";
@@ -895,119 +897,7 @@ function NewsItem({ title, subtitle, tag, theme }: { title: string; subtitle: st
     </div>
   );
 }
-function CourtBookingView({ theme }: { theme: "LIGHT" | "DARK" | "VINTAGE" }) {
-  const isDark = theme === "DARK";
-  const isVintage = theme === "VINTAGE";
 
-  return (
-    <div className="space-y-12">
-      {/* Date Selection */}
-      <section>
-        <div className="flex justify-between items-center mb-8">
-          <div>
-            <h3 className={`text-2xl font-black tracking-tighter uppercase ${isDark ? "text-white" : "text-black"}`}>Select Date</h3>
-            <p className="text-stone-400 text-[10px] font-black uppercase tracking-widest mt-1">Showing availability for October 2023</p>
-          </div>
-          <button className={`flex items-center gap-2 px-6 py-2.5 rounded-full font-black text-[10px] uppercase tracking-widest border transition-all ${isDark ? "bg-stone-900 border-stone-800 text-[#ccff00]" :
-            isVintage ? "bg-white border-transparent text-black" :
-              "bg-stone-100 border-stone-200 text-[#4f6b28]"
-            }`}>
-            <span className="material-symbols-outlined text-sm">calendar_month</span>
-            October 2023
-          </button>
-        </div>
-
-        <div className="flex gap-4 overflow-x-auto pb-4 hide-scrollbar">
-          {[12, 13, 14, 15, 16, 17, 18].map((day) => (
-            <button
-              key={day}
-              className={`flex-shrink-0 w-20 h-24 rounded-2xl flex flex-col items-center justify-center transition-all ${day === 14
-                ? (isDark ? "bg-[#ccff00] text-stone-950 scale-105" : isVintage ? "bg-black text-white scale-105" : "bg-[#4f6b28] text-white scale-105 shadow-lg")
-                : (isDark ? "bg-stone-900 text-stone-400 hover:text-white" : isVintage ? "bg-white text-stone-400 hover:text-black" : "bg-stone-100 text-stone-500 hover:bg-stone-200")
-                }`}
-            >
-              <span className="text-[10px] font-black uppercase tracking-widest opacity-60">
-                {day === 12 ? 'Mon' : day === 13 ? 'Tue' : day === 14 ? 'Wed' : day === 15 ? 'Thu' : day === 16 ? 'Fri' : day === 17 ? 'Sat' : 'Sun'}
-              </span>
-              <span className="text-3xl font-black mt-1 tracking-tighter">{day}</span>
-            </button>
-          ))}
-        </div>
-      </section>
-
-      {/* Courts Availability */}
-      <div className="grid grid-cols-12 gap-8">
-        <div className="col-span-12 lg:col-span-6 space-y-6">
-          <CourtSection title="Court 01 (Premium Grass)" theme={theme} />
-        </div>
-        <div className="col-span-12 lg:col-span-6 space-y-6">
-          <CourtSection title="Court 02 (Traditional Clay)" theme={theme} />
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function CourtSection({ title, theme }: { title: string; theme: "LIGHT" | "DARK" | "VINTAGE" }) {
-  const isDark = theme === "DARK";
-  const isVintage = theme === "VINTAGE";
-
-  const times = [
-    { time: "08:00 AM", status: "booked", user: "Marcus V." },
-    { time: "09:00 AM", status: "booked", user: "Marcus V." },
-    { time: "10:00 AM", status: "available" },
-    { time: "11:00 AM", status: "available" },
-    { time: "12:00 PM", status: "booked", user: "Team Practice" },
-    { time: "01:00 PM", status: "available" },
-    { time: "02:00 PM", status: "available" },
-    { time: "03:00 PM", status: "available" },
-  ];
-
-  return (
-    <div className={`rounded-3xl p-8 shadow-sm transition-colors duration-500 ${isDark ? "bg-stone-900 border border-stone-800" :
-      isVintage ? "bg-white border border-transparent" :
-        "bg-white border border-stone-100"
-      }`}>
-      <div className="flex justify-between items-center mb-8">
-        <h4 className={`font-black tracking-tighter uppercase text-xl ${isDark ? "text-white" : "text-black"}`}>{title}</h4>
-        <span className="material-symbols-outlined text-stone-300">info</span>
-      </div>
-
-      <div className="grid grid-cols-2 gap-4">
-        {times.map((slot, i) => (
-          <button
-            key={i}
-            disabled={slot.status === "booked"}
-            className={`p-6 rounded-2xl flex flex-col items-start transition-all border ${slot.status === "booked"
-              ? (isDark ? "bg-stone-950 border-stone-800 opacity-40 cursor-not-allowed" : "bg-stone-50 border-stone-100 opacity-50 cursor-not-allowed")
-              : (isDark
-                ? "bg-stone-900 border-stone-800 hover:border-[#ccff00] cursor-pointer group"
-                : isVintage
-                  ? "bg-white border-stone-100 hover:border-black cursor-pointer group"
-                  : "bg-white border-stone-100 hover:border-[#4f6b28] cursor-pointer group")
-              }`}
-          >
-            <span className={`text-sm font-black ${slot.status === "available"
-              ? (isDark ? "text-[#ccff00]" : isVintage ? "text-black" : "text-[#4f6b28]")
-              : "text-stone-400"
-              }`}>
-              {slot.time}
-            </span>
-            <div className="mt-2 flex items-center justify-between w-full">
-              <span className={`text-[8px] font-black uppercase tracking-widest ${slot.status === "available" ? "text-stone-500" : "text-stone-300"}`}>
-                {slot.status === "available" ? "AVAILABLE" : `BOOKED: ${slot.user}`}
-              </span>
-              {slot.status === "available" && (
-                <span className={`material-symbols-outlined text-sm opacity-0 group-hover:opacity-100 transition-opacity ${isDark ? "text-[#ccff00]" : isVintage ? "text-black" : "text-[#4f6b28]"
-                  }`}>add_circle</span>
-              )}
-            </div>
-          </button>
-        ))}
-      </div>
-    </div>
-  );
-}
 
 function ProgramsView({ theme }: { theme: "LIGHT" | "DARK" | "VINTAGE" }) {
   const isDark = theme === "DARK";
