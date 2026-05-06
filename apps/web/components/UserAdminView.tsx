@@ -53,7 +53,7 @@ const US_STATES = [
 
 
 import { db, functions, storage } from "../lib/firebase";
-import { collection, onSnapshot, query, orderBy, doc, deleteDoc, setDoc, where, getDocs } from "firebase/firestore";
+import { collection, onSnapshot, query, orderBy, doc, setDoc, where, getDocs } from "firebase/firestore";
 import { httpsCallable } from "firebase/functions";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
@@ -329,12 +329,29 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
     if (!editingUser) return;
     setIsSaving(true);
     try {
-      // Use the actual document ID to ensure we update the correct record
-      const userRef = doc(db, "global_users", editingUser.id);
-      
-      const updateData = {
-        ...formData,
-        notes: formData.notes, // Explicitly include notes
+      const docId = editingUser.id;
+      const userRef = doc(db, "global_users", docId);
+
+      // Build a clean payload — only known Firestore-safe fields
+      const updateData: Record<string, unknown> = {
+        user_id: formData.user_id,
+        auth_uid: formData.auth_uid,
+        first_name: formData.first_name,
+        last_name: formData.last_name,
+        email: formData.email,
+        role: formData.role,
+        roles: formData.roles,
+        status: formData.status,
+        phone: formData.phone,
+        notes: formData.notes,
+        company_user_id: formData.company_user_id,
+        portrait_url: formData.portrait_url,
+        tenant_id: formData.tenant_id,
+        address_street_1: formData.address_street_1,
+        address_street_2: formData.address_street_2,
+        address_city: formData.address_city,
+        address_state: formData.address_state,
+        address_zip: formData.address_zip,
         coach_description: formData.coach_description,
         birth_date: formData.birth_date,
         sex: formData.sex,
@@ -350,28 +367,36 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
       await setDoc(userRef, updateData, { merge: true });
       setShowEditModal(false);
       setEditingUser(null);
-
-      // Sync reverse to tenants if this user owns any
-      const tenantsQuery = query(collection(db, "tenants"), where("owner_id", "==", editingUser.user_id));
-      const tenantSnaps = await getDocs(tenantsQuery);
-      for (const tDoc of tenantSnaps.docs) {
-        await setDoc(doc(db, "tenants", tDoc.id), {
-          owner_email: formData.email,
-          owner_first_name: formData.first_name,
-          owner_last_name: formData.last_name,
-          owner_phone: formData.phone,
-          address_street_1: formData.address_street_1,
-          address_street_2: formData.address_street_2,
-          address_city: formData.address_city,
-          address_state: formData.address_state,
-          address_zip: formData.address_zip
-        }, { merge: true });
-      }
-    } catch (err) {
-      console.error("Failed to save user:", err);
-      showAppMessage("Failed to save user.", "ERROR");
+      showAppMessage("User saved successfully.", "SUCCESS");
+    } catch (err: any) {
+      const detail = err?.message || err?.code || String(err);
+      console.error("handleSaveUser failed:", err);
+      showAppMessage(`Save failed: ${detail}`, "ERROR");
     } finally {
       setIsSaving(false);
+    }
+
+    // Tenant sync runs after modal closes — failure here is non-fatal
+    if (editingUser) {
+      try {
+        const tenantsQuery = query(collection(db, "tenants"), where("owner_id", "==", editingUser.user_id));
+        const tenantSnaps = await getDocs(tenantsQuery);
+        for (const tDoc of tenantSnaps.docs) {
+          await setDoc(doc(db, "tenants", tDoc.id), {
+            owner_email: formData.email,
+            owner_first_name: formData.first_name,
+            owner_last_name: formData.last_name,
+            owner_phone: formData.phone,
+            address_street_1: formData.address_street_1,
+            address_street_2: formData.address_street_2,
+            address_city: formData.address_city,
+            address_state: formData.address_state,
+            address_zip: formData.address_zip
+          }, { merge: true });
+        }
+      } catch (syncErr) {
+        console.warn("Tenant sync failed (non-fatal):", syncErr);
+      }
     }
   };
 

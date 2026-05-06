@@ -6,41 +6,17 @@
 [1m[38;2;173;127;168m▲ Next.js 16.2.0[39m[22m (Turbopack)
 
 [37m[1m [22m[39m Creating an optimized production build ...
+[32m[1m✓[22m[39m Compiled successfully in 3.1s
+[?25l[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[?25h[?25l[37m[1m [22m[39m Finished TypeScript in 2.7s  [36m.[39m[2K[1G[?25h[37m[1m [22m[39m Finished TypeScript in 2.7s    [32m[1m✓[22m[39m Finished TypeScript in 2.7s 
+[?25l[37m[1m [22m[39m Collecting page data using 5 workers  [36m.[39m[2K[1G[37m[1m [22m[39m Collecting page data using 5 workers  [36m..[39m[2K[1G[?25h[37m[1m [22m[39m Collecting page data using 5 workers in 257ms    [32m[1m✓[22m[39m Collecting page data using 5 workers in 257ms 
+[?25l[37m[1m [22m[39m Generating static pages using 5 workers (0/4)  [36m[    ][39m[2K[1G[37m[1m [22m[39m Generating static pages using 5 workers (0/4)  [36m[=   ][39m[2K[1G[37m[1m [22m[39m Generating static pages using 5 workers (1/4)  [36m[==  ][39m[2K[1G[?25h[32m[1m✓[22m[39m Generating static pages using 5 workers (4/4) in 403ms
+[?25l[37m[1m [22m[39m Finalizing page optimization  [36m.[39m[2K[1G[37m[1m [22m[39m Finalizing page optimization  [36m..[39m[2K[1G[37m[1m [22m[39m Finalizing page optimization  [36m...[39m[2K[1G[?25h[37m[1m [22m[39m Finalizing page optimization in 522ms    [32m[1m✓[22m[39m Finalizing page optimization in 522ms 
 
-> Build error occurred
-Error: Turbopack build failed with 1 errors:
-./apps/web/components/UserAdminView.tsx:1442:23
-Expression expected
-  [90m1440 |[0m                           <input
-  [90m1441 |[0m                             [36mtype[0m=[32m"date"[0m
-[31m[1m>[0m [90m1442 |[0m                       <div className=[32m"flex items-center justify-between mb-2"[0m>
-  [90m     |[0m                       [31m[1m^[0m
-  [90m1443 |[0m                         <label className={labelCls}>[33mWeekly[0m [33mAvailability[0m</label>
-  [90m1444 |[0m                         <label className=[32m"flex items-center gap-2 cursor-pointer group"[0m>
-  [90m1445 |[0m                           <div className={[32m`w-5 h-5 rounded border-2 flex items-center justify-center transition-all [0m${
-
-Parsing ecmascript source code failed
-
-Import traces:
-  Client Component Browser:
-    ./apps/web/components/UserAdminView.tsx [Client Component Browser]
-    ./apps/web/components/DashboardClient.tsx [Client Component Browser]
-    ./apps/web/app/page.tsx [Client Component Browser]
-    ./apps/web/app/page.tsx [Server Component]
-
-  Client Component SSR:
-    ./apps/web/components/UserAdminView.tsx [Client Component SSR]
-    ./apps/web/components/DashboardClient.tsx [Client Component SSR]
-    ./apps/web/app/page.tsx [Client Component SSR]
-    ./apps/web/app/page.tsx [Server Component]
+[4mRoute (app)[24m
+┌ ○ /
+└ ○ /_not-found
 
 
-    at <unknown> (./apps/web/components/UserAdminView.tsx:1442:23)
-⠙[1G[0K[1mnpm[22m [31merror[39m Lifecycle script `build` failed with error:
-⠙[1G[0K[1mnpm[22m [31merror[39m [94mcode[39m [33m1[39m
-⠙[1G[0K[1mnpm[22m [31merror[39m [94mpath[39m /Users/kyuahn/Documents/AVG/court-reserve/apps/web
-⠙[1G[0K[1mnpm[22m [31merror[39m [94mworkspace[39m web@0.1.0
-⠙[1G[0K[1mnpm[22m [31merror[39m [94mlocation[39m /Users/kyuahn/Documents/AVG/court-reserve/apps/web
-⠙[1G[0K[1mnpm[22m [31merror[39m command failed
-⠙[1G[0K[1mnpm[22m [31merror[39m [94mcommand[39m sh -c next build
-⠙[1G[0K
+○  (Static)  prerendered as static content
+
+[?25h⠙[1G[0K
