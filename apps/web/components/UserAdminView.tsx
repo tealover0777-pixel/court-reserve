@@ -1494,7 +1494,7 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
         }}
         title="Create New User"
         theme={theme}
-        width={600}
+        width={860}
         footer={
           <div className="flex gap-4">
             <button 
@@ -1575,6 +1575,7 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
                       />
                     </label>
                   </div>
+                  <span className={`text-[8px] font-black uppercase tracking-widest mt-1 ${theme === "DARK" ? "text-stone-600" : "text-stone-400"}`}>Hover to upload</span>
                   {formData.portrait_url && (
                     <button
                       onClick={() => setFormData(prev => ({ ...prev, portrait_url: "" }))}
@@ -1654,13 +1655,14 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
                             className={`px-4 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest border-2 transition-all flex items-center gap-2 ${
                               active
                                 ? (theme === "DARK" ? "bg-[#ccff00] text-stone-950 border-[#ccff00]" : "bg-[#6348eb] text-white border-[#6348eb]")
-                                : (theme === "DARK" ? "border-stone-800 text-stone-400 hover:border-stone-600 bg-stone-950/50" : "border-stone-200 text-stone-500 hover:border-stone-400 bg-white shadow-sm")
+                                : (theme === "DARK" ? "border-stone-800 text-stone-400 hover:border-stone-600" : "border-stone-200 text-stone-500 hover:border-stone-400")
                             }`}
                           >
                             <span className="material-symbols-outlined text-sm">
                               {active ? "check_circle" : "circle"}
                             </span>
                             {r.role_name}
+                            {r.is_global && <span className="opacity-50 ml-1">[G]</span>}
                           </button>
                         );
                       })}
