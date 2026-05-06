@@ -36,7 +36,7 @@ interface Dimension {
   items: string[];
 }
 
-export default function RoleTypesView({ theme = "LIGHT" }: { theme?: "LIGHT" | "DARK" | "VINTAGE" }) {
+export default function RoleTypesView({ theme = "LIGHT", userRoleId }: { theme?: "LIGHT" | "DARK" | "VINTAGE"; userRoleId?: string }) {
   const [roles, setRoles] = useState<RoleType[]>([]);
   const [permissions, setPermissions] = useState<string[]>([]);
   const [globalPermissions, setGlobalPermissions] = useState<string[]>([]);
@@ -74,6 +74,13 @@ export default function RoleTypesView({ theme = "LIGHT" }: { theme?: "LIGHT" | "
       unsubGlobalPerms();
     };
   }, []);
+
+  const roleNum = (id: string) => { const m = id.match(/R(\d+)/); return m ? parseInt(m[1]) : 0; };
+  const visibleRoles = useMemo(() => {
+    if (!userRoleId) return roles;
+    const limit = roleNum(userRoleId!);
+    return roles.filter(r => roleNum(r.role_id) <= limit);
+  }, [roles, userRoleId]);
 
   const nextRoleId = useMemo(() => {
     if (roles.length === 0) return "R10001";
@@ -287,7 +294,7 @@ export default function RoleTypesView({ theme = "LIGHT" }: { theme?: "LIGHT" | "
 
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const table = useReactTable({
-    data: roles,
+    data: visibleRoles,
     columns,
     state: {
       columnFilters,

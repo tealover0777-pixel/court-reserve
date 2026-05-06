@@ -491,7 +491,7 @@ export default function DashboardClient({ params }: { params: { tenantId: string
           if (activeView === "DASHBOARD") return <DashboardHome theme={theme} profile={profile} />;
           if (activeView === "AI_ADMIN") return <AIAdminView theme={theme} />;
           if (activeView === "DIMENSIONS") return <DimensionsView theme={theme} />;
-          if (activeView === "ROLE_TYPES") return <RoleTypesView theme={theme} />;
+          if (activeView === "ROLE_TYPES") return <RoleTypesView theme={theme} userRoleId={profile?.role} />;
           if (activeView === "ORGANIZATION") return <OrganizationView theme={theme} tenantId={tenantId} />;
           if (activeView === "TENANT_USER_ADMIN") return <UserAdminView theme={theme} tenantId={tenantId} />;
           if (activeView === "PLATFORM_ORGANIZATION") return <OrganizationView theme={theme} tenantId="Global" />;
