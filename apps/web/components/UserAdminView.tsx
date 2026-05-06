@@ -1528,7 +1528,9 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
               ) : "Create User"}
             </button>
           </div>
-               <div className="space-y-6">
+        }
+      >
+        <div className="space-y-6">
           <p className={`text-sm leading-relaxed ${theme === "DARK" ? "text-stone-400" : "text-stone-500"}`}>
             This will create a user in your organization responsible for monitoring operations and managing users associated with your business processes.
           </p>
