@@ -39,6 +39,7 @@ interface User {
   availability?: Record<string, string[]>;
   availability_from?: string;
   availability_to?: string;
+  availability_enabled?: boolean;
 }
 
 const US_STATES = [
@@ -100,7 +101,8 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
     coaching_for: [] as string[],
     availability: {} as Record<string, string[]>,
     availability_from: "",
-    availability_to: ""
+    availability_to: "",
+    availability_enabled: false
   });
   const [isUploadingPortrait, setIsUploadingPortrait] = useState(false);
   const [notification, setNotification] = useState<{ message: string; type: "SUCCESS" | "ERROR" | "INFO" } | null>(null);
@@ -300,7 +302,8 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
       coaching_for: user.coaching_for || [],
       availability: user.availability || {},
       availability_from: user.availability_from || "",
-      availability_to: user.availability_to || ""
+      availability_to: user.availability_to || "",
+      availability_enabled: user.availability_enabled || false
     });
     setShowEditModal(true);
   };
@@ -340,6 +343,7 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
         availability: formData.availability,
         availability_from: formData.availability_from,
         availability_to: formData.availability_to,
+        availability_enabled: formData.availability_enabled,
         updated_at: new Date().toISOString()
       };
 
@@ -408,6 +412,7 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
         availability: formData.availability,
         availability_from: formData.availability_from,
         availability_to: formData.availability_to,
+        availability_enabled: formData.availability_enabled,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString()
       };
@@ -541,7 +546,8 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
       coaching_for: [],
       availability: {},
       availability_from: "",
-      availability_to: ""
+      availability_to: "",
+      availability_enabled: false
     });
   };
 
@@ -1439,7 +1445,34 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
                           />
                         </div>
                       </div>
-                      <div className={`rounded-2xl border overflow-hidden ${theme === "DARK" ? "border-stone-800" : "border-stone-200"}`}>
+                      <div className="col-span-2">
+                      <div className="flex items-center justify-between mb-2">
+                        <label className={labelCls}>Weekly Availability</label>
+                        <label className="flex items-center gap-2 cursor-pointer group">
+                          <div className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-all ${
+                            formData.availability_enabled 
+                              ? (theme === "DARK" ? "bg-[#ccff00] border-[#ccff00]" : "bg-[#6348eb] border-[#6348eb]") 
+                              : (theme === "DARK" ? "border-stone-800" : "border-stone-200")
+                          }`}>
+                            {formData.availability_enabled && <span className={`material-symbols-outlined text-sm ${theme === "DARK" ? "text-stone-950" : "text-white"}`}>check</span>}
+                          </div>
+                          <input 
+                            type="checkbox"
+                            className="hidden"
+                            checked={formData.availability_enabled}
+                            onChange={e => setFormData({ ...formData, availability_enabled: e.target.checked })}
+                          />
+                          <span className={`text-[10px] font-black uppercase tracking-widest ${
+                            formData.availability_enabled 
+                              ? (theme === "DARK" ? "text-[#ccff00]" : "text-[#6348eb]") 
+                              : (theme === "DARK" ? "text-stone-500" : "text-stone-400")
+                          }`}>Enable Dates</span>
+                        </label>
+                      </div>
+
+                      <div className={`rounded-2xl border overflow-hidden mt-1 transition-opacity ${
+                        !formData.availability_enabled ? "opacity-30 pointer-events-none grayscale" : "opacity-100"
+                      } ${theme === "DARK" ? "border-stone-800" : "border-stone-200"}`}>
                         {/* Header row */}
                         <div className={`grid border-b ${theme === "DARK" ? "border-stone-800 bg-stone-900" : "border-stone-100 bg-stone-50"}`} style={{ gridTemplateColumns: "80px repeat(7, 1fr)" }}>
                           <div className={`px-3 py-2 text-[9px] font-black uppercase tracking-widest ${theme === "DARK" ? "text-stone-600" : "text-stone-400"}`}></div>
@@ -1463,6 +1496,7 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
                                 <div key={day} className="flex items-center justify-center py-3">
                                   <button
                                     type="button"
+                                    disabled={!formData.availability_enabled}
                                     onClick={() => toggleAvailability(day, slot)}
                                     className={`w-7 h-7 rounded-lg border-2 flex items-center justify-center transition-all ${
                                       active
@@ -1478,6 +1512,7 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
                           </div>
                         ))}
                       </div>
+                    </div>
                     </div>
                   </>
                 )}
@@ -1829,8 +1864,33 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
                       </div>
 
                       <div className="col-span-2">
-                        <label className={labelCls}>Weekly Availability</label>
-                        <div className={`rounded-2xl border overflow-hidden mt-1 ${theme === "DARK" ? "border-stone-800" : "border-stone-200"}`}>
+                        <div className="flex items-center justify-between mb-2">
+                          <label className={labelCls}>Weekly Availability</label>
+                          <label className="flex items-center gap-2 cursor-pointer group">
+                            <div className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-all ${
+                              formData.availability_enabled 
+                                ? (theme === "DARK" ? "bg-[#ccff00] border-[#ccff00]" : "bg-[#6348eb] border-[#6348eb]") 
+                                : (theme === "DARK" ? "border-stone-800" : "border-stone-200")
+                            }`}>
+                              {formData.availability_enabled && <span className={`material-symbols-outlined text-sm ${theme === "DARK" ? "text-stone-950" : "text-white"}`}>check</span>}
+                            </div>
+                            <input 
+                              type="checkbox"
+                              className="hidden"
+                              checked={formData.availability_enabled}
+                              onChange={e => setFormData({ ...formData, availability_enabled: e.target.checked })}
+                            />
+                            <span className={`text-[10px] font-black uppercase tracking-widest ${
+                              formData.availability_enabled 
+                                ? (theme === "DARK" ? "text-[#ccff00]" : "text-[#6348eb]") 
+                                : (theme === "DARK" ? "text-stone-500" : "text-stone-400")
+                            }`}>Enable Dates</span>
+                          </label>
+                        </div>
+
+                        <div className={`rounded-2xl border overflow-hidden mt-1 transition-opacity ${
+                          !formData.availability_enabled ? "opacity-30 pointer-events-none grayscale" : "opacity-100"
+                        } ${theme === "DARK" ? "border-stone-800" : "border-stone-200"}`}>
                           <div className={`grid border-b ${theme === "DARK" ? "border-stone-800 bg-stone-900" : "border-stone-100 bg-stone-50"}`} style={{ gridTemplateColumns: "80px repeat(7, 1fr)" }}>
                             <div className={`px-3 py-2 text-[9px] font-black uppercase tracking-widest ${theme === "DARK" ? "text-stone-600" : "text-stone-400"}`}></div>
                             {DAYS.map(d => (
@@ -1852,6 +1912,7 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
                                   <div key={day} className="flex items-center justify-center py-3">
                                     <button
                                       type="button"
+                                      disabled={!formData.availability_enabled}
                                       onClick={() => toggleAvailability(day, slot)}
                                       className={`w-7 h-7 rounded-lg border-2 flex items-center justify-center transition-all ${
                                         active

@@ -17,6 +17,10 @@ interface UserProfile {
   address_state?: string;
   address_zip?: string;
   tenant_id?: string;
+  availability?: Record<string, string[]>;
+  availability_from?: string;
+  availability_to?: string;
+  availability_enabled?: boolean;
 }
 
 interface AuthContextType {
