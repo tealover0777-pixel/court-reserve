@@ -762,6 +762,9 @@ function CourtTab({ data, onSave, isSaving, theme, dimensions }: any) {
   const [courtEnvironment, setCourtEnvironment] = useState("");
   const [restrictions, setRestrictions] = useState("");
   const [editingCourtId, setEditingCourtId] = useState<string | null>(null);
+  const [courtImageUrl, setCourtImageUrl] = useState("");
+  const [isUploading, setIsUploading] = useState(false);
+  const courtFileRef = React.useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     setCourts(Array.isArray(data?.courts) ? data.courts : []);
@@ -779,26 +782,25 @@ function CourtTab({ data, onSave, isSaving, theme, dimensions }: any) {
     return [];
   };
 
-  const conditionOptions = getDimensionOptions(["courtcondition", "surface", "courtsurface"]);
-  const environmentOptions = getDimensionOptions(["indooroutdoor", "courtenvironment", "environment", "courtlocation"]);
+  const conditionOptions = dimensions?.courtcondition || [];
 
   const resetForm = () => {
     setCourtName("");
     setCourtCondition("");
-    setCourtEnvironment("");
+    setCourtImageUrl("");
     setRestrictions("");
     setEditingCourtId(null);
   };
 
   const handleSubmitCourt = () => {
     const name = courtName.trim();
-    if (!name || !courtCondition || !courtEnvironment) return;
+    if (!name || !courtCondition) return;
 
     const payload = {
       id: editingCourtId || `court_${Date.now()}`,
       name,
       condition: courtCondition,
-      environment: courtEnvironment,
+      image_url: courtImageUrl,
       restrictions: restrictions.trim(),
       updated_at: new Date().toISOString(),
     };
@@ -815,8 +817,25 @@ function CourtTab({ data, onSave, isSaving, theme, dimensions }: any) {
     setEditingCourtId(court.id);
     setCourtName(court.name || "");
     setCourtCondition(court.condition || "");
-    setCourtEnvironment(court.environment || "");
+    setCourtImageUrl(court.image_url || "");
     setRestrictions(court.restrictions || "");
+  };
+
+  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsUploading(true);
+    try {
+      const storageRef = ref(storage, `courts/${Date.now()}_${file.name}`);
+      const snapshot = await uploadBytes(storageRef, file);
+      const url = await getDownloadURL(snapshot.ref);
+      setCourtImageUrl(url);
+    } catch (err) {
+      console.error("Photo upload failed:", err);
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   const handleDeleteCourt = (courtId: string) => {
@@ -854,15 +873,27 @@ function CourtTab({ data, onSave, isSaving, theme, dimensions }: any) {
             </select>
           </FormField>
 
-          <FormField label="Indoor / Outdoor" theme={theme}>
-            <select value={courtEnvironment} onChange={(e) => setCourtEnvironment(e.target.value)} className={`${inputClasses} appearance-none`}>
-              <option value="">Select environment</option>
-              {environmentOptions.map((option: string) => (
-                <option key={option} value={option}>
-                  {option}
-                </option>
-              ))}
-            </select>
+          <FormField label="Court Photo" theme={theme}>
+            <input type="file" ref={courtFileRef} onChange={handlePhotoUpload} className="hidden" accept="image/*" />
+            <div 
+              onClick={() => courtFileRef.current?.click()}
+              className={`h-40 rounded-2xl border-2 border-dashed flex flex-col items-center justify-center gap-3 transition-all cursor-pointer overflow-hidden group ${
+                isDark ? "border-stone-800 bg-stone-900/50 hover:border-[#ccff00]/50" : "border-stone-200 bg-stone-50/50 hover:border-stone-400"
+              }`}
+            >
+              {courtImageUrl ? (
+                <img src={courtImageUrl} alt="Court" className="w-full h-full object-cover" />
+              ) : (
+                <>
+                  <span className={`material-symbols-outlined text-3xl opacity-20 ${isDark ? "text-white" : "text-stone-900"}`}>
+                    {isUploading ? "sync" : "add_a_photo"}
+                  </span>
+                  <span className="text-[8px] font-black tracking-widest uppercase opacity-40">
+                    {isUploading ? "Uploading..." : "Click to upload photo"}
+                  </span>
+                </>
+              )}
+            </div>
           </FormField>
 
           <FormField label="Restrictions" theme={theme}>
@@ -875,16 +906,10 @@ function CourtTab({ data, onSave, isSaving, theme, dimensions }: any) {
             />
           </FormField>
 
-          {(conditionOptions.length === 0 || environmentOptions.length === 0) && (
-            <p className={`text-[10px] font-bold uppercase tracking-widest ${isDark ? "text-amber-300" : "text-amber-700"}`}>
-              Configure relevant dimension categories first to populate court options.
-            </p>
-          )}
-
           <div className="flex items-center gap-3">
             <button
               onClick={handleSubmitCourt}
-              disabled={!courtName.trim() || !courtCondition || !courtEnvironment}
+              disabled={!courtName.trim() || !courtCondition}
               className={`px-8 py-4 rounded-2xl text-[10px] font-black tracking-[0.2em] uppercase transition-all disabled:opacity-40 ${
                 isDark ? "bg-[#ccff00] text-stone-950" : "bg-stone-900 text-white"
               }`}
@@ -915,35 +940,39 @@ function CourtTab({ data, onSave, isSaving, theme, dimensions }: any) {
               </div>
             )}
             {courts.map((court) => (
-              <div key={court.id} className={`p-6 rounded-2xl border ${isDark ? "bg-stone-900 border-stone-800" : "bg-stone-50 border-stone-100"}`}>
-                <div className="flex items-start justify-between gap-4">
-                  <div className="space-y-2">
-                    <p className={`text-sm font-black tracking-tight ${isDark ? "text-white" : "text-stone-900"}`}>{court.name}</p>
-                    <div className="flex flex-wrap gap-2">
-                      <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${isDark ? "bg-stone-800 text-stone-300" : "bg-white text-stone-700 border border-stone-200"}`}>
-                        {court.condition}
-                      </span>
-                      <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${isDark ? "bg-stone-800 text-stone-300" : "bg-white text-stone-700 border border-stone-200"}`}>
-                        {court.environment}
-                      </span>
+              <div key={court.id} className={`p-6 rounded-2xl border transition-all ${isDark ? "bg-stone-900 border-stone-800 hover:border-stone-700" : "bg-stone-50 border-stone-100 hover:border-stone-200"}`}>
+                <div className="flex flex-col sm:flex-row gap-6 items-start">
+                  {court.image_url && (
+                    <div className="w-full sm:w-24 h-24 rounded-xl overflow-hidden flex-shrink-0 bg-stone-800">
+                      <img src={court.image_url} alt={court.name} className="w-full h-full object-cover" />
                     </div>
-                    {court.restrictions && (
-                      <p className={`text-[10px] font-bold tracking-tight ${isDark ? "text-stone-400" : "text-stone-500"}`}>{court.restrictions}</p>
-                    )}
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <button
-                      onClick={() => handleEditCourt(court)}
-                      className={`p-2 rounded-xl ${isDark ? "text-stone-400 hover:text-white hover:bg-stone-800" : "text-stone-500 hover:text-stone-900 hover:bg-white"}`}
-                    >
-                      <span className="material-symbols-outlined text-base">edit</span>
-                    </button>
-                    <button
-                      onClick={() => handleDeleteCourt(court.id)}
-                      className="p-2 rounded-xl text-red-500 hover:bg-red-50"
-                    >
-                      <span className="material-symbols-outlined text-base">delete</span>
-                    </button>
+                  )}
+                  <div className="flex-1 flex justify-between items-start w-full">
+                    <div className="space-y-2">
+                      <p className={`text-sm font-black tracking-tight ${isDark ? "text-white" : "text-stone-900"}`}>{court.name}</p>
+                      <div className="flex flex-wrap gap-2">
+                        <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${isDark ? "bg-stone-800 text-stone-300" : "bg-white text-stone-700 border border-stone-200"}`}>
+                          {court.condition}
+                        </span>
+                      </div>
+                      {court.restrictions && (
+                        <p className={`text-[10px] font-bold tracking-tight ${isDark ? "text-stone-400" : "text-stone-500"}`}>{court.restrictions}</p>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => handleEditCourt(court)}
+                        className={`p-2 rounded-xl ${isDark ? "text-stone-400 hover:text-white hover:bg-stone-800" : "text-stone-500 hover:text-stone-900 hover:bg-white"}`}
+                      >
+                        <span className="material-symbols-outlined text-base">edit</span>
+                      </button>
+                      <button
+                        onClick={() => handleDeleteCourt(court.id)}
+                        className="p-2 rounded-xl text-red-500 hover:bg-red-50"
+                      >
+                        <span className="material-symbols-outlined text-base">delete</span>
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
