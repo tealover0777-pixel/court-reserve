@@ -1439,13 +1439,6 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
                           <label className={`text-[9px] font-black tracking-widest uppercase mb-1 block ${theme === "DARK" ? "text-stone-600" : "text-stone-400"}`}>To</label>
                           <input
                             type="date"
-                            value={formData.availability_to}
-                            onChange={e => setFormData(prev => ({ ...prev, availability_to: e.target.value }))}
-                            className={inputCls}
-                          />
-                        </div>
-                      </div>
-                      <div className="col-span-2">
                       <div className="flex items-center justify-between mb-2">
                         <label className={labelCls}>Weekly Availability</label>
                         <label className="flex items-center gap-2 cursor-pointer group">
@@ -1470,9 +1463,33 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
                         </label>
                       </div>
 
-                      <div className={`rounded-2xl border overflow-hidden mt-1 transition-opacity ${
-                        !formData.availability_enabled ? "opacity-30 pointer-events-none grayscale" : "opacity-100"
-                      } ${theme === "DARK" ? "border-stone-800" : "border-stone-200"}`}>
+                      {/* Date span — controlled by checkbox */}
+                      <div className={`flex items-center gap-4 mb-3 mt-1 transition-opacity ${!formData.availability_enabled ? "opacity-30 pointer-events-none grayscale" : "opacity-100"}`}>
+                        <div className="flex-1">
+                          <label className={`text-[9px] font-black tracking-widest uppercase mb-1 block ${theme === "DARK" ? "text-stone-600" : "text-stone-400"}`}>From</label>
+                          <input
+                            type="date"
+                            disabled={!formData.availability_enabled}
+                            value={formData.availability_from}
+                            onChange={e => setFormData(prev => ({ ...prev, availability_from: e.target.value }))}
+                            className={inputCls}
+                          />
+                        </div>
+                        <div className={`text-xs font-black mt-5 ${theme === "DARK" ? "text-stone-600" : "text-stone-400"}`}>—</div>
+                        <div className="flex-1">
+                          <label className={`text-[9px] font-black tracking-widest uppercase mb-1 block ${theme === "DARK" ? "text-stone-600" : "text-stone-400"}`}>To</label>
+                          <input
+                            type="date"
+                            disabled={!formData.availability_enabled}
+                            value={formData.availability_to}
+                            onChange={e => setFormData(prev => ({ ...prev, availability_to: e.target.value }))}
+                            className={inputCls}
+                          />
+                        </div>
+                      </div>
+
+                      {/* Grid — always enabled */}
+                      <div className={`rounded-2xl border overflow-hidden mt-1 ${theme === "DARK" ? "border-stone-800" : "border-stone-200"}`}>
                         {/* Header row */}
                         <div className={`grid border-b ${theme === "DARK" ? "border-stone-800 bg-stone-900" : "border-stone-100 bg-stone-50"}`} style={{ gridTemplateColumns: "80px repeat(7, 1fr)" }}>
                           <div className={`px-3 py-2 text-[9px] font-black uppercase tracking-widest ${theme === "DARK" ? "text-stone-600" : "text-stone-400"}`}></div>
@@ -1496,7 +1513,6 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
                                 <div key={day} className="flex items-center justify-center py-3">
                                   <button
                                     type="button"
-                                    disabled={!formData.availability_enabled}
                                     onClick={() => toggleAvailability(day, slot)}
                                     className={`w-7 h-7 rounded-lg border-2 flex items-center justify-center transition-all ${
                                       active
@@ -1512,7 +1528,6 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
                           </div>
                         ))}
                       </div>
-                    </div>
                     </div>
                   </>
                 )}
@@ -1888,9 +1903,33 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
                           </label>
                         </div>
 
-                        <div className={`rounded-2xl border overflow-hidden mt-1 transition-opacity ${
-                          !formData.availability_enabled ? "opacity-30 pointer-events-none grayscale" : "opacity-100"
-                        } ${theme === "DARK" ? "border-stone-800" : "border-stone-200"}`}>
+                        {/* Date span — controlled by checkbox */}
+                        <div className={`flex items-center gap-4 mb-3 mt-1 transition-opacity ${!formData.availability_enabled ? "opacity-30 pointer-events-none grayscale" : "opacity-100"}`}>
+                          <div className="flex-1">
+                            <label className={`text-[9px] font-black tracking-widest uppercase mb-1 block ${theme === "DARK" ? "text-stone-600" : "text-stone-400"}`}>From</label>
+                            <input
+                              type="date"
+                              disabled={!formData.availability_enabled}
+                              value={formData.availability_from}
+                              onChange={e => setFormData(prev => ({ ...prev, availability_from: e.target.value }))}
+                              className={inputCls}
+                            />
+                          </div>
+                          <div className={`text-xs font-black mt-5 ${theme === "DARK" ? "text-stone-600" : "text-stone-400"}`}>—</div>
+                          <div className="flex-1">
+                            <label className={`text-[9px] font-black tracking-widest uppercase mb-1 block ${theme === "DARK" ? "text-stone-600" : "text-stone-400"}`}>To</label>
+                            <input
+                              type="date"
+                              disabled={!formData.availability_enabled}
+                              value={formData.availability_to}
+                              onChange={e => setFormData(prev => ({ ...prev, availability_to: e.target.value }))}
+                              className={inputCls}
+                            />
+                          </div>
+                        </div>
+
+                        {/* Grid — always enabled */}
+                        <div className={`rounded-2xl border overflow-hidden mt-1 ${theme === "DARK" ? "border-stone-800" : "border-stone-200"}`}>
                           <div className={`grid border-b ${theme === "DARK" ? "border-stone-800 bg-stone-900" : "border-stone-100 bg-stone-50"}`} style={{ gridTemplateColumns: "80px repeat(7, 1fr)" }}>
                             <div className={`px-3 py-2 text-[9px] font-black uppercase tracking-widest ${theme === "DARK" ? "text-stone-600" : "text-stone-400"}`}></div>
                             {DAYS.map(d => (
@@ -1912,7 +1951,6 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
                                   <div key={day} className="flex items-center justify-center py-3">
                                     <button
                                       type="button"
-                                      disabled={!formData.availability_enabled}
                                       onClick={() => toggleAvailability(day, slot)}
                                       className={`w-7 h-7 rounded-lg border-2 flex items-center justify-center transition-all ${
                                         active
