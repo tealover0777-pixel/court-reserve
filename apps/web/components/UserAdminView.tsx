@@ -37,6 +37,8 @@ interface User {
   tennis_hand?: string;
   coaching_for?: string[];
   availability?: Record<string, string[]>;
+  availability_from?: string;
+  availability_to?: string;
 }
 
 const US_STATES = [
@@ -96,7 +98,9 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
     sex: "",
     tennis_hand: "",
     coaching_for: [] as string[],
-    availability: {} as Record<string, string[]>
+    availability: {} as Record<string, string[]>,
+    availability_from: "",
+    availability_to: ""
   });
   const [isUploadingPortrait, setIsUploadingPortrait] = useState(false);
   const [notification, setNotification] = useState<{ message: string; type: "SUCCESS" | "ERROR" | "INFO" } | null>(null);
@@ -261,7 +265,9 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
       sex: user.sex || "",
       tennis_hand: user.tennis_hand || "",
       coaching_for: user.coaching_for || [],
-      availability: user.availability || {}
+      availability: user.availability || {},
+      availability_from: user.availability_from || "",
+      availability_to: user.availability_to || ""
     });
     setShowEditModal(true);
   };
@@ -298,6 +304,8 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
         tennis_hand: formData.tennis_hand,
         coaching_for: formData.coaching_for,
         availability: formData.availability,
+        availability_from: formData.availability_from,
+        availability_to: formData.availability_to,
         updated_at: new Date().toISOString()
       }, { merge: true });
       setShowEditModal(false);
@@ -362,6 +370,8 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
         tennis_hand: formData.tennis_hand,
         coaching_for: formData.coaching_for,
         availability: formData.availability,
+        availability_from: formData.availability_from,
+        availability_to: formData.availability_to,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString()
       };
@@ -493,7 +503,9 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
       sex: "",
       tennis_hand: "",
       coaching_for: [],
-      availability: {}
+      availability: {},
+      availability_from: "",
+      availability_to: ""
     });
   };
 
@@ -1144,23 +1156,24 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
                   <input value={formData.company_user_id} onChange={e => setFormData({ ...formData, company_user_id: e.target.value })} placeholder="e.g. EMP-0042" className={inputCls} />
                 </div>
 
-                <div>
-                  <label className={labelCls}>Tenant ID</label>
-                  <input
-                    value={formData.tenant_id}
-                    onChange={e => setFormData({ ...formData, tenant_id: e.target.value })}
-                    readOnly={!!editingUser || !!tenantId}
-                    placeholder="e.g. T10001"
-                    className={editingUser || tenantId ? readonlyCls : inputCls}
-                  />
-                </div>
-
                 {!tenantId ? (
-                  <div>
-                    <label className={labelCls}>Auth UID (Firebase)</label>
-                    <div className={`${readonlyCls} break-all text-xs`}>{formData.auth_uid || "No UID Linked"}</div>
-                  </div>
-                ) : <div />}
+                  <>
+                    <div>
+                      <label className={labelCls}>Tenant ID</label>
+                      <input
+                        value={formData.tenant_id}
+                        onChange={e => setFormData({ ...formData, tenant_id: e.target.value })}
+                        readOnly={!!editingUser}
+                        placeholder="e.g. T10001"
+                        className={editingUser ? readonlyCls : inputCls}
+                      />
+                    </div>
+                    <div>
+                      <label className={labelCls}>Auth UID (Firebase)</label>
+                      <div className={`${readonlyCls} break-all text-xs`}>{formData.auth_uid || "No UID Linked"}</div>
+                    </div>
+                  </>
+                ) : <div className="col-span-2" />}
 
                 {sectionDivider("Personal Info")}
 
@@ -1310,7 +1323,7 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
                       />
                     </div>
                     <div>
-                      <label className={labelCls}>Sex</label>
+                      <label className={labelCls}>Gender</label>
                       <select value={formData.sex} onChange={e => setFormData({ ...formData, sex: e.target.value })} className={`${inputCls} appearance-none cursor-pointer`}>
                         <option value="">Select...</option>
                         <option value="Male">Male</option>
@@ -1346,7 +1359,7 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
                     <div>
                       <label className={labelCls}>Coaching For</label>
                       <div className="flex flex-wrap gap-2 mt-1">
-                        {["Kids", "Young Adult", "Adult", "Senior"].map(group => {
+                        {["Kids", "Young Adult", "Adult", "Senior", "Group Lesson", "Private Lesson"].map(group => {
                           const active = (formData.coaching_for || []).includes(group);
                           return (
                             <button
@@ -1368,7 +1381,29 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
 
                     <div className="col-span-2">
                       <label className={labelCls}>Weekly Availability</label>
-                      <div className={`rounded-2xl border overflow-hidden mt-1 ${theme === "DARK" ? "border-stone-800" : "border-stone-200"}`}>
+                      {/* Date span */}
+                      <div className="flex items-center gap-4 mb-3 mt-1">
+                        <div className="flex-1">
+                          <label className={`text-[9px] font-black tracking-widest uppercase mb-1 block ${theme === "DARK" ? "text-stone-600" : "text-stone-400"}`}>From</label>
+                          <input
+                            type="date"
+                            value={formData.availability_from}
+                            onChange={e => setFormData(prev => ({ ...prev, availability_from: e.target.value }))}
+                            className={inputCls}
+                          />
+                        </div>
+                        <div className={`text-xs font-black mt-5 ${theme === "DARK" ? "text-stone-600" : "text-stone-400"}`}>—</div>
+                        <div className="flex-1">
+                          <label className={`text-[9px] font-black tracking-widest uppercase mb-1 block ${theme === "DARK" ? "text-stone-600" : "text-stone-400"}`}>To</label>
+                          <input
+                            type="date"
+                            value={formData.availability_to}
+                            onChange={e => setFormData(prev => ({ ...prev, availability_to: e.target.value }))}
+                            className={inputCls}
+                          />
+                        </div>
+                      </div>
+                      <div className={`rounded-2xl border overflow-hidden ${theme === "DARK" ? "border-stone-800" : "border-stone-200"}`}>
                         {/* Header row */}
                         <div className={`grid border-b ${theme === "DARK" ? "border-stone-800 bg-stone-900" : "border-stone-100 bg-stone-50"}`} style={{ gridTemplateColumns: "80px repeat(7, 1fr)" }}>
                           <div className={`px-3 py-2 text-[9px] font-black uppercase tracking-widest ${theme === "DARK" ? "text-stone-600" : "text-stone-400"}`}></div>
