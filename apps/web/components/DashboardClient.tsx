@@ -451,7 +451,7 @@ export default function DashboardClient({ params }: { params: { tenantId: string
                 </div>
                 <div className="max-h-64 overflow-y-auto space-y-1 pr-1 custom-scrollbar">
                   {allTenants
-                    .filter(t => t.id !== "Global" && t.tenant_id !== "Global")
+                    .filter(t => t.tenant_id && /^T\d+/.test(t.tenant_id))
                     .map((t) => (
                     <button
                       key={t.id}
