@@ -764,6 +764,7 @@ function CourtTab({ data, onSave, isSaving, theme, dimensions }: any) {
   const [editingCourtId, setEditingCourtId] = useState<string | null>(null);
   const [courtImageUrl, setCourtImageUrl] = useState("");
   const [isUploading, setIsUploading] = useState(false);
+  const [isDraggingPhoto, setIsDraggingPhoto] = useState(false);
   const courtFileRef = React.useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -821,10 +822,7 @@ function CourtTab({ data, onSave, isSaving, theme, dimensions }: any) {
     setRestrictions(court.restrictions || "");
   };
 
-  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
+  const uploadFile = async (file: File) => {
     setIsUploading(true);
     try {
       const storageRef = ref(storage, `courts/${Date.now()}_${file.name}`);
@@ -835,6 +833,30 @@ function CourtTab({ data, onSave, isSaving, theme, dimensions }: any) {
       console.error("Photo upload failed:", err);
     } finally {
       setIsUploading(false);
+    }
+  };
+
+  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) await uploadFile(file);
+  };
+
+  const onPhotoDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDraggingPhoto(true);
+  };
+
+  const onPhotoDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDraggingPhoto(false);
+  };
+
+  const onPhotoDrop = async (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDraggingPhoto(false);
+    const file = e.dataTransfer.files?.[0];
+    if (file && file.type.startsWith("image/")) {
+      await uploadFile(file);
     }
   };
 
@@ -877,23 +899,48 @@ function CourtTab({ data, onSave, isSaving, theme, dimensions }: any) {
             <input type="file" ref={courtFileRef} onChange={handlePhotoUpload} className="hidden" accept="image/*" />
             <div 
               onClick={() => courtFileRef.current?.click()}
-              className={`h-40 rounded-2xl border-2 border-dashed flex flex-col items-center justify-center gap-3 transition-all cursor-pointer overflow-hidden group ${
-                isDark ? "border-stone-800 bg-stone-900/50 hover:border-[#ccff00]/50" : "border-stone-200 bg-stone-50/50 hover:border-stone-400"
+              onDragOver={onPhotoDragOver}
+              onDragLeave={onPhotoDragLeave}
+              onDrop={onPhotoDrop}
+              className={`h-48 rounded-2xl border-2 border-dashed flex flex-col items-center justify-center gap-4 transition-all cursor-pointer overflow-hidden group relative ${
+                isDraggingPhoto 
+                  ? (isDark ? "border-[#ccff00] bg-[#ccff00]/10 scale-[1.02]" : "border-stone-900 bg-stone-100 scale-[1.02]")
+                  : (isDark ? "border-stone-800 bg-stone-900/50 hover:border-[#ccff00]/50" : "border-stone-200 bg-stone-50/50 hover:border-stone-400")
               }`}
             >
               {courtImageUrl ? (
-                <img src={courtImageUrl} alt="Court" className="w-full h-full object-cover" />
+                <>
+                  <img src={courtImageUrl} alt="Court" className="w-full h-full object-cover transition-transform group-hover:scale-105" />
+                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                    <span className="text-white text-[10px] font-black tracking-widest uppercase">Change Photo</span>
+                  </div>
+                </>
               ) : (
                 <>
-                  <span className={`material-symbols-outlined text-3xl opacity-20 ${isDark ? "text-white" : "text-stone-900"}`}>
+                  <span className={`material-symbols-outlined text-4xl opacity-20 ${isDark ? "text-white" : "text-stone-900"} ${isUploading ? "animate-spin" : ""}`}>
                     {isUploading ? "sync" : "add_a_photo"}
                   </span>
-                  <span className="text-[8px] font-black tracking-widest uppercase opacity-40">
-                    {isUploading ? "Uploading..." : "Click to upload photo"}
-                  </span>
+                  <div className="text-center space-y-1">
+                    <p className="text-[10px] font-black tracking-widest uppercase opacity-40">
+                      {isUploading ? "Uploading..." : "Click or drag photo"}
+                    </p>
+                    <p className="text-[8px] font-bold text-stone-400 uppercase tracking-[0.2em]">Drop files here</p>
+                  </div>
                 </>
               )}
             </div>
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                courtFileRef.current?.click();
+              }}
+              className={`mt-3 w-full py-4 rounded-xl text-[9px] font-black tracking-[0.2em] uppercase border transition-all ${
+                isDark ? "border-stone-800 text-stone-400 hover:text-white hover:border-stone-600" : "border-stone-200 text-stone-500 hover:text-stone-900 hover:border-stone-300"
+              }`}
+            >
+              Load from Directory
+            </button>
           </FormField>
 
           <FormField label="Restrictions" theme={theme}>
