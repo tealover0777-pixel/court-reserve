@@ -1422,23 +1422,6 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
                     </div>
 
                     <div className="col-span-2">
-                      <label className={labelCls}>Weekly Availability</label>
-                      {/* Date span */}
-                      <div className="flex items-center gap-4 mb-3 mt-1">
-                        <div className="flex-1">
-                          <label className={`text-[9px] font-black tracking-widest uppercase mb-1 block ${theme === "DARK" ? "text-stone-600" : "text-stone-400"}`}>From</label>
-                          <input
-                            type="date"
-                            value={formData.availability_from}
-                            onChange={e => setFormData(prev => ({ ...prev, availability_from: e.target.value }))}
-                            className={inputCls}
-                          />
-                        </div>
-                        <div className={`text-xs font-black mt-5 ${theme === "DARK" ? "text-stone-600" : "text-stone-400"}`}>—</div>
-                        <div className="flex-1">
-                          <label className={`text-[9px] font-black tracking-widest uppercase mb-1 block ${theme === "DARK" ? "text-stone-600" : "text-stone-400"}`}>To</label>
-                          <input
-                            type="date"
                       <div className="flex items-center justify-between mb-2">
                         <label className={labelCls}>Weekly Availability</label>
                         <label className="flex items-center gap-2 cursor-pointer group">
