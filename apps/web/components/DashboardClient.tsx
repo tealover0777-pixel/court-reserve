@@ -40,8 +40,38 @@ export default function DashboardClient({ params }: { params: { tenantId: string
   const tenantId = params.tenantId || (profile?.tenant_id && profile.tenant_id !== "Global" ? profile.tenant_id : contextTenantId);
   const tenantSelectorRef = React.useRef<HTMLDivElement>(null);
 
+  // --- Permission derivation ---
+  const userRole = React.useMemo(
+    () => roles.find(r => r.role_id === profile?.role || r.id === profile?.role),
+    [roles, profile]
+  );
+  const userPermissions: string[] = userRole?.permissions || [];
+  // Global role with no permission list = Super Admin = full access
+  const isSuperAdmin = (userRole?.is_global ?? false) && userPermissions.length === 0;
+  const hasPermission = (perm: string) => isSuperAdmin || userPermissions.includes(perm);
+
+  // View → required permission mapping
+  const VIEW_PERMISSIONS: Partial<Record<typeof activeView, string>> = {
+    "DASHBOARD":              "DASHBOARD_VIEW",
+    "COURT BOOKING":          "MY_SCHEDULE_VIEW",
+    "PROGRAMS":               "PROGRAMS_VIEW",
+    "MEMBERSHIP":             "MEMBERSHIP_VIEW",
+    "ROLE_TYPES":             "ADMINISTRATION_VIEW",
+    "ORGANIZATION":           "ADMINISTRATION_VIEW",
+    "TENANT_USER_ADMIN":      "ADMINISTRATION_VIEW",
+    "SETTINGS":               "SETTINGS_VIEW",
+    "AI_ADMIN":               "PLATFORM_VIEW",
+    "DIMENSIONS":             "PLATFORM_VIEW",
+    "USER_ADMIN":             "PLATFORM_VIEW",
+    "PLATFORM_TENANT_ADMIN":  "PLATFORM_VIEW",
+    "PLATFORM_ORGANIZATION":  "PLATFORM_VIEW",
+    "PLATFORM_ROLE_TYPES":    "PLATFORM_VIEW",
+  };
+
   // Sync state with History API for clean URL + Back/Forward support
   const handleViewChange = (view: typeof activeView) => {
+    const requiredPerm = VIEW_PERMISSIONS[view];
+    if (requiredPerm && !hasPermission(requiredPerm)) return;
     setActiveView(view);
     // Push to history state without changing the visible URL info
     window.history.pushState({ view }, "", pathname);
@@ -64,6 +94,16 @@ export default function DashboardClient({ params }: { params: { tenantId: string
 
     return () => window.removeEventListener("popstate", handlePopState);
   }, [activeView, pathname]);
+
+  // Redirect away from forbidden view when permissions resolve
+  React.useEffect(() => {
+    if (!profile || roles.length === 0) return;
+    const requiredPerm = VIEW_PERMISSIONS[activeView];
+    if (requiredPerm && !hasPermission(requiredPerm)) {
+      setActiveView("DASHBOARD");
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userPermissions.join(","), activeView]);
 
   React.useEffect(() => {
     const q = query(collection(db, "role_types"), orderBy("role_id", "asc"));
@@ -134,116 +174,134 @@ export default function DashboardClient({ params }: { params: { tenantId: string
         </div>
 
         <nav className="flex-1 space-y-2 py-4">
-          <NavItem
-            icon="grid_view"
-            label="Dashboard"
-            active={activeView === "DASHBOARD"}
-            onClick={() => handleViewChange("DASHBOARD")}
-            theme={theme}
-          />
-          <NavItem
-            icon="sports_tennis"
-            label="My Schedule"
-            active={activeView === "COURT BOOKING"}
-            onClick={() => handleViewChange("COURT BOOKING")}
-            theme={theme}
-          />
-          <NavItem
-            icon="calendar_today"
-            label="Programs"
-            active={activeView === "PROGRAMS"}
-            onClick={() => handleViewChange("PROGRAMS")}
-            theme={theme}
-          />
-          <NavItem
-            icon="card_membership"
-            label="Membership"
-            active={activeView === "MEMBERSHIP"}
-            onClick={() => handleViewChange("MEMBERSHIP")}
-            theme={theme}
-          />
-          <NavItem
-            icon="admin_panel_settings"
-            label="Administration"
-            active={activeView === "ROLE_TYPES"}
-            onClick={() => setAdministrationOpen(!administrationOpen)}
-            theme={theme}
-          />
-          {administrationOpen && (
-            <div className="bg-stone-100/50 py-2">
-              <SubNavItem
-                label="Role Types"
-                active={activeView === "ROLE_TYPES"}
-                onClick={() => handleViewChange("ROLE_TYPES")}
-                theme={theme}
-              />
-              <SubNavItem
-                label="Organization"
-                active={activeView === "ORGANIZATION"}
-                onClick={() => handleViewChange("ORGANIZATION")}
-                theme={theme}
-              />
-              <SubNavItem
-                label="Users"
-                active={activeView === "TENANT_USER_ADMIN"}
-                onClick={() => handleViewChange("TENANT_USER_ADMIN")}
-                theme={theme}
-              />
-            </div>
+          {hasPermission("DASHBOARD_VIEW") && (
+            <NavItem
+              icon="grid_view"
+              label="Dashboard"
+              active={activeView === "DASHBOARD"}
+              onClick={() => handleViewChange("DASHBOARD")}
+              theme={theme}
+            />
           )}
-          <NavItem
-            icon="settings"
-            label="Settings"
-            active={activeView === "SETTINGS"}
-            onClick={() => handleViewChange("SETTINGS")}
-            theme={theme}
-          />
-          <NavItem
-            icon="hub"
-            label="Platform"
-            active={activeView === "AI_ADMIN" || activeView === "DIMENSIONS" || activeView === "USER_ADMIN" || activeView === "PLATFORM_TENANT_ADMIN" || activeView === "PLATFORM_ORGANIZATION"}
-            onClick={() => setPlatformAdminOpen(!platformAdminOpen)}
-            theme={theme}
-          />
-          {platformAdminOpen && (
-            <div className="bg-stone-100/50 py-2">
-              <SubNavItem
-                label="AI Admin"
-                active={activeView === "AI_ADMIN"}
-                onClick={() => handleViewChange("AI_ADMIN")}
+          {hasPermission("MY_SCHEDULE_VIEW") && (
+            <NavItem
+              icon="sports_tennis"
+              label="My Schedule"
+              active={activeView === "COURT BOOKING"}
+              onClick={() => handleViewChange("COURT BOOKING")}
+              theme={theme}
+            />
+          )}
+          {hasPermission("PROGRAMS_VIEW") && (
+            <NavItem
+              icon="calendar_today"
+              label="Programs"
+              active={activeView === "PROGRAMS"}
+              onClick={() => handleViewChange("PROGRAMS")}
+              theme={theme}
+            />
+          )}
+          {hasPermission("MEMBERSHIP_VIEW") && (
+            <NavItem
+              icon="card_membership"
+              label="Membership"
+              active={activeView === "MEMBERSHIP"}
+              onClick={() => handleViewChange("MEMBERSHIP")}
+              theme={theme}
+            />
+          )}
+          {hasPermission("ADMINISTRATION_VIEW") && (
+            <>
+              <NavItem
+                icon="admin_panel_settings"
+                label="Administration"
+                active={["ROLE_TYPES", "ORGANIZATION", "TENANT_USER_ADMIN"].includes(activeView)}
+                onClick={() => setAdministrationOpen(!administrationOpen)}
                 theme={theme}
               />
-              <SubNavItem
-                label="Dimensions"
-                active={activeView === "DIMENSIONS"}
-                onClick={() => handleViewChange("DIMENSIONS")}
+              {administrationOpen && (
+                <div className="bg-stone-100/50 py-2">
+                  <SubNavItem
+                    label="Role Types"
+                    active={activeView === "ROLE_TYPES"}
+                    onClick={() => handleViewChange("ROLE_TYPES")}
+                    theme={theme}
+                  />
+                  <SubNavItem
+                    label="Organization"
+                    active={activeView === "ORGANIZATION"}
+                    onClick={() => handleViewChange("ORGANIZATION")}
+                    theme={theme}
+                  />
+                  <SubNavItem
+                    label="Users"
+                    active={activeView === "TENANT_USER_ADMIN"}
+                    onClick={() => handleViewChange("TENANT_USER_ADMIN")}
+                    theme={theme}
+                  />
+                </div>
+              )}
+            </>
+          )}
+          {hasPermission("SETTINGS_VIEW") && (
+            <NavItem
+              icon="settings"
+              label="Settings"
+              active={activeView === "SETTINGS"}
+              onClick={() => handleViewChange("SETTINGS")}
+              theme={theme}
+            />
+          )}
+          {hasPermission("PLATFORM_VIEW") && (
+            <>
+              <NavItem
+                icon="hub"
+                label="Platform"
+                active={["AI_ADMIN", "DIMENSIONS", "USER_ADMIN", "PLATFORM_TENANT_ADMIN", "PLATFORM_ORGANIZATION", "PLATFORM_ROLE_TYPES"].includes(activeView)}
+                onClick={() => setPlatformAdminOpen(!platformAdminOpen)}
                 theme={theme}
               />
-              <SubNavItem
-                label="Platform User"
-                active={activeView === "USER_ADMIN"}
-                onClick={() => handleViewChange("USER_ADMIN")}
-                theme={theme}
-              />
-              <SubNavItem
-                label="Tenant Admin"
-                active={activeView === "PLATFORM_TENANT_ADMIN"}
-                onClick={() => handleViewChange("PLATFORM_TENANT_ADMIN")}
-                theme={theme}
-              />
-              <SubNavItem
-                label="Organization"
-                active={activeView === "PLATFORM_ORGANIZATION"}
-                onClick={() => handleViewChange("PLATFORM_ORGANIZATION")}
-                theme={theme}
-              />
-              <SubNavItem
-                label="Role Types"
-                active={activeView === "PLATFORM_ROLE_TYPES"}
-                onClick={() => handleViewChange("PLATFORM_ROLE_TYPES")}
-                theme={theme}
-              />
-            </div>
+              {platformAdminOpen && (
+                <div className="bg-stone-100/50 py-2">
+                  <SubNavItem
+                    label="AI Admin"
+                    active={activeView === "AI_ADMIN"}
+                    onClick={() => handleViewChange("AI_ADMIN")}
+                    theme={theme}
+                  />
+                  <SubNavItem
+                    label="Dimensions"
+                    active={activeView === "DIMENSIONS"}
+                    onClick={() => handleViewChange("DIMENSIONS")}
+                    theme={theme}
+                  />
+                  <SubNavItem
+                    label="Platform User"
+                    active={activeView === "USER_ADMIN"}
+                    onClick={() => handleViewChange("USER_ADMIN")}
+                    theme={theme}
+                  />
+                  <SubNavItem
+                    label="Tenant Admin"
+                    active={activeView === "PLATFORM_TENANT_ADMIN"}
+                    onClick={() => handleViewChange("PLATFORM_TENANT_ADMIN")}
+                    theme={theme}
+                  />
+                  <SubNavItem
+                    label="Organization"
+                    active={activeView === "PLATFORM_ORGANIZATION"}
+                    onClick={() => handleViewChange("PLATFORM_ORGANIZATION")}
+                    theme={theme}
+                  />
+                  <SubNavItem
+                    label="Role Types"
+                    active={activeView === "PLATFORM_ROLE_TYPES"}
+                    onClick={() => handleViewChange("PLATFORM_ROLE_TYPES")}
+                    theme={theme}
+                  />
+                </div>
+              )}
+            </>
           )}
         </nav>
 
@@ -419,43 +477,40 @@ export default function DashboardClient({ params }: { params: { tenantId: string
         theme === "VINTAGE" ? "bg-[#f7f9fb]" :
           "bg-stone-50"
         }`}>
-        {activeView === "DASHBOARD" ? (
-          <DashboardHome theme={theme} profile={profile} />
-        ) : activeView === "AI_ADMIN" ? (
-          <AIAdminView theme={theme} />
-        ) : activeView === "DIMENSIONS" ? (
-          <DimensionsView theme={theme} />
-        ) : activeView === "ROLE_TYPES" ? (
-          <RoleTypesView theme={theme} />
-        ) : activeView === "ORGANIZATION" ? (
-          <OrganizationView theme={theme} tenantId={tenantId} />
-        ) : activeView === "TENANT_USER_ADMIN" ? (
-          <UserAdminView theme={theme} tenantId={tenantId} />
-        ) : activeView === "PLATFORM_ORGANIZATION" ? (
-          <OrganizationView theme={theme} tenantId="Global" />
-        ) : activeView === "USER_ADMIN" ? (
-          <UserAdminView theme={theme} />
-        ) : activeView === "PLATFORM_TENANT_ADMIN" ? (
-          <PlatformTenantAdminView theme={theme} />
-        ) : activeView === "PLATFORM_ROLE_TYPES" ? (
-          <RoleTypesView theme={theme} />
-        ) : activeView === "COURT BOOKING" ? (
-          <CourtBookingView theme={theme} />
-        ) : activeView === "PROGRAMS" ? (
-          <ProgramsView theme={theme} />
-        ) : activeView === "MEMBERSHIP" ? (
-          <MembershipView theme={theme} />
-        ) : activeView === "SETTINGS" ? (
-          <SettingsView theme={theme} />
-        ) : activeView === "PROFILE" ? (
-          <ProfileView theme={theme} profile={profile} roles={roles} />
-        ) : (
-          <div className="flex flex-col items-center justify-center min-h-[60vh] text-stone-400">
-            <span className="material-symbols-outlined text-6xl mb-4">construction</span>
-            <h3 className="text-2xl font-black uppercase tracking-widest">{activeView} UNDER CONSTRUCTION</h3>
-            <p className="mt-2">We're building something elite for you.</p>
-          </div>
-        )}
+        {(() => {
+          const requiredPerm = VIEW_PERMISSIONS[activeView];
+          if (requiredPerm && !hasPermission(requiredPerm)) {
+            return (
+              <div className="flex flex-col items-center justify-center min-h-[60vh] text-stone-400">
+                <span className="material-symbols-outlined text-6xl mb-4">lock</span>
+                <h3 className="text-2xl font-black uppercase tracking-widest">Access Denied</h3>
+                <p className="mt-2 text-sm">You don't have permission to view this page.</p>
+              </div>
+            );
+          }
+          if (activeView === "DASHBOARD") return <DashboardHome theme={theme} profile={profile} />;
+          if (activeView === "AI_ADMIN") return <AIAdminView theme={theme} />;
+          if (activeView === "DIMENSIONS") return <DimensionsView theme={theme} />;
+          if (activeView === "ROLE_TYPES") return <RoleTypesView theme={theme} />;
+          if (activeView === "ORGANIZATION") return <OrganizationView theme={theme} tenantId={tenantId} />;
+          if (activeView === "TENANT_USER_ADMIN") return <UserAdminView theme={theme} tenantId={tenantId} />;
+          if (activeView === "PLATFORM_ORGANIZATION") return <OrganizationView theme={theme} tenantId="Global" />;
+          if (activeView === "USER_ADMIN") return <UserAdminView theme={theme} />;
+          if (activeView === "PLATFORM_TENANT_ADMIN") return <PlatformTenantAdminView theme={theme} />;
+          if (activeView === "PLATFORM_ROLE_TYPES") return <RoleTypesView theme={theme} />;
+          if (activeView === "COURT BOOKING") return <CourtBookingView theme={theme} />;
+          if (activeView === "PROGRAMS") return <ProgramsView theme={theme} />;
+          if (activeView === "MEMBERSHIP") return <MembershipView theme={theme} />;
+          if (activeView === "SETTINGS") return <SettingsView theme={theme} />;
+          if (activeView === "PROFILE") return <ProfileView theme={theme} profile={profile} roles={roles} />;
+          return (
+            <div className="flex flex-col items-center justify-center min-h-[60vh] text-stone-400">
+              <span className="material-symbols-outlined text-6xl mb-4">construction</span>
+              <h3 className="text-2xl font-black uppercase tracking-widest">{activeView} UNDER CONSTRUCTION</h3>
+              <p className="mt-2">We're building something elite for you.</p>
+            </div>
+          );
+        })()}
       </main>
     </div>
   );

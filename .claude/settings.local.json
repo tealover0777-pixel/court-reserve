@@ -5,7 +5,8 @@
       "Read(//Users/kyuahn/Library/**)",
       "Bash(npx mcp-remote *)",
       "Bash(grep -E \"\\\\.\\(tsx?|jsx?\\)$\")",
-      "Bash(xargs cat *)"
+      "Bash(xargs cat *)",
+      "Bash(npx tsc *)"
     ]
   }
 }
