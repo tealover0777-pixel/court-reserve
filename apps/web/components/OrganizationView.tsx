@@ -766,6 +766,17 @@ function CourtTab({ data, onSave, isSaving, theme, dimensions, tenantId }: any) 
   const [isUploading, setIsUploading] = useState(false);
   const [isDraggingPhoto, setIsDraggingPhoto] = useState(false);
   const courtFileRef = React.useRef<HTMLInputElement>(null);
+  const [defaultCourts, setDefaultCourts] = useState<any[]>([]);
+
+  useEffect(() => {
+    if (tenantId === "Global") return;
+    const unsub = onSnapshot(doc(db, "tenants", "Global"), (snap) => {
+      if (snap.exists()) {
+        setDefaultCourts(Array.isArray(snap.data().courts) ? snap.data().courts : []);
+      }
+    });
+    return () => unsub();
+  }, [tenantId]);
 
   useEffect(() => {
     setCourts(Array.isArray(data?.courts) ? data.courts : []);
@@ -882,6 +893,44 @@ function CourtTab({ data, onSave, isSaving, theme, dimensions, tenantId }: any) 
               ? (tenantId === "Global" ? "Edit Default Court" : "Edit Court") 
               : (tenantId === "Global" ? "Register Default Court" : "Register Court")}
           </h4>
+
+          {tenantId !== "Global" && defaultCourts.length > 0 && !editingCourtId && (
+            <div className="space-y-6">
+              <FormField label="Template Courts (From Platform)" theme={theme}>
+                <div className="grid grid-cols-2 gap-3">
+                  {defaultCourts.map(dc => (
+                    <button
+                      key={dc.id}
+                      type="button"
+                      onClick={() => {
+                        setCourtName(dc.name);
+                        setCourtCondition(dc.condition);
+                        setCourtImageUrl(dc.image_url || "");
+                        setRestrictions(dc.restrictions || "");
+                      }}
+                      className={`flex items-center gap-3 p-3 rounded-2xl border transition-all text-left group ${
+                        isDark ? "bg-stone-800/40 border-stone-800 hover:border-[#ccff00]/50" : "bg-white border-stone-100 hover:border-stone-400 shadow-sm"
+                      }`}
+                    >
+                      {dc.image_url ? (
+                        <img src={dc.image_url} className="w-10 h-10 rounded-xl object-cover flex-shrink-0" alt={dc.name} />
+                      ) : (
+                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${isDark ? "bg-stone-900" : "bg-stone-50"}`}>
+                          <span className="material-symbols-outlined text-sm opacity-20">sports_tennis</span>
+                        </div>
+                      )}
+                      <div className="overflow-hidden">
+                        <p className={`text-[10px] font-black truncate mb-0.5 ${isDark ? "text-white" : "text-stone-900"}`}>{dc.name}</p>
+                        <p className="text-[8px] opacity-40 uppercase font-black tracking-widest">{dc.condition}</p>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </FormField>
+              <div className={`h-[1px] w-full ${isDark ? "bg-stone-800" : "bg-stone-200/50"}`} />
+            </div>
+          )}
+
           <FormField label={tenantId === "Global" ? "Default Court Name" : "Court Name"} theme={theme}>
             <input value={courtName} onChange={(e) => setCourtName(e.target.value)} className={inputClasses} placeholder="e.g. Court 01" />
           </FormField>
