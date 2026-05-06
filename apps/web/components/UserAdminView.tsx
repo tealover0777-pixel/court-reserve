@@ -326,11 +326,12 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
     if (!editingUser) return;
     setIsSaving(true);
     try {
-      const compositeId = `${formData.tenant_id}_${formData.user_id}`;
-      const userRef = doc(db, "global_users", compositeId);
-      await setDoc(userRef, {
+      // Use the actual document ID to ensure we update the correct record
+      const userRef = doc(db, "global_users", editingUser.id);
+      
+      const updateData = {
         ...formData,
-        portrait_url: formData.portrait_url,
+        notes: formData.notes, // Explicitly include notes
         coach_description: formData.coach_description,
         birth_date: formData.birth_date,
         sex: formData.sex,
@@ -340,7 +341,9 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
         availability_from: formData.availability_from,
         availability_to: formData.availability_to,
         updated_at: new Date().toISOString()
-      }, { merge: true });
+      };
+
+      await setDoc(userRef, updateData, { merge: true });
       setShowEditModal(false);
       setEditingUser(null);
 
