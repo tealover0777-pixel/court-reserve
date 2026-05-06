@@ -36,7 +36,7 @@ interface Dimension {
   items: string[];
 }
 
-export default function RoleTypesView({ theme = "LIGHT", userRoleId }: { theme?: "LIGHT" | "DARK" | "VINTAGE"; userRoleId?: string }) {
+export default function RoleTypesView({ theme = "LIGHT", userRoleId, readOnly = false }: { theme?: "LIGHT" | "DARK" | "VINTAGE"; userRoleId?: string; readOnly?: boolean }) {
   const [roles, setRoles] = useState<RoleType[]>([]);
   const [permissions, setPermissions] = useState<string[]>([]);
   const [globalPermissions, setGlobalPermissions] = useState<string[]>([]);
@@ -293,9 +293,12 @@ export default function RoleTypesView({ theme = "LIGHT", userRoleId }: { theme?:
   ];
 
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  const visibleColumns = readOnly
+    ? columns.filter(c => !["role_id", "IsGlobal", "actions"].includes((c as any).id ?? (c as any).accessorKey))
+    : columns;
   const table = useReactTable({
     data: visibleRoles,
-    columns,
+    columns: visibleColumns,
     state: {
       columnFilters,
     },
@@ -361,19 +364,21 @@ export default function RoleTypesView({ theme = "LIGHT", userRoleId }: { theme?:
               onChange={(e) => table.setGlobalFilter(e.target.value)}
             />
           </div>
-          <button 
-            onClick={handleOpenAdd}
-            className={`px-8 py-3 rounded-full font-black text-xs tracking-widest transition-all uppercase shadow-lg flex items-center gap-2 ${
-              theme === "DARK"
-                ? "bg-[#ccff00] text-stone-950 shadow-[#ccff00]/10 hover:opacity-90"
-                : theme === "VINTAGE"
-                  ? "bg-black text-white shadow-black/10 hover:opacity-90"
-                  : "bg-[#4f6b28] text-white shadow-[#4f6b28]/20 hover:opacity-90"
-            }`}
-          >
-            <span className="material-symbols-outlined text-sm">add</span>
-            New Role
-          </button>
+          {!readOnly && (
+            <button
+              onClick={handleOpenAdd}
+              className={`px-8 py-3 rounded-full font-black text-xs tracking-widest transition-all uppercase shadow-lg flex items-center gap-2 ${
+                theme === "DARK"
+                  ? "bg-[#ccff00] text-stone-950 shadow-[#ccff00]/10 hover:opacity-90"
+                  : theme === "VINTAGE"
+                    ? "bg-black text-white shadow-black/10 hover:opacity-90"
+                    : "bg-[#4f6b28] text-white shadow-[#4f6b28]/20 hover:opacity-90"
+              }`}
+            >
+              <span className="material-symbols-outlined text-sm">add</span>
+              New Role
+            </button>
+          )}
         </div>
       </div>
 

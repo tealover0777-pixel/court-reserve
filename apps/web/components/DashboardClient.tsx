@@ -253,7 +253,7 @@ export default function DashboardClient({ params }: { params: { tenantId: string
                     theme={theme}
                   />
                   <SubNavItem
-                    label="Users"
+                    label="User Admin"
                     active={activeView === "TENANT_USER_ADMIN"}
                     onClick={() => handleViewChange("TENANT_USER_ADMIN")}
                     theme={theme}
@@ -512,7 +512,7 @@ export default function DashboardClient({ params }: { params: { tenantId: string
           if (activeView === "DASHBOARD") return <DashboardHome theme={theme} profile={profile} />;
           if (activeView === "AI_ADMIN") return <AIAdminView theme={theme} />;
           if (activeView === "DIMENSIONS") return <DimensionsView theme={theme} />;
-          if (activeView === "ROLE_TYPES") return <RoleTypesView theme={theme} userRoleId={profile?.role} />;
+          if (activeView === "ROLE_TYPES") return <RoleTypesView theme={theme} userRoleId={profile?.role} readOnly />;
           if (activeView === "ORGANIZATION") return <OrganizationView theme={theme} tenantId={tenantId} />;
           if (activeView === "TENANT_USER_ADMIN") return <UserAdminView theme={theme} tenantId={tenantId} />;
           if (activeView === "PLATFORM_ORGANIZATION") return <OrganizationView theme={theme} tenantId="Global" />;

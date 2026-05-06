@@ -22,6 +22,7 @@ interface User {
   status: string;
   phone?: string;
   notes?: string;
+  company_user_id?: string;
   tenant_id?: string;
   address_street_1?: string;
   address_street_2?: string;
@@ -71,6 +72,7 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
     status: "Invited",
     phone: "",
     notes: "",
+    company_user_id: "",
     tenant_id: "",
     invite_user: true,
     address_street_1: "",
@@ -226,6 +228,7 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
       status: user.status || "Invited",
       phone: user.phone || "",
       notes: user.notes || "",
+      company_user_id: user.company_user_id || "",
       tenant_id: user.tenant_id || "",
       invite_user: false,
       address_street_1: user.address_street_1 || "",
@@ -295,6 +298,7 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
         status: "Invited",
         phone: formData.phone,
         notes: formData.notes,
+        company_user_id: formData.company_user_id,
         address_street_1: formData.address_street_1,
         address_street_2: formData.address_street_2,
         address_city: formData.address_city,
@@ -316,6 +320,7 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
           last_name: formData.last_name,
           phone: formData.phone,
           notes: formData.notes,
+          company_user_id: formData.company_user_id,
           tenantId: formData.tenant_id,
           address_street_1: formData.address_street_1,
           address_street_2: formData.address_street_2,
@@ -400,6 +405,7 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
       status: "Invited",
       phone: "",
       notes: "",
+      company_user_id: "",
       tenant_id: tenantId || "",
       invite_user: true,
       address_street_1: "",
@@ -421,7 +427,16 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
         "text-stone-900"
       }`}>{info.getValue()}</span>,
     }),
-    columnHelper.accessor("tenant_id", {
+    columnHelper.accessor("company_user_id", {
+      header: "COMPANY USER ID",
+      size: 160,
+      cell: info => <span className={`font-mono text-xs transition-colors duration-500 ${
+        theme === "DARK" ? "text-stone-400" :
+        theme === "VINTAGE" ? "text-stone-600" :
+        "text-stone-500"
+      }`}>{info.getValue() || "—"}</span>,
+    }),
+    ...(tenantId ? [] : [columnHelper.accessor("tenant_id", {
       header: "TENANT",
       size: 160,
       cell: info => {
@@ -465,7 +480,7 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
         
         return !!(nameMatch || idMatch);
       }
-    }),
+    })]),
     columnHelper.accessor("first_name", {
       header: "FIRST NAME",
       size: 150,
@@ -964,6 +979,18 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
           </div>
 
           <div>
+            <label className={`text-[10px] font-black tracking-widest uppercase mb-3 block ${theme === "DARK" ? "text-stone-500" : "text-stone-400"}`}>Company User ID</label>
+            <input
+              value={formData.company_user_id}
+              onChange={e => setFormData({ ...formData, company_user_id: e.target.value })}
+              placeholder="e.g. EMP-0042"
+              className={`w-full border rounded-2xl px-6 py-4 text-sm font-bold outline-none transition-colors ${
+                theme === "DARK" ? "bg-stone-950 text-white border-stone-800 focus:border-[#ccff00]" : "bg-white text-stone-900 border-stone-200 focus:border-stone-400"
+              }`}
+            />
+          </div>
+
+          <div>
             <label className={`text-[10px] font-black tracking-widest uppercase mb-3 block ${theme === "DARK" ? "text-stone-500" : "text-stone-400"}`}>Auth UID (Firebase)</label>
             <div className={`w-full border rounded-2xl px-6 py-4 text-sm font-bold transition-colors break-all ${
               theme === "DARK" ? "bg-stone-900 text-stone-500 border-stone-800" : "bg-stone-50 text-stone-400 border-stone-100"
@@ -1244,8 +1271,20 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
           )}
 
           <div>
+            <label className={`text-[10px] font-black tracking-widest uppercase mb-3 block ${theme === "DARK" ? "text-stone-500" : "text-stone-400"}`}>Company User ID</label>
+            <input
+              value={formData.company_user_id}
+              onChange={e => setFormData({ ...formData, company_user_id: e.target.value })}
+              placeholder="e.g. EMP-0042"
+              className={`w-full border rounded-2xl px-6 py-4 text-sm font-bold outline-none transition-colors ${
+                theme === "DARK" ? "bg-stone-950 text-white border-stone-800 focus:border-[#ccff00]" : "bg-white text-stone-900 border-stone-200 focus:border-stone-400 shadow-sm"
+              }`}
+            />
+          </div>
+
+          <div>
             <label className={`text-[10px] font-black tracking-widest uppercase mb-3 block ${theme === "DARK" ? "text-stone-500" : "text-stone-400"}`}>Email Address</label>
-            <input 
+            <input
               value={formData.email}
               onChange={e => setFormData({ ...formData, email: e.target.value })}
               placeholder="user@company.com"
