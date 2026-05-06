@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { db, storage } from "../lib/firebase";
-import { doc, onSnapshot, setDoc, serverTimestamp } from "firebase/firestore";
+import { collection, doc, onSnapshot, orderBy, query, setDoc, serverTimestamp } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { useTenant } from "../context/TenantContext";
 
@@ -21,8 +21,9 @@ interface OrganizationViewProps {
 export default function OrganizationView({ theme, tenantId: tenantIdProp }: OrganizationViewProps) {
   const { tenantId: contextTenantId } = useTenant();
   const tenantId = tenantIdProp ?? contextTenantId;
-  const [activeTab, setActiveTab] = useState<"INFO" | "BRANDING" | "EMAIL" | "PAYMENT">("INFO");
+  const [activeTab, setActiveTab] = useState<"INFO" | "BRANDING" | "EMAIL" | "COURT" | "PAYMENT">("INFO");
   const [tenantData, setTenantData] = useState<any>(null);
+  const [dimensions, setDimensions] = useState<Record<string, string[]>>({});
   const [isSaving, setIsSaving] = useState(false);
   const [notification, setNotification] = useState<{ message: string; type: "SUCCESS" | "ERROR" } | null>(null);
 
@@ -33,6 +34,22 @@ export default function OrganizationView({ theme, tenantId: tenantIdProp }: Orga
     });
     return () => unsub();
   }, [tenantId]);
+
+  useEffect(() => {
+    const dimQuery = query(collection(db, "dimensions"), orderBy("category", "asc"));
+    const unsub = onSnapshot(dimQuery, (snapshot) => {
+      const mapped: Record<string, string[]> = {};
+      snapshot.docs.forEach((snap) => {
+        const data = snap.data();
+        const category = String(data.category || "").trim();
+        if (category) {
+          mapped[category.toLowerCase()] = Array.isArray(data.items) ? data.items.map((item: string) => String(item)) : [];
+        }
+      });
+      setDimensions(mapped);
+    });
+    return () => unsub();
+  }, []);
 
   useEffect(() => {
     if (notification) {
@@ -62,6 +79,7 @@ export default function OrganizationView({ theme, tenantId: tenantIdProp }: Orga
     { id: "INFO", label: "Information", icon: "info" },
     { id: "BRANDING", label: "Branding", icon: "palette" },
     { id: "EMAIL", label: "Email Settings", icon: "mail" },
+    { id: "COURT", label: "Court", icon: "sports_tennis" },
     { id: "PAYMENT", label: "Payment & Billing", icon: "payments" },
   ];
 
@@ -104,6 +122,7 @@ export default function OrganizationView({ theme, tenantId: tenantIdProp }: Orga
         {activeTab === "INFO" && <InfoTab data={tenantData} onSave={handleSave} isSaving={isSaving} theme={theme} />}
         {activeTab === "BRANDING" && <BrandingTab data={tenantData} onSave={handleSave} isSaving={isSaving} theme={theme} tenantId={tenantId} />}
         {activeTab === "EMAIL" && <EmailTab data={tenantData} onSave={handleSave} isSaving={isSaving} theme={theme} tenantId={tenantId} />}
+        {activeTab === "COURT" && <CourtTab data={tenantData} onSave={handleSave} isSaving={isSaving} theme={theme} dimensions={dimensions} />}
         {activeTab === "PAYMENT" && <PaymentTab data={tenantData} onSave={handleSave} isSaving={isSaving} theme={theme} />}
       </div>
 
@@ -731,6 +750,219 @@ function PaymentTab({ data, onSave, isSaving, theme }: any) {
       >
         {isSaving ? "Saving..." : "Update Billing Info"}
       </button>
+    </div>
+  );
+}
+
+function CourtTab({ data, onSave, isSaving, theme, dimensions }: any) {
+  const isDark = theme === "DARK";
+  const [courts, setCourts] = useState<any[]>([]);
+  const [courtName, setCourtName] = useState("");
+  const [courtCondition, setCourtCondition] = useState("");
+  const [courtEnvironment, setCourtEnvironment] = useState("");
+  const [restrictions, setRestrictions] = useState("");
+  const [editingCourtId, setEditingCourtId] = useState<string | null>(null);
+
+  useEffect(() => {
+    setCourts(Array.isArray(data?.courts) ? data.courts : []);
+  }, [data]);
+
+  const normalize = (value: string) => value.toLowerCase().replace(/[^a-z0-9]/g, "");
+  const getDimensionOptions = (aliases: string[]) => {
+    const normalizedAliases = aliases.map(normalize);
+    for (const [category, items] of Object.entries(dimensions || {})) {
+      const normalizedCategory = normalize(category);
+      if (normalizedAliases.some((alias) => normalizedCategory.includes(alias) || alias.includes(normalizedCategory))) {
+        return Array.isArray(items) ? items : [];
+      }
+    }
+    return [];
+  };
+
+  const conditionOptions = getDimensionOptions(["courtcondition", "surface", "courtsurface"]);
+  const environmentOptions = getDimensionOptions(["indooroutdoor", "courtenvironment", "environment", "courtlocation"]);
+
+  const resetForm = () => {
+    setCourtName("");
+    setCourtCondition("");
+    setCourtEnvironment("");
+    setRestrictions("");
+    setEditingCourtId(null);
+  };
+
+  const handleSubmitCourt = () => {
+    const name = courtName.trim();
+    if (!name || !courtCondition || !courtEnvironment) return;
+
+    const payload = {
+      id: editingCourtId || `court_${Date.now()}`,
+      name,
+      condition: courtCondition,
+      environment: courtEnvironment,
+      restrictions: restrictions.trim(),
+      updated_at: new Date().toISOString(),
+    };
+
+    if (editingCourtId) {
+      setCourts((prev) => prev.map((court) => (court.id === editingCourtId ? { ...court, ...payload } : court)));
+    } else {
+      setCourts((prev) => [...prev, { ...payload, created_at: new Date().toISOString() }]);
+    }
+    resetForm();
+  };
+
+  const handleEditCourt = (court: any) => {
+    setEditingCourtId(court.id);
+    setCourtName(court.name || "");
+    setCourtCondition(court.condition || "");
+    setCourtEnvironment(court.environment || "");
+    setRestrictions(court.restrictions || "");
+  };
+
+  const handleDeleteCourt = (courtId: string) => {
+    setCourts((prev) => prev.filter((court) => court.id !== courtId));
+    if (editingCourtId === courtId) resetForm();
+  };
+
+  const handleSaveCourts = () => {
+    onSave({ ...data, courts });
+  };
+
+  const inputClasses = `w-full border rounded-2xl px-6 py-4 text-sm font-bold outline-none transition-all ${
+    isDark ? "bg-stone-900 border-stone-800 text-white focus:border-[#ccff00]" : "bg-stone-50 border-stone-100 text-stone-900 focus:border-stone-400"
+  }`;
+
+  return (
+    <div className="space-y-10">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
+        <div className={`p-8 rounded-[32px] border space-y-6 ${isDark ? "bg-stone-900/40 border-stone-800" : "bg-stone-50 border-stone-100"}`}>
+          <h4 className={`text-[10px] font-black tracking-[0.2em] uppercase opacity-50 ${isDark ? "text-white" : "text-stone-900"}`}>
+            {editingCourtId ? "Edit Court" : "Register Court"}
+          </h4>
+          <FormField label="Court Name" theme={theme}>
+            <input value={courtName} onChange={(e) => setCourtName(e.target.value)} className={inputClasses} placeholder="e.g. Court 01" />
+          </FormField>
+
+          <FormField label="Court Condition" theme={theme}>
+            <select value={courtCondition} onChange={(e) => setCourtCondition(e.target.value)} className={`${inputClasses} appearance-none`}>
+              <option value="">Select condition</option>
+              {conditionOptions.map((option: string) => (
+                <option key={option} value={option}>
+                  {option}
+                </option>
+              ))}
+            </select>
+          </FormField>
+
+          <FormField label="Indoor / Outdoor" theme={theme}>
+            <select value={courtEnvironment} onChange={(e) => setCourtEnvironment(e.target.value)} className={`${inputClasses} appearance-none`}>
+              <option value="">Select environment</option>
+              {environmentOptions.map((option: string) => (
+                <option key={option} value={option}>
+                  {option}
+                </option>
+              ))}
+            </select>
+          </FormField>
+
+          <FormField label="Restrictions" theme={theme}>
+            <textarea
+              value={restrictions}
+              onChange={(e) => setRestrictions(e.target.value)}
+              rows={4}
+              className={`${inputClasses} resize-none`}
+              placeholder="e.g. No shoes with black soles."
+            />
+          </FormField>
+
+          {(conditionOptions.length === 0 || environmentOptions.length === 0) && (
+            <p className={`text-[10px] font-bold uppercase tracking-widest ${isDark ? "text-amber-300" : "text-amber-700"}`}>
+              Configure relevant dimension categories first to populate court options.
+            </p>
+          )}
+
+          <div className="flex items-center gap-3">
+            <button
+              onClick={handleSubmitCourt}
+              disabled={!courtName.trim() || !courtCondition || !courtEnvironment}
+              className={`px-8 py-4 rounded-2xl text-[10px] font-black tracking-[0.2em] uppercase transition-all disabled:opacity-40 ${
+                isDark ? "bg-[#ccff00] text-stone-950" : "bg-stone-900 text-white"
+              }`}
+            >
+              {editingCourtId ? "Update Court" : "Add Court"}
+            </button>
+            {editingCourtId && (
+              <button
+                onClick={resetForm}
+                className={`px-8 py-4 rounded-2xl text-[10px] font-black tracking-[0.2em] uppercase border ${
+                  isDark ? "border-stone-700 text-stone-300" : "border-stone-200 text-stone-600"
+                }`}
+              >
+                Cancel
+              </button>
+            )}
+          </div>
+        </div>
+
+        <div className={`p-8 rounded-[32px] border ${isDark ? "bg-stone-900/20 border-stone-800" : "bg-white border-stone-100"}`}>
+          <h4 className={`text-[10px] font-black tracking-[0.2em] uppercase mb-6 opacity-50 ${isDark ? "text-white" : "text-stone-900"}`}>
+            Registered Courts ({courts.length})
+          </h4>
+          <div className="space-y-4 max-h-[560px] overflow-y-auto pr-2">
+            {courts.length === 0 && (
+              <div className={`rounded-2xl border border-dashed px-6 py-8 text-center text-[10px] font-black uppercase tracking-widest ${isDark ? "border-stone-700 text-stone-500" : "border-stone-200 text-stone-400"}`}>
+                No courts registered yet
+              </div>
+            )}
+            {courts.map((court) => (
+              <div key={court.id} className={`p-6 rounded-2xl border ${isDark ? "bg-stone-900 border-stone-800" : "bg-stone-50 border-stone-100"}`}>
+                <div className="flex items-start justify-between gap-4">
+                  <div className="space-y-2">
+                    <p className={`text-sm font-black tracking-tight ${isDark ? "text-white" : "text-stone-900"}`}>{court.name}</p>
+                    <div className="flex flex-wrap gap-2">
+                      <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${isDark ? "bg-stone-800 text-stone-300" : "bg-white text-stone-700 border border-stone-200"}`}>
+                        {court.condition}
+                      </span>
+                      <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${isDark ? "bg-stone-800 text-stone-300" : "bg-white text-stone-700 border border-stone-200"}`}>
+                        {court.environment}
+                      </span>
+                    </div>
+                    {court.restrictions && (
+                      <p className={`text-[10px] font-bold tracking-tight ${isDark ? "text-stone-400" : "text-stone-500"}`}>{court.restrictions}</p>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => handleEditCourt(court)}
+                      className={`p-2 rounded-xl ${isDark ? "text-stone-400 hover:text-white hover:bg-stone-800" : "text-stone-500 hover:text-stone-900 hover:bg-white"}`}
+                    >
+                      <span className="material-symbols-outlined text-base">edit</span>
+                    </button>
+                    <button
+                      onClick={() => handleDeleteCourt(court.id)}
+                      className="p-2 rounded-xl text-red-500 hover:bg-red-50"
+                    >
+                      <span className="material-symbols-outlined text-base">delete</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <div className="flex justify-end">
+        <button
+          onClick={handleSaveCourts}
+          disabled={isSaving}
+          className={`px-12 py-5 rounded-2xl text-xs font-black tracking-[0.2em] uppercase transition-all ${
+            isDark ? "bg-[#ccff00] text-stone-950 hover:scale-[1.02]" : "bg-stone-900 text-white hover:shadow-xl"
+          }`}
+        >
+          {isSaving ? "Saving..." : "Save Court Configuration"}
+        </button>
+      </div>
     </div>
   );
 }

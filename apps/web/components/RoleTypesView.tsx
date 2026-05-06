@@ -75,7 +75,7 @@ export default function RoleTypesView({ theme = "LIGHT", userRoleId }: { theme?:
     };
   }, []);
 
-  const roleNum = (id: string) => { const m = id.match(/R(\d+)/); return m ? parseInt(m[1]) : 0; };
+  const roleNum = (id: string) => { const m = id.match(/R(\d+)/); return (m && m[1]) ? parseInt(m[1]) : 0; };
   const visibleRoles = useMemo(() => {
     if (!userRoleId) return roles;
     const limit = roleNum(userRoleId!);
