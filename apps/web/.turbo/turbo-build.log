@@ -6,48 +6,17 @@
 [1m[38;2;173;127;168m▲ Next.js 16.2.0[39m[22m (Turbopack)
 
 [37m[1m [22m[39m Creating an optimized production build ...
-Turbopack build encountered 1 warnings:
-./apps/web/tailwind.config.js
-Specified module format (EcmaScript Modules) is not matching the module format of the source code (CommonJs)
-The EcmaScript module format was specified in the package.json that is affecting this source file or by using an special extension, but it looks like that CommonJs syntax is used in the source code.
-Exports made by CommonJs syntax will lead to a runtime error, since the module is in EcmaScript mode. Either change the "type" field in the package.json or replace CommonJs syntax with EcmaScript import/export syntax in the source file.
+[32m[1m✓[22m[39m Compiled successfully in 2.8s
+[?25l[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[?25h[?25l[37m[1m [22m[39m Finished TypeScript in 2.7s  [36m.[39m[2K[1G[?25h[37m[1m [22m[39m Finished TypeScript in 2.7s    [32m[1m✓[22m[39m Finished TypeScript in 2.7s 
+[?25l[37m[1m [22m[39m Collecting page data using 5 workers  [36m.[39m[2K[1G[37m[1m [22m[39m Collecting page data using 5 workers  [36m..[39m[2K[1G[?25h[37m[1m [22m[39m Collecting page data using 5 workers in 261ms    [32m[1m✓[22m[39m Collecting page data using 5 workers in 261ms 
+[?25l[37m[1m [22m[39m Generating static pages using 5 workers (0/4)  [36m[    ][39m[2K[1G[37m[1m [22m[39m Generating static pages using 5 workers (0/4)  [36m[=   ][39m[2K[1G[37m[1m [22m[39m Generating static pages using 5 workers (0/4)  [36m[==  ][39m[2K[1G[?25h[32m[1m✓[22m[39m Generating static pages using 5 workers (4/4) in 419ms
+[?25l[37m[1m [22m[39m Finalizing page optimization  [36m.[39m[2K[1G[37m[1m [22m[39m Finalizing page optimization  [36m..[39m[2K[1G[37m[1m [22m[39m Finalizing page optimization  [36m...[39m[2K[1G[37m[1m [22m[39m Finalizing page optimization  [36m.[39m[2K[1G[?25h[37m[1m [22m[39m Finalizing page optimization in 634ms    [32m[1m✓[22m[39m Finalizing page optimization in 634ms 
+
+[4mRoute (app)[24m
+┌ ○ /
+└ ○ /_not-found
 
 
+○  (Static)  prerendered as static content
 
-> Build error occurred
-Error: Turbopack build failed with 1 errors:
-./apps/web/components/UserAdminView.tsx:1531:21
-Expected '</', got 'ident'
-  [90m1529 |[0m             </button>
-  [90m1530 |[0m           </div>
-[31m[1m>[0m [90m1531 |[0m                <div className=[32m"space-y-6"[0m>
-  [90m     |[0m                     [31m[1m^^^^^^^^^[0m
-  [90m1532 |[0m           <p className={[32m`text-sm leading-relaxed [0m${theme === [32m"DARK"[0m ? [32m"text-stone-400"[0m : [32m"text-stone-500"[0m[32m}`[0m}>
-  [90m1533 |[0m             [33mThis[0m will create a user [36min[0m your organization responsible [36mfor[0m monitoring operations and managing users associated [36mwith[0m your business processes.
-  [90m1534 |[0m           </p>
-
-Parsing ecmascript source code failed
-
-Import traces:
-  Client Component Browser:
-    ./apps/web/components/UserAdminView.tsx [Client Component Browser]
-    ./apps/web/components/DashboardClient.tsx [Client Component Browser]
-    ./apps/web/app/page.tsx [Client Component Browser]
-    ./apps/web/app/page.tsx [Server Component]
-
-  Client Component SSR:
-    ./apps/web/components/UserAdminView.tsx [Client Component SSR]
-    ./apps/web/components/DashboardClient.tsx [Client Component SSR]
-    ./apps/web/app/page.tsx [Client Component SSR]
-    ./apps/web/app/page.tsx [Server Component]
-
-
-    at <unknown> (./apps/web/components/UserAdminView.tsx:1531:21)
-⠙[1G[0K[1mnpm[22m [31merror[39m Lifecycle script `build` failed with error:
-⠙[1G[0K[1mnpm[22m [31merror[39m [94mcode[39m [33m1[39m
-⠙[1G[0K[1mnpm[22m [31merror[39m [94mpath[39m /Users/kyuahn/Documents/AVG/court-reserve/apps/web
-⠙[1G[0K[1mnpm[22m [31merror[39m [94mworkspace[39m web@0.1.0
-⠙[1G[0K[1mnpm[22m [31merror[39m [94mlocation[39m /Users/kyuahn/Documents/AVG/court-reserve/apps/web
-⠙[1G[0K[1mnpm[22m [31merror[39m command failed
-⠙[1G[0K[1mnpm[22m [31merror[39m [94mcommand[39m sh -c next build
-⠙[1G[0K
+[?25h⠙[1G[0K
