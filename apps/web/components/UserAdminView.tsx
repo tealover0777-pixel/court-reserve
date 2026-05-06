@@ -30,6 +30,12 @@ interface User {
   address_city?: string;
   address_state?: string;
   address_zip?: string;
+  coach_description?: string;
+  birth_date?: string;
+  sex?: string;
+  tennis_hand?: string;
+  coaching_for?: string[];
+  availability?: Record<string, string[]>;
 }
 
 const US_STATES = [
@@ -82,7 +88,13 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
     address_street_2: "",
     address_city: "",
     address_state: "",
-    address_zip: ""
+    address_zip: "",
+    coach_description: "",
+    birth_date: "",
+    sex: "",
+    tennis_hand: "",
+    coaching_for: [] as string[],
+    availability: {} as Record<string, string[]>
   });
   const [isUploadingPortrait, setIsUploadingPortrait] = useState(false);
   const [notification, setNotification] = useState<{ message: string; type: "SUCCESS" | "ERROR" | "INFO" } | null>(null);
@@ -240,7 +252,13 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
       address_street_2: user.address_street_2 || "",
       address_city: user.address_city || "",
       address_state: user.address_state || "",
-      address_zip: user.address_zip || ""
+      address_zip: user.address_zip || "",
+      coach_description: user.coach_description || "",
+      birth_date: user.birth_date || "",
+      sex: user.sex || "",
+      tennis_hand: user.tennis_hand || "",
+      coaching_for: user.coaching_for || [],
+      availability: user.availability || {}
     });
     setShowEditModal(true);
   };
@@ -271,6 +289,12 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
       await setDoc(userRef, {
         ...formData,
         portrait_url: formData.portrait_url,
+        coach_description: formData.coach_description,
+        birth_date: formData.birth_date,
+        sex: formData.sex,
+        tennis_hand: formData.tennis_hand,
+        coaching_for: formData.coaching_for,
+        availability: formData.availability,
         updated_at: new Date().toISOString()
       }, { merge: true });
       setShowEditModal(false);
@@ -328,6 +352,12 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
         address_city: formData.address_city,
         address_state: formData.address_state,
         address_zip: formData.address_zip,
+        coach_description: formData.coach_description,
+        birth_date: formData.birth_date,
+        sex: formData.sex,
+        tennis_hand: formData.tennis_hand,
+        coaching_for: formData.coaching_for,
+        availability: formData.availability,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString()
       };
@@ -452,7 +482,13 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
       address_street_2: "",
       address_city: "",
       address_state: "",
-      address_zip: ""
+      address_zip: "",
+      coach_description: "",
+      birth_date: "",
+      sex: "",
+      tennis_hand: "",
+      coaching_for: [],
+      availability: {}
     });
   };
 
@@ -972,27 +1008,27 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
         }}
         title="Edit User Profile"
         theme={theme}
-        width={600}
+        width={860}
         footer={
           <div className="flex gap-4">
-            <button 
+            <button
               onClick={() => {
                 setShowEditModal(false);
                 setEditingUser(null);
               }}
               disabled={isSaving}
               className={`flex-1 py-4 border rounded-2xl text-[10px] font-black tracking-widest transition-all uppercase ${
-                theme === "DARK" ? "border-stone-800 text-stone-400 hover:bg-stone-900" : 
+                theme === "DARK" ? "border-stone-800 text-stone-400 hover:bg-stone-900" :
                 "bg-white border-stone-200 text-stone-900 hover:bg-stone-50 shadow-sm"
               } ${isSaving ? "opacity-30 cursor-not-allowed" : ""}`}
             >
               Cancel
             </button>
-            <button 
+            <button
               onClick={handleSaveUser}
               disabled={isSaving}
               className={`flex-1 py-4 rounded-2xl text-[10px] font-black tracking-widest transition-all uppercase shadow-lg flex items-center justify-center gap-3 ${
-                theme === "DARK" ? "bg-[#ccff00] text-stone-950 shadow-[#ccff00]/20" : 
+                theme === "DARK" ? "bg-[#ccff00] text-stone-950 shadow-[#ccff00]/20" :
                 "bg-[#6348eb] text-white shadow-[#6348eb]/20"
               } ${isSaving ? "opacity-70 cursor-not-allowed" : "hover:opacity-90"}`}
             >
@@ -1008,271 +1044,343 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
           </div>
         }
       >
-        <div className="space-y-6">
-          {/* Portrait Upload */}
-          <div className="flex flex-col items-center gap-3">
-            <label className={`text-[10px] font-black tracking-widest uppercase ${theme === "DARK" ? "text-stone-500" : "text-stone-400"}`}>Portrait Photo</label>
-            <div className="relative group">
-              <div className={`w-24 h-24 rounded-full overflow-hidden flex items-center justify-center border-4 transition-colors ${
-                theme === "DARK" ? "border-stone-800 bg-stone-900" : "border-stone-200 bg-stone-100"
-              }`}>
-                {formData.portrait_url ? (
-                  <img src={formData.portrait_url} alt="Portrait" className="w-full h-full object-cover" />
-                ) : (
-                  <span className={`text-3xl font-black select-none ${theme === "DARK" ? "text-stone-600" : "text-stone-400"}`}>
-                    {(formData.first_name?.[0] || formData.email?.[0] || "?").toUpperCase()}
-                  </span>
-                )}
-                {isUploadingPortrait && (
-                  <div className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-full">
-                    <div className="h-6 w-6 animate-spin rounded-full border-2 border-white border-t-transparent"></div>
+        {(() => {
+          const inputCls = `w-full border rounded-2xl px-5 py-3.5 text-sm font-bold outline-none transition-colors ${
+            theme === "DARK" ? "bg-stone-950 text-white border-stone-800 focus:border-[#ccff00]" : "bg-white text-stone-900 border-stone-200 focus:border-stone-400"
+          }`;
+          const readonlyCls = `w-full border rounded-2xl px-5 py-3.5 text-sm font-bold transition-colors ${
+            theme === "DARK" ? "bg-stone-900 text-stone-400 border-stone-800" : "bg-stone-50 text-stone-500 border-stone-100"
+          }`;
+          const labelCls = `text-[10px] font-black tracking-widest uppercase mb-2 block ${theme === "DARK" ? "text-stone-500" : "text-stone-400"}`;
+          const sectionDivider = (title: string) => (
+            <div className={`col-span-2 pt-2 pb-1 border-b flex items-center gap-3 transition-colors ${theme === "DARK" ? "border-stone-800" : "border-stone-100"}`}>
+              <span className={`text-[10px] font-black uppercase tracking-[0.2em] ${theme === "DARK" ? "text-stone-500" : "text-stone-400"}`}>{title}</span>
+            </div>
+          );
+          const isCoach = formData.role === "R10002";
+          const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+          const SLOTS = ["Morning", "Afternoon", "Evening"];
+          const toggleAvailability = (day: string, slot: string) => {
+            const current = formData.availability[day] || [];
+            const next = current.includes(slot) ? current.filter(s => s !== slot) : [...current, slot];
+            setFormData(prev => ({ ...prev, availability: { ...prev.availability, [day]: next } }));
+          };
+          const toggleCoachingFor = (val: string) => {
+            const current = formData.coaching_for || [];
+            const next = current.includes(val) ? current.filter(v => v !== val) : [...current, val];
+            setFormData(prev => ({ ...prev, coaching_for: next }));
+          };
+
+          return (
+            <div className="space-y-6">
+              {/* Portrait — centered above grid */}
+              <div className="flex flex-col items-center gap-2">
+                <div className="relative group">
+                  <div className={`w-20 h-20 rounded-full overflow-hidden flex items-center justify-center border-4 transition-colors ${
+                    theme === "DARK" ? "border-stone-800 bg-stone-900" : "border-stone-200 bg-stone-100"
+                  }`}>
+                    {formData.portrait_url ? (
+                      <img src={formData.portrait_url} alt="Portrait" className="w-full h-full object-cover" />
+                    ) : (
+                      <span className={`text-2xl font-black select-none ${theme === "DARK" ? "text-stone-600" : "text-stone-400"}`}>
+                        {(formData.first_name?.[0] || formData.email?.[0] || "?").toUpperCase()}
+                      </span>
+                    )}
+                    {isUploadingPortrait && (
+                      <div className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-full">
+                        <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent"></div>
+                      </div>
+                    )}
                   </div>
+                  <label className="absolute inset-0 flex items-center justify-center rounded-full cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity bg-black/50">
+                    <span className="material-symbols-outlined text-white text-xl">photo_camera</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      disabled={isUploadingPortrait}
+                      onChange={async (e) => {
+                        const file = e.target.files?.[0];
+                        if (!file) return;
+                        const id = editingUser ? `${formData.tenant_id}_${formData.user_id}` : `temp_${Date.now()}`;
+                        await handlePortraitUpload(file, id);
+                      }}
+                    />
+                  </label>
+                </div>
+                {formData.portrait_url ? (
+                  <button
+                    onClick={() => setFormData(prev => ({ ...prev, portrait_url: "" }))}
+                    className="text-[9px] font-black tracking-widest uppercase text-red-400 hover:text-red-600 transition-colors"
+                  >
+                    Remove Photo
+                  </button>
+                ) : (
+                  <span className={`text-[9px] font-black tracking-widest uppercase ${theme === "DARK" ? "text-stone-600" : "text-stone-400"}`}>Hover to upload</span>
                 )}
               </div>
-              <label className={`absolute inset-0 flex items-center justify-center rounded-full cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity bg-black/50`}>
-                <span className="material-symbols-outlined text-white text-2xl">photo_camera</span>
-                <input
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  disabled={isUploadingPortrait}
-                  onChange={async (e) => {
-                    const file = e.target.files?.[0];
-                    if (!file) return;
-                    const id = editingUser ? `${formData.tenant_id}_${formData.user_id}` : "";
-                    await handlePortraitUpload(file, id || `temp_${Date.now()}`);
-                  }}
-                />
-              </label>
-            </div>
-            {formData.portrait_url && (
-              <button
-                onClick={() => setFormData(prev => ({ ...prev, portrait_url: "" }))}
-                className="text-[10px] font-black tracking-widest uppercase text-red-400 hover:text-red-600 transition-colors"
-              >
-                Remove Photo
-              </button>
-            )}
-          </div>
 
-          <div>
-            <label className={`text-[10px] font-black tracking-widest uppercase mb-3 block ${theme === "DARK" ? "text-stone-500" : "text-stone-400"}`}>User ID</label>
-            <div className={`w-full border rounded-2xl px-6 py-4 text-sm font-bold transition-colors ${
-              theme === "DARK" ? "bg-stone-900 text-stone-400 border-stone-800" : "bg-stone-50 text-stone-500 border-stone-100"
-            }`}>
-              {formData.user_id}
-            </div>
-          </div>
+              {/* 2-column grid */}
+              <div className="grid grid-cols-2 gap-x-8 gap-y-5">
 
-          <div>
-            <label className={`text-[10px] font-black tracking-widest uppercase mb-3 block ${theme === "DARK" ? "text-stone-500" : "text-stone-400"}`}>Company User ID</label>
-            <input
-              value={formData.company_user_id}
-              onChange={e => setFormData({ ...formData, company_user_id: e.target.value })}
-              placeholder="e.g. EMP-0042"
-              className={`w-full border rounded-2xl px-6 py-4 text-sm font-bold outline-none transition-colors ${
-                theme === "DARK" ? "bg-stone-950 text-white border-stone-800 focus:border-[#ccff00]" : "bg-white text-stone-900 border-stone-200 focus:border-stone-400"
-              }`}
-            />
-          </div>
+                {sectionDivider("Identity")}
 
-          {!tenantId && (
-            <div>
-              <label className={`text-[10px] font-black tracking-widest uppercase mb-3 block ${theme === "DARK" ? "text-stone-500" : "text-stone-400"}`}>Auth UID (Firebase)</label>
-              <div className={`w-full border rounded-2xl px-6 py-4 text-sm font-bold transition-colors break-all ${
-                theme === "DARK" ? "bg-stone-900 text-stone-500 border-stone-800" : "bg-stone-50 text-stone-400 border-stone-100"
-              }`}>
-                {formData.auth_uid || "No UID Linked"}
+                <div>
+                  <label className={labelCls}>User ID</label>
+                  <div className={readonlyCls}>{formData.user_id}</div>
+                </div>
+                <div>
+                  <label className={labelCls}>Company User ID</label>
+                  <input value={formData.company_user_id} onChange={e => setFormData({ ...formData, company_user_id: e.target.value })} placeholder="e.g. EMP-0042" className={inputCls} />
+                </div>
+
+                <div>
+                  <label className={labelCls}>Tenant ID</label>
+                  <input
+                    value={formData.tenant_id}
+                    onChange={e => setFormData({ ...formData, tenant_id: e.target.value })}
+                    readOnly={!!editingUser || !!tenantId}
+                    placeholder="e.g. T10001"
+                    className={editingUser || tenantId ? readonlyCls : inputCls}
+                  />
+                </div>
+
+                {!tenantId ? (
+                  <div>
+                    <label className={labelCls}>Auth UID (Firebase)</label>
+                    <div className={`${readonlyCls} break-all text-xs`}>{formData.auth_uid || "No UID Linked"}</div>
+                  </div>
+                ) : <div />}
+
+                {sectionDivider("Personal Info")}
+
+                <div>
+                  <label className={labelCls}>First Name</label>
+                  <input value={formData.first_name} onChange={e => setFormData({ ...formData, first_name: e.target.value })} className={inputCls} />
+                </div>
+                <div>
+                  <label className={labelCls}>Last Name</label>
+                  <input value={formData.last_name} onChange={e => setFormData({ ...formData, last_name: e.target.value })} className={inputCls} />
+                </div>
+
+                <div>
+                  <label className={labelCls}>Email</label>
+                  <input value={formData.email} onChange={e => setFormData({ ...formData, email: e.target.value })} className={inputCls} />
+                </div>
+                <div>
+                  <label className={labelCls}>Phone</label>
+                  <input value={formData.phone} onChange={e => setFormData({ ...formData, phone: e.target.value })} placeholder="e.g. 123-456-7890" className={inputCls} />
+                </div>
+
+                {sectionDivider("Account")}
+
+                <div>
+                  <label className={labelCls}>Role</label>
+                  <select value={formData.role} onChange={e => setFormData({ ...formData, role: e.target.value })} className={`${inputCls} appearance-none cursor-pointer`}>
+                    <option value="">Select Role...</option>
+                    {roles.map(r => (
+                      <option key={r.id} value={r.role_id || r.id}>{r.role_id} - {r.role_name}{r.is_global ? " [GLOBAL]" : ""}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className={labelCls}>Status</label>
+                  <select value={formData.status} onChange={e => setFormData({ ...formData, status: e.target.value })} className={`${inputCls} appearance-none cursor-pointer`}>
+                    {userStatuses.length === 0 ? (
+                      <option value="" disabled>Error: USERSTATUS missing</option>
+                    ) : (
+                      <>
+                        <option value="">Select status...</option>
+                        {userStatuses.map(s => <option key={s} value={s}>{s}</option>)}
+                      </>
+                    )}
+                  </select>
+                </div>
+
+                {sectionDivider("Mailing Address")}
+
+                <div>
+                  <label className={labelCls}>Street Address 1</label>
+                  <input value={formData.address_street_1} onChange={e => setFormData({ ...formData, address_street_1: e.target.value })} placeholder="123 Main St" className={inputCls} />
+                </div>
+                <div>
+                  <label className={labelCls}>Street Address 2</label>
+                  <input value={formData.address_street_2} onChange={e => setFormData({ ...formData, address_street_2: e.target.value })} placeholder="Apt 4B" className={inputCls} />
+                </div>
+
+                <div>
+                  <label className={labelCls}>City</label>
+                  <input value={formData.address_city} onChange={e => setFormData({ ...formData, address_city: e.target.value })} placeholder="New York" className={inputCls} />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className={labelCls}>State</label>
+                    <select value={formData.address_state} onChange={e => setFormData({ ...formData, address_state: e.target.value })} className={`${inputCls} appearance-none cursor-pointer`}>
+                      <option value="">State...</option>
+                      {US_STATES.map(s => <option key={s} value={s}>{s}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <label className={labelCls}>Zip</label>
+                    <input value={formData.address_zip} onChange={e => setFormData({ ...formData, address_zip: e.target.value })} placeholder="10001" className={inputCls} />
+                  </div>
+                </div>
+
+                {sectionDivider("Internal Notes")}
+
+                <div className="col-span-2">
+                  <textarea
+                    value={formData.notes}
+                    onChange={e => setFormData({ ...formData, notes: e.target.value })}
+                    placeholder="Private notes..."
+                    rows={3}
+                    className={`${inputCls} resize-none`}
+                  />
+                </div>
+
+                {/* Coach Details — toggled by role */}
+                <div className={`col-span-2 pt-2 pb-1 border-b flex items-center justify-between transition-colors ${theme === "DARK" ? "border-stone-800" : "border-stone-100"}`}>
+                  <div className="flex items-center gap-3">
+                    <span className={`text-[10px] font-black uppercase tracking-[0.2em] ${theme === "DARK" ? "text-stone-500" : "text-stone-400"}`}>Coach Details</span>
+                    {isCoach && (
+                      <span className={`text-[8px] font-black px-2 py-0.5 rounded-full uppercase tracking-widest ${
+                        theme === "DARK" ? "bg-[#ccff00]/10 text-[#ccff00]" : "bg-[#6348eb]/10 text-[#6348eb]"
+                      }`}>Coach Role Active</span>
+                    )}
+                  </div>
+                  {!isCoach && (
+                    <span className={`text-[9px] font-medium ${theme === "DARK" ? "text-stone-600" : "text-stone-400"}`}>Assign role R10002 to enable</span>
+                  )}
+                </div>
+
+                {isCoach && (
+                  <>
+                    <div className="col-span-2">
+                      <label className={labelCls}>Coach Description</label>
+                      <textarea
+                        value={formData.coach_description}
+                        onChange={e => setFormData({ ...formData, coach_description: e.target.value })}
+                        placeholder="Brief bio visible to members..."
+                        rows={3}
+                        className={`${inputCls} resize-none`}
+                      />
+                    </div>
+
+                    <div>
+                      <label className={labelCls}>Birth Date</label>
+                      <input
+                        type="date"
+                        value={formData.birth_date}
+                        onChange={e => setFormData({ ...formData, birth_date: e.target.value })}
+                        className={inputCls}
+                      />
+                    </div>
+                    <div>
+                      <label className={labelCls}>Sex</label>
+                      <select value={formData.sex} onChange={e => setFormData({ ...formData, sex: e.target.value })} className={`${inputCls} appearance-none cursor-pointer`}>
+                        <option value="">Select...</option>
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                        <option value="Non-binary">Non-binary</option>
+                        <option value="Prefer not to say">Prefer not to say</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className={labelCls}>Tennis Hand</label>
+                      <div className="flex gap-3 mt-1">
+                        {["Right", "Left"].map(hand => (
+                          <button
+                            key={hand}
+                            type="button"
+                            onClick={() => setFormData({ ...formData, tennis_hand: hand })}
+                            className={`flex-1 py-3.5 rounded-2xl text-xs font-black uppercase tracking-widest border-2 transition-all ${
+                              formData.tennis_hand === hand
+                                ? (theme === "DARK" ? "bg-[#ccff00] text-stone-950 border-[#ccff00]" : "bg-[#6348eb] text-white border-[#6348eb]")
+                                : (theme === "DARK" ? "border-stone-800 text-stone-400 hover:border-stone-600" : "border-stone-200 text-stone-500 hover:border-stone-400")
+                            }`}
+                          >
+                            <span className="material-symbols-outlined text-sm mr-1" style={{ verticalAlign: "middle" }}>
+                              {hand === "Right" ? "back_hand" : "front_hand"}
+                            </span>
+                            {hand}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className={labelCls}>Coaching For</label>
+                      <div className="flex flex-wrap gap-2 mt-1">
+                        {["Kids", "Young Adult", "Adult", "Senior"].map(group => {
+                          const active = (formData.coaching_for || []).includes(group);
+                          return (
+                            <button
+                              key={group}
+                              type="button"
+                              onClick={() => toggleCoachingFor(group)}
+                              className={`px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest border-2 transition-all ${
+                                active
+                                  ? (theme === "DARK" ? "bg-[#ccff00] text-stone-950 border-[#ccff00]" : "bg-[#6348eb] text-white border-[#6348eb]")
+                                  : (theme === "DARK" ? "border-stone-800 text-stone-400 hover:border-stone-600" : "border-stone-200 text-stone-500 hover:border-stone-400")
+                              }`}
+                            >
+                              {group}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    <div className="col-span-2">
+                      <label className={labelCls}>Weekly Availability</label>
+                      <div className={`rounded-2xl border overflow-hidden mt-1 ${theme === "DARK" ? "border-stone-800" : "border-stone-200"}`}>
+                        {/* Header row */}
+                        <div className={`grid border-b ${theme === "DARK" ? "border-stone-800 bg-stone-900" : "border-stone-100 bg-stone-50"}`} style={{ gridTemplateColumns: "80px repeat(7, 1fr)" }}>
+                          <div className={`px-3 py-2 text-[9px] font-black uppercase tracking-widest ${theme === "DARK" ? "text-stone-600" : "text-stone-400"}`}></div>
+                          {DAYS.map(d => (
+                            <div key={d} className={`px-2 py-2 text-center text-[9px] font-black uppercase tracking-widest ${theme === "DARK" ? "text-stone-400" : "text-stone-600"}`}>{d}</div>
+                          ))}
+                        </div>
+                        {/* Slot rows */}
+                        {SLOTS.map((slot, si) => (
+                          <div
+                            key={slot}
+                            className={`grid ${si < SLOTS.length - 1 ? `border-b ${theme === "DARK" ? "border-stone-800" : "border-stone-100"}` : ""}`}
+                            style={{ gridTemplateColumns: "80px repeat(7, 1fr)" }}
+                          >
+                            <div className={`px-3 py-3 text-[9px] font-black uppercase tracking-widest flex items-center ${theme === "DARK" ? "text-stone-500 bg-stone-900/50" : "text-stone-400 bg-stone-50/50"}`}>
+                              {slot}
+                            </div>
+                            {DAYS.map(day => {
+                              const active = (formData.availability[day] || []).includes(slot);
+                              return (
+                                <div key={day} className="flex items-center justify-center py-3">
+                                  <button
+                                    type="button"
+                                    onClick={() => toggleAvailability(day, slot)}
+                                    className={`w-7 h-7 rounded-lg border-2 flex items-center justify-center transition-all ${
+                                      active
+                                        ? (theme === "DARK" ? "bg-[#ccff00] border-[#ccff00]" : "bg-[#6348eb] border-[#6348eb]")
+                                        : (theme === "DARK" ? "border-stone-700 hover:border-stone-500" : "border-stone-200 hover:border-stone-400")
+                                    }`}
+                                  >
+                                    {active && <span className={`material-symbols-outlined text-sm ${theme === "DARK" ? "text-stone-950" : "text-white"}`}>check</span>}
+                                  </button>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </>
+                )}
+
               </div>
             </div>
-          )}
-
-          <div>
-            <label className={`text-[10px] font-black tracking-widest uppercase mb-3 block ${theme === "DARK" ? "text-stone-500" : "text-stone-400"}`}>Tenant ID</label>
-            <input 
-              value={formData.tenant_id}
-              onChange={e => setFormData({ ...formData, tenant_id: e.target.value })}
-              readOnly={!!editingUser || !!tenantId}
-              placeholder="e.g. T10001"
-              className={`w-full border rounded-2xl px-6 py-4 text-sm font-bold outline-none transition-colors ${
-                theme === "DARK" 
-                  ? (editingUser || tenantId ? "bg-stone-900 text-stone-500 border-stone-800" : "bg-stone-950 text-white border-stone-800 focus:border-[#ccff00]") 
-                  : (editingUser || tenantId ? "bg-stone-50 text-stone-400 border-stone-100" : "bg-white text-stone-900 border-stone-200 focus:border-stone-400 shadow-sm")
-              }`}
-            />
-          </div>
-
-          <div className="grid grid-cols-2 gap-6">
-            <div>
-              <label className={`text-[10px] font-black tracking-widest uppercase mb-3 block ${theme === "DARK" ? "text-stone-500" : "text-stone-400"}`}>First Name</label>
-              <input 
-                value={formData.first_name}
-                onChange={e => setFormData({ ...formData, first_name: e.target.value })}
-                className={`w-full border rounded-2xl px-6 py-4 text-sm font-bold outline-none transition-colors ${
-                  theme === "DARK" ? "bg-stone-950 text-white border-stone-800 focus:border-[#ccff00]" : "bg-white text-stone-900 border-stone-200 focus:border-stone-400"
-                }`}
-              />
-            </div>
-            <div>
-              <label className={`text-[10px] font-black tracking-widest uppercase mb-3 block ${theme === "DARK" ? "text-stone-500" : "text-stone-400"}`}>Last Name</label>
-              <input 
-                value={formData.last_name}
-                onChange={e => setFormData({ ...formData, last_name: e.target.value })}
-                className={`w-full border rounded-2xl px-6 py-4 text-sm font-bold outline-none transition-colors ${
-                  theme === "DARK" ? "bg-stone-950 text-white border-stone-800 focus:border-[#ccff00]" : "bg-white text-stone-900 border-stone-200 focus:border-stone-400"
-                }`}
-              />
-            </div>
-          </div>
-
-          <div>
-            <label className={`text-[10px] font-black tracking-widest uppercase mb-3 block ${theme === "DARK" ? "text-stone-500" : "text-stone-400"}`}>Email</label>
-            <input 
-              value={formData.email}
-              onChange={e => setFormData({ ...formData, email: e.target.value })}
-              className={`w-full border rounded-2xl px-6 py-4 text-sm font-bold outline-none transition-colors ${
-                theme === "DARK" ? "bg-stone-950 text-white border-stone-800 focus:border-[#ccff00]" : "bg-white text-stone-900 border-stone-200 focus:border-stone-400"
-              }`}
-            />
-          </div>
-
-          <div>
-            <label className={`text-[10px] font-black tracking-widest uppercase mb-3 block ${theme === "DARK" ? "text-stone-500" : "text-stone-400"}`}>Role</label>
-            <select 
-              value={formData.role}
-              onChange={e => setFormData({ ...formData, role: e.target.value })}
-              className={`w-full border rounded-2xl px-6 py-4 text-sm font-bold outline-none transition-colors appearance-none cursor-pointer ${
-                theme === "DARK" ? "bg-stone-950 text-white border-stone-800 focus:border-[#ccff00]" : "bg-white text-stone-900 border-stone-200 focus:border-stone-400"
-              }`}
-            >
-              <option value="">Select Role...</option>
-              {roles.map(r => (
-                <option key={r.id} value={r.role_id || r.id}>
-                  {r.role_id} - {r.role_name} {r.is_global ? "[GLOBAL]" : ""}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div>
-            <label className={`text-[10px] font-black tracking-widest uppercase mb-3 block ${theme === "DARK" ? "text-stone-500" : "text-stone-400"}`}>Status</label>
-            <select 
-              value={formData.status}
-              onChange={e => setFormData({ ...formData, status: e.target.value })}
-              className={`w-full border rounded-2xl px-6 py-4 text-sm font-bold outline-none transition-colors appearance-none cursor-pointer ${
-                theme === "DARK" ? "bg-stone-950 text-white border-stone-800 focus:border-[#ccff00]" : "bg-white text-stone-900 border-stone-200 focus:border-stone-400"
-              }`}
-            >
-              {userStatuses.length === 0 ? (
-                <option value="" disabled className="text-red-500 italic">Error: USERSTATUS dimension missing</option>
-              ) : (
-                <>
-                  <option value="">Select status...</option>
-                  {userStatuses.map(s => (
-                    <option key={s} value={s}>{s}</option>
-                  ))}
-                </>
-              )}
-            </select>
-          </div>
-
-          <div>
-            <label className={`text-[10px] font-black tracking-widest uppercase mb-3 block ${theme === "DARK" ? "text-stone-500" : "text-stone-400"}`}>Phone</label>
-            <input 
-              value={formData.phone}
-              onChange={e => setFormData({ ...formData, phone: e.target.value })}
-              placeholder="e.g. 123-456-7890"
-              className={`w-full border rounded-2xl px-6 py-4 text-sm font-bold outline-none transition-colors ${
-                theme === "DARK" ? "bg-stone-950 text-white border-stone-800 focus:border-[#ccff00]" : "bg-white text-stone-900 border-stone-200 focus:border-stone-400"
-              }`}
-            />
-          </div>
-
-          <div className={`pt-4 pb-2 border-b transition-colors ${
-            theme === "DARK" ? "border-stone-800" : "border-stone-100"
-          }`}>
-            <span className={`text-[10px] font-black uppercase tracking-[0.2em] ${
-              theme === "DARK" ? "text-stone-500" : "text-stone-400"
-            }`}>Mailing Address</span>
-          </div>
-
-          <div>
-            <label className={`text-[10px] font-black tracking-widest uppercase mb-3 block ${theme === "DARK" ? "text-stone-500" : "text-stone-400"}`}>Street Address 1</label>
-            <input 
-              value={formData.address_street_1}
-              onChange={e => setFormData({ ...formData, address_street_1: e.target.value })}
-              placeholder="123 Main St"
-              className={`w-full border rounded-2xl px-6 py-4 text-sm font-bold outline-none transition-colors ${
-                theme === "DARK" ? "bg-stone-950 text-white border-stone-800 focus:border-[#ccff00]" : "bg-white text-stone-900 border-stone-200 focus:border-stone-400"
-              }`}
-            />
-          </div>
-
-          <div>
-            <label className={`text-[10px] font-black tracking-widest uppercase mb-3 block ${theme === "DARK" ? "text-stone-500" : "text-stone-400"}`}>Street Address 2</label>
-            <input 
-              value={formData.address_street_2}
-              onChange={e => setFormData({ ...formData, address_street_2: e.target.value })}
-              placeholder="Apt 4B"
-              className={`w-full border rounded-2xl px-6 py-4 text-sm font-bold outline-none transition-colors ${
-                theme === "DARK" ? "bg-stone-950 text-white border-stone-800 focus:border-[#ccff00]" : "bg-white text-stone-900 border-stone-200 focus:border-stone-400"
-              }`}
-            />
-          </div>
-
-          <div className="grid grid-cols-3 gap-6">
-            <div>
-              <label className={`text-[10px] font-black tracking-widest uppercase mb-3 block ${theme === "DARK" ? "text-stone-500" : "text-stone-400"}`}>City</label>
-              <input 
-                value={formData.address_city}
-                onChange={e => setFormData({ ...formData, address_city: e.target.value })}
-                placeholder="New York"
-                className={`w-full border rounded-2xl px-6 py-4 text-sm font-bold outline-none transition-colors ${
-                  theme === "DARK" ? "bg-stone-950 text-white border-stone-800 focus:border-[#ccff00]" : "bg-white text-stone-900 border-stone-200 focus:border-stone-400"
-                }`}
-              />
-            </div>
-            <div>
-              <label className={`text-[10px] font-black tracking-widest uppercase mb-3 block ${theme === "DARK" ? "text-stone-500" : "text-stone-400"}`}>State</label>
-              <select 
-                value={formData.address_state}
-                onChange={e => setFormData({ ...formData, address_state: e.target.value })}
-                className={`w-full border rounded-2xl px-6 py-4 text-sm font-bold outline-none transition-colors appearance-none cursor-pointer ${
-                  theme === "DARK" ? "bg-stone-950 text-white border-stone-800 focus:border-[#ccff00]" : "bg-white text-stone-900 border-stone-200 focus:border-stone-400"
-                }`}
-              >
-                <option value="">Select State...</option>
-                {US_STATES.map(state => (
-                  <option key={state} value={state}>{state}</option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className={`text-[10px] font-black tracking-widest uppercase mb-3 block ${theme === "DARK" ? "text-stone-500" : "text-stone-400"}`}>Zip</label>
-              <input 
-                value={formData.address_zip}
-                onChange={e => setFormData({ ...formData, address_zip: e.target.value })}
-                placeholder="10001"
-                className={`w-full border rounded-2xl px-6 py-4 text-sm font-bold outline-none transition-colors ${
-                  theme === "DARK" ? "bg-stone-950 text-white border-stone-800 focus:border-[#ccff00]" : "bg-white text-stone-900 border-stone-200 focus:border-stone-400"
-                }`}
-              />
-            </div>
-          </div>
-
-          <div>
-            <label className={`text-[10px] font-black tracking-widest uppercase mb-3 block ${theme === "DARK" ? "text-stone-500" : "text-stone-400"}`}>Internal Notes</label>
-            <textarea 
-              value={formData.notes}
-              onChange={e => setFormData({ ...formData, notes: e.target.value })}
-              placeholder="Private notes..."
-              rows={4}
-              className={`w-full border rounded-2xl px-6 py-4 text-sm font-bold outline-none transition-colors resize-none ${
-                theme === "DARK" ? "bg-stone-950 text-white border-stone-800 focus:border-[#ccff00]" : "bg-white text-stone-900 border-stone-200 focus:border-stone-400"
-              }`}
-            />
-          </div>
-        </div>
+          );
+        })()}
       </Modal>
 
       {/* Create User Modal */}
