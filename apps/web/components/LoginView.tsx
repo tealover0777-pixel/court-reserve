@@ -42,6 +42,7 @@ export default function LoginView() {
       <div className="w-full max-w-[440px] px-6 relative z-10">
         <div className="bg-white rounded-[40px] shadow-[0_32px_64px_-16px_rgba(0,0,0,0.08)] border border-stone-100 p-12 animate-in fade-in zoom-in duration-700">
           {/* Logo/Brand */}
+          <div className="flex flex-col items-center mb-12">
             {globalTenant?.logo_url ? (
               <img src={globalTenant.logo_url} alt="Logo" className="h-16 w-auto object-contain mb-6" />
             ) : (
