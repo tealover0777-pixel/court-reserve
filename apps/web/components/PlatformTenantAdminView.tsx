@@ -100,7 +100,7 @@ export default function PlatformTenantAdminView({ theme = "LIGHT" }: { theme?: "
   const [invitationLink, setInvitationLink] = useState("");
 
   useEffect(() => {
-    const q = query(collection(db, "tenants"), orderBy("tenant_id", "asc"));
+    const q = query(collection(db, "tenants"));
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const data = snapshot.docs.map(doc => ({
         id: doc.id,

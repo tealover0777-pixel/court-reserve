@@ -151,22 +151,32 @@ export default function DashboardClient({ params }: { params: { tenantId: string
           "bg-white border-stone-200"
         } flex flex-col z-50`}>
         <div className="py-6 px-4">
-          {allTenants.find(t => t.tenant_id === tenantId || t.id === tenantId)?.logo_url ? (
-            <div className="w-full mb-6 flex justify-center">
-              <img
-                src={allTenants.find(t => t.tenant_id === tenantId || t.id === tenantId).logo_url}
-                alt="Logo"
-                className="w-full h-auto max-h-32 object-contain"
-              />
-            </div>
-          ) : (
-            <h1 className={`text-3xl font-black italic tracking-tighter ${theme === "DARK" ? "text-[#ccff00]" :
-              theme === "VINTAGE" ? "text-black" :
-                "text-[#4f6b28]"
-              }`}>
-              {tenantId ? tenantId.toUpperCase() : "KINETIC COURT"}
-            </h1>
-          )}
+          {(() => {
+            const currentTenant = allTenants.find(t => t.tenant_id === tenantId || t.id === tenantId);
+            const globalTenant = allTenants.find(t => t.id === "Global");
+            const logoUrl = currentTenant?.logo_url || ((!tenantId || tenantId === "consolidated") ? globalTenant?.logo_url : null);
+            
+            if (logoUrl) {
+              return (
+                <div className="w-full mb-6 flex justify-center">
+                  <img
+                    src={logoUrl}
+                    alt="Logo"
+                    className="w-full h-auto max-h-32 object-contain"
+                  />
+                </div>
+              );
+            }
+            
+            return (
+              <h1 className={`text-3xl font-black italic tracking-tighter ${theme === "DARK" ? "text-[#ccff00]" :
+                theme === "VINTAGE" ? "text-black" :
+                  "text-[#4f6b28]"
+                }`}>
+                {tenantId === "consolidated" ? "CONSOLIDATED" : (tenantId ? tenantId.toUpperCase() : "PLATFORM")}
+              </h1>
+            );
+          })()}
           <p className={`text-xs font-bold uppercase tracking-[0.2em] mt-1 ${theme === "DARK" ? "text-stone-400" :
             theme === "VINTAGE" ? "text-stone-500" :
               "text-stone-900"
