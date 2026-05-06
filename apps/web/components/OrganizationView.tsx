@@ -982,7 +982,7 @@ function CourtTab({ data, onSave, isSaving, theme, dimensions, tenantId }: any) 
           <h4 className={`text-[10px] font-black tracking-[0.2em] uppercase mb-6 opacity-50 ${isDark ? "text-white" : "text-stone-900"}`}>
             {tenantId === "Global" ? "Registered Default Courts" : "Registered Courts"} ({courts.length})
           </h4>
-          <div className="space-y-4 max-h-[560px] overflow-y-auto pr-2">
+          <div className="space-y-4 max-h-[800px] overflow-y-auto pr-2">
             {courts.length === 0 && (
               <div className={`rounded-2xl border border-dashed px-6 py-8 text-center text-[10px] font-black uppercase tracking-widest ${isDark ? "border-stone-700 text-stone-500" : "border-stone-200 text-stone-400"}`}>
                 No courts registered yet
