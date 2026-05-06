@@ -741,6 +741,10 @@ function CourtTab({ data, onSave, isSaving, theme, dimensions, tenantId }: any) 
   const [restrictions, setRestrictions] = useState("");
   const [editingCourtId, setEditingCourtId] = useState<string | null>(null);
   const [courtImageUrl, setCourtImageUrl] = useState("");
+  const [courtStatus, setCourtStatus] = useState("Available");
+  const [availableFrom, setAvailableFrom] = useState("06:00 AM");
+  const [availableTo, setAvailableTo] = useState("11:00 PM");
+
   const [isUploading, setIsUploading] = useState(false);
   const [isDraggingPhoto, setIsDraggingPhoto] = useState(false);
   const courtFileRef = React.useRef<HTMLInputElement>(null);
@@ -773,13 +777,19 @@ function CourtTab({ data, onSave, isSaving, theme, dimensions, tenantId }: any) 
   };
 
   const conditionOptions = dimensions?.courtcondition || [];
+  const statusOptions = dimensions?.courtstatus || [];
+
 
   const resetForm = () => {
     setCourtName("");
     setCourtCondition("");
     setCourtImageUrl("");
     setRestrictions("");
+    setCourtStatus("Available");
+    setAvailableFrom("06:00 AM");
+    setAvailableTo("11:00 PM");
     setEditingCourtId(null);
+
   };
 
   const handleSubmitCourt = () => {
@@ -790,7 +800,11 @@ function CourtTab({ data, onSave, isSaving, theme, dimensions, tenantId }: any) 
       id: editingCourtId || `court_${Date.now()}`,
       name,
       condition: courtCondition,
+      status: courtStatus,
+      available_from: courtStatus === "Available" ? availableFrom : null,
+      available_to: courtStatus === "Available" ? availableTo : null,
       image_url: courtImageUrl,
+
       restrictions: restrictions.trim(),
       updated_at: new Date().toISOString(),
     };
@@ -809,6 +823,10 @@ function CourtTab({ data, onSave, isSaving, theme, dimensions, tenantId }: any) 
     setCourtCondition(court.condition || "");
     setCourtImageUrl(court.image_url || "");
     setRestrictions(court.restrictions || "");
+    setCourtStatus(court.status || "Available");
+    setAvailableFrom(court.available_from || "06:00 AM");
+    setAvailableTo(court.available_to || "11:00 PM");
+
   };
 
   const uploadFile = async (file: File) => {
@@ -922,6 +940,41 @@ function CourtTab({ data, onSave, isSaving, theme, dimensions, tenantId }: any) 
             </select>
           </FormField>
 
+          <FormField label={tenantId === "Global" ? "Default Court Status" : "Court Status"} theme={theme}>
+            <select value={courtStatus} onChange={(e) => setCourtStatus(e.target.value)} className={`${inputClasses} appearance-none`}>
+              <option value="">Select status</option>
+              {statusOptions.map((option: string) => (
+                <option key={option} value={option}>
+                  {option}
+                </option>
+              ))}
+            </select>
+          </FormField>
+
+          {courtStatus === "Available" && (
+            <div className="grid grid-cols-2 gap-4">
+              <FormField label="Available From" theme={theme}>
+                <input
+                  type="text"
+                  value={availableFrom}
+                  onChange={(e) => setAvailableFrom(e.target.value)}
+                  className={inputClasses}
+                  placeholder="e.g. 06:00 AM"
+                />
+              </FormField>
+              <FormField label="Available To" theme={theme}>
+                <input
+                  type="text"
+                  value={availableTo}
+                  onChange={(e) => setAvailableTo(e.target.value)}
+                  className={inputClasses}
+                  placeholder="e.g. 11:00 PM"
+                />
+              </FormField>
+            </div>
+          )}
+
+
           <FormField label={tenantId === "Global" ? "Default Court Photo" : "Court Photo"} theme={theme}>
             <input type="file" ref={courtFileRef} onChange={handlePhotoUpload} className="hidden" accept="image/*" />
             <div
@@ -1024,6 +1077,14 @@ function CourtTab({ data, onSave, isSaving, theme, dimensions, tenantId }: any) 
                         <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${isDark ? "bg-stone-800 text-stone-300" : "bg-white text-stone-700 border border-stone-200"}`}>
                           {court.condition}
                         </span>
+                        <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${court.status === "Available" ? (isDark ? "bg-[#ccff00]/10 text-[#ccff00]" : "bg-green-50 text-green-700 border border-green-100") : (isDark ? "bg-red-500/10 text-red-500" : "bg-red-50 text-red-700 border border-red-100")}`}>
+                          {court.status || "Available"}
+                        </span>
+                        {court.status === "Available" && court.available_from && court.available_to && (
+                          <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${isDark ? "bg-stone-800 text-stone-400" : "bg-stone-100 text-stone-600"}`}>
+                            {court.available_from} - {court.available_to}
+                          </span>
+                        )}
                       </div>
                       {court.restrictions && (
                         <p className={`text-[10px] font-bold tracking-tight ${isDark ? "text-stone-400" : "text-stone-500"}`}>{court.restrictions}</p>
