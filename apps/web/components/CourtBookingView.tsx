@@ -297,6 +297,7 @@ export default function CourtBookingView({ theme }: { theme: "LIGHT" | "DARK" | 
             theme={theme}
             user={user}
             times={times}
+            courts={courts}
             allBookings={bookings}
             onClose={() => setViewBooking(null)}
           />
@@ -1038,13 +1039,14 @@ function UpcomingSection({ bookings, theme, onBookingClick }: { bookings: any[];
 }
 
 // ─── Booking Details ─────────────────────────────────────────────────────────
-function BookingDetails({ booking, theme, user, onClose, times, allBookings }: { 
+function BookingDetails({ booking, theme, user, onClose, times, allBookings, courts }: { 
   booking: any; 
   theme: string; 
   user: any; 
   onClose: () => void;
   times: string[];
   allBookings: any[];
+  courts: any[];
 }) {
   const [isCancelling, setIsCancelling] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -1054,6 +1056,8 @@ function BookingDetails({ booking, theme, user, onClose, times, allBookings }: {
   const [editDate, setEditDate] = useState(booking.date);
   const [editTime, setEditTime] = useState(booking.time);
   const [editDuration, setEditDuration] = useState(booking.duration);
+  const [editCourtId, setEditCourtId] = useState(booking.courtId);
+  const [editPlayerCount, setEditPlayerCount] = useState(booking.playerCount || 1);
 
   const isDark = theme === "DARK";
   const isOwner = user?.uid === booking.userId;
@@ -1076,7 +1080,7 @@ function BookingDetails({ booking, theme, user, onClose, times, allBookings }: {
 
     const hasOverlap = allBookings.some(b => {
       if (b.id === booking.id) return false; // Skip current booking
-      if (b.courtId !== booking.courtId || b.date !== new Date(editDate).toDateString()) return false;
+      if (b.courtId !== editCourtId || b.date !== new Date(editDate).toDateString()) return false;
       const bStart = timeToMinutes(b.time);
       const bEnd = bStart + (b.duration * 60);
       return requestedStart < bEnd && requestedEnd > bStart;
@@ -1089,11 +1093,15 @@ function BookingDetails({ booking, theme, user, onClose, times, allBookings }: {
     }
 
     try {
+      const selectedCourt = courts.find(c => (c.id || c.name) === editCourtId);
       await updateDoc(doc(db, "bookings", booking.id), {
         date: new Date(editDate).toDateString(),
         time: editTime,
         endTime: addMinutesToTime(editTime, editDuration * 60),
         duration: editDuration,
+        courtId: editCourtId,
+        courtName: selectedCourt?.name || booking.courtName,
+        playerCount: editPlayerCount,
       });
       setIsEditing(false);
     } catch (err) {
@@ -1147,13 +1155,30 @@ function BookingDetails({ booking, theme, user, onClose, times, allBookings }: {
     <div className="space-y-6">
       {/* Court Header */}
       <div className={`p-5 rounded-2xl flex items-center justify-between ${isDark ? "bg-stone-900" : "bg-stone-50"}`}>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-4 flex-1">
           <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${isDark ? "bg-stone-950" : "bg-white shadow-sm"}`}>
             <span className="material-symbols-outlined text-2xl opacity-40">sports_tennis</span>
           </div>
-          <div>
-            <p className="text-lg font-black tracking-tight">{booking.courtName}</p>
-            <p className={`text-[10px] font-black uppercase tracking-[0.2em] opacity-40`}>Scheduled Session</p>
+          <div className="flex-1 min-w-0">
+            {isEditing ? (
+              <div className="space-y-1">
+                <label className={labelCls}>Select Court</label>
+                <select
+                  value={editCourtId}
+                  onChange={(e) => setEditCourtId(e.target.value)}
+                  className={inputCls}
+                >
+                  {courts.map(c => (
+                    <option key={c.id || c.name} value={c.id || c.name}>{c.name}</option>
+                  ))}
+                </select>
+              </div>
+            ) : (
+              <>
+                <p className="text-lg font-black tracking-tight">{booking.courtName}</p>
+                <p className={`text-[10px] font-black uppercase tracking-[0.2em] opacity-40`}>Scheduled Session</p>
+              </>
+            )}
           </div>
         </div>
         {isOwner && !isEditing && (
@@ -1219,7 +1244,19 @@ function BookingDetails({ booking, theme, user, onClose, times, allBookings }: {
         </div>
         <div>
           <label className={labelCls}>Players</label>
-          <div className={infoCls}>{booking.playerCount} {booking.playerCount === 1 ? 'Player' : 'Players'}</div>
+          {isEditing ? (
+            <select
+              value={editPlayerCount}
+              onChange={(e) => setEditPlayerCount(Number(e.target.value))}
+              className={inputCls}
+            >
+              {[1, 2, 3, 4, 5, 6, 7, 8].map(n => (
+                <option key={n} value={n}>{n} {n === 1 ? 'Player' : 'Players'}</option>
+              ))}
+            </select>
+          ) : (
+            <div className={infoCls}>{booking.playerCount} {booking.playerCount === 1 ? 'Player' : 'Players'}</div>
+          )}
         </div>
       </div>
 
