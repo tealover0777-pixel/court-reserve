@@ -1230,12 +1230,13 @@ function SlotCell({ status, theme, booking, user, onDragStart }: { status: SlotS
     const isPast = now > bDate;
 
     // Past bookings: muted stone palette, no drag
-    const borderCls  = isPast ? "border-stone-400"   : "border-emerald-500";
-    const bgCls      = isPast ? "bg-stone-400/10"    : "bg-emerald-500/15";
-    const bgHoverCls = isPast ? ""                   : (isOwner ? "hover:bg-emerald-500/25" : "");
-    const avatarCls  = isPast ? "bg-stone-400"       : "bg-emerald-500";
-    const nameCls    = isPast ? "text-stone-400"     : "text-emerald-700";
-    const subCls     = isPast ? "text-stone-400/60"  : "text-emerald-600/70";
+    // Personal vs others active colors
+    const borderCls  = isPast ? "border-stone-400"   : (isOwner ? "border-emerald-500" : "border-indigo-500");
+    const bgCls      = isPast ? "bg-stone-400/10"    : (isOwner ? "bg-emerald-500/15" : "bg-indigo-500/15");
+    const bgHoverCls = isPast ? ""                   : (isOwner ? "hover:bg-emerald-500/25" : "hover:bg-indigo-500/25");
+    const avatarCls  = isPast ? "bg-stone-400"       : (isOwner ? "bg-emerald-500" : "bg-indigo-500");
+    const nameCls    = isPast ? "text-stone-400"     : (isOwner ? "text-emerald-700" : "text-indigo-700");
+    const subCls     = isPast ? "text-stone-400/60"  : (isOwner ? "text-emerald-600/70" : "text-indigo-600/70");
     const dragCls    = isOwner && !isPast ? "cursor-grab active:cursor-grabbing hover:scale-[1.02]" : "cursor-default";
 
     return (

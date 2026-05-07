@@ -13,6 +13,7 @@ import AIAdminView from "./AIAdminView";
 import OrganizationView from "./OrganizationView";
 import CourtBookingView from "./CourtBookingView";
 import SchedulesAdminView from "./SchedulesAdminView";
+import MemberAdminView from "./MemberAdminView";
 
 import { useAuth } from "../context/AuthContext";
 import { collection, onSnapshot, query, orderBy, doc, updateDoc, serverTimestamp } from "firebase/firestore";
@@ -32,7 +33,7 @@ export default function DashboardClient({ params }: { params: { tenantId: string
   const searchParams = useSearchParams();
   const pathname = usePathname();
 
-  const [activeView, setActiveView] = React.useState<"DASHBOARD" | "COURT BOOKING" | "PROGRAMS" | "MEMBERSHIP" | "SETTINGS" | "PROFILE" | "AI_ADMIN" | "DIMENSIONS" | "ROLE_TYPES" | "USER_ADMIN" | "PLATFORM_TENANT_ADMIN" | "ORGANIZATION" | "PLATFORM_ORGANIZATION" | "TENANT_USER_ADMIN" | "PLATFORM_ROLE_TYPES" | "SCHEDULES">("DASHBOARD");
+  const [activeView, setActiveView] = React.useState<"DASHBOARD" | "COURT BOOKING" | "PROGRAMS" | "MEMBERSHIP" | "SETTINGS" | "PROFILE" | "AI_ADMIN" | "DIMENSIONS" | "ROLE_TYPES" | "USER_ADMIN" | "PLATFORM_TENANT_ADMIN" | "ORGANIZATION" | "PLATFORM_ORGANIZATION" | "TENANT_USER_ADMIN" | "MEMBER_ADMIN" | "PLATFORM_ROLE_TYPES" | "SCHEDULES">("DASHBOARD");
   const [platformAdminOpen, setPlatformAdminOpen] = React.useState(false);
   const [administrationOpen, setAdministrationOpen] = React.useState(false);
   const [theme, setTheme] = React.useState<"LIGHT" | "DARK" | "VINTAGE">("LIGHT");
@@ -70,6 +71,7 @@ export default function DashboardClient({ params }: { params: { tenantId: string
     "ROLE_TYPES":             "ADMINISTRATION_VIEW",
     "ORGANIZATION":           "ADMINISTRATION_VIEW",
     "TENANT_USER_ADMIN":      "ADMINISTRATION_VIEW",
+    "MEMBER_ADMIN":           "ADMINISTRATION_VIEW",
     "SCHEDULES":              "ADMINISTRATION_VIEW",
     "SETTINGS":               "SETTINGS_VIEW",
     "AI_ADMIN":               "PLATFORM_VIEW",
@@ -243,7 +245,7 @@ export default function DashboardClient({ params }: { params: { tenantId: string
               <NavItem
                 icon="admin_panel_settings"
                 label="Administration"
-                active={["ROLE_TYPES", "ORGANIZATION", "TENANT_USER_ADMIN", "SCHEDULES"].includes(activeView)}
+                active={["ROLE_TYPES", "ORGANIZATION", "TENANT_USER_ADMIN", "MEMBER_ADMIN", "SCHEDULES"].includes(activeView)}
                 onClick={() => setAdministrationOpen(!administrationOpen)}
                 theme={theme}
               />
@@ -265,6 +267,12 @@ export default function DashboardClient({ params }: { params: { tenantId: string
                     label="User Admin"
                     active={activeView === "TENANT_USER_ADMIN"}
                     onClick={() => handleViewChange("TENANT_USER_ADMIN")}
+                    theme={theme}
+                  />
+                  <SubNavItem
+                    label="Member Admin"
+                    active={activeView === "MEMBER_ADMIN"}
+                    onClick={() => handleViewChange("MEMBER_ADMIN")}
                     theme={theme}
                   />
                   <SubNavItem
@@ -530,6 +538,7 @@ export default function DashboardClient({ params }: { params: { tenantId: string
           if (activeView === "ROLE_TYPES") return <RoleTypesView theme={theme} userRoleId={profile?.role} readOnly />;
           if (activeView === "ORGANIZATION") return <OrganizationView theme={theme} tenantId={tenantId} />;
           if (activeView === "TENANT_USER_ADMIN") return <UserAdminView theme={theme} tenantId={tenantId} />;
+          if (activeView === "MEMBER_ADMIN") return <MemberAdminView theme={theme} tenantId={tenantId} />;
           if (activeView === "PLATFORM_ORGANIZATION") return <OrganizationView theme={theme} tenantId="Global" />;
           if (activeView === "USER_ADMIN") return <UserAdminView theme={theme} />;
           if (activeView === "PLATFORM_TENANT_ADMIN") return <PlatformTenantAdminView theme={theme} />;
