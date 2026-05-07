@@ -76,7 +76,7 @@ export default function SchedulesAdminView({ theme }: { theme: "LIGHT" | "DARK" 
   const [tenantConfig, setTenantConfig] = useState<any>(null);
   const [hidePast, setHidePast] = useState(false);
   const [rowSelection, setRowSelection] = useState({});
-  const [globalFilter, setGlobalFilter] = useState("");
+  const [columnFilters, setColumnFilters] = useState<any[]>([]);
 
   const isDark = theme === "DARK";
 
@@ -217,13 +217,14 @@ export default function SchedulesAdminView({ theme }: { theme: "LIGHT" | "DARK" 
   const table = useReactTable({
     data: filteredBookings,
     columns,
-    state: { sorting, rowSelection, globalFilter },
+    state: { sorting, rowSelection, columnFilters },
     onSortingChange: setSorting,
     onRowSelectionChange: setRowSelection,
-    onGlobalFilterChange: setGlobalFilter,
+    onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
+    columnResizeMode: "onChange",
   });
 
   const handleBulkDelete = async () => {
@@ -250,18 +251,6 @@ export default function SchedulesAdminView({ theme }: { theme: "LIGHT" | "DARK" 
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <div className="relative">
-            <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-lg opacity-20 pointer-events-none">search</span>
-            <input
-              value={globalFilter}
-              onChange={(e) => setGlobalFilter(e.target.value)}
-              placeholder="Search reservations..."
-              className={`pl-11 pr-6 h-10 rounded-2xl border text-[10px] font-black uppercase tracking-widest outline-none transition-all ${
-                isDark ? "bg-stone-900 border-stone-800 text-white focus:border-[#ccff00]" : "bg-stone-50 border-stone-100 text-stone-900 focus:border-stone-400 shadow-sm"
-              }`}
-            />
-          </div>
-
           <button
             onClick={() => setHidePast(!hidePast)}
             className={`px-4 h-10 rounded-2xl flex items-center gap-2 border transition-all ${
@@ -311,16 +300,41 @@ export default function SchedulesAdminView({ theme }: { theme: "LIGHT" | "DARK" 
                 {headerGroup.headers.map((header: any) => (
                   <th 
                     key={header.id} 
-                    className={`px-6 py-4 text-[10px] font-black uppercase tracking-widest transition-colors ${
+                    className={`px-6 py-4 text-[10px] font-black uppercase tracking-widest transition-colors relative group ${
                       header.column.getCanSort() ? "cursor-pointer hover:text-stone-900" : ""
                     } ${isDark ? "text-stone-500" : "text-stone-400"}`}
-                    onClick={header.column.getToggleSortingHandler()}
+                    style={{ width: header.getSize() }}
                   >
-                    <div className="flex items-center gap-2">
-                      {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
-                      {header.column.getIsSorted() === "asc" && <span className="material-symbols-outlined text-sm">arrow_upward</span>}
-                      {header.column.getIsSorted() === "desc" && <span className="material-symbols-outlined text-sm">arrow_downward</span>}
+                    <div className="flex flex-col gap-3">
+                      <div className="flex items-center gap-2" onClick={header.column.getToggleSortingHandler()}>
+                        {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
+                        {header.column.getIsSorted() === "asc" && <span className="material-symbols-outlined text-sm">arrow_upward</span>}
+                        {header.column.getIsSorted() === "desc" && <span className="material-symbols-outlined text-sm">arrow_downward</span>}
+                      </div>
+                      
+                      {header.column.getCanFilter() && (
+                        <div className="relative" onClick={e => e.stopPropagation()}>
+                          <input
+                            type="text"
+                            value={(header.column.getFilterValue() as string) ?? ""}
+                            onChange={e => header.column.setFilterValue(e.target.value)}
+                            placeholder={`Filter...`}
+                            className={`w-full px-3 py-1.5 rounded-lg border text-[9px] font-bold outline-none transition-all ${
+                              isDark ? "bg-stone-950 border-stone-800 text-white focus:border-[#ccff00]" : "bg-white border-stone-200 text-stone-900 focus:border-stone-400 shadow-sm"
+                            }`}
+                          />
+                        </div>
+                      )}
                     </div>
+
+                    {/* Resizer */}
+                    <div
+                      onMouseDown={header.getResizeHandler()}
+                      onTouchStart={header.getResizeHandler()}
+                      className={`absolute right-0 top-0 h-full w-[2px] cursor-col-resize select-none touch-none hover:bg-emerald-500 transition-colors ${
+                        header.column.getIsResizing() ? "bg-emerald-500" : (isDark ? "bg-stone-800" : "bg-stone-200")
+                      }`}
+                    />
                   </th>
                 ))}
               </tr>
@@ -333,8 +347,14 @@ export default function SchedulesAdminView({ theme }: { theme: "LIGHT" | "DARK" 
                 className={`border-t transition-all ${borderColor} ${isDark ? "hover:bg-stone-900/50" : "hover:bg-stone-50/50"}`}
               >
                 {row.getVisibleCells().map((cell: any) => (
-                  <td key={cell.id} className="px-6 py-5 text-sm font-medium">
+                  <td 
+                    key={cell.id} 
+                    className="px-6 py-5 text-sm font-medium relative"
+                    style={{ width: cell.column.getSize() }}
+                  >
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                    {/* Vertical line separator in body */}
+                    <div className={`absolute right-0 top-0 h-full w-[1px] ${isDark ? "bg-stone-800/50" : "bg-stone-100"}`} />
                   </td>
                 ))}
               </tr>
