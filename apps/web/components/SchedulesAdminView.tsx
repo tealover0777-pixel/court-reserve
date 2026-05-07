@@ -19,6 +19,7 @@ import {
   flexRender, 
   createColumnHelper,
   getSortedRowModel,
+  getFilteredRowModel,
   SortingState
 } from "@tanstack/react-table";
 import { Modal } from "@repo/ui/modal";
@@ -48,6 +49,21 @@ const getInitials = (name: string) => {
   if (!name) return "??";
   return name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
 };
+
+function toDisplayTime(value: string | null | undefined): string {
+  if (!value) return "—";
+  const str = String(value).trim();
+  if (/^\d{1,2}:\d{2}$/.test(str)) {
+    const parts = str.split(":");
+    let h = parseInt(parts[0] || "0", 10);
+    const min = parts[1] || "00";
+    const period = h >= 12 ? "PM" : "AM";
+    if (h === 0) h = 12;
+    else if (h > 12) h -= 12;
+    return `${h}:${min} ${period}`;
+  }
+  return str;
+}
 
 export default function SchedulesAdminView({ theme }: { theme: "LIGHT" | "DARK" | "VINTAGE" }) {
   const { tenantId } = useTenant();
