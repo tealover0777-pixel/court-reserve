@@ -12,6 +12,7 @@ import PlatformTenantAdminView from "./PlatformTenantAdminView";
 import AIAdminView from "./AIAdminView";
 import OrganizationView from "./OrganizationView";
 import CourtBookingView from "./CourtBookingView";
+import SchedulesAdminView from "./SchedulesAdminView";
 
 import { useAuth } from "../context/AuthContext";
 import { collection, onSnapshot, query, orderBy, doc, updateDoc, serverTimestamp } from "firebase/firestore";
@@ -31,7 +32,7 @@ export default function DashboardClient({ params }: { params: { tenantId: string
   const searchParams = useSearchParams();
   const pathname = usePathname();
 
-  const [activeView, setActiveView] = React.useState<"DASHBOARD" | "COURT BOOKING" | "PROGRAMS" | "MEMBERSHIP" | "SETTINGS" | "PROFILE" | "AI_ADMIN" | "DIMENSIONS" | "ROLE_TYPES" | "USER_ADMIN" | "PLATFORM_TENANT_ADMIN" | "ORGANIZATION" | "PLATFORM_ORGANIZATION" | "TENANT_USER_ADMIN" | "PLATFORM_ROLE_TYPES">("DASHBOARD");
+  const [activeView, setActiveView] = React.useState<"DASHBOARD" | "COURT BOOKING" | "PROGRAMS" | "MEMBERSHIP" | "SETTINGS" | "PROFILE" | "AI_ADMIN" | "DIMENSIONS" | "ROLE_TYPES" | "USER_ADMIN" | "PLATFORM_TENANT_ADMIN" | "ORGANIZATION" | "PLATFORM_ORGANIZATION" | "TENANT_USER_ADMIN" | "PLATFORM_ROLE_TYPES" | "SCHEDULES">("DASHBOARD");
   const [platformAdminOpen, setPlatformAdminOpen] = React.useState(false);
   const [administrationOpen, setAdministrationOpen] = React.useState(false);
   const [theme, setTheme] = React.useState<"LIGHT" | "DARK" | "VINTAGE">("LIGHT");
@@ -69,6 +70,7 @@ export default function DashboardClient({ params }: { params: { tenantId: string
     "ROLE_TYPES":             "ADMINISTRATION_VIEW",
     "ORGANIZATION":           "ADMINISTRATION_VIEW",
     "TENANT_USER_ADMIN":      "ADMINISTRATION_VIEW",
+    "SCHEDULES":              "ADMINISTRATION_VIEW",
     "SETTINGS":               "SETTINGS_VIEW",
     "AI_ADMIN":               "PLATFORM_VIEW",
     "DIMENSIONS":             "PLATFORM_VIEW",
@@ -241,7 +243,7 @@ export default function DashboardClient({ params }: { params: { tenantId: string
               <NavItem
                 icon="admin_panel_settings"
                 label="Administration"
-                active={["ROLE_TYPES", "ORGANIZATION", "TENANT_USER_ADMIN"].includes(activeView)}
+                active={["ROLE_TYPES", "ORGANIZATION", "TENANT_USER_ADMIN", "SCHEDULES"].includes(activeView)}
                 onClick={() => setAdministrationOpen(!administrationOpen)}
                 theme={theme}
               />
@@ -263,6 +265,12 @@ export default function DashboardClient({ params }: { params: { tenantId: string
                     label="User Admin"
                     active={activeView === "TENANT_USER_ADMIN"}
                     onClick={() => handleViewChange("TENANT_USER_ADMIN")}
+                    theme={theme}
+                  />
+                  <SubNavItem
+                    label="Schedules"
+                    active={activeView === "SCHEDULES"}
+                    onClick={() => handleViewChange("SCHEDULES")}
                     theme={theme}
                   />
                 </div>
@@ -410,7 +418,7 @@ export default function DashboardClient({ params }: { params: { tenantId: string
           <div className="flex items-center gap-2">
             <span className={`text-[10px] font-black tracking-widest uppercase opacity-40 ${theme === "DARK" ? "text-white" : "text-stone-950"}`}>
               {activeView === "DASHBOARD" || activeView === "PROGRAMS" || activeView === "MEMBERSHIP" || activeView.includes("PLATFORM") || activeView === "USER_ADMIN" || activeView === "AI_ADMIN" || activeView === "DIMENSIONS" ? "PLATFORM" :
-                activeView === "ROLE_TYPES" || activeView === "ORGANIZATION" || activeView === "TENANT_USER_ADMIN" ? "ADMINISTRATION" : "MANAGEMENT"}
+                activeView === "ROLE_TYPES" || activeView === "ORGANIZATION" || activeView === "TENANT_USER_ADMIN" || activeView === "SCHEDULES" ? "ADMINISTRATION" : "MANAGEMENT"}
             </span>
             <span className="text-stone-300">/</span>
             <span className={`text-xs font-black tracking-widest uppercase ${theme === "DARK" ? "text-white" : "text-stone-950"}`}>
@@ -527,6 +535,7 @@ export default function DashboardClient({ params }: { params: { tenantId: string
           if (activeView === "PLATFORM_TENANT_ADMIN") return <PlatformTenantAdminView theme={theme} />;
           if (activeView === "PLATFORM_ROLE_TYPES") return <RoleTypesView theme={theme} />;
           if (activeView === "COURT BOOKING") return <CourtBookingView theme={theme} />;
+          if (activeView === "SCHEDULES") return <SchedulesAdminView theme={theme} />;
           if (activeView === "PROGRAMS") return <ProgramsView theme={theme} />;
           if (activeView === "MEMBERSHIP") return <MembershipView theme={theme} />;
           if (activeView === "SETTINGS") return <SettingsView theme={theme} />;
