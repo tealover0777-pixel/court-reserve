@@ -1097,11 +1097,11 @@ function CourtTab({ data, onSave, isSaving, theme, dimensions, tenantId }: any) 
               </div>
             )}
             {courts.map((court) => {
-              const fromVal = court.available_from || court.availableFrom;
-              const toVal = court.available_to || court.availableTo;
-              const hasHours = !!(fromVal || toVal);
-              const fromTime = toDisplayTime(fromVal);
-              const toTime = toDisplayTime(toVal);
+              const fromVal = court.available_from || court.availableFrom || "";
+              const toVal = court.available_to || court.availableTo || "";
+              const hasHours = fromVal !== "" || toVal !== "";
+              const fromTime = hasHours ? toDisplayTime(fromVal) : "—";
+              const toTime = hasHours ? toDisplayTime(toVal) : "—";
               const isAvailable = (court.status || "Available") === "Available";
 
               return (
