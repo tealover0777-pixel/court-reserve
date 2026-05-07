@@ -6,7 +6,25 @@ import { useTenant } from "../context/TenantContext";
 import { useAuth } from "../context/AuthContext";
 import { Modal } from "@repo/ui/modal";
 
-const TIMES = Array.from({ length: 17 }, (_, i) => `${(i + 6).toString().padStart(2, "0")}:00`);
+const DEFAULT_TIMES = Array.from({ length: 17 }, (_, i) => `${(i + 6).toString().padStart(2, "0")}:00`);
+
+const buildTimes = (courts: any[]): string[] => {
+  if (!courts.length) return DEFAULT_TIMES;
+  let minHour = 23;
+  let maxHour = 6;
+  courts.forEach((court) => {
+    const fromMin = timeToMinutes(court.available_from || court.availableFrom || "06:00");
+    const toMin = timeToMinutes(court.available_to || court.availableTo || "23:00");
+    if (fromMin > 0 || toMin > 0) {
+      minHour = Math.min(minHour, Math.floor(fromMin / 60));
+      maxHour = Math.max(maxHour, Math.floor(toMin / 60));
+    }
+  });
+  if (minHour >= maxHour) return DEFAULT_TIMES;
+  return Array.from({ length: maxHour - minHour + 1 }, (_, i) =>
+    `${(minHour + i).toString().padStart(2, "0")}:00`
+  );
+};
 
 const MONTHS = [
   "January","February","March","April","May","June",
@@ -148,12 +166,15 @@ export default function CourtBookingView({ theme }: { theme: "LIGHT" | "DARK" | 
     onJumpToMonth: (year: number, month: number) => setBaseDate(new Date(year, month, 1)),
   };
 
+  const times = useMemo(() => buildTimes(courts), [courts]);
+
   const scheduleProps = {
     selectedDate,
     onDateSelect: setSelectedDate,
     weekDates,
     ...navHandlers,
     courts,
+    times,
     bookings,
     theme,
     onSlotClick: (court: any, time: string) => {
@@ -668,7 +689,7 @@ function CourtHeader({ court, theme }: { court: any; theme: string }) {
 
 // ─── Grid (shared layout) ─────────────────────────────────────────────────────
 
-function ScheduleGrid({ courts, bookings, selectedDate, theme, onSlotClick, timeLabelColor, borderColor, rowBorder }: any) {
+function ScheduleGrid({ courts, bookings, selectedDate, theme, onSlotClick, timeLabelColor, borderColor, rowBorder, times }: any) {
   return (
     <div className="overflow-x-auto pb-4">
       <div className="inline-flex min-w-full gap-3">
@@ -677,7 +698,7 @@ function ScheduleGrid({ courts, bookings, selectedDate, theme, onSlotClick, time
           <div className={`h-16 mb-1 border-b ${borderColor} flex items-end pb-3`}>
             <span className={`text-[9px] font-black uppercase tracking-[0.2em] ${timeLabelColor}`}>Time</span>
           </div>
-          {TIMES.map((t) => (
+          {times.map((t: string) => (
             <div key={t} className={`h-20 flex items-center border-b ${rowBorder}`}>
               <span className={`text-[10px] font-black tabular-nums ${timeLabelColor}`}>{t}</span>
             </div>
@@ -690,7 +711,7 @@ function ScheduleGrid({ courts, bookings, selectedDate, theme, onSlotClick, time
             <div className={`h-16 mb-1 border-b ${borderColor}`}>
               <CourtHeader court={court} theme={theme} />
             </div>
-            {TIMES.map((t) => {
+            {times.map((t: string) => {
               const status = getSlotStatus(court, t, bookings, selectedDate);
               return (
                 <div
