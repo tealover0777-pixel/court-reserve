@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import { db } from "../lib/firebase";
-import { doc, onSnapshot, collection, query, where, addDoc, serverTimestamp } from "firebase/firestore";
+import { doc, onSnapshot, collection, query, where, addDoc, serverTimestamp, deleteDoc } from "firebase/firestore";
 import { useTenant } from "../context/TenantContext";
 import { useAuth } from "../context/AuthContext";
 import { Modal } from "@repo/ui/modal";
@@ -92,6 +92,7 @@ export default function CourtBookingView({ theme }: { theme: "LIGHT" | "DARK" | 
   const [bookings, setBookings] = useState<any[]>([]);
   const [userBookings, setUserBookings] = useState<any[]>([]);
   const [bookingModal, setBookingModal] = useState<BookingModal | null>(null);
+  const [viewBooking, setViewBooking] = useState<any | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
@@ -210,6 +211,14 @@ export default function CourtBookingView({ theme }: { theme: "LIGHT" | "DARK" | 
       const status = getSlotStatus(court, time, bookings, selectedDate);
       if (status === "AVAILABLE") {
         setBookingModal({ court, time, duration: 1, notes: "", playerCount: 1 });
+      } else if (status === "SCHEDULED") {
+        const b = bookings.find(
+          (b: any) =>
+            b.courtId === (court.id || court.name) &&
+            b.date === selectedDate.toDateString() &&
+            b.time === time
+        );
+        if (b) setViewBooking(b);
       }
     },
   };
@@ -239,9 +248,26 @@ export default function CourtBookingView({ theme }: { theme: "LIGHT" | "DARK" | 
         </div>
 
         <aside className="mt-10 lg:mt-0">
-          <UpcomingSection bookings={userBookings} theme={theme} />
+          <UpcomingSection bookings={userBookings} theme={theme} onBookingClick={setViewBooking} />
         </aside>
       </div>
+
+      <Modal
+        isOpen={!!viewBooking}
+        onClose={() => setViewBooking(null)}
+        title="Reservation Details"
+        theme={theme}
+        width={480}
+      >
+        {viewBooking && (
+          <BookingDetails
+            booking={viewBooking}
+            theme={theme}
+            user={user}
+            onClose={() => setViewBooking(null)}
+          />
+        )}
+      </Modal>
 
       <Modal
         isOpen={!!bookingModal}
@@ -856,7 +882,7 @@ function VintageNoirSchedule(props: any) {
 }
 
 // ─── Upcoming Section ────────────────────────────────────────────────────────
-function UpcomingSection({ bookings, theme }: { bookings: any[]; theme: string }) {
+function UpcomingSection({ bookings, theme, onBookingClick }: { bookings: any[]; theme: string; onBookingClick: (b: any) => void }) {
   const isDark = theme === "DARK";
   const today = new Date();
   today.setHours(0,0,0,0);
@@ -899,7 +925,8 @@ function UpcomingSection({ bookings, theme }: { bookings: any[]; theme: string }
             return (
               <div
                 key={booking.id}
-                className={`group relative p-4 rounded-2xl border transition-all hover:scale-[1.02] ${
+                onClick={() => onBookingClick(booking)}
+                className={`group relative p-4 rounded-2xl border transition-all hover:scale-[1.02] cursor-pointer ${
                   isDark
                     ? "bg-stone-900/40 border-stone-800 hover:border-[#00E5FF]/50"
                     : "bg-stone-50 border-stone-100 hover:border-stone-300"
@@ -945,6 +972,97 @@ function UpcomingSection({ bookings, theme }: { bookings: any[]; theme: string }
           </p>
         )}
       </div>
+    </div>
+  );
+}
+
+// ─── Booking Details ─────────────────────────────────────────────────────────
+function BookingDetails({ booking, theme, user, onClose }: { booking: any; theme: string; user: any; onClose: () => void }) {
+  const isDark = theme === "DARK";
+  const isOwner = user?.uid === booking.userId;
+
+  const handleCancel = async () => {
+    if (!window.confirm("Are you sure you want to cancel this reservation?")) return;
+    try {
+      await deleteDoc(doc(db, "bookings", booking.id));
+      onClose();
+    } catch (err) {
+      console.error("Cancellation failed:", err);
+    }
+  };
+
+  const labelCls = `text-[9px] font-black uppercase tracking-widest mb-2 block ${isDark ? "text-stone-500" : "text-stone-400"}`;
+  const infoCls = `px-4 py-3 rounded-2xl text-sm font-bold border ${
+    isDark ? "bg-stone-900 border-stone-800 text-white" : "bg-stone-50 border-stone-100 text-stone-900"
+  }`;
+
+  return (
+    <div className="space-y-6">
+      {/* Court Header */}
+      <div className={`p-5 rounded-2xl flex items-center gap-4 ${isDark ? "bg-stone-900" : "bg-stone-50"}`}>
+        <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${isDark ? "bg-stone-950" : "bg-white shadow-sm"}`}>
+          <span className="material-symbols-outlined text-2xl opacity-40">sports_tennis</span>
+        </div>
+        <div>
+          <p className="text-lg font-black tracking-tight">{booking.courtName}</p>
+          <p className={`text-[10px] font-black uppercase tracking-[0.2em] opacity-40`}>Scheduled Session</p>
+        </div>
+      </div>
+
+      {/* Time & Date */}
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <label className={labelCls}>Date</label>
+          <div className={infoCls}>{booking.date}</div>
+        </div>
+        <div>
+          <label className={labelCls}>Time</label>
+          <div className={infoCls}>{booking.time} – {booking.endTime}</div>
+        </div>
+      </div>
+
+      {/* Player info */}
+      <div>
+        <label className={labelCls}>Reserved By</label>
+        <div className={`${infoCls} flex items-center gap-3`}>
+          <div className="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center text-[10px] font-black text-white">
+            {getInitials(booking.userName)}
+          </div>
+          <div>
+            <p className="text-sm font-bold">{booking.userName}</p>
+            <p className={`text-[10px] font-bold opacity-40`}>{booking.userEmail}</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Extra info */}
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <label className={labelCls}>Duration</label>
+          <div className={infoCls}>{booking.duration} hr</div>
+        </div>
+        <div>
+          <label className={labelCls}>Players</label>
+          <div className={infoCls}>{booking.playerCount} {booking.playerCount === 1 ? 'Player' : 'Players'}</div>
+        </div>
+      </div>
+
+      {booking.notes && (
+        <div>
+          <label className={labelCls}>Notes</label>
+          <div className={`${infoCls} whitespace-pre-wrap font-medium leading-relaxed`}>{booking.notes}</div>
+        </div>
+      )}
+
+      {/* Actions */}
+      {isOwner && (
+        <button
+          onClick={handleCancel}
+          className="w-full py-4 rounded-2xl text-[10px] font-black tracking-widest uppercase transition-all border border-red-500/20 text-red-500 hover:bg-red-500 hover:text-white"
+        >
+          Cancel Reservation
+        </button>
+      )}
     </div>
   );
 }
