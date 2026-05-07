@@ -1080,10 +1080,19 @@ function CourtTab({ data, onSave, isSaving, theme, dimensions, tenantId }: any) 
                         <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${court.status === "Available" ? (isDark ? "bg-[#ccff00]/10 text-[#ccff00]" : "bg-green-50 text-green-700 border border-green-100") : (isDark ? "bg-red-500/10 text-red-500" : "bg-red-50 text-red-700 border border-red-100")}`}>
                           {court.status || "Available"}
                         </span>
-                        {court.status === "Available" && court.available_from && court.available_to && (
-                          <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${isDark ? "bg-stone-800 text-stone-400" : "bg-stone-100 text-stone-600"}`}>
-                            {court.available_from} - {court.available_to}
-                          </span>
+                      </div>
+                      <div className="flex flex-col gap-1">
+                        {court.available_from && (
+                          <div className="flex items-center gap-2">
+                            <span className={`text-[8px] font-black uppercase tracking-widest opacity-40 ${isDark ? "text-white" : "text-stone-900"}`}>Available From:</span>
+                            <span className={`text-[10px] font-bold ${isDark ? "text-stone-300" : "text-stone-700"}`}>{court.available_from}</span>
+                          </div>
+                        )}
+                        {court.available_to && (
+                          <div className="flex items-center gap-2">
+                            <span className={`text-[8px] font-black uppercase tracking-widest opacity-40 ${isDark ? "text-white" : "text-stone-900"}`}>Available To:</span>
+                            <span className={`text-[10px] font-bold ${isDark ? "text-stone-300" : "text-stone-700"}`}>{court.available_to}</span>
+                          </div>
                         )}
                       </div>
                       {court.restrictions && (
