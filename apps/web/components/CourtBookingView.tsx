@@ -1237,6 +1237,29 @@ function BookingDetails({ booking, theme, user, onClose, times, allBookings }: {
         </div>
       </div>
 
+      {/* QR Code Section */}
+      {!isEditing && (
+        <div className={`p-6 rounded-[2rem] flex flex-col items-center justify-center border-2 border-dashed transition-all animate-in fade-in zoom-in duration-500 ${
+          isDark ? "bg-stone-900/50 border-stone-800" : "bg-stone-50 border-stone-200"
+        }`}>
+          <div className="mb-4 p-4 rounded-3xl bg-white shadow-xl shadow-black/5 ring-1 ring-black/5">
+            <img 
+              src={`https://api.qrserver.com/v1/create-qr-code/?size=140x140&data=${booking.id}&bgcolor=ffffff&color=000000&margin=0`} 
+              alt="Booking QR Code"
+              className="w-[140px] h-[140px] mix-blend-multiply"
+            />
+          </div>
+          <div className="text-center">
+            <p className={`text-[9px] font-black uppercase tracking-[0.2em] mb-1 ${isDark ? "text-stone-500" : "text-stone-400"}`}>
+              Verification Pass
+            </p>
+            <p className={`text-[10px] font-black tabular-nums opacity-60 ${isDark ? "text-white" : "text-stone-900"}`}>
+              ID: {booking.id?.substring(0, 12).toUpperCase()}
+            </p>
+          </div>
+        </div>
+      )}
+
       {booking.notes && !isEditing && (
         <div>
           <label className={labelCls}>Notes</label>
