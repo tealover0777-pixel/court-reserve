@@ -978,11 +978,11 @@ function UpcomingSection({ bookings, theme, onBookingClick }: { bookings: any[];
 
 // ─── Booking Details ─────────────────────────────────────────────────────────
 function BookingDetails({ booking, theme, user, onClose }: { booking: any; theme: string; user: any; onClose: () => void }) {
+  const [isCancelling, setIsCancelling] = useState(false);
   const isDark = theme === "DARK";
   const isOwner = user?.uid === booking.userId;
 
   const handleCancel = async () => {
-    if (!window.confirm("Are you sure you want to cancel this reservation?")) return;
     try {
       await deleteDoc(doc(db, "bookings", booking.id));
       onClose();
@@ -995,6 +995,38 @@ function BookingDetails({ booking, theme, user, onClose }: { booking: any; theme
   const infoCls = `px-4 py-3 rounded-2xl text-sm font-bold border ${
     isDark ? "bg-stone-900 border-stone-800 text-white" : "bg-stone-50 border-stone-100 text-stone-900"
   }`;
+
+  if (isCancelling) {
+    return (
+      <div className="space-y-8 py-4 animate-in fade-in zoom-in-95 duration-300">
+        <div className={`w-20 h-20 rounded-3xl flex items-center justify-center mx-auto ${isDark ? "bg-red-500/10 text-red-500" : "bg-red-50 text-red-500"}`}>
+          <span className="material-symbols-outlined text-4xl">delete_forever</span>
+        </div>
+        <div className="text-center space-y-2">
+          <h4 className="text-xl font-black tracking-tight">Cancel Reservation?</h4>
+          <p className={`text-xs font-medium leading-relaxed px-8 ${isDark ? "text-stone-500" : "text-stone-400"}`}>
+            This action cannot be undone. The court will be immediately freed up for other players.
+          </p>
+        </div>
+        <div className="flex gap-4 pt-4">
+          <button
+            onClick={() => setIsCancelling(false)}
+            className={`flex-1 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest border transition-all ${
+              isDark ? "border-stone-800 text-white hover:bg-stone-900" : "border-stone-200 text-stone-900 hover:bg-stone-50"
+            }`}
+          >
+            Go Back
+          </button>
+          <button
+            onClick={handleCancel}
+            className="flex-1 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest bg-red-500 text-white hover:bg-red-600 transition-all shadow-lg shadow-red-500/20"
+          >
+            Cancel Session
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -1057,7 +1089,7 @@ function BookingDetails({ booking, theme, user, onClose }: { booking: any; theme
       {/* Actions */}
       {isOwner && (
         <button
-          onClick={handleCancel}
+          onClick={() => setIsCancelling(true)}
           className="w-full py-4 rounded-2xl text-[10px] font-black tracking-widest uppercase transition-all border border-red-500/20 text-red-500 hover:bg-red-500 hover:text-white"
         >
           Cancel Reservation
