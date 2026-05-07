@@ -161,6 +161,56 @@ export default function CourtBookingView({ theme }: { theme: "LIGHT" | "DARK" | 
     return () => unsub();
   }, [tenantId, user]);
 
+  const isBookingPast = (bookingDateStr: string, timeStr: string) => {
+    const now = new Date();
+    const bDate = new Date(bookingDateStr);
+    const [h, m] = timeStr.split(':').map(Number);
+    bDate.setHours(h, m, 0, 0);
+    return now > bDate;
+  };
+
+  const handleDragDrop = async (bookingId: string, targetCourt: any, targetTime: string) => {
+    const booking = bookings.find(b => b.id === bookingId);
+    if (!booking) return;
+
+    // Permissions check
+    if (user?.uid !== booking.userId) return;
+    if (isBookingPast(booking.date, booking.time)) {
+      alert("Cannot move a session that has already started.");
+      return;
+    }
+
+    const duration = booking.duration || 1;
+    const requestedStart = timeToMinutes(targetTime);
+    const requestedEnd = requestedStart + (duration * 60);
+
+    // Overlap check
+    const hasOverlap = bookings.some((b: any) => {
+      if (b.id === bookingId) return false;
+      if (b.courtId !== (targetCourt.id || targetCourt.name) || b.date !== booking.date) return false;
+      const bStart = timeToMinutes(b.time);
+      const bEnd = bStart + (b.duration * 60);
+      return requestedStart < bEnd && requestedEnd > bStart;
+    });
+
+    if (hasOverlap) {
+      alert("The target slot overlaps with another reservation.");
+      return;
+    }
+
+    try {
+      await updateDoc(doc(db, "bookings", bookingId), {
+        courtId: targetCourt.id || targetCourt.name,
+        courtName: targetCourt.name,
+        time: targetTime,
+        endTime: addMinutesToTime(targetTime, duration * 60),
+        updatedAt: serverTimestamp(),
+      });
+    } catch (err) {
+      console.error("Move failed:", err);
+    }
+  };
+
   const weekDates = useMemo(() => {
     const start = new Date(baseDate);
     const day = start.getDay();
@@ -239,6 +289,8 @@ export default function CourtBookingView({ theme }: { theme: "LIGHT" | "DARK" | 
     times,
     bookings,
     theme,
+    user,
+    onDrop: handleDragDrop,
     onSlotClick: (court: any, time: string) => {
       const status = getSlotStatus(court, time, bookings, selectedDate);
       if (status === "AVAILABLE") {
@@ -670,7 +722,7 @@ const getInitials = (name: string): string => {
 
 // ─── Slot Cell ───────────────────────────────────────────────────────────────
 
-function SlotCell({ status, theme, booking }: { status: SlotStatus; theme: string; booking?: any }) {
+function SlotCell({ status, theme, booking, user, onDragStart }: { status: SlotStatus; theme: string; booking?: any; user?: any; onDragStart?: (e: any) => void }) {
   const isDark = theme === "DARK";
 
   if (status === "NOT_AVAILABLE") {
@@ -710,10 +762,20 @@ function SlotCell({ status, theme, booking }: { status: SlotStatus; theme: strin
     const endTime = booking?.endTime || "";
     const players = booking?.playerCount || 1;
     const duration = booking?.duration || 1;
+    const isOwner = user?.uid === booking?.userId;
+    
+    // Check if it's in the past to disable drag
+    const now = new Date();
+    const bDate = new Date(booking.date);
+    const [h, m] = booking.time.split(':').map(Number);
+    bDate.setHours(h, m, 0, 0);
+    const isPast = now > bDate;
 
     return (
       <div
-        className="absolute inset-0 m-0.5 rounded-xl border-l-[4px] border-emerald-500 bg-emerald-500/15 flex flex-col justify-center gap-1 px-3 overflow-hidden z-20 shadow-sm"
+        draggable={isOwner && !isPast}
+        onDragStart={onDragStart}
+        className={`absolute inset-0 m-0.5 rounded-xl border-l-[4px] border-emerald-500 bg-emerald-500/15 flex flex-col justify-center gap-1 px-3 overflow-hidden z-20 shadow-sm transition-transform ${isOwner && !isPast ? "cursor-grab active:cursor-grabbing hover:scale-[1.02]" : ""}`}
         style={{ height: `calc(${duration * 200}% - 4px)` }}
       >
         <div className="flex items-center gap-2.5">
@@ -843,7 +905,7 @@ function CourtHeader({ court, theme }: { court: any; theme: string }) {
 
 // ─── Grid (shared layout) ─────────────────────────────────────────────────────
 
-function ScheduleGrid({ courts, bookings, selectedDate, theme, onSlotClick, timeLabelColor, borderColor, rowBorder, times }: any) {
+function ScheduleGrid({ courts, bookings, selectedDate, theme, onSlotClick, onDrop, user, timeLabelColor, borderColor, rowBorder, times }: any) {
   return (
     <div className="overflow-x-auto pb-4">
       <div className="inline-flex min-w-full gap-3">
@@ -896,9 +958,34 @@ function ScheduleGrid({ courts, bookings, selectedDate, theme, onSlotClick, time
                   <div
                     key={t}
                     onClick={() => onSlotClick(court, t)}
-                    className={`h-12 border-b ${rowBorder} group relative ${status === "AVAILABLE" ? "cursor-pointer" : "cursor-default"}`}
+                    onDragOver={(e) => {
+                      if (status === "AVAILABLE") {
+                        e.preventDefault();
+                        e.currentTarget.classList.add(theme === "DARK" ? "bg-white/5" : "bg-black/5");
+                      }
+                    }}
+                    onDragLeave={(e) => {
+                      e.currentTarget.classList.remove(theme === "DARK" ? "bg-white/5" : "bg-black/5");
+                    }}
+                    onDrop={(e) => {
+                      e.preventDefault();
+                      e.currentTarget.classList.remove(theme === "DARK" ? "bg-white/5" : "bg-black/5");
+                      if (status === "AVAILABLE") {
+                        const bookingId = e.dataTransfer.getData("bookingId");
+                        onDrop(bookingId, court, t);
+                      }
+                    }}
+                    className={`h-12 border-b ${rowBorder} group relative transition-colors ${status === "AVAILABLE" ? "cursor-pointer" : "cursor-default"}`}
                   >
-                    <SlotCell status={status} theme={theme} booking={booking} />
+                    <SlotCell 
+                      status={status} 
+                      theme={theme} 
+                      booking={booking} 
+                      user={user}
+                      onDragStart={(e: any) => {
+                        e.dataTransfer.setData("bookingId", booking.id);
+                      }}
+                    />
                   </div>
                 );
               })}
