@@ -97,7 +97,14 @@ interface BookingModal {
   playerCount: number;
 }
 
-export default function CourtBookingView({ theme }: { theme: "LIGHT" | "DARK" | "VINTAGE" }) {
+interface PendingMove {
+  bookingId: string;
+  booking: any;
+  targetCourt: any;
+  targetTime: string;
+}
+
+export default function CourtBookingView({ theme, isAdmin }: { theme: "LIGHT" | "DARK" | "VINTAGE"; isAdmin?: boolean }) {
   const { tenantId } = useTenant();
   const { user } = useAuth();
   const [baseDate, setBaseDate] = useState(new Date());
@@ -107,7 +114,10 @@ export default function CourtBookingView({ theme }: { theme: "LIGHT" | "DARK" | 
   const [userBookings, setUserBookings] = useState<any[]>([]);
   const [bookingModal, setBookingModal] = useState<BookingModal | null>(null);
   const [viewBooking, setViewBooking] = useState<any | null>(null);
+  const [pendingMove, setPendingMove] = useState<PendingMove | null>(null);
+  const [isMoving, setIsMoving] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [tenantConfig, setTenantConfig] = useState<any>(null);
 
   useEffect(() => {
     if (!tenantId) return;
@@ -115,6 +125,7 @@ export default function CourtBookingView({ theme }: { theme: "LIGHT" | "DARK" | 
       if (snap.exists()) {
         const data = snap.data();
         setCourts(Array.isArray(data.courts) ? data.courts : []);
+        setTenantConfig(data);
       }
     });
     return () => unsub();
@@ -169,45 +180,90 @@ export default function CourtBookingView({ theme }: { theme: "LIGHT" | "DARK" | 
     return now > bDate;
   };
 
-  const handleDragDrop = async (bookingId: string, targetCourt: any, targetTime: string) => {
-    const booking = bookings.find(b => b.id === bookingId);
-    if (!booking) return;
+  const canModifyBooking = (booking: any) => {
+    if (isAdmin) return true;
+    if (!tenantConfig) return true;
+    if (tenantConfig.allowScheduleChange === false) return false;
 
-    // Permissions check
-    if (user?.uid !== booking.userId) return;
-    if (isBookingPast(booking.date, booking.time)) {
-      alert("Cannot move a session that has already started.");
+    const leadTime = tenantConfig.changeLeadTime || "START";
+    const now = new Date();
+    const bStart = new Date(booking.date);
+    const [h, m] = booking.time.split(':').map(Number);
+    bStart.setHours(h || 0, m || 0, 0, 0);
+
+    if (leadTime === "1_DAY") {
+      const limit = new Date(bStart);
+      limit.setDate(limit.getDate() - 1);
+      return now < limit;
+    }
+    if (leadTime === "4_HOURS") {
+      const limit = new Date(bStart);
+      limit.setHours(limit.getHours() - 4);
+      return now < limit;
+    }
+    if (leadTime === "START") {
+      return now < bStart;
+    }
+    if (leadTime === "END") {
+      const bEnd = new Date(bStart);
+      const [eh, em] = booking.endTime.split(':').map(Number);
+      bEnd.setHours(eh || 0, em || 0, 0, 0);
+      return now < bEnd;
+    }
+    return true;
+  };
+
+  const handleDragDrop = (bookingId: string, targetCourt: any, targetTime: string) => {
+    const booking = bookings.find((b) => b.id === bookingId);
+    if (!booking) return;
+    if (user?.uid !== booking.userId && !isAdmin) return;
+    if (!canModifyBooking(booking)) {
+      const policy = tenantConfig?.changeLeadTime || "START";
+      const policyLabels: any = {
+        "1_DAY": "at least 1 day before start",
+        "4_HOURS": "at least 4 hours before start",
+        "START": "before the reservation starts",
+        "END": "before the reservation ends"
+      };
+      alert(`Policy Restriction: This reservation can only be changed ${policyLabels[policy] || "before it starts"}.`);
       return;
     }
 
     const duration = booking.duration || 1;
     const requestedStart = timeToMinutes(targetTime);
-    const requestedEnd = requestedStart + (duration * 60);
+    const requestedEnd = requestedStart + duration * 60;
 
-    // Overlap check
     const hasOverlap = bookings.some((b: any) => {
       if (b.id === bookingId) return false;
       if (b.courtId !== (targetCourt.id || targetCourt.name) || b.date !== booking.date) return false;
       const bStart = timeToMinutes(b.time);
-      const bEnd = bStart + (b.duration * 60);
+      const bEnd = bStart + b.duration * 60;
       return requestedStart < bEnd && requestedEnd > bStart;
     });
 
-    if (hasOverlap) {
-      alert("The target slot overlaps with another reservation.");
-      return;
-    }
+    if (hasOverlap) return;
 
+    // Require confirmation before writing
+    setPendingMove({ bookingId, booking, targetCourt, targetTime });
+  };
+
+  const handleConfirmMove = async () => {
+    if (!pendingMove) return;
+    const { bookingId, booking, targetCourt, targetTime } = pendingMove;
+    setIsMoving(true);
     try {
       await updateDoc(doc(db, "bookings", bookingId), {
         courtId: targetCourt.id || targetCourt.name,
         courtName: targetCourt.name,
         time: targetTime,
-        endTime: addMinutesToTime(targetTime, duration * 60),
+        endTime: addMinutesToTime(targetTime, (booking.duration || 1) * 60),
         updatedAt: serverTimestamp(),
       });
+      setPendingMove(null);
     } catch (err) {
       console.error("Move failed:", err);
+    } finally {
+      setIsMoving(false);
     }
   };
 
@@ -348,6 +404,8 @@ export default function CourtBookingView({ theme }: { theme: "LIGHT" | "DARK" | 
             booking={viewBooking}
             theme={theme}
             user={user}
+            isAdmin={isAdmin}
+            canModify={canModifyBooking(viewBooking)}
             times={times}
             courts={courts}
             allBookings={bookings}
@@ -372,6 +430,28 @@ export default function CourtBookingView({ theme }: { theme: "LIGHT" | "DARK" | 
             theme={theme}
             isSubmitting={isSubmitting}
             onConfirm={handleCreateBooking}
+          />
+        )}
+      </Modal>
+
+      {/* Drag-and-drop move confirmation */}
+      <Modal
+        isOpen={!!pendingMove}
+        onClose={() => setPendingMove(null)}
+        title="Move Reservation"
+        theme={theme}
+        width={420}
+        resizable={false}
+      >
+        {pendingMove && (
+          <MoveConfirmDialog
+            booking={pendingMove.booking}
+            targetCourt={pendingMove.targetCourt}
+            targetTime={pendingMove.targetTime}
+            theme={theme}
+            isMoving={isMoving}
+            onConfirm={handleConfirmMove}
+            onCancel={() => setPendingMove(null)}
           />
         )}
       </Modal>
@@ -530,6 +610,90 @@ function BookingForm({
       >
         {isSubmitting ? "Processing..." : "Confirm Booking"}
       </button>
+    </div>
+  );
+}
+
+// ─── Move Confirm Dialog ─────────────────────────────────────────────────────
+
+function MoveConfirmDialog({ booking, targetCourt, targetTime, theme, isMoving, onConfirm, onCancel }: {
+  booking: any;
+  targetCourt: any;
+  targetTime: string;
+  theme: string;
+  isMoving: boolean;
+  onConfirm: () => void;
+  onCancel: () => void;
+}) {
+  const isDark = theme === "DARK";
+  const endTime = addMinutesToTime(targetTime, (booking.duration || 1) * 60);
+  const accentCls =
+    theme === "LIGHT" ? "bg-[#4f6b28] text-white" :
+    theme === "DARK"  ? "bg-[#00E5FF] text-stone-950" :
+                        "bg-stone-900 text-white";
+  const rowCls = `px-4 py-3 rounded-2xl text-sm font-bold border ${
+    isDark ? "bg-stone-900 border-stone-800 text-white" : "bg-stone-50 border-stone-100 text-stone-900"
+  }`;
+
+  return (
+    <div className="space-y-6">
+      {/* Icon */}
+      <div className={`w-16 h-16 rounded-3xl flex items-center justify-center mx-auto ${
+        isDark ? "bg-stone-900" : "bg-stone-100"
+      }`}>
+        <span className="material-symbols-outlined text-3xl opacity-60">drag_pan</span>
+      </div>
+
+      <p className={`text-center text-xs font-bold leading-relaxed ${isDark ? "text-stone-400" : "text-stone-500"}`}>
+        Move this reservation to a new time slot?
+      </p>
+
+      {/* From → To */}
+      <div className="space-y-2">
+        <div>
+          <p className={`text-[9px] font-black uppercase tracking-widest mb-1 ${isDark ? "text-stone-500" : "text-stone-400"}`}>From</p>
+          <div className={`${rowCls} flex items-center gap-3`}>
+            <span className="material-symbols-outlined text-base opacity-30">sports_tennis</span>
+            <span>{booking.courtName}</span>
+            <span className={`ml-auto text-[10px] font-bold ${isDark ? "text-stone-500" : "text-stone-400"}`}>
+              {booking.time} – {booking.endTime}
+            </span>
+          </div>
+        </div>
+        <div className={`flex items-center justify-center text-xl ${isDark ? "text-stone-700" : "text-stone-300"}`}>↓</div>
+        <div>
+          <p className={`text-[9px] font-black uppercase tracking-widest mb-1 ${isDark ? "text-stone-500" : "text-stone-400"}`}>To</p>
+          <div className={`${rowCls} flex items-center gap-3 ${
+            isDark ? "border-[#00E5FF]/30" : "border-emerald-200"
+          }`}>
+            <span className="material-symbols-outlined text-base opacity-30">sports_tennis</span>
+            <span>{targetCourt.name}</span>
+            <span className={`ml-auto text-[10px] font-bold ${isDark ? "text-[#00E5FF]" : "text-emerald-600"}`}>
+              {targetTime} – {endTime}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* Actions */}
+      <div className="flex gap-3 pt-2">
+        <button
+          onClick={onCancel}
+          disabled={isMoving}
+          className={`flex-1 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest border transition-all disabled:opacity-50 ${
+            isDark ? "border-stone-800 text-white hover:bg-stone-900" : "border-stone-200 text-stone-900 hover:bg-stone-50"
+          }`}
+        >
+          Cancel
+        </button>
+        <button
+          onClick={onConfirm}
+          disabled={isMoving}
+          className={`flex-1 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all shadow-lg disabled:opacity-50 hover:opacity-90 ${accentCls}`}
+        >
+          {isMoving ? "Moving…" : "Confirm Move"}
+        </button>
+      </div>
     </div>
   );
 }
@@ -771,42 +935,48 @@ function SlotCell({ status, theme, booking, user, onDragStart }: { status: SlotS
     bDate.setHours(h || 0, m || 0, 0, 0);
     const isPast = now > bDate;
 
+    // Past bookings: muted stone palette, no drag
+    const borderCls  = isPast ? "border-stone-400"   : "border-emerald-500";
+    const bgCls      = isPast ? "bg-stone-400/10"    : "bg-emerald-500/15";
+    const bgHoverCls = isPast ? ""                   : (isOwner ? "hover:bg-emerald-500/25" : "");
+    const avatarCls  = isPast ? "bg-stone-400"       : "bg-emerald-500";
+    const nameCls    = isPast ? "text-stone-400"     : "text-emerald-700";
+    const subCls     = isPast ? "text-stone-400/60"  : "text-emerald-600/70";
+    const dragCls    = isOwner && !isPast ? "cursor-grab active:cursor-grabbing hover:scale-[1.02]" : "cursor-default";
+
     return (
       <div
         draggable={isOwner && !isPast}
-        onDragStart={(e) => {
-          e.stopPropagation();
-          onDragStart?.(e);
-        }}
-        className={`absolute inset-0 m-0.5 rounded-xl border-l-[4px] border-emerald-500 bg-emerald-500/15 flex flex-col justify-center gap-1 px-3 overflow-hidden z-20 shadow-sm transition-all ${isOwner && !isPast ? "cursor-grab active:cursor-grabbing hover:scale-[1.02] hover:bg-emerald-500/25" : ""}`}
+        onDragStart={(e) => { e.stopPropagation(); onDragStart?.(e); }}
+        className={`absolute inset-0 m-0.5 rounded-xl border-l-[4px] ${borderCls} ${bgCls} ${bgHoverCls} flex flex-col justify-center gap-1 px-3 overflow-hidden z-20 shadow-sm transition-all ${dragCls}`}
         style={{ height: `calc(${duration * 200}% - 4px)` }}
       >
-        {isOwner && !isPast && (
-          <div className="absolute top-1 right-2 flex items-center gap-1">
-            <span className="text-[6px] font-black uppercase tracking-widest text-emerald-600/50">My Session</span>
-            <span className="material-symbols-outlined text-[8px] text-emerald-500">drag_indicator</span>
-          </div>
-        )}
+        {/* Header row: label + drag/lock icon */}
+        <div className="absolute top-1 right-2 flex items-center gap-1">
+          {isPast ? (
+            <span className="material-symbols-outlined text-[10px] text-stone-400/50">lock</span>
+          ) : isOwner ? (
+            <>
+              <span className={`text-[6px] font-black uppercase tracking-widest ${subCls}`}>My Session</span>
+              <span className="material-symbols-outlined text-[8px] text-emerald-500">drag_indicator</span>
+            </>
+          ) : null}
+        </div>
+
         <div className="flex items-center gap-2.5">
-          {/* Avatar */}
-          <div className="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center flex-shrink-0 shadow-sm">
+          <div className={`w-8 h-8 rounded-full ${avatarCls} flex items-center justify-center flex-shrink-0 shadow-sm`}>
             <span className="text-[10px] font-black text-white leading-none">{initials}</span>
           </div>
-          {/* Info */}
           <div className="flex-1 min-w-0">
-            <p className="text-[10px] font-black text-emerald-700 truncate leading-tight">{displayName}</p>
+            <p className={`text-[10px] font-black ${nameCls} truncate leading-tight`}>{displayName}</p>
             {endTime && (
-              <p className="text-[8px] font-bold text-emerald-600/70 leading-tight mt-0.5">
-                until {endTime}
-              </p>
+              <p className={`text-[8px] font-bold ${subCls} leading-tight mt-0.5`}>until {endTime}</p>
             )}
           </div>
         </div>
         {duration >= 1 && players > 1 && (
           <div className="pl-[42px]">
-            <p className="text-[8px] font-bold text-emerald-600/70 leading-tight">
-              {players} players
-            </p>
+            <p className={`text-[8px] font-bold ${subCls} leading-tight`}>{players} players</p>
           </div>
         )}
       </div>
@@ -1156,10 +1326,12 @@ function UpcomingSection({ bookings, theme, onBookingClick }: { bookings: any[];
 }
 
 // ─── Booking Details ─────────────────────────────────────────────────────────
-function BookingDetails({ booking, theme, user, onClose, times, allBookings, courts }: { 
+function BookingDetails({ booking, theme, user, isAdmin, canModify, onClose, times, allBookings, courts }: { 
   booking: any; 
   theme: string; 
   user: any; 
+  isAdmin?: boolean;
+  canModify: boolean;
   onClose: () => void;
   times: string[];
   allBookings: any[];
@@ -1442,13 +1614,21 @@ function BookingDetails({ booking, theme, user, onClose, times, allBookings, cou
             </button>
           </div>
         ) : (
-          isOwner && (
-            <button
-              onClick={() => setIsCancelling(true)}
-              className="w-full py-4 rounded-2xl text-[10px] font-black tracking-widest uppercase transition-all border border-red-500/20 text-red-500 hover:bg-red-500 hover:text-white"
-            >
-              Cancel Reservation
-            </button>
+          (isOwner || isAdmin) && (
+            <div className="space-y-3">
+              {canModify ? (
+                <button
+                  onClick={() => setIsCancelling(true)}
+                  className="w-full py-4 rounded-2xl text-[10px] font-black tracking-widest uppercase transition-all border border-red-500/20 text-red-500 hover:bg-red-500 hover:text-white"
+                >
+                  Cancel Reservation
+                </button>
+              ) : (
+                <div className={`py-4 px-6 rounded-2xl text-[9px] font-bold text-center border border-dashed ${isDark ? "border-stone-800 text-stone-600" : "border-stone-100 text-stone-400"}`}>
+                  This session is locked according to the organization's schedule policy.
+                </div>
+              )}
+            </div>
           )
         )}
       </div>

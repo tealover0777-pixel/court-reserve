@@ -56,6 +56,8 @@ export default function SchedulesAdminView({ theme }: { theme: "LIGHT" | "DARK" 
   const [courts, setCourts] = useState<any[]>([]);
   const [sorting, setSorting] = useState<SortingState>([]);
   const [editingBooking, setEditingBooking] = useState<any | null>(null);
+  const [showSettings, setShowSettings] = useState(false);
+  const [tenantConfig, setTenantConfig] = useState<any>(null);
 
   const isDark = theme === "DARK";
 
@@ -66,6 +68,7 @@ export default function SchedulesAdminView({ theme }: { theme: "LIGHT" | "DARK" 
       if (snap.exists()) {
         const data = snap.data();
         setCourts(Array.isArray(data.courts) ? data.courts : []);
+        setTenantConfig(data);
       }
     });
 
@@ -177,8 +180,18 @@ export default function SchedulesAdminView({ theme }: { theme: "LIGHT" | "DARK" 
             Manage and monitor all court reservations.
           </p>
         </div>
-        <div className={`px-4 py-2 rounded-2xl border text-[10px] font-black uppercase tracking-widest ${isDark ? "border-stone-800 bg-stone-900 text-stone-500" : "border-stone-200 bg-stone-50 text-stone-400"}`}>
-          {bookings.length} Total Bookings
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => setShowSettings(true)}
+            className={`w-10 h-10 rounded-2xl flex items-center justify-center border transition-all ${
+              isDark ? "border-stone-800 bg-stone-900 text-stone-400 hover:text-white" : "border-stone-200 bg-stone-50 text-stone-500 hover:text-stone-900 shadow-sm"
+            }`}
+          >
+            <span className="material-symbols-outlined text-lg">settings</span>
+          </button>
+          <div className={`px-4 py-2 rounded-2xl border text-[10px] font-black uppercase tracking-widest ${isDark ? "border-stone-800 bg-stone-900 text-stone-500" : "border-stone-200 bg-stone-50 text-stone-400"}`}>
+            {bookings.length} Total Bookings
+          </div>
         </div>
       </div>
 
@@ -238,6 +251,100 @@ export default function SchedulesAdminView({ theme }: { theme: "LIGHT" | "DARK" 
           />
         </Modal>
       )}
+
+      {showSettings && (
+        <Modal
+          isOpen={showSettings}
+          onClose={() => setShowSettings(false)}
+          title="Schedule Policy"
+          theme={theme}
+          width={400}
+        >
+          <ScheduleSettings 
+            config={tenantConfig} 
+            tenantId={tenantId}
+            theme={theme} 
+            onClose={() => setShowSettings(false)} 
+          />
+        </Modal>
+      )}
+    </div>
+  );
+}
+
+function ScheduleSettings({ config, tenantId, theme, onClose }: any) {
+  const isDark = theme === "DARK";
+  const [isSaving, setIsSaving] = useState(false);
+  const [allowChange, setAllowChange] = useState(config?.allowScheduleChange ?? true);
+  const [leadTime, setLeadTime] = useState(config?.changeLeadTime ?? "START");
+
+  const handleSave = async () => {
+    setIsSaving(true);
+    try {
+      await updateDoc(doc(db, "tenants", tenantId), {
+        allowScheduleChange: allowChange,
+        changeLeadTime: leadTime,
+        updatedAt: serverTimestamp(),
+      });
+      onClose();
+    } catch (err) {
+      console.error("Failed to save policy:", err);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const labelCls = `text-[10px] font-black uppercase tracking-widest mb-2 block ${isDark ? "text-stone-500" : "text-stone-400"}`;
+  const inputCls = `w-full px-4 py-3 rounded-2xl text-sm font-bold border transition-all focus:outline-none ${
+    isDark ? "bg-stone-900 border-stone-800 text-white focus:border-[#00E5FF]" : "bg-stone-50 border-stone-100 text-stone-900 focus:border-stone-900"
+  }`;
+
+  return (
+    <div className="space-y-8 py-2">
+      <div className="space-y-6">
+        <div className="flex items-center justify-between p-4 rounded-3xl border border-dashed border-stone-200 dark:border-stone-800">
+          <div className="space-y-1">
+            <h4 className={`text-xs font-black uppercase tracking-tight ${isDark ? "text-white" : "text-stone-900"}`}>Allow Schedule Changes</h4>
+            <p className="text-[10px] text-stone-400 font-medium italic">Users can move or edit their own bookings</p>
+          </div>
+          <label className="relative inline-flex items-center cursor-pointer">
+            <input 
+              type="checkbox" 
+              className="sr-only peer" 
+              checked={allowChange}
+              onChange={(e) => setAllowChange(e.target.checked)}
+            />
+            <div className="w-11 h-6 bg-stone-200 peer-focus:outline-none rounded-full peer dark:bg-stone-800 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-emerald-500"></div>
+          </label>
+        </div>
+
+        <div className={`space-y-4 transition-all duration-500 ${allowChange ? "opacity-100" : "opacity-30 pointer-events-none grayscale"}`}>
+          <div>
+            <label className={labelCls}>Change Lead Time Requirement</label>
+            <select 
+              value={leadTime} 
+              onChange={(e) => setLeadTime(e.target.value)}
+              className={inputCls}
+            >
+              <option value="1_DAY">1 Day Before Start</option>
+              <option value="4_HOURS">4 Hours Before Start</option>
+              <option value="START">Until Reservation Starts</option>
+              <option value="END">Until Reservation Ends</option>
+            </select>
+            <p className="text-[9px] mt-2 text-stone-400 font-bold leading-relaxed">
+              Define how much in advance players must commit to changes.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <button
+        onClick={handleSave}
+        disabled={isSaving}
+        className="w-full py-5 rounded-2xl bg-stone-900 text-white dark:bg-[#ccff00] dark:text-stone-950 text-[11px] font-black uppercase tracking-widest transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50"
+      >
+        {isSaving ? "Saving Policy..." : "Update Schedule Policy"}
+      </button>
     </div>
   );
 }
