@@ -805,21 +805,38 @@ function CourtHeader({ court, theme }: { court: any; theme: string }) {
       : "bg-stone-400";
 
   return (
-    <div className="flex flex-col justify-end pb-3">
-      <div className="flex items-center gap-1.5 mb-0.5">
-        <span className={`w-2 h-2 rounded-full flex-shrink-0 ${statusDot}`} />
-        <span className={`text-[10px] font-black uppercase tracking-tight truncate ${isDark ? "text-white" : "text-stone-900"}`}>
-          {court.name}
-        </span>
-      </div>
-      <span className={`text-[8px] font-black uppercase tracking-widest truncate ${isDark ? "text-stone-600" : "text-stone-400"}`}>
-        {court.condition}
-      </span>
-      {fromDisplay && toDisplay && (
-        <span className={`text-[7px] font-bold mt-1 truncate ${isDark ? "text-stone-700" : "text-stone-300"}`}>
-          {fromDisplay} – {toDisplay}
-        </span>
+    <div className="flex flex-col h-full py-2">
+      {court.image_url ? (
+        <div className={`flex-1 mb-3 rounded-2xl overflow-hidden border transition-all duration-500 shadow-sm ${isDark ? "border-stone-800 bg-stone-900" : "border-stone-100 bg-stone-50"}`}>
+          <img 
+            src={court.image_url} 
+            className={`w-full h-full object-cover transition-all duration-700 hover:scale-110 ${isDark ? "opacity-70 hover:opacity-100" : "opacity-90 hover:opacity-100"}`} 
+            alt={court.name} 
+          />
+        </div>
+      ) : (
+        <div className={`flex-1 mb-3 rounded-2xl flex items-center justify-center border border-dashed transition-all ${isDark ? "bg-stone-900/50 border-stone-800 text-stone-700" : "bg-stone-50 border-stone-200 text-stone-300"}`}>
+          <span className="material-symbols-outlined text-4xl">sports_tennis</span>
+        </div>
       )}
+      <div className="px-1">
+        <div className="flex items-center gap-1.5 mb-1">
+          <span className={`w-2 h-2 rounded-full flex-shrink-0 animate-pulse ${statusDot}`} />
+          <span className={`text-[11px] font-black uppercase tracking-tight truncate ${isDark ? "text-white" : "text-stone-950"}`}>
+            {court.name}
+          </span>
+        </div>
+        <div className="flex items-center justify-between gap-2">
+          <span className={`text-[8px] font-black uppercase tracking-widest truncate ${isDark ? "text-stone-500" : "text-stone-400"}`}>
+            {court.condition}
+          </span>
+          {fromDisplay && toDisplay && (
+            <span className={`text-[7px] font-bold tabular-nums ${isDark ? "text-stone-700" : "text-stone-300"}`}>
+              {fromDisplay} – {toDisplay}
+            </span>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
@@ -832,7 +849,7 @@ function ScheduleGrid({ courts, bookings, selectedDate, theme, onSlotClick, time
       <div className="inline-flex min-w-full gap-3">
         {/* Time column */}
         <div className="flex-shrink-0 w-16">
-          <div className={`h-16 mb-1 border-b ${borderColor} flex items-end pb-3`}>
+          <div className={`h-48 mb-1 border-b ${borderColor} flex items-end pb-3`}>
             <span className={`text-[9px] font-black uppercase tracking-[0.2em] ${timeLabelColor}`}>Time</span>
           </div>
           {times.map((t: string) => (
@@ -847,7 +864,7 @@ function ScheduleGrid({ courts, bookings, selectedDate, theme, onSlotClick, time
           let skipUntil: number | null = null;
           return (
             <div key={court.id || court.name} className={`flex-shrink-0 w-48 border-l ${borderColor} pl-3`}>
-              <div className={`h-16 mb-1 border-b ${borderColor}`}>
+              <div className={`h-48 mb-1 border-b ${borderColor}`}>
                 <CourtHeader court={court} theme={theme} />
               </div>
               {times.map((t: string) => {
