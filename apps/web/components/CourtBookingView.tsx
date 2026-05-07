@@ -104,8 +104,13 @@ interface PendingMove {
   targetTime: string;
 }
 
-export default function CourtBookingView({ theme, isAdmin }: { theme: "LIGHT" | "DARK" | "VINTAGE"; isAdmin?: boolean }) {
-  const { tenantId } = useTenant();
+export default function CourtBookingView({ theme, isAdmin, tenantId: tenantIdProp }: {
+  theme: "LIGHT" | "DARK" | "VINTAGE";
+  isAdmin?: boolean;
+  tenantId?: string;
+}) {
+  const { tenantId: contextTenantId } = useTenant();
+  const tenantId = tenantIdProp ?? contextTenantId;
   const { user } = useAuth();
   const [baseDate, setBaseDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
@@ -146,6 +151,7 @@ export default function CourtBookingView({ theme, isAdmin }: { theme: "LIGHT" | 
     return () => unsub();
   }, [tenantId, selectedDate]);
 
+  // Own bookings (for upcoming panel, always scoped to current user)
   useEffect(() => {
     if (!tenantId || !user) return;
     const q = query(
@@ -157,23 +163,32 @@ export default function CourtBookingView({ theme, isAdmin }: { theme: "LIGHT" | 
       const all = snap.docs.map((d) => ({ id: d.id, ...d.data() })) as any[];
       const today = new Date();
       today.setHours(0, 0, 0, 0);
-
       const upcoming = all
-        .filter((b) => {
-          const bDate = new Date(b.date);
-          return bDate >= today;
-        })
+        .filter((b) => new Date(b.date) >= today)
         .sort((a, b) => {
           const dA = new Date(a.date).getTime();
           const dB = new Date(b.date).getTime();
           if (dA !== dB) return dA - dB;
           return timeToMinutes(a.time) - timeToMinutes(b.time);
         });
-      setAllUserBookings(all);
       setUserBookings(upcoming);
+      if (!isAdmin) setAllUserBookings(all);
     });
     return () => unsub();
-  }, [tenantId, user]);
+  }, [tenantId, user, isAdmin]);
+
+  // All tenant bookings — used by admin for the month view
+  useEffect(() => {
+    if (!tenantId || !isAdmin) return;
+    const q = query(
+      collection(db, "bookings"),
+      where("tenantId", "==", tenantId)
+    );
+    const unsub = onSnapshot(q, (snap) => {
+      setAllUserBookings(snap.docs.map((d) => ({ id: d.id, ...d.data() })));
+    });
+    return () => unsub();
+  }, [tenantId, isAdmin]);
 
   const isBookingPast = (bookingDateStr: string, timeStr: string) => {
     const now = new Date();
