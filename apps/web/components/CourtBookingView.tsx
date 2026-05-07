@@ -112,12 +112,14 @@ export default function CourtBookingView({ theme, isAdmin }: { theme: "LIGHT" | 
   const [courts, setCourts] = useState<any[]>([]);
   const [bookings, setBookings] = useState<any[]>([]);
   const [userBookings, setUserBookings] = useState<any[]>([]);
+  const [viewMode, setViewMode] = useState<"WEEK" | "MONTH">("WEEK");
   const [bookingModal, setBookingModal] = useState<BookingModal | null>(null);
   const [viewBooking, setViewBooking] = useState<any | null>(null);
   const [pendingMove, setPendingMove] = useState<PendingMove | null>(null);
   const [isMoving, setIsMoving] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [tenantConfig, setTenantConfig] = useState<any>(null);
+  const [allUserBookings, setAllUserBookings] = useState<any[]>([]);
 
   useEffect(() => {
     if (!tenantId) return;
@@ -167,6 +169,7 @@ export default function CourtBookingView({ theme, isAdmin }: { theme: "LIGHT" | 
           if (dA !== dB) return dA - dB;
           return timeToMinutes(a.time) - timeToMinutes(b.time);
         });
+      setAllUserBookings(all);
       setUserBookings(upcoming);
     });
     return () => unsub();
@@ -363,22 +366,65 @@ export default function CourtBookingView({ theme, isAdmin }: { theme: "LIGHT" | 
     },
   };
 
+  const isDark = theme === "DARK";
+
+  const tabCls = (active: boolean) =>
+    `flex items-center gap-2 px-5 py-2.5 rounded-xl text-[10px] font-black tracking-widest uppercase transition-all ${
+      active
+        ? theme === "LIGHT"
+          ? "bg-[#4f6b28] text-white shadow-md"
+          : theme === "DARK"
+          ? "bg-[#00E5FF] text-stone-950 shadow-md"
+          : "bg-stone-900 text-white shadow-md"
+        : isDark
+        ? "text-stone-500 hover:text-white"
+        : "text-stone-400 hover:text-stone-900"
+    }`;
+
   return (
     <div className="space-y-8 animate-in fade-in duration-700 pb-20">
-      <div className="flex flex-col gap-2">
-        <h3 className={`text-6xl font-black italic tracking-tighter transition-all duration-500 ${
-          theme === "DARK" ? "text-white" : "text-stone-900"
-        }`}>MY SCHEDULE</h3>
-        <p className={`text-xs font-bold tracking-[0.2em] uppercase ${
-          theme === "DARK" ? "text-stone-500" : "text-stone-400"
-        }`}>
-          {theme === "LIGHT" ? "Kinetic Lemon Edition" : theme === "DARK" ? "Noir Edition" : "Pure Edition"}
-        </p>
+      {/* Header */}
+      <div className="flex items-end justify-between gap-6">
+        <div className="flex flex-col gap-2">
+          <h3 className={`text-6xl font-black italic tracking-tighter transition-all duration-500 ${
+            isDark ? "text-white" : "text-stone-900"
+          }`}>MY SCHEDULE</h3>
+          <p className={`text-xs font-bold tracking-[0.2em] uppercase ${
+            isDark ? "text-stone-500" : "text-stone-400"
+          }`}>
+            {theme === "LIGHT" ? "Kinetic Lemon Edition" : theme === "DARK" ? "Noir Edition" : "Pure Edition"}
+          </p>
+        </div>
+
+        {/* View mode tabs */}
+        <div className={`flex items-center gap-1 p-1 rounded-2xl ${isDark ? "bg-stone-900" : "bg-stone-100"}`}>
+          <button className={tabCls(viewMode === "WEEK")} onClick={() => setViewMode("WEEK")}>
+            <span className="material-symbols-outlined text-sm">view_week</span>
+            Week
+          </button>
+          <button className={tabCls(viewMode === "MONTH")} onClick={() => setViewMode("MONTH")}>
+            <span className="material-symbols-outlined text-sm">calendar_month</span>
+            Month
+          </button>
+        </div>
       </div>
 
       <div className="lg:grid lg:grid-cols-[1fr_320px] gap-10 items-start">
         <div className="transition-all duration-500 min-w-0">
-          {theme === "LIGHT" ? (
+          {viewMode === "MONTH" ? (
+            <MonthView
+              baseDate={baseDate}
+              selectedDate={selectedDate}
+              allUserBookings={allUserBookings}
+              theme={theme}
+              {...navHandlers}
+              onDayClick={(date: Date) => {
+                setSelectedDate(date);
+                setBaseDate(date);
+                setViewMode("WEEK");
+              }}
+            />
+          ) : theme === "LIGHT" ? (
             <KineticLemonSchedule {...scheduleProps} />
           ) : theme === "DARK" ? (
             <VintageNoirSchedule {...scheduleProps} />
@@ -610,6 +656,239 @@ function BookingForm({
       >
         {isSubmitting ? "Processing..." : "Confirm Booking"}
       </button>
+    </div>
+  );
+}
+
+// ─── Month View ──────────────────────────────────────────────────────────────
+
+function MonthView({ baseDate, selectedDate, allUserBookings, theme, onDayClick, onPrevMonth, onNextMonth, onToday, onJumpToMonth }: {
+  baseDate: Date;
+  selectedDate: Date;
+  allUserBookings: any[];
+  theme: string;
+  onDayClick: (d: Date) => void;
+  onPrevMonth: () => void;
+  onNextMonth: () => void;
+  onToday: () => void;
+  onJumpToMonth: (year: number, month: number) => void;
+}) {
+  const isDark = theme === "DARK";
+  const [showPicker, setShowPicker] = useState(false);
+  const [pickerYear, setPickerYear] = useState(baseDate.getFullYear());
+  const pickerRef = useRef<HTMLDivElement>(null);
+
+  const year = baseDate.getFullYear();
+  const month = baseDate.getMonth();
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  // Close picker on outside click
+  useEffect(() => {
+    if (!showPicker) return;
+    const h = (e: MouseEvent) => {
+      if (pickerRef.current && !pickerRef.current.contains(e.target as Node)) setShowPicker(false);
+    };
+    document.addEventListener("mousedown", h);
+    return () => document.removeEventListener("mousedown", h);
+  }, [showPicker]);
+
+  // Build 6-week grid starting on Monday
+  const firstDay = new Date(year, month, 1);
+  const startOffset = (firstDay.getDay() + 6) % 7; // Mon=0 … Sun=6
+  const gridStart = new Date(firstDay);
+  gridStart.setDate(gridStart.getDate() - startOffset);
+  const cells = Array.from({ length: 42 }, (_, i) => {
+    const d = new Date(gridStart);
+    d.setDate(gridStart.getDate() + i);
+    return d;
+  });
+
+  // Index bookings by toDateString() key
+  const bookingsByDate = allUserBookings.reduce<Record<string, any[]>>((acc, b) => {
+    (acc[b.date] = acc[b.date] || []).push(b);
+    return acc;
+  }, {});
+
+  const accentBg =
+    theme === "LIGHT" ? "bg-[#4f6b28] text-white" :
+    theme === "DARK"  ? "bg-[#00E5FF] text-stone-950" :
+                        "bg-stone-900 text-white";
+
+  const navBtn = `p-2 rounded-xl transition-all ${
+    isDark ? "bg-stone-900 text-white hover:bg-stone-800" : "bg-stone-100 text-stone-600 hover:bg-stone-200"
+  }`;
+
+  const cardCls = isDark
+    ? "bg-stone-950 border-stone-800"
+    : theme === "LIGHT"
+    ? "bg-white border-t-[10px] border-[#ccff00] shadow-sm"
+    : "bg-white border-stone-100 shadow-sm";
+
+  return (
+    <div className={`rounded-[2rem] p-8 border animate-in fade-in duration-500 ${cardCls}`}>
+      {/* Navigation row */}
+      <div className="flex items-center justify-between mb-8">
+        <div className="flex items-center gap-2">
+          <button
+            onClick={onToday}
+            className={`px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest border transition-all ${
+              isDark
+                ? "border-stone-800 text-stone-400 hover:border-stone-600 hover:text-white"
+                : "border-stone-200 text-stone-500 hover:border-stone-400 hover:text-stone-900"
+            }`}
+          >
+            Today
+          </button>
+          <button onClick={onPrevMonth} className={navBtn}>
+            <span className="material-symbols-outlined text-sm">chevron_left</span>
+          </button>
+          {/* Month/year label + picker */}
+          <div className="relative" ref={pickerRef}>
+            <button
+              onClick={() => { setPickerYear(year); setShowPicker(v => !v); }}
+              className={`flex items-center gap-1 px-4 py-2 rounded-xl text-sm font-black uppercase tracking-widest transition-all ${
+                isDark ? "bg-stone-900 text-white hover:bg-stone-800" : "bg-stone-50 text-stone-900 hover:bg-stone-100"
+              }`}
+            >
+              {MONTHS[month]} {year}
+              <span className="material-symbols-outlined text-xs">expand_more</span>
+            </button>
+            {showPicker && (
+              <div className={`absolute top-full left-0 mt-2 z-50 rounded-2xl border shadow-2xl p-4 w-60 ${
+                isDark ? "bg-stone-950 border-stone-800" : "bg-white border-stone-100"
+              }`}>
+                <div className="flex items-center justify-between mb-3">
+                  <button onClick={() => setPickerYear(y => y - 1)} className={`p-1 rounded-lg ${isDark ? "text-stone-400 hover:text-white" : "text-stone-400 hover:text-stone-900"}`}>
+                    <span className="material-symbols-outlined text-sm">chevron_left</span>
+                  </button>
+                  <span className="text-sm font-black">{pickerYear}</span>
+                  <button onClick={() => setPickerYear(y => y + 1)} className={`p-1 rounded-lg ${isDark ? "text-stone-400 hover:text-white" : "text-stone-400 hover:text-stone-900"}`}>
+                    <span className="material-symbols-outlined text-sm">chevron_right</span>
+                  </button>
+                </div>
+                <div className="grid grid-cols-3 gap-1">
+                  {MONTHS_SHORT.map((m, idx) => (
+                    <button
+                      key={m}
+                      onClick={() => { onJumpToMonth(pickerYear, idx); setShowPicker(false); }}
+                      className={`py-2 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${
+                        idx === month && pickerYear === year
+                          ? accentBg
+                          : isDark
+                          ? "text-stone-400 hover:bg-stone-900 hover:text-white"
+                          : "text-stone-500 hover:bg-stone-50 hover:text-stone-900"
+                      }`}
+                    >
+                      {m}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+          <button onClick={onNextMonth} className={navBtn}>
+            <span className="material-symbols-outlined text-sm">chevron_right</span>
+          </button>
+        </div>
+        <span className={`text-[10px] font-black uppercase tracking-widest ${isDark ? "text-stone-500" : "text-stone-400"}`}>
+          {allUserBookings.filter(b => {
+            const d = new Date(b.date);
+            return d.getFullYear() === year && d.getMonth() === month;
+          }).length} sessions this month
+        </span>
+      </div>
+
+      {/* Day-of-week header */}
+      <div className="grid grid-cols-7 mb-2">
+        {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map(d => (
+          <div key={d} className={`text-center text-[9px] font-black uppercase tracking-widest py-2 ${isDark ? "text-stone-600" : "text-stone-400"}`}>
+            {d}
+          </div>
+        ))}
+      </div>
+
+      {/* Calendar grid */}
+      <div className="grid grid-cols-7 gap-1">
+        {cells.map(date => {
+          const isCurrentMonth = date.getMonth() === month;
+          const isToday = date.getTime() === today.getTime();
+          const isSelected = date.toDateString() === selectedDate.toDateString();
+          const dayBookings = bookingsByDate[date.toDateString()] || [];
+          const isPast = date < today && !isToday;
+
+          const cellBase = `min-h-[90px] rounded-2xl p-2 cursor-pointer transition-all group relative ${
+            isToday
+              ? accentBg + " shadow-lg"
+              : isSelected
+              ? isDark ? "bg-stone-800 ring-2 ring-stone-600" : "bg-stone-900 text-white ring-2 ring-stone-900"
+              : isCurrentMonth
+              ? isDark
+                ? "bg-stone-900/40 hover:bg-stone-900"
+                : "bg-stone-50 hover:bg-stone-100"
+              : isDark
+              ? "bg-stone-950/50 opacity-40"
+              : "opacity-30"
+          }`;
+
+          const dayNumCls = `text-[11px] font-black leading-none mb-1.5 ${
+            isToday || isSelected
+              ? "opacity-100"
+              : isPast
+              ? isDark ? "text-stone-600" : "text-stone-400"
+              : isDark ? "text-stone-300" : "text-stone-700"
+          }`;
+
+          return (
+            <div key={date.toISOString()} className={cellBase} onClick={() => onDayClick(date)}>
+              <span className={dayNumCls}>{date.getDate()}</span>
+
+              <div className="space-y-0.5">
+                {dayBookings.slice(0, 2).map((b: any, i: number) => {
+                  const bPast = new Date(b.date) < today;
+                  return (
+                    <div
+                      key={i}
+                      className={`rounded-lg px-1.5 py-0.5 flex items-center gap-1 overflow-hidden ${
+                        isToday || isSelected
+                          ? "bg-white/20"
+                          : bPast
+                          ? isDark ? "bg-stone-700/40" : "bg-stone-200/60"
+                          : isDark ? "bg-emerald-500/20" : "bg-emerald-50"
+                      }`}
+                    >
+                      <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${bPast ? "bg-stone-400" : "bg-emerald-500"}`} />
+                      <span className={`text-[7px] font-black truncate ${
+                        isToday || isSelected
+                          ? "text-white/80"
+                          : bPast
+                          ? isDark ? "text-stone-500" : "text-stone-400"
+                          : isDark ? "text-emerald-400" : "text-emerald-700"
+                      }`}>
+                        {b.time} {b.courtName}
+                      </span>
+                    </div>
+                  );
+                })}
+                {dayBookings.length > 2 && (
+                  <p className={`text-[7px] font-black pl-1 ${
+                    isToday || isSelected ? "text-white/60" : isDark ? "text-stone-600" : "text-stone-400"
+                  }`}>
+                    +{dayBookings.length - 2} more
+                  </p>
+                )}
+              </div>
+
+              {/* Hover hint */}
+              {isCurrentMonth && dayBookings.length === 0 && (
+                <div className="absolute inset-0 rounded-2xl flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                  <span className={`material-symbols-outlined text-lg opacity-20 ${isDark ? "text-white" : "text-stone-900"}`}>add</span>
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }
