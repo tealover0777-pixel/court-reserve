@@ -799,7 +799,14 @@ function CourtTab({ data, onSave, isSaving, theme, dimensions, tenantId }: any) 
   }, [tenantId]);
 
   useEffect(() => {
-    setCourts(Array.isArray(data?.courts) ? data.courts : []);
+    const rawCourts = Array.isArray(data?.courts) ? data.courts : [];
+    // Ensure all courts have default hours if missing
+    const initializedCourts = rawCourts.map((court: any) => ({
+      ...court,
+      available_from: court.available_from || court.availableFrom || "06:00",
+      available_to: court.available_to || court.availableTo || "23:00"
+    }));
+    setCourts(initializedCourts);
   }, [data]);
 
   const normalize = (value: string) => value.toLowerCase().replace(/[^a-z0-9]/g, "");
