@@ -11,7 +11,7 @@ const TIMES = Array.from({ length: 17 }, (_, i) => `${(i + 6).toString().padStar
 const timeToMinutes = (timeStr: string) => {
   if (!timeStr) return 0;
   const match = timeStr.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)?$/i);
-  if (!match) return 0;
+  if (!match || !match[1] || !match[2]) return 0;
   let h = parseInt(match[1], 10);
   const m = parseInt(match[2], 10);
   const period = match[3]?.toUpperCase();

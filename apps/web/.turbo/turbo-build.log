@@ -7,16 +7,25 @@
 
 [37m[1m [22m[39m Creating an optimized production build ...
 [32m[1m✓[22m[39m Compiled successfully in 2.9s
-[?25l[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[?25h[?25l[37m[1m [22m[39m Finished TypeScript in 2.7s  [36m.[39m[2K[1G[?25h[37m[1m [22m[39m Finished TypeScript in 2.7s    [32m[1m✓[22m[39m Finished TypeScript in 2.7s 
-[?25l[37m[1m [22m[39m Collecting page data using 5 workers  [36m.[39m[2K[1G[37m[1m [22m[39m Collecting page data using 5 workers  [36m..[39m[2K[1G[?25h[37m[1m [22m[39m Collecting page data using 5 workers in 266ms    [32m[1m✓[22m[39m Collecting page data using 5 workers in 266ms 
-[?25l[37m[1m [22m[39m Generating static pages using 5 workers (0/4)  [36m[    ][39m[2K[1G[37m[1m [22m[39m Generating static pages using 5 workers (0/4)  [36m[=   ][39m[2K[1G[?25h[32m[1m✓[22m[39m Generating static pages using 5 workers (4/4) in 398ms
-[?25l[37m[1m [22m[39m Finalizing page optimization  [36m.[39m[2K[1G[37m[1m [22m[39m Finalizing page optimization  [36m..[39m[2K[1G[37m[1m [22m[39m Finalizing page optimization  [36m...[39m[2K[1G[?25h[37m[1m [22m[39m Finalizing page optimization in 521ms    [32m[1m✓[22m[39m Finalizing page optimization in 521ms 
+[?25l[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[31mFailed to type check.
+[39m
+[36m./components/CourtBookingView.tsx[39m:[33m15[39m:[33m20[39m
+[31m[1mType error[22m[39m: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
 
-[4mRoute (app)[24m
-┌ ○ /
-└ ○ /_not-found
-
-
-○  (Static)  prerendered as static content
-
-[?25h⠙[1G[0K
+  [90m13 |[0m   [36mconst[0m match = timeStr.match([35m/^(\d{1,2}):(\d{2})\s*(AM|PM)?$/i[0m);
+  [90m14 |[0m   [36mif[0m (!match) [36mreturn[0m [35m0[0m;
+[31m[1m>[0m [90m15 |[0m   [36mlet[0m h = parseInt(match[[35m1[0m], [35m10[0m);
+  [90m   |[0m                    [31m[1m^[0m
+  [90m16 |[0m   [36mconst[0m m = parseInt(match[[35m2[0m], [35m10[0m);
+  [90m17 |[0m   [36mconst[0m period = match[[35m3[0m]?.toUpperCase();
+  [90m18 |[0m   [36mif[0m (period === [32m"PM"[0m && h !== [35m12[0m) h += [35m12[0m;
+[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[2K[1G[?25hNext.js build worker exited with code: 1 and signal: null
+[?25l [36m.[39m [?25h⠙[1G[0K[1mnpm[22m [31merror[39m Lifecycle script `build` failed with error:
+⠙[1G[0K[1mnpm[22m [31merror[39m [94mcode[39m [33m1[39m
+⠙[1G[0K[1mnpm[22m [31merror[39m [94mpath[39m /Users/kyuahn/Documents/AVG/court-reserve/apps/web
+⠙[1G[0K[1mnpm[22m [31merror[39m [94mworkspace[39m web@0.1.0
+⠙[1G[0K[1mnpm[22m [31merror[39m [94mlocation[39m /Users/kyuahn/Documents/AVG/court-reserve/apps/web
+⠙[1G[0K[1mnpm[22m [31merror[39m command failed
+⠙[1G[0K[1mnpm[22m [31merror[39m [94mcommand[39m sh -c next build
+⠙[1G[0K
