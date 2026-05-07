@@ -119,6 +119,7 @@ export default function SchedulesAdminView({ theme }: { theme: "LIGHT" | "DARK" 
   const columns = useMemo(() => [
     columnHelper.display({
       id: "select",
+      size: 40,
       header: ({ table }) => (
         <input
           type="checkbox"
@@ -182,6 +183,7 @@ export default function SchedulesAdminView({ theme }: { theme: "LIGHT" | "DARK" 
     }),
     columnHelper.display({
       id: "actions",
+      size: 100,
       header: "Actions",
       cell: (info) => (
         <div className="flex justify-end gap-2">
@@ -192,6 +194,18 @@ export default function SchedulesAdminView({ theme }: { theme: "LIGHT" | "DARK" 
             }`}
           >
             <span className="material-symbols-outlined text-lg">edit</span>
+          </button>
+          <button
+            onClick={async () => {
+              if (confirm("Are you sure you want to delete this reservation?")) {
+                await deleteDoc(doc(db, "bookings", info.row.original.id));
+              }
+            }}
+            className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all ${
+              isDark ? "bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white" : "bg-red-50 hover:bg-red-500 text-red-400 hover:text-white"
+            }`}
+          >
+            <span className="material-symbols-outlined text-lg">delete</span>
           </button>
         </div>
       ),
