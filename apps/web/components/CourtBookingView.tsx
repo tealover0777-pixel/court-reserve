@@ -67,9 +67,12 @@ const getSlotStatus = (court: any, timeStr: string, bookings: any[], selectedDat
   if (slotMinutes < fromMinutes || slotMinutes >= toMinutes) return "CLOSED";
 
   const dateStr = selectedDate.toDateString();
-  const isBooked = bookings.some(
-    (b) => b.courtId === (court.id || court.name) && b.date === dateStr && b.time === timeStr
-  );
+  const isBooked = bookings.some((b) => {
+    if (b.courtId !== (court.id || court.name) || b.date !== dateStr) return false;
+    const bStart = timeToMinutes(b.time);
+    const bEnd = bStart + (b.duration * 60);
+    return slotMinutes >= bStart && slotMinutes < bEnd;
+  });
   if (isBooked) return "SCHEDULED";
 
   return "AVAILABLE";
@@ -162,6 +165,24 @@ export default function CourtBookingView({ theme }: { theme: "LIGHT" | "DARK" | 
   const handleCreateBooking = async () => {
     if (!bookingModal || !tenantId || !user) return;
     setIsSubmitting(true);
+
+    // Final overlap check (in case duration was changed in modal)
+    const requestedStart = timeToMinutes(bookingModal.time);
+    const requestedEnd = requestedStart + (bookingModal.duration * 60);
+
+    const hasOverlap = bookings.some(b => {
+      if (b.courtId !== (bookingModal.court.id || bookingModal.court.name) || b.date !== selectedDate.toDateString()) return false;
+      const bStart = timeToMinutes(b.time);
+      const bEnd = bStart + (b.duration * 60);
+      return requestedStart < bEnd && requestedEnd > bStart;
+    });
+
+    if (hasOverlap) {
+      alert("This reservation overlaps with an existing schedule. Please adjust the duration or time.");
+      setIsSubmitting(false);
+      return;
+    }
+
     try {
       await addDoc(collection(db, "bookings"), {
         tenantId,
