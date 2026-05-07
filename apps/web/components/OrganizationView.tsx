@@ -831,8 +831,8 @@ function CourtTab({ data, onSave, isSaving, theme, dimensions, tenantId }: any) 
       name,
       condition: courtCondition,
       status: courtStatus,
-      available_from: courtStatus === "Available" ? availableFrom : null,
-      available_to: courtStatus === "Available" ? availableTo : null,
+      available_from: availableFrom || null,
+      available_to: availableTo || null,
       image_url: courtImageUrl,
 
       restrictions: restrictions.trim(),
@@ -981,26 +981,24 @@ function CourtTab({ data, onSave, isSaving, theme, dimensions, tenantId }: any) 
             </select>
           </FormField>
 
-          {courtStatus === "Available" && (
-            <div className="grid grid-cols-2 gap-4">
-              <FormField label="Available From" theme={theme}>
-                <input
-                  type="time"
-                  value={availableFrom}
-                  onChange={(e) => setAvailableFrom(e.target.value)}
-                  className={inputClasses}
-                />
-              </FormField>
-              <FormField label="Available To" theme={theme}>
-                <input
-                  type="time"
-                  value={availableTo}
-                  onChange={(e) => setAvailableTo(e.target.value)}
-                  className={inputClasses}
-                />
-              </FormField>
-            </div>
-          )}
+          <div className="grid grid-cols-2 gap-4">
+            <FormField label="Available From" theme={theme}>
+              <input
+                type="time"
+                value={availableFrom}
+                onChange={(e) => setAvailableFrom(e.target.value)}
+                className={inputClasses}
+              />
+            </FormField>
+            <FormField label="Available To" theme={theme}>
+              <input
+                type="time"
+                value={availableTo}
+                onChange={(e) => setAvailableTo(e.target.value)}
+                className={inputClasses}
+              />
+            </FormField>
+          </div>
 
 
           <FormField label={tenantId === "Global" ? "Default Court Photo" : "Court Photo"} theme={theme}>
@@ -1142,22 +1140,32 @@ function CourtTab({ data, onSave, isSaving, theme, dimensions, tenantId }: any) 
                       </div>
 
                       {/* Row 3: availability hours bar */}
-                      <div className={`flex items-center gap-2 px-3 py-2 rounded-xl ${isDark ? "bg-stone-800/60" : "bg-stone-50 border border-stone-100"}`}>
-                        <span className={`material-symbols-outlined text-base flex-shrink-0 ${isDark ? "text-stone-400" : "text-stone-400"}`}>schedule</span>
-                        <div className="flex items-center gap-1.5 min-w-0">
-                          <span className={`text-[10px] font-black uppercase tracking-widest flex-shrink-0 ${isDark ? "text-stone-500" : "text-stone-400"}`}>Hours</span>
-                          <span className={`text-[10px] font-black flex-shrink-0 ${isDark ? "text-stone-500" : "text-stone-300"}`}>·</span>
-                          <span className={`text-xs font-black tabular-nums ${hasHours ? (isDark ? "text-[#ccff00]" : "text-stone-800") : (isDark ? "text-stone-600" : "text-stone-300")}`}>
-                            {fromTime}
-                          </span>
-                          <span className={`material-symbols-outlined text-sm flex-shrink-0 ${isDark ? "text-stone-600" : "text-stone-300"}`}>arrow_forward</span>
-                          <span className={`text-xs font-black tabular-nums ${hasHours ? (isDark ? "text-[#ccff00]" : "text-stone-800") : (isDark ? "text-stone-600" : "text-stone-300")}`}>
-                            {toTime}
-                          </span>
+                      <div className={`flex flex-col gap-1.5 px-4 py-3 rounded-2xl ${isDark ? "bg-stone-800/40" : "bg-stone-50/50 border border-stone-100"}`}>
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <span className={`material-symbols-outlined text-[14px] ${isDark ? "text-[#ccff00]" : "text-stone-400"}`}>schedule</span>
+                            <span className={`text-[9px] font-black uppercase tracking-widest ${isDark ? "text-stone-500" : "text-stone-400"}`}>Operating Hours</span>
+                          </div>
+                          {!hasHours && (
+                            <span className={`text-[8px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full ${isDark ? "bg-stone-800 text-stone-600" : "bg-stone-200 text-stone-400"}`}>Not set</span>
+                          )}
                         </div>
-                        {!hasHours && (
-                          <span className={`ml-auto text-[9px] font-black uppercase tracking-widest ${isDark ? "text-stone-600" : "text-stone-300"}`}>Not set</span>
-                        )}
+                        
+                        <div className="flex items-center gap-4">
+                          <div className="flex-1">
+                            <p className={`text-[8px] font-black uppercase tracking-widest opacity-40 mb-0.5 ${isDark ? "text-white" : "text-stone-900"}`}>Available From</p>
+                            <p className={`text-[11px] font-black tabular-nums ${hasHours ? (isDark ? "text-[#ccff00]" : "text-stone-800") : (isDark ? "text-stone-600" : "text-stone-300")}`}>
+                              {fromTime}
+                            </p>
+                          </div>
+                          <div className={`w-[1px] h-6 ${isDark ? "bg-stone-700" : "bg-stone-200"}`} />
+                          <div className="flex-1">
+                            <p className={`text-[8px] font-black uppercase tracking-widest opacity-40 mb-0.5 ${isDark ? "text-white" : "text-stone-900"}`}>Available To</p>
+                            <p className={`text-[11px] font-black tabular-nums ${hasHours ? (isDark ? "text-[#ccff00]" : "text-stone-800") : (isDark ? "text-stone-600" : "text-stone-300")}`}>
+                              {toTime}
+                            </p>
+                          </div>
+                        </div>
                       </div>
 
                       {/* Row 4: restrictions (optional) */}
