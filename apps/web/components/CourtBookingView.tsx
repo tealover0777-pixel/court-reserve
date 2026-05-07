@@ -90,6 +90,7 @@ export default function CourtBookingView({ theme }: { theme: "LIGHT" | "DARK" | 
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [courts, setCourts] = useState<any[]>([]);
   const [bookings, setBookings] = useState<any[]>([]);
+  const [userBookings, setUserBookings] = useState<any[]>([]);
   const [bookingModal, setBookingModal] = useState<BookingModal | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -116,6 +117,34 @@ export default function CourtBookingView({ theme }: { theme: "LIGHT" | "DARK" | 
     });
     return () => unsub();
   }, [tenantId, selectedDate]);
+
+  useEffect(() => {
+    if (!tenantId || !user) return;
+    const q = query(
+      collection(db, "bookings"),
+      where("tenantId", "==", tenantId),
+      where("userId", "==", user.uid)
+    );
+    const unsub = onSnapshot(q, (snap) => {
+      const all = snap.docs.map((d) => ({ id: d.id, ...d.data() })) as any[];
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      const upcoming = all
+        .filter((b) => {
+          const bDate = new Date(b.date);
+          return bDate >= today;
+        })
+        .sort((a, b) => {
+          const dA = new Date(a.date).getTime();
+          const dB = new Date(b.date).getTime();
+          if (dA !== dB) return dA - dB;
+          return timeToMinutes(a.time) - timeToMinutes(b.time);
+        });
+      setUserBookings(upcoming);
+    });
+    return () => unsub();
+  }, [tenantId, user]);
 
   const weekDates = useMemo(() => {
     const start = new Date(baseDate);
@@ -198,14 +227,20 @@ export default function CourtBookingView({ theme }: { theme: "LIGHT" | "DARK" | 
         </p>
       </div>
 
-      <div className="transition-all duration-500">
-        {theme === "LIGHT" ? (
-          <KineticLemonSchedule {...scheduleProps} />
-        ) : theme === "DARK" ? (
-          <VintageNoirSchedule {...scheduleProps} />
-        ) : (
-          <VintagePureSchedule {...scheduleProps} />
-        )}
+      <div className="lg:grid lg:grid-cols-[1fr_320px] gap-10 items-start">
+        <div className="transition-all duration-500 min-w-0">
+          {theme === "LIGHT" ? (
+            <KineticLemonSchedule {...scheduleProps} />
+          ) : theme === "DARK" ? (
+            <VintageNoirSchedule {...scheduleProps} />
+          ) : (
+            <VintagePureSchedule {...scheduleProps} />
+          )}
+        </div>
+
+        <aside className="mt-10 lg:mt-0">
+          <UpcomingSection bookings={userBookings} theme={theme} />
+        </aside>
       </div>
 
       <Modal
@@ -816,6 +851,100 @@ function VintageNoirSchedule(props: any) {
         borderColor="border-stone-800"
         rowBorder="border-stone-900"
       />
+    </div>
+  );
+}
+
+// ─── Upcoming Section ────────────────────────────────────────────────────────
+function UpcomingSection({ bookings, theme }: { bookings: any[]; theme: string }) {
+  const isDark = theme === "DARK";
+  const today = new Date();
+  today.setHours(0,0,0,0);
+
+  return (
+    <div className={`p-8 rounded-[2rem] border animate-in fade-in slide-in-from-right-4 duration-1000 ${
+      isDark ? "bg-stone-950 border-stone-800" : "bg-white border-stone-100 shadow-sm"
+    }`}>
+      <div className="flex items-center justify-between mb-8">
+        <h4 className={`text-xs font-black uppercase tracking-[0.2em] ${isDark ? "text-white" : "text-stone-900"}`}>
+          Upcoming Schedule
+        </h4>
+        <span className={`px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-widest ${
+          isDark ? "bg-stone-800 text-stone-400" : "bg-stone-50 text-stone-400"
+        }`}>
+          {bookings.length}
+        </span>
+      </div>
+
+      <div className="space-y-4">
+        {bookings.length === 0 ? (
+          <div className="py-12 flex flex-col items-center justify-center text-center">
+            <span className={`material-symbols-outlined text-3xl mb-3 opacity-10 ${isDark ? "text-white" : "text-stone-900"}`}>
+              event_busy
+            </span>
+            <p className={`text-[9px] font-black uppercase tracking-widest opacity-30 ${isDark ? "text-white" : "text-stone-900"}`}>
+              No upcoming sessions
+            </p>
+          </div>
+        ) : (
+          bookings.slice(0, 8).map((booking, idx) => {
+            const bDate = new Date(booking.date);
+            const isToday = bDate.getTime() === today.getTime();
+            const isTomorrow = bDate.getTime() === (today.getTime() + 86400000);
+
+            let dateLabel = bDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+            if (isToday) dateLabel = "Today";
+            else if (isTomorrow) dateLabel = "Tomorrow";
+
+            return (
+              <div
+                key={booking.id}
+                className={`group relative p-4 rounded-2xl border transition-all hover:scale-[1.02] ${
+                  isDark
+                    ? "bg-stone-900/40 border-stone-800 hover:border-[#00E5FF]/50"
+                    : "bg-stone-50 border-stone-100 hover:border-stone-300"
+                }`}
+                style={{ animationDelay: `${idx * 100}ms` }}
+              >
+                <div className="flex justify-between items-start mb-2">
+                  <span className={`text-[8px] font-black uppercase tracking-widest ${
+                    isDark ? "text-stone-500" : "text-stone-400"
+                  }`}>
+                    {dateLabel} · {booking.time}
+                  </span>
+                  <div className={`w-1.5 h-1.5 rounded-full ${
+                    theme === "LIGHT" ? "bg-[#ccff00]" : theme === "DARK" ? "bg-[#00E5FF]" : "bg-stone-900"
+                  }`} />
+                </div>
+                <p className={`text-sm font-black tracking-tight mb-0.5 ${isDark ? "text-white" : "text-stone-900"}`}>
+                  {booking.courtName}
+                </p>
+                <div className="flex items-center gap-2">
+                  <span className={`text-[9px] font-bold ${isDark ? "text-stone-600" : "text-stone-400"}`}>
+                    {booking.duration} hr session
+                  </span>
+                  {booking.playerCount > 1 && (
+                    <>
+                      <span className={`w-1 h-1 rounded-full ${isDark ? "bg-stone-800" : "bg-stone-200"}`} />
+                      <span className={`text-[9px] font-bold ${isDark ? "text-stone-600" : "text-stone-400"}`}>
+                        {booking.playerCount} players
+                      </span>
+                    </>
+                  )}
+                </div>
+              </div>
+            );
+          })
+        )}
+
+        {bookings.length > 8 && (
+          <p className={`text-[8px] font-black uppercase tracking-widest text-center mt-6 opacity-40 ${
+            isDark ? "text-white" : "text-stone-900"
+          }`}>
+            + {bookings.length - 8} more bookings
+          </p>
+        )}
+      </div>
     </div>
   );
 }
