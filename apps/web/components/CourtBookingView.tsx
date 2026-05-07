@@ -561,9 +561,20 @@ function ScheduleNavigation({
   );
 }
 
+// ─── Helpers ─────────────────────────────────────────────────────────────────
+
+const getInitials = (name: string): string => {
+  if (!name) return "?";
+  // Email address — use first letter before @
+  if (name.includes("@")) return name[0]!.toUpperCase();
+  const parts = name.trim().split(/\s+/);
+  if (parts.length === 1) return parts[0]![0]!.toUpperCase();
+  return (parts[0]![0]! + parts[parts.length - 1]![0]!).toUpperCase();
+};
+
 // ─── Slot Cell ───────────────────────────────────────────────────────────────
 
-function SlotCell({ status, theme }: { status: SlotStatus; theme: string }) {
+function SlotCell({ status, theme, booking }: { status: SlotStatus; theme: string; booking?: any }) {
   const isDark = theme === "DARK";
 
   if (status === "NOT_AVAILABLE") {
@@ -598,9 +609,30 @@ function SlotCell({ status, theme }: { status: SlotStatus; theme: string }) {
   }
 
   if (status === "SCHEDULED") {
+    const initials = getInitials(booking?.userName || "");
+    const displayName = booking?.userName || "Booked";
+    const endTime = booking?.endTime || "";
+    const players = booking?.playerCount || 1;
     return (
-      <div className="absolute inset-0 m-0.5 rounded-xl border-l-[3px] border-emerald-500 bg-emerald-500/15 flex items-center justify-center">
-        <span className="text-[8px] font-black uppercase tracking-widest text-emerald-600">Scheduled</span>
+      <div className="absolute inset-0 m-0.5 rounded-xl border-l-[3px] border-emerald-500 bg-emerald-500/15 flex items-center gap-2 px-2 overflow-hidden">
+        {/* Avatar */}
+        <div className="w-7 h-7 rounded-full bg-emerald-500 flex items-center justify-center flex-shrink-0">
+          <span className="text-[9px] font-black text-white leading-none">{initials}</span>
+        </div>
+        {/* Info */}
+        <div className="flex-1 min-w-0">
+          <p className="text-[9px] font-black text-emerald-700 truncate leading-tight">{displayName}</p>
+          {endTime && (
+            <p className="text-[7px] font-bold text-emerald-600/70 leading-tight mt-0.5">
+              until {endTime}
+            </p>
+          )}
+          {players > 1 && (
+            <p className="text-[7px] font-bold text-emerald-600/70 leading-tight">
+              {players} players
+            </p>
+          )}
+        </div>
       </div>
     );
   }
@@ -713,13 +745,21 @@ function ScheduleGrid({ courts, bookings, selectedDate, theme, onSlotClick, time
             </div>
             {times.map((t: string) => {
               const status = getSlotStatus(court, t, bookings, selectedDate);
+              const booking = status === "SCHEDULED"
+                ? bookings.find(
+                    (b: any) =>
+                      b.courtId === (court.id || court.name) &&
+                      b.date === selectedDate.toDateString() &&
+                      b.time === t
+                  )
+                : undefined;
               return (
                 <div
                   key={t}
                   onClick={() => onSlotClick(court, t)}
                   className={`h-20 border-b ${rowBorder} group relative ${status === "AVAILABLE" ? "cursor-pointer" : "cursor-default"}`}
                 >
-                  <SlotCell status={status} theme={theme} />
+                  <SlotCell status={status} theme={theme} booking={booking} />
                 </div>
               );
             })}
