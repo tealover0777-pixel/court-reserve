@@ -732,6 +732,36 @@ function PaymentTab({ data, onSave, isSaving, theme }: any) {
   );
 }
 
+function toTimeInputValue(value: string | null | undefined): string {
+  if (!value) return "";
+  // Already HH:MM format
+  if (/^\d{2}:\d{2}$/.test(value)) return value;
+  // Convert "6:00 AM" / "11:00 PM" → "HH:MM"
+  const m = value.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
+  if (!m || !m[1] || !m[2] || !m[3]) return "";
+  let h = parseInt(m[1], 10);
+  const min = m[2];
+  const period = m[3].toUpperCase();
+  if (period === "AM" && h === 12) h = 0;
+  if (period === "PM" && h !== 12) h += 12;
+  return `${String(h).padStart(2, "0")}:${min}`;
+}
+
+function toDisplayTime(value: string | null | undefined): string {
+  if (!value) return "—";
+  // "HH:MM" → "H:MM AM/PM"
+  if (/^\d{2}:\d{2}$/.test(value)) {
+    let h = parseInt(value.slice(0, 2), 10);
+    const min = value.slice(3);
+    const period = h >= 12 ? "PM" : "AM";
+    if (h === 0) h = 12;
+    else if (h > 12) h -= 12;
+    return `${h}:${min} ${period}`;
+  }
+  // Already a display string ("6:00 AM") — return as-is
+  return value;
+}
+
 function CourtTab({ data, onSave, isSaving, theme, dimensions, tenantId }: any) {
   const isDark = theme === "DARK";
   const [courts, setCourts] = useState<any[]>([]);
@@ -742,8 +772,8 @@ function CourtTab({ data, onSave, isSaving, theme, dimensions, tenantId }: any) 
   const [editingCourtId, setEditingCourtId] = useState<string | null>(null);
   const [courtImageUrl, setCourtImageUrl] = useState("");
   const [courtStatus, setCourtStatus] = useState("Available");
-  const [availableFrom, setAvailableFrom] = useState("06:00 AM");
-  const [availableTo, setAvailableTo] = useState("11:00 PM");
+  const [availableFrom, setAvailableFrom] = useState("06:00");
+  const [availableTo, setAvailableTo] = useState("23:00");
 
   const [isUploading, setIsUploading] = useState(false);
   const [isDraggingPhoto, setIsDraggingPhoto] = useState(false);
@@ -786,8 +816,8 @@ function CourtTab({ data, onSave, isSaving, theme, dimensions, tenantId }: any) 
     setCourtImageUrl("");
     setRestrictions("");
     setCourtStatus("Available");
-    setAvailableFrom("06:00 AM");
-    setAvailableTo("11:00 PM");
+    setAvailableFrom("06:00");
+    setAvailableTo("23:00");
     setEditingCourtId(null);
 
   };
@@ -824,8 +854,8 @@ function CourtTab({ data, onSave, isSaving, theme, dimensions, tenantId }: any) 
     setCourtImageUrl(court.image_url || "");
     setRestrictions(court.restrictions || "");
     setCourtStatus(court.status || "Available");
-    setAvailableFrom(court.available_from || "06:00 AM");
-    setAvailableTo(court.available_to || "11:00 PM");
+    setAvailableFrom(toTimeInputValue(court.available_from) || "06:00");
+    setAvailableTo(toTimeInputValue(court.available_to) || "23:00");
 
   };
 
@@ -955,20 +985,18 @@ function CourtTab({ data, onSave, isSaving, theme, dimensions, tenantId }: any) 
             <div className="grid grid-cols-2 gap-4">
               <FormField label="Available From" theme={theme}>
                 <input
-                  type="text"
+                  type="time"
                   value={availableFrom}
                   onChange={(e) => setAvailableFrom(e.target.value)}
                   className={inputClasses}
-                  placeholder="e.g. 06:00 AM"
                 />
               </FormField>
               <FormField label="Available To" theme={theme}>
                 <input
-                  type="text"
+                  type="time"
                   value={availableTo}
                   onChange={(e) => setAvailableTo(e.target.value)}
                   className={inputClasses}
-                  placeholder="e.g. 11:00 PM"
                 />
               </FormField>
             </div>
@@ -1064,8 +1092,8 @@ function CourtTab({ data, onSave, isSaving, theme, dimensions, tenantId }: any) 
             )}
             {courts.map((court) => {
               const hasHours = court.available_from || court.available_to;
-              const fromTime = court.available_from || "—";
-              const toTime = court.available_to || "—";
+              const fromTime = toDisplayTime(court.available_from);
+              const toTime = toDisplayTime(court.available_to);
               const isAvailable = (court.status || "Available") === "Available";
 
               return (
