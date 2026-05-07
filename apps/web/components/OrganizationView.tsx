@@ -1062,61 +1062,88 @@ function CourtTab({ data, onSave, isSaving, theme, dimensions, tenantId }: any) 
                 No courts registered yet
               </div>
             )}
-            {courts.map((court) => (
-              <div key={court.id} className={`p-6 rounded-2xl border transition-all ${isDark ? "bg-stone-900 border-stone-800 hover:border-stone-700" : "bg-stone-50 border-stone-100 hover:border-stone-200"}`}>
-                <div className="flex flex-col sm:flex-row gap-6 items-start">
-                  {court.image_url && (
-                    <div className="w-full sm:w-24 h-24 rounded-xl overflow-hidden flex-shrink-0 bg-stone-800">
-                      <img src={court.image_url} alt={court.name} className="w-full h-full object-cover" />
-                    </div>
-                  )}
-                  <div className="flex-1 flex justify-between items-start w-full">
-                    <div className="space-y-2">
-                      <p className={`text-sm font-black tracking-tight ${isDark ? "text-white" : "text-stone-900"}`}>{court.name}</p>
+            {courts.map((court) => {
+              const hasHours = court.available_from || court.available_to;
+              const fromTime = court.available_from || "—";
+              const toTime = court.available_to || "—";
+              const isAvailable = (court.status || "Available") === "Available";
+
+              return (
+                <div key={court.id} className={`rounded-2xl border transition-all overflow-hidden ${isDark ? "bg-stone-900 border-stone-800 hover:border-stone-700" : "bg-white border-stone-150 hover:border-stone-300 shadow-sm hover:shadow-md"}`}>
+                  <div className="flex gap-0 items-stretch">
+                    {/* Court photo strip */}
+                    {court.image_url ? (
+                      <div className="w-24 flex-shrink-0">
+                        <img src={court.image_url} alt={court.name} className="w-full h-full object-cover" />
+                      </div>
+                    ) : (
+                      <div className={`w-24 flex-shrink-0 flex items-center justify-center ${isDark ? "bg-stone-800" : "bg-stone-100"}`}>
+                        <span className={`material-symbols-outlined text-3xl ${isDark ? "text-stone-600" : "text-stone-300"}`}>sports_tennis</span>
+                      </div>
+                    )}
+
+                    {/* Card body */}
+                    <div className="flex-1 px-5 py-4 flex flex-col gap-3 min-w-0">
+                      {/* Row 1: name + actions */}
+                      <div className="flex items-center justify-between gap-2">
+                        <p className={`text-sm font-black tracking-tight leading-tight ${isDark ? "text-white" : "text-stone-900"}`}>{court.name}</p>
+                        <div className="flex items-center gap-1 flex-shrink-0">
+                          <button
+                            onClick={() => handleEditCourt(court)}
+                            className={`p-1.5 rounded-lg transition-colors ${isDark ? "text-stone-400 hover:text-white hover:bg-stone-800" : "text-stone-400 hover:text-stone-900 hover:bg-stone-100"}`}
+                          >
+                            <span className="material-symbols-outlined text-base">edit</span>
+                          </button>
+                          <button
+                            onClick={() => handleDeleteCourt(court.id)}
+                            className={`p-1.5 rounded-lg transition-colors ${isDark ? "text-red-500 hover:bg-red-500/10" : "text-red-400 hover:bg-red-50"}`}
+                          >
+                            <span className="material-symbols-outlined text-base">delete</span>
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Row 2: condition badge + status badge */}
                       <div className="flex flex-wrap gap-2">
-                        <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${isDark ? "bg-stone-800 text-stone-300" : "bg-white text-stone-700 border border-stone-200"}`}>
+                        <span className={`px-2.5 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${isDark ? "bg-stone-800 text-stone-300" : "bg-stone-100 text-stone-600"}`}>
                           {court.condition}
                         </span>
-                        <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${court.status === "Available" ? (isDark ? "bg-[#ccff00]/10 text-[#ccff00]" : "bg-green-50 text-green-700 border border-green-100") : (isDark ? "bg-red-500/10 text-red-500" : "bg-red-50 text-red-700 border border-red-100")}`}>
+                        <span className={`px-2.5 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${isAvailable ? (isDark ? "bg-[#ccff00]/10 text-[#ccff00] border border-[#ccff00]/20" : "bg-green-50 text-green-700 border border-green-200") : (isDark ? "bg-red-500/10 text-red-400 border border-red-500/20" : "bg-red-50 text-red-700 border border-red-200")}`}>
                           {court.status || "Available"}
                         </span>
                       </div>
-                      <div className="flex flex-col gap-1">
-                        {court.available_from && (
-                          <div className="flex items-center gap-2">
-                            <span className={`text-[8px] font-black uppercase tracking-widest opacity-40 ${isDark ? "text-white" : "text-stone-900"}`}>Available From:</span>
-                            <span className={`text-[10px] font-bold ${isDark ? "text-stone-300" : "text-stone-700"}`}>{court.available_from}</span>
-                          </div>
-                        )}
-                        {court.available_to && (
-                          <div className="flex items-center gap-2">
-                            <span className={`text-[8px] font-black uppercase tracking-widest opacity-40 ${isDark ? "text-white" : "text-stone-900"}`}>Available To:</span>
-                            <span className={`text-[10px] font-bold ${isDark ? "text-stone-300" : "text-stone-700"}`}>{court.available_to}</span>
-                          </div>
+
+                      {/* Row 3: availability hours bar */}
+                      <div className={`flex items-center gap-2 px-3 py-2 rounded-xl ${isDark ? "bg-stone-800/60" : "bg-stone-50 border border-stone-100"}`}>
+                        <span className={`material-symbols-outlined text-base flex-shrink-0 ${isDark ? "text-stone-400" : "text-stone-400"}`}>schedule</span>
+                        <div className="flex items-center gap-1.5 min-w-0">
+                          <span className={`text-[10px] font-black uppercase tracking-widest flex-shrink-0 ${isDark ? "text-stone-500" : "text-stone-400"}`}>Hours</span>
+                          <span className={`text-[10px] font-black flex-shrink-0 ${isDark ? "text-stone-500" : "text-stone-300"}`}>·</span>
+                          <span className={`text-xs font-black tabular-nums ${hasHours ? (isDark ? "text-[#ccff00]" : "text-stone-800") : (isDark ? "text-stone-600" : "text-stone-300")}`}>
+                            {fromTime}
+                          </span>
+                          <span className={`material-symbols-outlined text-sm flex-shrink-0 ${isDark ? "text-stone-600" : "text-stone-300"}`}>arrow_forward</span>
+                          <span className={`text-xs font-black tabular-nums ${hasHours ? (isDark ? "text-[#ccff00]" : "text-stone-800") : (isDark ? "text-stone-600" : "text-stone-300")}`}>
+                            {toTime}
+                          </span>
+                        </div>
+                        {!hasHours && (
+                          <span className={`ml-auto text-[9px] font-black uppercase tracking-widest ${isDark ? "text-stone-600" : "text-stone-300"}`}>Not set</span>
                         )}
                       </div>
+
+                      {/* Row 4: restrictions (optional) */}
                       {court.restrictions && (
-                        <p className={`text-[10px] font-bold tracking-tight ${isDark ? "text-stone-400" : "text-stone-500"}`}>{court.restrictions}</p>
+                        <div className="flex items-start gap-1.5">
+                          <span className={`material-symbols-outlined text-sm flex-shrink-0 mt-px ${isDark ? "text-stone-500" : "text-stone-400"}`}>info</span>
+                          <p className={`text-[10px] font-bold leading-tight ${isDark ? "text-stone-400" : "text-stone-500"}`}>{court.restrictions}</p>
+                        </div>
                       )}
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <button
-                        onClick={() => handleEditCourt(court)}
-                        className={`p-2 rounded-xl ${isDark ? "text-stone-400 hover:text-white hover:bg-stone-800" : "text-stone-500 hover:text-stone-900 hover:bg-white"}`}
-                      >
-                        <span className="material-symbols-outlined text-base">edit</span>
-                      </button>
-                      <button
-                        onClick={() => handleDeleteCourt(court.id)}
-                        className="p-2 rounded-xl text-red-500 hover:bg-red-50"
-                      >
-                        <span className="material-symbols-outlined text-base">delete</span>
-                      </button>
                     </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </div>
