@@ -6,19 +6,20 @@
 [1m[38;2;173;127;168m▲ Next.js 16.2.0[39m[22m (Turbopack)
 
 [37m[1m [22m[39m Creating an optimized production build ...
-[32m[1m✓[22m[39m Compiled successfully in 2.9s
+[32m[1m✓[22m[39m Compiled successfully in 2.7s
 [?25l[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[31mFailed to type check.
 [39m
-[36m./components/OrganizationView.tsx[39m:[33m741[39m:[33m15[39m
-[31m[1mType error[22m[39m: 'h' is possibly 'undefined'.
+[36m./components/OrganizationView.tsx[39m:[33m748[39m:[33m20[39m
+[31m[1mType error[22m[39m: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
 
-  [90m739 |[0m   [36mif[0m ([35m/^\d{1,2}:\d{2}$/[0m.test(str)) {
-  [90m740 |[0m     [36mconst[0m [h, m] = str.split([32m":"[0m);
-[31m[1m>[0m [90m741 |[0m     [36mreturn[0m [32m`[0m${h.padStart([35m2[0m, [32m"0"[0m)[32m}:[0m${m[32m}`[0m;
-  [90m    |[0m               [31m[1m^[0m
-  [90m742 |[0m   }
-  [90m743 |[0m   [90m// Convert "6:00 AM" / "11:00 PM" → "HH:MM"[0m
-  [90m744 |[0m   [36mconst[0m m = str.match([35m/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i[0m);
+  [90m746 |[0m   [36mconst[0m m = str.match([35m/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i[0m);
+  [90m747 |[0m   [36mif[0m (!m) [36mreturn[0m [32m""[0m;
+[31m[1m>[0m [90m748 |[0m   [36mlet[0m h = parseInt(m[[35m1[0m], [35m10[0m);
+  [90m    |[0m                    [31m[1m^[0m
+  [90m749 |[0m   [36mconst[0m min = m[[35m2[0m];
+  [90m750 |[0m   [36mconst[0m period = m[[35m3[0m].toUpperCase();
+  [90m751 |[0m   [36mif[0m (period === [32m"AM"[0m && h === [35m12[0m) h = [35m0[0m;
 [2K[1G[?25hNext.js build worker exited with code: 1 and signal: null
 [?25l [36m.[39m [?25h⠙[1G[0K[1mnpm[22m [31merror[39m Lifecycle script `build` failed with error:
 ⠙[1G[0K[1mnpm[22m [31merror[39m [94mcode[39m [33m1[39m
