@@ -1078,7 +1078,7 @@ function BookingDetails({ booking, theme, user, onClose, times, allBookings, cou
     const requestedStart = timeToMinutes(editTime);
     const requestedEnd = requestedStart + (editDuration * 60);
 
-    const hasOverlap = allBookings.some(b => {
+    const hasOverlap = allBookings.some((b: any) => {
       if (b.id === booking.id) return false; // Skip current booking
       if (b.courtId !== editCourtId || b.date !== new Date(editDate).toDateString()) return false;
       const bStart = timeToMinutes(b.time);
@@ -1093,7 +1093,7 @@ function BookingDetails({ booking, theme, user, onClose, times, allBookings, cou
     }
 
     try {
-      const selectedCourt = courts.find(c => (c.id || c.name) === editCourtId);
+      const selectedCourt = courts.find((c: any) => (c.id || c.name) === editCourtId);
       await updateDoc(doc(db, "bookings", booking.id), {
         date: new Date(editDate).toDateString(),
         time: editTime,

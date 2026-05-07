@@ -262,7 +262,7 @@ function AdminBookingEdit({ booking, courts, theme, onClose }: any) {
   const handleSave = async () => {
     setIsSubmitting(true);
     try {
-      const selectedCourt = courts.find(c => (c.id || c.name) === editCourtId);
+      const selectedCourt = courts.find((c: any) => (c.id || c.name) === editCourtId);
       await updateDoc(doc(db, "bookings", booking.id), {
         date: new Date(editDate).toDateString(),
         time: editTime,
