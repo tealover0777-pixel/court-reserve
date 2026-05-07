@@ -165,7 +165,7 @@ export default function CourtBookingView({ theme }: { theme: "LIGHT" | "DARK" | 
     const now = new Date();
     const bDate = new Date(bookingDateStr);
     const [h, m] = timeStr.split(':').map(Number);
-    bDate.setHours(h, m, 0, 0);
+    bDate.setHours(h || 0, m || 0, 0, 0);
     return now > bDate;
   };
 
@@ -768,7 +768,7 @@ function SlotCell({ status, theme, booking, user, onDragStart }: { status: SlotS
     const now = new Date();
     const bDate = new Date(booking.date);
     const [h, m] = booking.time.split(':').map(Number);
-    bDate.setHours(h, m, 0, 0);
+    bDate.setHours(h || 0, m || 0, 0, 0);
     const isPast = now > bDate;
 
     return (
