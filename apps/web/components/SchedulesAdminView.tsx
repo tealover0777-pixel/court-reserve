@@ -183,11 +183,12 @@ export default function SchedulesAdminView({ theme }: { theme: "LIGHT" | "DARK" 
         <div className="flex items-center gap-3">
           <button
             onClick={() => setShowSettings(true)}
-            className={`w-10 h-10 rounded-2xl flex items-center justify-center border transition-all ${
+            className={`px-4 h-10 rounded-2xl flex items-center gap-2 border transition-all ${
               isDark ? "border-stone-800 bg-stone-900 text-stone-400 hover:text-white" : "border-stone-200 bg-stone-50 text-stone-500 hover:text-stone-900 shadow-sm"
             }`}
           >
             <span className="material-symbols-outlined text-lg">settings</span>
+            <span className="text-[10px] font-black uppercase tracking-widest">Schedule Policy</span>
           </button>
           <div className={`px-4 py-2 rounded-2xl border text-[10px] font-black uppercase tracking-widest ${isDark ? "border-stone-800 bg-stone-900 text-stone-500" : "border-stone-200 bg-stone-50 text-stone-400"}`}>
             {bookings.length} Total Bookings
