@@ -1168,7 +1168,7 @@ function BookingDetails({ booking, theme, user, onClose, times, allBookings, cou
                   onChange={(e) => setEditCourtId(e.target.value)}
                   className={inputCls}
                 >
-                  {courts.map(c => (
+                  {courts.map((c: any) => (
                     <option key={c.id || c.name} value={c.id || c.name}>{c.name}</option>
                   ))}
                 </select>

@@ -6,7 +6,7 @@
 [1m[38;2;173;127;168m▲ Next.js 16.2.0[39m[22m (Turbopack)
 
 [37m[1m [22m[39m Creating an optimized production build ...
-[32m[1m✓[22m[39m Compiled successfully in 3.0s
+[32m[1m✓[22m[39m Compiled successfully in 2.9s
 [?25l[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[31mFailed to type check.
 [39m
 [36m./components/SchedulesAdminView.tsx[39m:[33m295[39m:[33m25[39m
@@ -19,7 +19,7 @@
   [90m296 |[0m               <option key={c.id || c.name} value={c.id || c.name}>{c.name}</option>
   [90m297 |[0m             ))}
   [90m298 |[0m           </select>
-[2K[1G[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[?25hNext.js build worker exited with code: 1 and signal: null
+[2K[1G[?25hNext.js build worker exited with code: 1 and signal: null
 [?25l [36m.[39m [?25h⠙[1G[0K[1mnpm[22m [31merror[39m Lifecycle script `build` failed with error:
 ⠙[1G[0K[1mnpm[22m [31merror[39m [94mcode[39m [33m1[39m
 ⠙[1G[0K[1mnpm[22m [31merror[39m [94mpath[39m /Users/kyuahn/Documents/AVG/court-reserve/apps/web

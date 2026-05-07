@@ -182,9 +182,9 @@ export default function SchedulesAdminView({ theme }: { theme: "LIGHT" | "DARK" 
       <div className={`border rounded-[2rem] overflow-hidden ${borderColor}`}>
         <table className="w-full text-left border-collapse">
           <thead className={headerBg}>
-            {table.getHeaderGroups().map(headerGroup => (
+            {table.getHeaderGroups().map((headerGroup: any) => (
               <tr key={headerGroup.id}>
-                {headerGroup.headers.map(header => (
+                {headerGroup.headers.map((header: any) => (
                   <th 
                     key={header.id} 
                     className={`px-6 py-4 text-[10px] font-black uppercase tracking-widest ${isDark ? "text-stone-500" : "text-stone-400"}`}
@@ -196,12 +196,12 @@ export default function SchedulesAdminView({ theme }: { theme: "LIGHT" | "DARK" 
             ))}
           </thead>
           <tbody className={isDark ? "bg-black" : "bg-white"}>
-            {table.getRowModel().rows.map(row => (
+            {table.getRowModel().rows.map((row: any) => (
               <tr 
                 key={row.id} 
                 className={`border-t transition-all ${borderColor} ${isDark ? "hover:bg-stone-900/50" : "hover:bg-stone-50/50"}`}
               >
-                {row.getVisibleCells().map(cell => (
+                {row.getVisibleCells().map((cell: any) => (
                   <td key={cell.id} className="px-6 py-5 text-sm font-medium">
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </td>
@@ -292,7 +292,7 @@ function AdminBookingEdit({ booking, courts, theme, onClose }: any) {
         <div>
           <label className={labelCls}>Court</label>
           <select value={editCourtId} onChange={(e) => setEditCourtId(e.target.value)} className={inputCls}>
-            {courts.map(c => (
+            {courts.map((c: any) => (
               <option key={c.id || c.name} value={c.id || c.name}>{c.name}</option>
             ))}
           </select>
@@ -312,7 +312,7 @@ function AdminBookingEdit({ booking, courts, theme, onClose }: any) {
         <div>
           <label className={labelCls}>Start Time</label>
           <select value={editTime} onChange={(e) => setEditTime(e.target.value)} className={inputCls}>
-            {availableTimes.map(t => <option key={t} value={t}>{t}</option>)}
+            {availableTimes.map((t: string) => <option key={t} value={t}>{t}</option>)}
           </select>
         </div>
         <div>
