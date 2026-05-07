@@ -58,6 +58,7 @@ export default function SchedulesAdminView({ theme }: { theme: "LIGHT" | "DARK" 
   const [editingBooking, setEditingBooking] = useState<any | null>(null);
   const [showSettings, setShowSettings] = useState(false);
   const [tenantConfig, setTenantConfig] = useState<any>(null);
+  const [hidePast, setHidePast] = useState(false);
 
   const isDark = theme === "DARK";
 
@@ -159,8 +160,18 @@ export default function SchedulesAdminView({ theme }: { theme: "LIGHT" | "DARK" 
     }),
   ], [isDark, columnHelper]);
 
+  const filteredBookings = useMemo(() => {
+    if (!hidePast) return bookings;
+    const now = new Date();
+    now.setHours(0, 0, 0, 0);
+    return bookings.filter(b => {
+      const bDate = new Date(b.date);
+      return bDate >= now;
+    });
+  }, [bookings, hidePast]);
+
   const table = useReactTable({
-    data: bookings,
+    data: filteredBookings,
     columns,
     state: { sorting },
     onSortingChange: setSorting,
@@ -182,6 +193,18 @@ export default function SchedulesAdminView({ theme }: { theme: "LIGHT" | "DARK" 
         </div>
         <div className="flex items-center gap-3">
           <button
+            onClick={() => setHidePast(!hidePast)}
+            className={`px-4 h-10 rounded-2xl flex items-center gap-2 border transition-all ${
+              hidePast 
+                ? (isDark ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-500" : "bg-emerald-50 border-emerald-100 text-emerald-600")
+                : (isDark ? "border-stone-800 bg-stone-900 text-stone-400 hover:text-white" : "border-stone-200 bg-stone-50 text-stone-500 hover:text-stone-900 shadow-sm")
+            }`}
+          >
+            <span className="material-symbols-outlined text-lg">{hidePast ? "visibility_off" : "visibility"}</span>
+            <span className="text-[10px] font-black uppercase tracking-widest">{hidePast ? "Past Hidden" : "Hide Past"}</span>
+          </button>
+
+          <button
             onClick={() => setShowSettings(true)}
             className={`px-4 h-10 rounded-2xl flex items-center gap-2 border transition-all ${
               isDark ? "border-stone-800 bg-stone-900 text-stone-400 hover:text-white" : "border-stone-200 bg-stone-50 text-stone-500 hover:text-stone-900 shadow-sm"
@@ -191,7 +214,7 @@ export default function SchedulesAdminView({ theme }: { theme: "LIGHT" | "DARK" 
             <span className="text-[10px] font-black uppercase tracking-widest">Schedule Policy</span>
           </button>
           <div className={`px-4 py-2 rounded-2xl border text-[10px] font-black uppercase tracking-widest ${isDark ? "border-stone-800 bg-stone-900 text-stone-500" : "border-stone-200 bg-stone-50 text-stone-400"}`}>
-            {bookings.length} Total Bookings
+            {filteredBookings.length} {hidePast ? "Upcoming" : "Total"} Bookings
           </div>
         </div>
       </div>
