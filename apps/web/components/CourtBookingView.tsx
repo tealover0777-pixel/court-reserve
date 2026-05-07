@@ -776,7 +776,7 @@ function SlotCell({ status, theme, booking, user, onDragStart }: { status: SlotS
         draggable={isOwner && !isPast}
         onDragStart={(e) => {
           e.stopPropagation();
-          onDragStart(e);
+          onDragStart?.(e);
         }}
         className={`absolute inset-0 m-0.5 rounded-xl border-l-[4px] border-emerald-500 bg-emerald-500/15 flex flex-col justify-center gap-1 px-3 overflow-hidden z-20 shadow-sm transition-all ${isOwner && !isPast ? "cursor-grab active:cursor-grabbing hover:scale-[1.02] hover:bg-emerald-500/25" : ""}`}
         style={{ height: `calc(${duration * 200}% - 4px)` }}
