@@ -1,29 +1,40 @@
 "use client";
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import { db } from "../lib/firebase";
-import { doc, onSnapshot, collection, query, where, addDoc, serverTimestamp, deleteDoc } from "firebase/firestore";
+import { doc, onSnapshot, collection, query, where, addDoc, serverTimestamp, deleteDoc, updateDoc } from "firebase/firestore";
 import { useTenant } from "../context/TenantContext";
 import { useAuth } from "../context/AuthContext";
 import { Modal } from "@repo/ui/modal";
 
-const DEFAULT_TIMES = Array.from({ length: 17 }, (_, i) => `${(i + 6).toString().padStart(2, "0")}:00`);
+const DEFAULT_TIMES_30 = Array.from({ length: 33 }, (_, i) => {
+  const mins = (i + 12) * 30; // Starts at 06:00
+  const h = Math.floor(mins / 60);
+  const m = mins % 60;
+  return `${h.toString().padStart(2, "0")}:${m.toString().padStart(2, "0")}`;
+});
 
 const buildTimes = (courts: any[]): string[] => {
-  if (!courts.length) return DEFAULT_TIMES;
-  let minHour = 23;
-  let maxHour = 6;
+  if (!courts.length) return DEFAULT_TIMES_30;
+  let minMinutes = 23 * 60;
+  let maxMinutes = 6 * 60;
   courts.forEach((court) => {
     const fromMin = timeToMinutes(court.available_from || court.availableFrom || "06:00");
     const toMin = timeToMinutes(court.available_to || court.availableTo || "23:00");
     if (fromMin > 0 || toMin > 0) {
-      minHour = Math.min(minHour, Math.floor(fromMin / 60));
-      maxHour = Math.max(maxHour, Math.floor(toMin / 60));
+      minMinutes = Math.min(minMinutes, fromMin);
+      maxMinutes = Math.max(maxMinutes, toMin);
     }
   });
-  if (minHour >= maxHour) return DEFAULT_TIMES;
-  return Array.from({ length: maxHour - minHour + 1 }, (_, i) =>
-    `${(minHour + i).toString().padStart(2, "0")}:00`
-  );
+
+  const slots: string[] = [];
+  let current = Math.floor(minMinutes / 30) * 30;
+  while (current <= maxMinutes) {
+    const h = Math.floor(current / 60);
+    const m = current % 60;
+    slots.push(`${h.toString().padStart(2, "0")}:${m.toString().padStart(2, "0")}`);
+    current += 30;
+  }
+  return slots.length ? slots : DEFAULT_TIMES_30;
 };
 
 const MONTHS = [
@@ -285,6 +296,8 @@ export default function CourtBookingView({ theme }: { theme: "LIGHT" | "DARK" | 
             booking={viewBooking}
             theme={theme}
             user={user}
+            times={times}
+            allBookings={bookings}
             onClose={() => setViewBooking(null)}
           />
         )}
@@ -699,8 +712,8 @@ function SlotCell({ status, theme, booking }: { status: SlotStatus; theme: strin
 
     return (
       <div
-        className="absolute inset-0 m-0.5 rounded-xl border-l-[4px] border-emerald-500 bg-emerald-500/15 flex flex-col justify-center gap-1.5 px-3 overflow-hidden z-20 shadow-sm"
-        style={{ height: `calc(${duration * 100}% - 4px)` }}
+        className="absolute inset-0 m-0.5 rounded-xl border-l-[4px] border-emerald-500 bg-emerald-500/15 flex flex-col justify-center gap-1 px-3 overflow-hidden z-20 shadow-sm"
+        style={{ height: `calc(${duration * 200}% - 4px)` }}
       >
         <div className="flex items-center gap-2.5">
           {/* Avatar */}
@@ -822,7 +835,7 @@ function ScheduleGrid({ courts, bookings, selectedDate, theme, onSlotClick, time
             <span className={`text-[9px] font-black uppercase tracking-[0.2em] ${timeLabelColor}`}>Time</span>
           </div>
           {times.map((t: string) => (
-            <div key={t} className={`h-20 flex items-center border-b ${rowBorder}`}>
+            <div key={t} className={`h-12 flex items-center border-b ${rowBorder}`}>
               <span className={`text-[10px] font-black tabular-nums ${timeLabelColor}`}>{t}</span>
             </div>
           ))}
@@ -839,10 +852,9 @@ function ScheduleGrid({ courts, bookings, selectedDate, theme, onSlotClick, time
               {times.map((t: string) => {
                 const currentMinutes = timeToMinutes(t);
                 
-                // If this slot is covered by a previous booking, skip rendering interactive content but keep the grid line
                 if (skipUntil !== null && currentMinutes < skipUntil) {
                   return (
-                    <div key={t} className={`h-20 border-b ${rowBorder} relative`} />
+                    <div key={t} className={`h-12 border-b ${rowBorder} relative`} />
                   );
                 }
 
@@ -866,7 +878,7 @@ function ScheduleGrid({ courts, bookings, selectedDate, theme, onSlotClick, time
                   <div
                     key={t}
                     onClick={() => onSlotClick(court, t)}
-                    className={`h-20 border-b ${rowBorder} group relative ${status === "AVAILABLE" ? "cursor-pointer" : "cursor-default"}`}
+                    className={`h-12 border-b ${rowBorder} group relative ${status === "AVAILABLE" ? "cursor-pointer" : "cursor-default"}`}
                   >
                     <SlotCell status={status} theme={theme} booking={booking} />
                   </div>
@@ -1026,8 +1038,23 @@ function UpcomingSection({ bookings, theme, onBookingClick }: { bookings: any[];
 }
 
 // ─── Booking Details ─────────────────────────────────────────────────────────
-function BookingDetails({ booking, theme, user, onClose }: { booking: any; theme: string; user: any; onClose: () => void }) {
+function BookingDetails({ booking, theme, user, onClose, times, allBookings }: { 
+  booking: any; 
+  theme: string; 
+  user: any; 
+  onClose: () => void;
+  times: string[];
+  allBookings: any[];
+}) {
   const [isCancelling, setIsCancelling] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Edit states
+  const [editDate, setEditDate] = useState(booking.date);
+  const [editTime, setEditTime] = useState(booking.time);
+  const [editDuration, setEditDuration] = useState(booking.duration);
+
   const isDark = theme === "DARK";
   const isOwner = user?.uid === booking.userId;
 
@@ -1040,9 +1067,48 @@ function BookingDetails({ booking, theme, user, onClose }: { booking: any; theme
     }
   };
 
+  const handleSave = async () => {
+    setIsSubmitting(true);
+    
+    // Overlap check
+    const requestedStart = timeToMinutes(editTime);
+    const requestedEnd = requestedStart + (editDuration * 60);
+
+    const hasOverlap = allBookings.some(b => {
+      if (b.id === booking.id) return false; // Skip current booking
+      if (b.courtId !== booking.courtId || b.date !== new Date(editDate).toDateString()) return false;
+      const bStart = timeToMinutes(b.time);
+      const bEnd = bStart + (b.duration * 60);
+      return requestedStart < bEnd && requestedEnd > bStart;
+    });
+
+    if (hasOverlap) {
+      alert("This update overlaps with an existing reservation. Please choose a different time or duration.");
+      setIsSubmitting(false);
+      return;
+    }
+
+    try {
+      await updateDoc(doc(db, "bookings", booking.id), {
+        date: new Date(editDate).toDateString(),
+        time: editTime,
+        endTime: addMinutesToTime(editTime, editDuration * 60),
+        duration: editDuration,
+      });
+      setIsEditing(false);
+    } catch (err) {
+      console.error("Update failed:", err);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   const labelCls = `text-[9px] font-black uppercase tracking-widest mb-2 block ${isDark ? "text-stone-500" : "text-stone-400"}`;
-  const infoCls = `px-4 py-3 rounded-2xl text-sm font-bold border ${
+  const infoCls = `px-4 py-3 rounded-2xl text-sm font-bold border transition-all ${
     isDark ? "bg-stone-900 border-stone-800 text-white" : "bg-stone-50 border-stone-100 text-stone-900"
+  }`;
+  const inputCls = `${infoCls} w-full focus:outline-none focus:ring-2 ${
+    isDark ? "focus:ring-[#00E5FF]/20 border-stone-800" : "focus:ring-stone-200 border-stone-100"
   }`;
 
   if (isCancelling) {
@@ -1080,25 +1146,80 @@ function BookingDetails({ booking, theme, user, onClose }: { booking: any; theme
   return (
     <div className="space-y-6">
       {/* Court Header */}
-      <div className={`p-5 rounded-2xl flex items-center gap-4 ${isDark ? "bg-stone-900" : "bg-stone-50"}`}>
-        <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${isDark ? "bg-stone-950" : "bg-white shadow-sm"}`}>
-          <span className="material-symbols-outlined text-2xl opacity-40">sports_tennis</span>
+      <div className={`p-5 rounded-2xl flex items-center justify-between ${isDark ? "bg-stone-900" : "bg-stone-50"}`}>
+        <div className="flex items-center gap-4">
+          <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${isDark ? "bg-stone-950" : "bg-white shadow-sm"}`}>
+            <span className="material-symbols-outlined text-2xl opacity-40">sports_tennis</span>
+          </div>
+          <div>
+            <p className="text-lg font-black tracking-tight">{booking.courtName}</p>
+            <p className={`text-[10px] font-black uppercase tracking-[0.2em] opacity-40`}>Scheduled Session</p>
+          </div>
         </div>
-        <div>
-          <p className="text-lg font-black tracking-tight">{booking.courtName}</p>
-          <p className={`text-[10px] font-black uppercase tracking-[0.2em] opacity-40`}>Scheduled Session</p>
-        </div>
+        {isOwner && !isEditing && (
+          <button
+            onClick={() => setIsEditing(true)}
+            className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${
+              isDark ? "hover:bg-stone-800 text-stone-400" : "hover:bg-stone-200 text-stone-500"
+            }`}
+          >
+            <span className="material-symbols-outlined text-xl">edit</span>
+          </button>
+        )}
       </div>
 
       {/* Time & Date */}
       <div className="grid grid-cols-2 gap-4">
         <div>
           <label className={labelCls}>Date</label>
-          <div className={infoCls}>{booking.date}</div>
+          {isEditing ? (
+            <input
+              type="date"
+              value={new Date(editDate).toISOString().split('T')[0]}
+              onChange={(e) => setEditDate(new Date(e.target.value).toDateString())}
+              className={inputCls}
+            />
+          ) : (
+            <div className={infoCls}>{booking.date}</div>
+          )}
         </div>
         <div>
           <label className={labelCls}>Time</label>
-          <div className={infoCls}>{booking.time} – {booking.endTime}</div>
+          {isEditing ? (
+            <select
+              value={editTime}
+              onChange={(e) => setEditTime(e.target.value)}
+              className={inputCls}
+            >
+              {times.map(t => <option key={t} value={t}>{t}</option>)}
+            </select>
+          ) : (
+            <div className={infoCls}>{booking.time} – {booking.endTime}</div>
+          )}
+        </div>
+      </div>
+
+      {/* Duration & Players */}
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <label className={labelCls}>Duration</label>
+          {isEditing ? (
+            <select
+              value={editDuration}
+              onChange={(e) => setEditDuration(Number(e.target.value))}
+              className={inputCls}
+            >
+              <option value={1}>1.0 Hour</option>
+              <option value={1.5}>1.5 Hours</option>
+              <option value={2}>2.0 Hours</option>
+            </select>
+          ) : (
+            <div className={infoCls}>{booking.duration} hr</div>
+          )}
+        </div>
+        <div>
+          <label className={labelCls}>Players</label>
+          <div className={infoCls}>{booking.playerCount} {booking.playerCount === 1 ? 'Player' : 'Players'}</div>
         </div>
       </div>
 
@@ -1116,19 +1237,7 @@ function BookingDetails({ booking, theme, user, onClose }: { booking: any; theme
         </div>
       </div>
 
-      {/* Extra info */}
-      <div className="grid grid-cols-2 gap-4">
-        <div>
-          <label className={labelCls}>Duration</label>
-          <div className={infoCls}>{booking.duration} hr</div>
-        </div>
-        <div>
-          <label className={labelCls}>Players</label>
-          <div className={infoCls}>{booking.playerCount} {booking.playerCount === 1 ? 'Player' : 'Players'}</div>
-        </div>
-      </div>
-
-      {booking.notes && (
+      {booking.notes && !isEditing && (
         <div>
           <label className={labelCls}>Notes</label>
           <div className={`${infoCls} whitespace-pre-wrap font-medium leading-relaxed`}>{booking.notes}</div>
@@ -1136,14 +1245,36 @@ function BookingDetails({ booking, theme, user, onClose }: { booking: any; theme
       )}
 
       {/* Actions */}
-      {isOwner && (
-        <button
-          onClick={() => setIsCancelling(true)}
-          className="w-full py-4 rounded-2xl text-[10px] font-black tracking-widest uppercase transition-all border border-red-500/20 text-red-500 hover:bg-red-500 hover:text-white"
-        >
-          Cancel Reservation
-        </button>
-      )}
+      <div className="pt-4 space-y-3">
+        {isEditing ? (
+          <div className="flex gap-4">
+            <button
+              onClick={() => setIsEditing(false)}
+              className={`flex-1 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest border transition-all ${
+                isDark ? "border-stone-800 text-white hover:bg-stone-900" : "border-stone-200 text-stone-900 hover:bg-stone-50"
+              }`}
+            >
+              Cancel
+            </button>
+            <button
+              disabled={isSubmitting}
+              onClick={handleSave}
+              className="flex-1 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest bg-emerald-500 text-white hover:bg-emerald-600 transition-all shadow-lg shadow-emerald-500/20 disabled:opacity-50"
+            >
+              {isSubmitting ? "Saving..." : "Save Changes"}
+            </button>
+          </div>
+        ) : (
+          isOwner && (
+            <button
+              onClick={() => setIsCancelling(true)}
+              className="w-full py-4 rounded-2xl text-[10px] font-black tracking-widest uppercase transition-all border border-red-500/20 text-red-500 hover:bg-red-500 hover:text-white"
+            >
+              Cancel Reservation
+            </button>
+          )
+        )}
+      </div>
     </div>
   );
 }
