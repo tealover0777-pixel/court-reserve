@@ -112,10 +112,13 @@ export default function SchedulesAdminView({ theme }: { theme: "LIGHT" | "DARK" 
     columnHelper.accessor("courtName", {
       header: "Court",
       cell: (info) => (
-        <div className="flex items-center gap-2">
-          <span className="material-symbols-outlined text-sm opacity-40">sports_tennis</span>
-          <span>{info.getValue()}</span>
-        </div>
+        <button 
+          onClick={() => setEditingBooking(info.row.original)}
+          className="flex items-center gap-2 group hover:text-emerald-500 transition-colors"
+        >
+          <span className="material-symbols-outlined text-sm opacity-40 group-hover:opacity-100 group-hover:text-emerald-500">sports_tennis</span>
+          <span className="underline decoration-dotted underline-offset-4 decoration-stone-300 group-hover:decoration-emerald-500">{info.getValue()}</span>
+        </button>
       ),
     }),
     columnHelper.accessor("userName", {
