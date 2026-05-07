@@ -674,26 +674,35 @@ function SlotCell({ status, theme, booking }: { status: SlotStatus; theme: strin
     const displayName = booking?.userName || "Booked";
     const endTime = booking?.endTime || "";
     const players = booking?.playerCount || 1;
+    const duration = booking?.duration || 1;
+
     return (
-      <div className="absolute inset-0 m-0.5 rounded-xl border-l-[3px] border-emerald-500 bg-emerald-500/15 flex items-center gap-2 px-2 overflow-hidden">
-        {/* Avatar */}
-        <div className="w-7 h-7 rounded-full bg-emerald-500 flex items-center justify-center flex-shrink-0">
-          <span className="text-[9px] font-black text-white leading-none">{initials}</span>
+      <div
+        className="absolute inset-0 m-0.5 rounded-xl border-l-[4px] border-emerald-500 bg-emerald-500/15 flex flex-col justify-center gap-1.5 px-3 overflow-hidden z-20 shadow-sm"
+        style={{ height: `calc(${duration * 100}% - 4px)` }}
+      >
+        <div className="flex items-center gap-2.5">
+          {/* Avatar */}
+          <div className="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center flex-shrink-0 shadow-sm">
+            <span className="text-[10px] font-black text-white leading-none">{initials}</span>
+          </div>
+          {/* Info */}
+          <div className="flex-1 min-w-0">
+            <p className="text-[10px] font-black text-emerald-700 truncate leading-tight">{displayName}</p>
+            {endTime && (
+              <p className="text-[8px] font-bold text-emerald-600/70 leading-tight mt-0.5">
+                until {endTime}
+              </p>
+            )}
+          </div>
         </div>
-        {/* Info */}
-        <div className="flex-1 min-w-0">
-          <p className="text-[9px] font-black text-emerald-700 truncate leading-tight">{displayName}</p>
-          {endTime && (
-            <p className="text-[7px] font-bold text-emerald-600/70 leading-tight mt-0.5">
-              until {endTime}
-            </p>
-          )}
-          {players > 1 && (
-            <p className="text-[7px] font-bold text-emerald-600/70 leading-tight">
+        {duration >= 1 && players > 1 && (
+          <div className="pl-[42px]">
+            <p className="text-[8px] font-bold text-emerald-600/70 leading-tight">
               {players} players
             </p>
-          )}
-        </div>
+          </div>
+        )}
       </div>
     );
   }
@@ -799,33 +808,52 @@ function ScheduleGrid({ courts, bookings, selectedDate, theme, onSlotClick, time
         </div>
 
         {/* Court columns */}
-        {courts.map((court: any) => (
-          <div key={court.id || court.name} className={`flex-shrink-0 w-44 border-l ${borderColor} pl-3`}>
-            <div className={`h-16 mb-1 border-b ${borderColor}`}>
-              <CourtHeader court={court} theme={theme} />
+        {courts.map((court: any) => {
+          let skipUntil: number | null = null;
+          return (
+            <div key={court.id || court.name} className={`flex-shrink-0 w-48 border-l ${borderColor} pl-3`}>
+              <div className={`h-16 mb-1 border-b ${borderColor}`}>
+                <CourtHeader court={court} theme={theme} />
+              </div>
+              {times.map((t: string) => {
+                const currentMinutes = timeToMinutes(t);
+                
+                // If this slot is covered by a previous booking, skip rendering interactive content but keep the grid line
+                if (skipUntil !== null && currentMinutes < skipUntil) {
+                  return (
+                    <div key={t} className={`h-20 border-b ${rowBorder} relative`} />
+                  );
+                }
+
+                const status = getSlotStatus(court, t, bookings, selectedDate);
+                const booking = status === "SCHEDULED"
+                  ? bookings.find(
+                      (b: any) =>
+                        b.courtId === (court.id || court.name) &&
+                        b.date === selectedDate.toDateString() &&
+                        b.time === t
+                    )
+                  : undefined;
+                
+                if (booking) {
+                  skipUntil = timeToMinutes(booking.time) + (booking.duration * 60);
+                } else {
+                  skipUntil = null;
+                }
+
+                return (
+                  <div
+                    key={t}
+                    onClick={() => onSlotClick(court, t)}
+                    className={`h-20 border-b ${rowBorder} group relative ${status === "AVAILABLE" ? "cursor-pointer" : "cursor-default"}`}
+                  >
+                    <SlotCell status={status} theme={theme} booking={booking} />
+                  </div>
+                );
+              })}
             </div>
-            {times.map((t: string) => {
-              const status = getSlotStatus(court, t, bookings, selectedDate);
-              const booking = status === "SCHEDULED"
-                ? bookings.find(
-                    (b: any) =>
-                      b.courtId === (court.id || court.name) &&
-                      b.date === selectedDate.toDateString() &&
-                      b.time === t
-                  )
-                : undefined;
-              return (
-                <div
-                  key={t}
-                  onClick={() => onSlotClick(court, t)}
-                  className={`h-20 border-b ${rowBorder} group relative ${status === "AVAILABLE" ? "cursor-pointer" : "cursor-default"}`}
-                >
-                  <SlotCell status={status} theme={theme} booking={booking} />
-                </div>
-              );
-            })}
-          </div>
-        ))}
+          );
+        })}
 
         {courts.length === 0 && (
           <div className="flex-1 flex items-center justify-center py-20">
