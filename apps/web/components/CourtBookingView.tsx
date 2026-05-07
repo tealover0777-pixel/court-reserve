@@ -36,10 +36,13 @@ const addMinutesToTime = (timeStr: string, minutes: number): string => {
 type SlotStatus = "AVAILABLE" | "SCHEDULED" | "BLOCKED" | "NOT_AVAILABLE" | "CLOSED";
 
 const getSlotStatus = (court: any, timeStr: string, bookings: any[], selectedDate: Date): SlotStatus => {
-  if (court.status === "Blocked") return "BLOCKED";
-  if (court.status !== "Available") return "NOT_AVAILABLE";
+  // Default undefined/empty status to "Available" for backward compatibility
+  const courtStatus = court.status || "Available";
+  if (courtStatus === "Blocked") return "BLOCKED";
+  if (courtStatus !== "Available") return "NOT_AVAILABLE";
 
   const slotMinutes = timeToMinutes(timeStr);
+  // Support both legacy "6:00 AM" strings and new "HH:MM" 24-hour format
   const fromMinutes = timeToMinutes(court.available_from || court.availableFrom || "06:00");
   const toMinutes = timeToMinutes(court.available_to || court.availableTo || "23:00");
 
@@ -265,7 +268,7 @@ function BookingForm({
           )}
         </div>
         <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest flex-shrink-0 ${
-          modal.court.status === "Available" ? "bg-green-100 text-green-700" : "bg-amber-100 text-amber-700"
+          (modal.court.status || "Available") === "Available" ? "bg-green-100 text-green-700" : "bg-amber-100 text-amber-700"
         }`}>
           {modal.court.status || "Available"}
         </span>
@@ -635,10 +638,11 @@ function CourtHeader({ court, theme }: { court: any; theme: string }) {
       })()
     : null;
 
+  const effectiveStatus = court.status || "Available";
   const statusDot =
-    court.status === "Available"
+    effectiveStatus === "Available"
       ? "bg-emerald-500"
-      : court.status === "Blocked"
+      : effectiveStatus === "Blocked"
       ? "bg-amber-500"
       : "bg-stone-400";
 
