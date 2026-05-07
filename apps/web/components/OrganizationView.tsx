@@ -737,7 +737,9 @@ function toTimeInputValue(value: string | null | undefined): string {
   const str = String(value).trim();
   // Already HH:MM format
   if (/^\d{1,2}:\d{2}$/.test(str)) {
-    const [h, m] = str.split(":");
+    const parts = str.split(":");
+    const h = parts[0] || "0";
+    const m = parts[1] || "00";
     return `${h.padStart(2, "0")}:${m}`;
   }
   // Convert "6:00 AM" / "11:00 PM" → "HH:MM"
@@ -757,8 +759,8 @@ function toDisplayTime(value: string | null | undefined): string {
   // "HH:MM" or "H:MM" → "H:MM AM/PM"
   if (/^\d{1,2}:\d{2}$/.test(str)) {
     const parts = str.split(":");
-    let h = parseInt(parts[0], 10);
-    const min = parts[1];
+    let h = parseInt(parts[0] || "0", 10);
+    const min = parts[1] || "00";
     const period = h >= 12 ? "PM" : "AM";
     if (h === 0) h = 12;
     else if (h > 12) h -= 12;

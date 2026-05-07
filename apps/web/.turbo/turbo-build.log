@@ -7,16 +7,24 @@
 
 [37m[1m [22m[39m Creating an optimized production build ...
 [32m[1m✓[22m[39m Compiled successfully in 2.9s
-[?25l[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[?25h[?25l[37m[1m [22m[39m Finished TypeScript in 2.7s  [36m.[39m[2K[1G[?25h[37m[1m [22m[39m Finished TypeScript in 2.7s    [32m[1m✓[22m[39m Finished TypeScript in 2.7s 
-[?25l[37m[1m [22m[39m Collecting page data using 5 workers  [36m.[39m[2K[1G[37m[1m [22m[39m Collecting page data using 5 workers  [36m..[39m[2K[1G[?25h[37m[1m [22m[39m Collecting page data using 5 workers in 260ms    [32m[1m✓[22m[39m Collecting page data using 5 workers in 260ms 
-[?25l[37m[1m [22m[39m Generating static pages using 5 workers (0/4)  [36m[    ][39m[2K[1G[37m[1m [22m[39m Generating static pages using 5 workers (0/4)  [36m[=   ][39m[2K[1G[37m[1m [22m[39m Generating static pages using 5 workers (1/4)  [36m[==  ][39m[2K[1G[?25h[32m[1m✓[22m[39m Generating static pages using 5 workers (4/4) in 402ms
-[?25l[37m[1m [22m[39m Finalizing page optimization  [36m.[39m[2K[1G[37m[1m [22m[39m Finalizing page optimization  [36m..[39m[2K[1G[37m[1m [22m[39m Finalizing page optimization  [36m...[39m[2K[1G[?25h[37m[1m [22m[39m Finalizing page optimization in 524ms    [32m[1m✓[22m[39m Finalizing page optimization in 524ms 
+[?25l[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[31mFailed to type check.
+[39m
+[36m./components/OrganizationView.tsx[39m:[33m741[39m:[33m15[39m
+[31m[1mType error[22m[39m: 'h' is possibly 'undefined'.
 
-[4mRoute (app)[24m
-┌ ○ /
-└ ○ /_not-found
-
-
-○  (Static)  prerendered as static content
-
-[?25h⠙[1G[0K
+  [90m739 |[0m   [36mif[0m ([35m/^\d{1,2}:\d{2}$/[0m.test(str)) {
+  [90m740 |[0m     [36mconst[0m [h, m] = str.split([32m":"[0m);
+[31m[1m>[0m [90m741 |[0m     [36mreturn[0m [32m`[0m${h.padStart([35m2[0m, [32m"0"[0m)[32m}:[0m${m[32m}`[0m;
+  [90m    |[0m               [31m[1m^[0m
+  [90m742 |[0m   }
+  [90m743 |[0m   [90m// Convert "6:00 AM" / "11:00 PM" → "HH:MM"[0m
+  [90m744 |[0m   [36mconst[0m m = str.match([35m/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i[0m);
+[2K[1G[?25hNext.js build worker exited with code: 1 and signal: null
+[?25l [36m.[39m [?25h⠙[1G[0K[1mnpm[22m [31merror[39m Lifecycle script `build` failed with error:
+⠙[1G[0K[1mnpm[22m [31merror[39m [94mcode[39m [33m1[39m
+⠙[1G[0K[1mnpm[22m [31merror[39m [94mpath[39m /Users/kyuahn/Documents/AVG/court-reserve/apps/web
+⠙[1G[0K[1mnpm[22m [31merror[39m [94mworkspace[39m web@0.1.0
+⠙[1G[0K[1mnpm[22m [31merror[39m [94mlocation[39m /Users/kyuahn/Documents/AVG/court-reserve/apps/web
+⠙[1G[0K[1mnpm[22m [31merror[39m command failed
+⠙[1G[0K[1mnpm[22m [31merror[39m [94mcommand[39m sh -c next build
+⠙[1G[0K
