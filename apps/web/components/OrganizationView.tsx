@@ -927,7 +927,7 @@ function CourtTab({ data, onSave, isSaving, theme, dimensions, tenantId }: any) 
   return (
     <div className="space-y-10">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-stretch">
-        <div className={`p-8 rounded-[32px] border space-y-6 ${isDark ? "bg-stone-900/40 border-stone-800" : "bg-stone-50 border-stone-100"}`}>
+        <div className={`p-8 rounded-[32px] border space-y-6 h-full ${isDark ? "bg-stone-900/40 border-stone-800" : "bg-stone-50 border-stone-100"}`}>
           <h4 className={`text-[10px] font-black tracking-[0.2em] uppercase opacity-50 ${isDark ? "text-white" : "text-stone-900"}`}>
             {editingCourtId
               ? (tenantId === "Global" ? "Edit Default Court" : "Edit Court")
@@ -1093,11 +1093,11 @@ function CourtTab({ data, onSave, isSaving, theme, dimensions, tenantId }: any) 
           </div>
         </div>
 
-        <div className={`p-8 rounded-[32px] border flex flex-col ${isDark ? "bg-stone-900/20 border-stone-800" : "bg-white border-stone-100"}`}>
+        <div className={`p-8 rounded-[32px] border flex flex-col h-full ${isDark ? "bg-stone-900/20 border-stone-800" : "bg-white border-stone-100"}`}>
           <h4 className={`text-[10px] font-black tracking-[0.2em] uppercase mb-6 opacity-50 ${isDark ? "text-white" : "text-stone-900"}`}>
             {tenantId === "Global" ? "Registered Default Courts" : "Registered Courts"} ({courts.length})
           </h4>
-          <div className="space-y-4 flex-1 overflow-y-auto pr-2 min-h-0" style={{ maxHeight: '1100px' }}>
+          <div className="space-y-4 flex-1 overflow-y-auto pr-2 min-h-[400px]">
             {courts.length === 0 && (
               <div className={`rounded-2xl border border-dashed px-6 py-8 text-center text-[10px] font-black uppercase tracking-widest ${isDark ? "border-stone-700 text-stone-500" : "border-stone-200 text-stone-400"}`}>
                 No courts registered yet
