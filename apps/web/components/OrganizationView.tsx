@@ -734,11 +734,15 @@ function PaymentTab({ data, onSave, isSaving, theme }: any) {
 
 function toTimeInputValue(value: string | null | undefined): string {
   if (!value) return "";
+  const str = String(value).trim();
   // Already HH:MM format
-  if (/^\d{2}:\d{2}$/.test(value)) return value;
+  if (/^\d{1,2}:\d{2}$/.test(str)) {
+    const [h, m] = str.split(":");
+    return `${h.padStart(2, "0")}:${m}`;
+  }
   // Convert "6:00 AM" / "11:00 PM" → "HH:MM"
-  const m = value.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
-  if (!m || !m[1] || !m[2] || !m[3]) return "";
+  const m = str.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
+  if (!m) return "";
   let h = parseInt(m[1], 10);
   const min = m[2];
   const period = m[3].toUpperCase();
@@ -749,17 +753,19 @@ function toTimeInputValue(value: string | null | undefined): string {
 
 function toDisplayTime(value: string | null | undefined): string {
   if (!value) return "—";
-  // "HH:MM" → "H:MM AM/PM"
-  if (/^\d{2}:\d{2}$/.test(value)) {
-    let h = parseInt(value.slice(0, 2), 10);
-    const min = value.slice(3);
+  const str = String(value).trim();
+  // "HH:MM" or "H:MM" → "H:MM AM/PM"
+  if (/^\d{1,2}:\d{2}$/.test(str)) {
+    const parts = str.split(":");
+    let h = parseInt(parts[0], 10);
+    const min = parts[1];
     const period = h >= 12 ? "PM" : "AM";
     if (h === 0) h = 12;
     else if (h > 12) h -= 12;
     return `${h}:${min} ${period}`;
   }
   // Already a display string ("6:00 AM") — return as-is
-  return value;
+  return str;
 }
 
 function CourtTab({ data, onSave, isSaving, theme, dimensions, tenantId }: any) {
@@ -1089,9 +1095,11 @@ function CourtTab({ data, onSave, isSaving, theme, dimensions, tenantId }: any) 
               </div>
             )}
             {courts.map((court) => {
-              const hasHours = court.available_from || court.available_to;
-              const fromTime = toDisplayTime(court.available_from);
-              const toTime = toDisplayTime(court.available_to);
+              const fromVal = court.available_from || court.availableFrom;
+              const toVal = court.available_to || court.availableTo;
+              const hasHours = !!(fromVal || toVal);
+              const fromTime = toDisplayTime(fromVal);
+              const toTime = toDisplayTime(toVal);
               const isAvailable = (court.status || "Available") === "Available";
 
               return (
