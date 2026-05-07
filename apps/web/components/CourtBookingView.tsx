@@ -774,10 +774,19 @@ function SlotCell({ status, theme, booking, user, onDragStart }: { status: SlotS
     return (
       <div
         draggable={isOwner && !isPast}
-        onDragStart={onDragStart}
-        className={`absolute inset-0 m-0.5 rounded-xl border-l-[4px] border-emerald-500 bg-emerald-500/15 flex flex-col justify-center gap-1 px-3 overflow-hidden z-20 shadow-sm transition-transform ${isOwner && !isPast ? "cursor-grab active:cursor-grabbing hover:scale-[1.02]" : ""}`}
+        onDragStart={(e) => {
+          e.stopPropagation();
+          onDragStart(e);
+        }}
+        className={`absolute inset-0 m-0.5 rounded-xl border-l-[4px] border-emerald-500 bg-emerald-500/15 flex flex-col justify-center gap-1 px-3 overflow-hidden z-20 shadow-sm transition-all ${isOwner && !isPast ? "cursor-grab active:cursor-grabbing hover:scale-[1.02] hover:bg-emerald-500/25" : ""}`}
         style={{ height: `calc(${duration * 200}% - 4px)` }}
       >
+        {isOwner && !isPast && (
+          <div className="absolute top-1 right-2 flex items-center gap-1">
+            <span className="text-[6px] font-black uppercase tracking-widest text-emerald-600/50">My Session</span>
+            <span className="material-symbols-outlined text-[8px] text-emerald-500">drag_indicator</span>
+          </div>
+        )}
         <div className="flex items-center gap-2.5">
           {/* Avatar */}
           <div className="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center flex-shrink-0 shadow-sm">
@@ -983,7 +992,11 @@ function ScheduleGrid({ courts, bookings, selectedDate, theme, onSlotClick, onDr
                       booking={booking} 
                       user={user}
                       onDragStart={(e: any) => {
-                        e.dataTransfer.setData("bookingId", booking.id);
+                        if (booking) {
+                          e.dataTransfer.setData("bookingId", booking.id);
+                          // Ensure drag preview looks good
+                          e.dataTransfer.effectAllowed = "move";
+                        }
                       }}
                     />
                   </div>
