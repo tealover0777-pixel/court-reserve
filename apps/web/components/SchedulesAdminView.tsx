@@ -59,6 +59,8 @@ export default function SchedulesAdminView({ theme }: { theme: "LIGHT" | "DARK" 
   const [showSettings, setShowSettings] = useState(false);
   const [tenantConfig, setTenantConfig] = useState<any>(null);
   const [hidePast, setHidePast] = useState(false);
+  const [rowSelection, setRowSelection] = useState({});
+  const [globalFilter, setGlobalFilter] = useState("");
 
   const isDark = theme === "DARK";
 
@@ -99,17 +101,36 @@ export default function SchedulesAdminView({ theme }: { theme: "LIGHT" | "DARK" 
   const columnHelper = createColumnHelper<any>();
 
   const columns = useMemo(() => [
+    columnHelper.display({
+      id: "select",
+      header: ({ table }) => (
+        <input
+          type="checkbox"
+          className="w-4 h-4 rounded border-stone-300 text-emerald-500 focus:ring-emerald-500 bg-transparent"
+          checked={table.getIsAllPageRowsSelected()}
+          onChange={table.getToggleAllPageRowsSelectedHandler()}
+        />
+      ),
+      cell: ({ row }) => (
+        <input
+          type="checkbox"
+          className="w-4 h-4 rounded border-stone-300 text-emerald-500 focus:ring-emerald-500 bg-transparent"
+          checked={row.getIsSelected()}
+          disabled={!row.getCanSelect()}
+          onChange={row.getToggleSelectedHandler()}
+        />
+      ),
+    }),
     columnHelper.accessor("date", {
       header: "Date",
-      cell: (info) => <span className="font-bold">{info.getValue()}</span>,
+      cell: (info) => <span className="font-bold tabular-nums">{info.getValue()}</span>,
     }),
     columnHelper.accessor("time", {
       header: "Time",
       cell: (info) => (
         <div className="flex items-center gap-2">
-          <span className="opacity-60">{info.getValue()}</span>
-          <span className="opacity-20">—</span>
-          <span className="opacity-60">{info.row.original.endTime}</span>
+          <span className="material-symbols-outlined text-sm opacity-20">schedule</span>
+          <span className="font-bold tabular-nums">{toDisplayTime(info.getValue())}</span>
         </div>
       ),
     }),
@@ -121,32 +142,33 @@ export default function SchedulesAdminView({ theme }: { theme: "LIGHT" | "DARK" 
           className="flex items-center gap-2 group hover:text-emerald-500 transition-colors"
         >
           <span className="material-symbols-outlined text-sm opacity-40 group-hover:opacity-100 group-hover:text-emerald-500">sports_tennis</span>
-          <span className="underline decoration-dotted underline-offset-4 decoration-stone-300 group-hover:decoration-emerald-500">{info.getValue()}</span>
+          <span className="underline decoration-dotted underline-offset-4 decoration-stone-300 group-hover:decoration-emerald-500 font-bold">{info.getValue()}</span>
         </button>
       ),
     }),
     columnHelper.accessor("userName", {
       header: "Player",
       cell: (info) => (
-        <div className="flex items-center gap-2">
-          <div className="w-6 h-6 rounded-full bg-stone-100 flex items-center justify-center text-[8px] font-black text-stone-600">
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center text-[10px] font-black text-white">
             {getInitials(info.getValue())}
           </div>
           <div className="flex flex-col">
-            <span className="text-xs font-bold">{info.getValue()}</span>
-            <span className="text-[9px] opacity-40">{info.row.original.userEmail}</span>
+            <span className="text-xs font-bold leading-none mb-1">{info.getValue()}</span>
+            <span className="text-[10px] opacity-40 font-bold">{info.row.original.userEmail}</span>
           </div>
         </div>
       ),
     }),
     columnHelper.accessor("duration", {
       header: "Duration",
-      cell: (info) => <span>{info.getValue()} hr</span>,
+      cell: (info) => <span className="font-black opacity-40 text-[10px] uppercase tracking-widest">{info.getValue()} hr</span>,
     }),
-    columnHelper.accessor("id", {
+    columnHelper.display({
+      id: "actions",
       header: "Actions",
       cell: (info) => (
-        <div className="flex gap-2">
+        <div className="flex justify-end gap-2">
           <button
             onClick={() => setEditingBooking(info.row.original)}
             className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all ${
@@ -163,21 +185,41 @@ export default function SchedulesAdminView({ theme }: { theme: "LIGHT" | "DARK" 
   const filteredBookings = useMemo(() => {
     if (!hidePast) return bookings;
     const now = new Date();
-    now.setHours(0, 0, 0, 0);
+    
     return bookings.filter(b => {
-      const bDate = new Date(b.date);
-      return bDate >= now;
+      try {
+        const bDate = new Date(b.date);
+        const [h, m] = b.time.split(':').map(Number);
+        bDate.setHours(h || 0, m || 0, 0, 0);
+        return bDate >= now;
+      } catch (e) {
+        return true; // Keep if date is malformed
+      }
     });
   }, [bookings, hidePast]);
 
   const table = useReactTable({
     data: filteredBookings,
     columns,
-    state: { sorting },
+    state: { sorting, rowSelection, globalFilter },
     onSortingChange: setSorting,
+    onRowSelectionChange: setRowSelection,
+    onGlobalFilterChange: setGlobalFilter,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
   });
+
+  const handleBulkDelete = async () => {
+    const selectedRows = table.getSelectedRowModel().rows;
+    if (selectedRows.length === 0) return;
+    if (!confirm(`Are you sure you want to delete ${selectedRows.length} reservations?`)) return;
+
+    for (const row of selectedRows) {
+      await deleteDoc(doc(db, "bookings", row.original.id));
+    }
+    setRowSelection({});
+  };
 
   const borderColor = isDark ? "border-stone-800" : "border-stone-200";
   const headerBg = isDark ? "bg-stone-900" : "bg-stone-50";
@@ -192,6 +234,18 @@ export default function SchedulesAdminView({ theme }: { theme: "LIGHT" | "DARK" 
           </p>
         </div>
         <div className="flex items-center gap-3">
+          <div className="relative">
+            <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-lg opacity-20 pointer-events-none">search</span>
+            <input
+              value={globalFilter}
+              onChange={(e) => setGlobalFilter(e.target.value)}
+              placeholder="Search reservations..."
+              className={`pl-11 pr-6 h-10 rounded-2xl border text-[10px] font-black uppercase tracking-widest outline-none transition-all ${
+                isDark ? "bg-stone-900 border-stone-800 text-white focus:border-[#ccff00]" : "bg-stone-50 border-stone-100 text-stone-900 focus:border-stone-400 shadow-sm"
+              }`}
+            />
+          </div>
+
           <button
             onClick={() => setHidePast(!hidePast)}
             className={`px-4 h-10 rounded-2xl flex items-center gap-2 border transition-all ${
@@ -214,10 +268,24 @@ export default function SchedulesAdminView({ theme }: { theme: "LIGHT" | "DARK" 
             <span className="text-[10px] font-black uppercase tracking-widest">Schedule Policy</span>
           </button>
           <div className={`px-4 py-2 rounded-2xl border text-[10px] font-black uppercase tracking-widest ${isDark ? "border-stone-800 bg-stone-900 text-stone-500" : "border-stone-200 bg-stone-50 text-stone-400"}`}>
-            {filteredBookings.length} {hidePast ? "Upcoming" : "Total"} Bookings
+            {table.getFilteredRowModel().rows.length} {hidePast ? "Upcoming" : "Total"} Bookings
           </div>
         </div>
       </div>
+
+      {table.getSelectedRowModel().rows.length > 0 && (
+        <div className="mb-6 flex items-center justify-between p-4 rounded-3xl bg-red-500/5 border border-red-500/10 animate-in fade-in slide-in-from-top-4 duration-300">
+          <p className="text-[10px] font-black uppercase tracking-widest text-red-500 pl-2">
+            {table.getSelectedRowModel().rows.length} Reservations Selected
+          </p>
+          <button
+            onClick={handleBulkDelete}
+            className="px-6 py-2.5 rounded-xl bg-red-500 text-white text-[10px] font-black uppercase tracking-widest hover:bg-red-600 transition-all shadow-lg shadow-red-500/20"
+          >
+            Delete Selected
+          </button>
+        </div>
+      )}
 
       <div className={`border rounded-[2rem] overflow-hidden ${borderColor}`}>
         <table className="w-full text-left border-collapse">
@@ -227,9 +295,16 @@ export default function SchedulesAdminView({ theme }: { theme: "LIGHT" | "DARK" 
                 {headerGroup.headers.map((header: any) => (
                   <th 
                     key={header.id} 
-                    className={`px-6 py-4 text-[10px] font-black uppercase tracking-widest ${isDark ? "text-stone-500" : "text-stone-400"}`}
+                    className={`px-6 py-4 text-[10px] font-black uppercase tracking-widest transition-colors ${
+                      header.column.getCanSort() ? "cursor-pointer hover:text-stone-900" : ""
+                    } ${isDark ? "text-stone-500" : "text-stone-400"}`}
+                    onClick={header.column.getToggleSortingHandler()}
                   >
-                    {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
+                    <div className="flex items-center gap-2">
+                      {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
+                      {header.column.getIsSorted() === "asc" && <span className="material-symbols-outlined text-sm">arrow_upward</span>}
+                      {header.column.getIsSorted() === "desc" && <span className="material-symbols-outlined text-sm">arrow_downward</span>}
+                    </div>
                   </th>
                 ))}
               </tr>
