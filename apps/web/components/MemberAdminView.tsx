@@ -222,7 +222,7 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
       const singleRole = u.role;
       const allRoleIds = roleIds.length > 0 ? roleIds : (singleRole ? [singleRole] : []);
       
-      // Check if any role matches \"Member\"
+      // Check if any role matches "Member"
       return allRoleIds.some(rid => {
         const roleMatch = roles.find(r => r.role_id === rid || r.id === rid);
         return roleMatch?.role_name?.toLowerCase() === "member";
@@ -401,7 +401,7 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
 
       // If portrait was uploaded to a temp path, move it to the real compositeId path
       if (formData.portrait_url && formData.portrait_url.includes("temp_")) {
-        // Re-fetch the blob and re-upload to correct path (can't \"move\" in Storage)
+        // Re-fetch the blob and re-upload to correct path (can't "move" in Storage)
         try {
           const response = await fetch(formData.portrait_url);
           const blob = await response.blob();
@@ -415,7 +415,7 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
       }
 
       if (formData.invite_user) {
-        const inviteUserFn = httpsCallable(functions, \"inviteUser\");
+        const inviteUserFn = httpsCallable(functions, "inviteUser");
         const result: any = await inviteUserFn({
           email: formData.email,
           role: formData.role,
@@ -466,7 +466,7 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
   const handleInviteUser = async (user: User) => {
     setIsSaving(true);
     try {
-      const inviteUserFn = httpsCallable(functions, \"inviteUser\");
+      const inviteUserFn = httpsCallable(functions, "inviteUser");
       const result: any = await inviteUserFn({
         email: user.email,
         role: user.role,
@@ -1031,7 +1031,7 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
             <button 
               onClick={() => {
                 navigator.clipboard.writeText(invitationLink);
-                showAppMessage(\"Link copied to clipboard!\", \"SUCCESS\");
+                showAppMessage("Link copied to clipboard!", "SUCCESS");
               }}
               className={`w-full py-2 rounded-lg text-[8px] font-black tracking-widest uppercase transition-all ${
                 theme === "DARK" ? "bg-stone-800 text-white hover:bg-stone-700" : "bg-white border text-stone-600 hover:bg-stone-50"
@@ -1089,21 +1089,21 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
         }
       >
         {(() => {
-          const isCoach = (formData.roles || []).includes(\"R10002\") || formData.role === \"R10002\";
+          const isCoach = (formData.roles || []).includes("R10002") || formData.role === "R10002";
           const inputCls = `w-full border rounded-2xl px-5 py-3.5 text-sm font-bold outline-none transition-colors ${
-            theme === \"DARK\" ? \"bg-stone-950 text-white border-stone-800 focus:border-[#ccff00]\" : \"bg-white text-stone-900 border-stone-200 focus:border-stone-400\"
+            theme === "DARK" ? "bg-stone-950 text-white border-stone-800 focus:border-[#ccff00]" : "bg-white text-stone-900 border-stone-200 focus:border-stone-400"
           }`;
           const readonlyCls = `w-full border rounded-2xl px-5 py-3.5 text-sm font-bold transition-colors ${
-            theme === \"DARK\" ? \"bg-stone-900 text-stone-400 border-stone-800\" : \"bg-stone-50 text-stone-500 border-stone-100\"
+            theme === "DARK" ? "bg-stone-900 text-stone-400 border-stone-800" : "bg-stone-50 text-stone-500 border-stone-100"
           }`;
-          const labelCls = `text-[10px] font-black tracking-widest uppercase mb-2 block ${theme === \"DARK\" ? \"text-stone-500\" : \"text-stone-400\"}`;
+          const labelCls = `text-[10px] font-black tracking-widest uppercase mb-2 block ${theme === "DARK" ? "text-stone-500" : "text-stone-400"}`;
           const sectionDivider = (title: string) => (
-            <div className={`col-span-2 pt-2 pb-1 border-b flex items-center gap-3 transition-colors ${theme === \"DARK\" ? \"border-stone-800\" : \"border-stone-100\"}`}>
-              <span className={`text-[10px] font-black uppercase tracking-[0.2em] ${theme === \"DARK\" ? \"text-stone-500\" : \"text-stone-400\"}`}>{title}</span>
+            <div className={`col-span-2 pt-2 pb-1 border-b flex items-center gap-3 transition-colors ${theme === "DARK" ? "border-stone-800" : "border-stone-100"}`}>
+              <span className={`text-[10px] font-black uppercase tracking-[0.2em] ${theme === "DARK" ? "text-stone-500" : "text-stone-400"}`}>{title}</span>
             </div>
           );
-          const DAYS = [\"Mon\", \"Tue\", \"Wed\", \"Thu\", \"Fri\", \"Sat\", \"Sun\"];
-          const SLOTS = [\"Morning\", \"Afternoon\", \"Evening\"];
+          const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+          const SLOTS = ["Morning", "Afternoon", "Evening"];
           const toggleAvailability = (day: string, slot: string) => {
             const current = formData.availability[day] || [];
             const next = current.includes(slot) ? current.filter(s => s !== slot) : [...current, slot];
@@ -1116,32 +1116,32 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
           };
 
           return (
-            <div className=\"space-y-6\">
+            <div className="space-y-6">
               {/* Portrait — centered above grid */}
-              <div className=\"flex flex-col items-center gap-2\">
-                <div className=\"relative group\">
+              <div className="flex flex-col items-center gap-2">
+                <div className="relative group">
                   <div className={`w-20 h-20 rounded-full overflow-hidden flex items-center justify-center border-4 transition-colors ${
-                    theme === \"DARK\" ? \"border-stone-800 bg-stone-900\" : \"border-stone-200 bg-stone-100\"
+                    theme === "DARK" ? "border-stone-800 bg-stone-900" : "border-stone-200 bg-stone-100"
                   }`}>
                     {formData.portrait_url ? (
-                      <img src={formData.portrait_url} alt=\"Portrait\" className=\"w-full h-full object-cover\" />
+                      <img src={formData.portrait_url} alt="Portrait" className="w-full h-full object-cover" />
                     ) : (
-                      <span className={`text-2xl font-black select-none ${theme === \"DARK\" ? \"text-stone-600\" : \"text-stone-400\"}`}>
-                        {(formData.first_name?.[0] || formData.email?.[0] || \"?\").toUpperCase()}
+                      <span className={`text-2xl font-black select-none ${theme === "DARK" ? "text-stone-600" : "text-stone-400"}`}>
+                        {(formData.first_name?.[0] || formData.email?.[0] || "?").toUpperCase()}
                       </span>
                     )}
                     {isUploadingPortrait && (
-                      <div className=\"absolute inset-0 flex items-center justify-center bg-black/50 rounded-full\">
-                        <div className=\"h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent\"></div>
+                      <div className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-full">
+                        <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent"></div>
                       </div>
                     )}
                   </div>
-                  <label className=\"absolute inset-0 flex items-center justify-center rounded-full cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity bg-black/50\">
-                    <span className=\"material-symbols-outlined text-white text-xl\">photo_camera</span>
+                  <label className="absolute inset-0 flex items-center justify-center rounded-full cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity bg-black/50">
+                    <span className="material-symbols-outlined text-white text-xl">photo_camera</span>
                     <input
-                      type=\"file\"
-                      accept=\"image/*\"
-                      className=\"hidden\"
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
                       disabled={isUploadingPortrait}
                       onChange={async (e) => {
                         const file = e.target.files?.[0];
@@ -1154,20 +1154,20 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
                 </div>
                 {formData.portrait_url ? (
                   <button
-                    onClick={() => setFormData(prev => ({ ...prev, portrait_url: \"\" }))}
-                    className=\"text-[9px] font-black tracking-widest uppercase text-red-400 hover:text-red-600 transition-colors\"
+                    onClick={() => setFormData(prev => ({ ...prev, portrait_url: "" }))}
+                    className="text-[9px] font-black tracking-widest uppercase text-red-400 hover:text-red-600 transition-colors"
                   >
                     Remove Photo
                   </button>
                 ) : (
-                  <span className={`text-[9px] font-black tracking-widest uppercase ${theme === \"DARK\" ? \"text-stone-600\" : \"text-stone-400\"}`}>Hover to upload</span>
+                  <span className={`text-[9px] font-black tracking-widest uppercase ${theme === "DARK" ? "text-stone-600" : "text-stone-400"}`}>Hover to upload</span>
                 )}
               </div>
 
               {/* 2-column grid */}
-              <div className=\"grid grid-cols-2 gap-x-8 gap-y-5\">
+              <div className="grid grid-cols-2 gap-x-8 gap-y-5">
 
-                {sectionDivider(\"Identity\")}
+                {sectionDivider("Identity")}
 
                 <div>
                   <label className={labelCls}>User ID</label>
@@ -1175,7 +1175,7 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
                 </div>
                 <div>
                   <label className={labelCls}>Company User ID</label>
-                  <input value={formData.company_user_id} onChange={e => setFormData({ ...formData, company_user_id: e.target.value })} placeholder=\"e.g. EMP-0042\" className={inputCls} />
+                  <input value={formData.company_user_id} onChange={e => setFormData({ ...formData, company_user_id: e.target.value })} placeholder="e.g. EMP-0042" className={inputCls} />
                 </div>
 
                 {!tenantId ? (
@@ -1186,18 +1186,18 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
                         value={formData.tenant_id}
                         onChange={e => setFormData({ ...formData, tenant_id: e.target.value })}
                         readOnly={!!editingUser}
-                        placeholder=\"e.g. T10001\"
+                        placeholder="e.g. T10001"
                         className={editingUser ? readonlyCls : inputCls}
                       />
                     </div>
                     <div>
                       <label className={labelCls}>Auth UID (Firebase)</label>
-                      <div className={`${readonlyCls} break-all text-xs`}>{formData.auth_uid || \"No UID Linked\"}</div>
+                      <div className={`${readonlyCls} break-all text-xs`}>{formData.auth_uid || "No UID Linked"}</div>
                     </div>
                   </>
-                ) : <div className=\"col-span-2\" />}
+                ) : <div className="col-span-2" />}
 
-                {sectionDivider(\"Personal Info\")}
+                {sectionDivider("Personal Info")}
 
                 <div>
                   <label className={labelCls}>First Name</label>
@@ -1214,39 +1214,39 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
                 </div>
                 <div>
                   <label className={labelCls}>Phone</label>
-                  <input value={formData.phone} onChange={e => setFormData({ ...formData, phone: e.target.value })} placeholder=\"e.g. 123-456-7890\" className={inputCls} />
+                  <input value={formData.phone} onChange={e => setFormData({ ...formData, phone: e.target.value })} placeholder="e.g. 123-456-7890" className={inputCls} />
                 </div>
 
-                {sectionDivider(\"Account\")}
+                {sectionDivider("Account")}
 
-                <div className=\"col-span-2\">
+                <div className="col-span-2">
                   <label className={labelCls}>Assigned Roles</label>
-                  <div className=\"flex flex-wrap gap-2 mt-1\">
+                  <div className="flex flex-wrap gap-2 mt-1">
                     {roles.map(r => {
                       const rid = r.role_id || r.id;
                       const active = (formData.roles || []).includes(rid) || formData.role === rid;
                       return (
                         <button
                           key={r.id}
-                          type=\"button\"
+                          type="button"
                           onClick={() => {
                             const current = formData.roles || [];
                             const next = active 
                               ? current.filter(v => v !== rid) 
                               : [...current, rid];
-                            setFormData(prev => ({ ...prev, roles: next, role: next[0] || \"\" }));
+                            setFormData(prev => ({ ...prev, roles: next, role: next[0] || "" }));
                           }}
                           className={`px-4 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest border-2 transition-all flex items-center gap-2 ${
                             active
-                              ? (theme === \"DARK\" ? \"bg-[#ccff00] text-stone-950 border-[#ccff00]\" : \"bg-[#6348eb] text-white border-[#6348eb]\")
-                              : (theme === \"DARK\" ? \"border-stone-800 text-stone-400 hover:border-stone-600\" : \"border-stone-200 text-stone-500 hover:border-stone-400\")
+                              ? (theme === "DARK" ? "bg-[#ccff00] text-stone-950 border-[#ccff00]" : "bg-[#6348eb] text-white border-[#6348eb]")
+                              : (theme === "DARK" ? "border-stone-800 text-stone-400 hover:border-stone-600" : "border-stone-200 text-stone-500 hover:border-stone-400")
                           }`}
                         >
-                          <span className=\"material-symbols-outlined text-sm\">
-                            {active ? \"check_circle\" : \"circle\"}
+                          <span className="material-symbols-outlined text-sm">
+                            {active ? "check_circle" : "circle"}
                           </span>
                           {r.role_name}
-                          {r.is_global && <span className=\"opacity-50 ml-1\">[G]</span>}
+                          {r.is_global && <span className="opacity-50 ml-1">[G]</span>}
                         </button>
                       );
                     })}
@@ -1256,80 +1256,80 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
                   <label className={labelCls}>Status</label>
                   <select value={formData.status} onChange={e => setFormData({ ...formData, status: e.target.value })} className={`${inputCls} appearance-none cursor-pointer`}>
                     {userStatuses.length === 0 ? (
-                      <option value=\"\" disabled>Error: USERSTATUS missing</option>
+                      <option value="" disabled>Error: USERSTATUS missing</option>
                     ) : (
                       <>
-                        <option value=\"\">Select status...</option>
+                        <option value="">Select status...</option>
                         {userStatuses.map(s => <option key={s} value={s}>{s}</option>)}
                       </>
                     )}
                   </select>
                 </div>
 
-                {sectionDivider(\"Mailing Address\")}
+                {sectionDivider("Mailing Address")}
 
                 <div>
                   <label className={labelCls}>Street Address 1</label>
-                  <input value={formData.address_street_1} onChange={e => setFormData({ ...formData, address_street_1: e.target.value })} placeholder=\"123 Main St\" className={inputCls} />
+                  <input value={formData.address_street_1} onChange={e => setFormData({ ...formData, address_street_1: e.target.value })} placeholder="123 Main St" className={inputCls} />
                 </div>
                 <div>
                   <label className={labelCls}>Street Address 2</label>
-                  <input value={formData.address_street_2} onChange={e => setFormData({ ...formData, address_street_2: e.target.value })} placeholder=\"Apt 4B\" className={inputCls} />
+                  <input value={formData.address_street_2} onChange={e => setFormData({ ...formData, address_street_2: e.target.value })} placeholder="Apt 4B" className={inputCls} />
                 </div>
 
                 <div>
                   <label className={labelCls}>City</label>
-                  <input value={formData.address_city} onChange={e => setFormData({ ...formData, address_city: e.target.value })} placeholder=\"New York\" className={inputCls} />
+                  <input value={formData.address_city} onChange={e => setFormData({ ...formData, address_city: e.target.value })} placeholder="New York" className={inputCls} />
                 </div>
-                <div className=\"grid grid-cols-2 gap-4\">
+                <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className={labelCls}>State</label>
                     <select value={formData.address_state} onChange={e => setFormData({ ...formData, address_state: e.target.value })} className={`${inputCls} appearance-none cursor-pointer`}>
-                      <option value=\"\">State...</option>
+                      <option value="">State...</option>
                       {US_STATES.map(s => <option key={s} value={s}>{s}</option>)}
                     </select>
                   </div>
                   <div>
                     <label className={labelCls}>Zip</label>
-                    <input value={formData.address_zip} onChange={e => setFormData({ ...formData, address_zip: e.target.value })} placeholder=\"10001\" className={inputCls} />
+                    <input value={formData.address_zip} onChange={e => setFormData({ ...formData, address_zip: e.target.value })} placeholder="10001" className={inputCls} />
                   </div>
                 </div>
 
-                {sectionDivider(\"Internal Notes\")}
+                {sectionDivider("Internal Notes")}
 
-                <div className=\"col-span-2\">
+                <div className="col-span-2">
                   <textarea
                     value={formData.notes}
                     onChange={e => setFormData({ ...formData, notes: e.target.value })}
-                    placeholder=\"Private notes...\"
+                    placeholder="Private notes..."
                     rows={3}
                     className={`${inputCls} resize-none`}
                   />
                 </div>
 
                 {/* Coach Details — toggled by role */}
-                <div className={`col-span-2 pt-2 pb-1 border-b flex items-center justify-between transition-colors ${theme === \"DARK\" ? \"border-stone-800\" : \"border-stone-100\"}`}>
-                  <div className=\"flex items-center gap-3\">
-                    <span className={`text-[10px] font-black uppercase tracking-[0.2em] ${theme === \"DARK\" ? \"text-stone-500\" : \"text-stone-400\"}`}>Coach Details</span>
+                <div className={`col-span-2 pt-2 pb-1 border-b flex items-center justify-between transition-colors ${theme === "DARK" ? "border-stone-800" : "border-stone-100"}`}>
+                  <div className="flex items-center gap-3">
+                    <span className={`text-[10px] font-black uppercase tracking-[0.2em] ${theme === "DARK" ? "text-stone-500" : "text-stone-400"}`}>Coach Details</span>
                     {isCoach && (
                       <span className={`text-[8px] font-black px-2 py-0.5 rounded-full uppercase tracking-widest ${
-                        theme === \"DARK\" ? \"bg-[#ccff00]/10 text-[#ccff00]\" : \"bg-[#6348eb]/10 text-[#6348eb]\"
+                        theme === "DARK" ? "bg-[#ccff00]/10 text-[#ccff00]" : "bg-[#6348eb]/10 text-[#6348eb]"
                       }`}>Coach Role Active</span>
                     )}
                   </div>
                   {!isCoach && (
-                    <span className={`text-[9px] font-medium ${theme === \"DARK\" ? \"text-stone-600\" : \"text-stone-400\"}`}>Assign role R10002 to enable</span>
+                    <span className={`text-[9px] font-medium ${theme === "DARK" ? "text-stone-600" : "text-stone-400"}`}>Assign role R10002 to enable</span>
                   )}
                 </div>
 
                 {isCoach && (
                   <>
-                    <div className=\"col-span-2\">
+                    <div className="col-span-2">
                       <label className={labelCls}>Coach Description</label>
                       <textarea
                         value={formData.coach_description}
                         onChange={e => setFormData({ ...formData, coach_description: e.target.value })}
-                        placeholder=\"Brief bio visible to members...\"
+                        placeholder="Brief bio visible to members..."
                         rows={3}
                         className={`${inputCls} resize-none`}
                       />
@@ -1338,7 +1338,7 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
                     <div>
                       <label className={labelCls}>Birth Date</label>
                       <input
-                        type=\"date\"
+                        type="date"
                         value={formData.birth_date}
                         onChange={e => setFormData({ ...formData, birth_date: e.target.value })}
                         className={inputCls}
@@ -1347,30 +1347,30 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
                     <div>
                       <label className={labelCls}>Gender</label>
                       <select value={formData.sex} onChange={e => setFormData({ ...formData, sex: e.target.value })} className={`${inputCls} appearance-none cursor-pointer`}>
-                        <option value=\"\">Select...</option>
-                        <option value=\"Male\">Male</option>
-                        <option value=\"Female\">Female</option>
-                        <option value=\"Non-binary\">Non-binary</option>
-                        <option value=\"Prefer not to say\">Prefer not to say</option>
+                        <option value="">Select...</option>
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                        <option value="Non-binary">Non-binary</option>
+                        <option value="Prefer not to say">Prefer not to say</option>
                       </select>
                     </div>
 
                     <div>
                       <label className={labelCls}>Tennis Hand</label>
-                      <div className=\"flex gap-3 mt-1\">
+                      <div className="flex gap-3 mt-1">
                         {handOptions.map(hand => (
                           <button
                             key={hand}
-                            type=\"button\"
+                            type="button"
                             onClick={() => setFormData({ ...formData, tennis_hand: hand })}
                             className={`flex-1 py-3.5 rounded-2xl text-xs font-black uppercase tracking-widest border-2 transition-all ${
                               formData.tennis_hand === hand
-                                ? (theme === \"DARK\" ? \"bg-[#ccff00] text-stone-950 border-[#ccff00]\" : \"bg-[#6348eb] text-white border-[#6348eb]\")
-                                : (theme === \"DARK\" ? \"border-stone-800 text-stone-400 hover:border-stone-600\" : \"border-stone-200 text-stone-500 hover:border-stone-400\")
+                                ? (theme === "DARK" ? "bg-[#ccff00] text-stone-950 border-[#ccff00]" : "bg-[#6348eb] text-white border-[#6348eb]")
+                                : (theme === "DARK" ? "border-stone-800 text-stone-400 hover:border-stone-600" : "border-stone-200 text-stone-500 hover:border-stone-400")
                             }`}
                           >
-                            <span className=\"material-symbols-outlined text-sm mr-1\" style={{ verticalAlign: \"middle\" }}>
-                              {hand === \"Right\" ? \"back_hand\" : \"front_hand\"}
+                            <span className="material-symbols-outlined text-sm mr-1" style={{ verticalAlign: "middle" }}>
+                              {hand === "Right" ? "back_hand" : "front_hand"}
                             </span>
                             {hand}
                           </button>
@@ -1380,18 +1380,18 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
 
                     <div>
                       <label className={labelCls}>Coaching For</label>
-                      <div className=\"flex flex-wrap gap-2 mt-1\">
+                      <div className="flex flex-wrap gap-2 mt-1">
                         {coachingGroups.map(group => {
                           const active = (formData.coaching_for || []).includes(group);
                           return (
                             <button
                               key={group}
-                              type=\"button\"
+                              type="button"
                               onClick={() => toggleCoachingFor(group)}
                               className={`px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest border-2 transition-all ${
                                 active
-                                  ? (theme === \"DARK\" ? \"bg-[#ccff00] text-stone-950 border-[#ccff00]\" : \"bg-[#6348eb] text-white border-[#6348eb]\")
-                                  : (theme === \"DARK\" ? \"border-stone-800 text-stone-400 hover:border-stone-600\" : \"border-stone-200 text-stone-500 hover:border-stone-400\")
+                                  ? (theme === "DARK" ? "bg-[#ccff00] text-stone-950 border-[#ccff00]" : "bg-[#6348eb] text-white border-[#6348eb]")
+                                  : (theme === "DARK" ? "border-stone-800 text-stone-400 hover:border-stone-600" : "border-stone-200 text-stone-500 hover:border-stone-400")
                               }`}
                             >
                               {group}
@@ -1401,48 +1401,48 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
                       </div>
                     </div>
 
-                    <div className=\"col-span-2\">
-                      <div className=\"flex items-center justify-between mb-2\">
+                    <div className="col-span-2">
+                      <div className="flex items-center justify-between mb-2">
                         <label className={labelCls}>Weekly Availability</label>
-                        <label className=\"flex items-center gap-2 cursor-pointer group\">
+                        <label className="flex items-center gap-2 cursor-pointer group">
                           <div className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-all ${
                             formData.availability_enabled 
-                              ? (theme === \"DARK\" ? \"bg-[#ccff00] border-[#ccff00]\" : \"bg-[#6348eb] border-[#6348eb]\") 
-                              : (theme === \"DARK\" ? \"border-stone-800\" : \"border-stone-200\")
+                              ? (theme === "DARK" ? "bg-[#ccff00] border-[#ccff00]" : "bg-[#6348eb] border-[#6348eb]") 
+                              : (theme === "DARK" ? "border-stone-800" : "border-stone-200")
                           }`}>
-                            {formData.availability_enabled && <span className={`material-symbols-outlined text-sm ${theme === \"DARK\" ? \"text-stone-950\" : \"text-white\"}`}>check</span>}
+                            {formData.availability_enabled && <span className={`material-symbols-outlined text-sm ${theme === "DARK" ? "text-stone-950" : "text-white"}`}>check</span>}
                           </div>
                           <input 
-                            type=\"checkbox\"
-                            className=\"hidden\"
+                            type="checkbox"
+                            className="hidden"
                             checked={formData.availability_enabled}
                             onChange={e => setFormData({ ...formData, availability_enabled: e.target.checked })}
                           />
                           <span className={`text-[10px] font-black uppercase tracking-widest ${
                             formData.availability_enabled 
-                              ? (theme === \"DARK\" ? \"text-[#ccff00]\" : \"text-[#6348eb]\") 
-                              : (theme === \"DARK\" ? \"text-stone-500\" : \"text-stone-400\")
+                              ? (theme === "DARK" ? "text-[#ccff00]" : "text-[#6348eb]") 
+                              : (theme === "DARK" ? "text-stone-500" : "text-stone-400")
                           }`}>Enable Dates</span>
                         </label>
                       </div>
 
                       {/* Date span — controlled by checkbox */}
-                      <div className={`flex items-center gap-4 mb-3 mt-1 transition-opacity ${!formData.availability_enabled ? \"opacity-30 pointer-events-none grayscale\" : \"opacity-100\"}`}>
-                        <div className=\"flex-1\">
-                          <label className={`text-[9px] font-black tracking-widest uppercase mb-1 block ${theme === \"DARK\" ? \"text-stone-600\" : \"text-stone-400\"}`}>From</label>
+                      <div className={`flex items-center gap-4 mb-3 mt-1 transition-opacity ${!formData.availability_enabled ? "opacity-30 pointer-events-none grayscale" : "opacity-100"}`}>
+                        <div className="flex-1">
+                          <label className={`text-[9px] font-black tracking-widest uppercase mb-1 block ${theme === "DARK" ? "text-stone-600" : "text-stone-400"}`}>From</label>
                           <input
-                            type=\"date\"
+                            type="date"
                             disabled={!formData.availability_enabled}
                             value={formData.availability_from}
                             onChange={e => setFormData(prev => ({ ...prev, availability_from: e.target.value }))}
                             className={inputCls}
                           />
                         </div>
-                        <div className={`text-xs font-black mt-5 ${theme === \"DARK\" ? \"text-stone-600\" : \"text-stone-400\"}`}>—</div>
-                        <div className=\"flex-1\">
-                          <label className={`text-[9px] font-black tracking-widest uppercase mb-1 block ${theme === \"DARK\" ? \"text-stone-600\" : \"text-stone-400\"}`}>To</label>
+                        <div className={`text-xs font-black mt-5 ${theme === "DARK" ? "text-stone-600" : "text-stone-400"}`}>—</div>
+                        <div className="flex-1">
+                          <label className={`text-[9px] font-black tracking-widest uppercase mb-1 block ${theme === "DARK" ? "text-stone-600" : "text-stone-400"}`}>To</label>
                           <input
-                            type=\"date\"
+                            type="date"
                             disabled={!formData.availability_enabled}
                             value={formData.availability_to}
                             onChange={e => setFormData(prev => ({ ...prev, availability_to: e.target.value }))}
@@ -1452,38 +1452,38 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
                       </div>
 
                       {/* Grid — always enabled */}
-                      <div className={`rounded-2xl border overflow-hidden mt-1 ${theme === \"DARK\" ? \"border-stone-800\" : \"border-stone-200\"}`}>
+                      <div className={`rounded-2xl border overflow-hidden mt-1 ${theme === "DARK" ? "border-stone-800" : "border-stone-200"}`}>
                         {/* Header row */}
-                        <div className={`grid border-b ${theme === \"DARK\" ? \"border-stone-800 bg-stone-900\" : \"border-stone-100 bg-stone-50\"}`} style={{ gridTemplateColumns: \"80px repeat(7, 1fr)\" }}>
-                          <div className={`px-3 py-2 text-[9px] font-black uppercase tracking-widest ${theme === \"DARK\" ? \"text-stone-600\" : \"text-stone-400\"}`}></div>
+                        <div className={`grid border-b ${theme === "DARK" ? "border-stone-800 bg-stone-900" : "border-stone-100 bg-stone-50"}`} style={{ gridTemplateColumns: "80px repeat(7, 1fr)" }}>
+                          <div className={`px-3 py-2 text-[9px] font-black uppercase tracking-widest ${theme === "DARK" ? "text-stone-600" : "text-stone-400"}`}></div>
                           {DAYS.map(d => (
-                            <div key={d} className={`px-2 py-2 text-center text-[9px] font-black uppercase tracking-widest ${theme === \"DARK\" ? \"text-stone-400\" : \"text-stone-600\"}`}>{d}</div>
+                            <div key={d} className={`px-2 py-2 text-center text-[9px] font-black uppercase tracking-widest ${theme === "DARK" ? "text-stone-400" : "text-stone-600"}`}>{d}</div>
                           ))}
                         </div>
                         {/* Slot rows */}
                         {SLOTS.map((slot, si) => (
                           <div
                             key={slot}
-                            className={`grid ${si < SLOTS.length - 1 ? `border-b ${theme === \"DARK\" ? \"border-stone-800\" : \"border-stone-100\"}` : \"\"}`}
-                            style={{ gridTemplateColumns: \"80px repeat(7, 1fr)\" }}
+                            className={`grid ${si < SLOTS.length - 1 ? `border-b ${theme === "DARK" ? "border-stone-800" : "border-stone-100"}` : ""}`}
+                            style={{ gridTemplateColumns: "80px repeat(7, 1fr)" }}
                           >
-                            <div className={`px-3 py-3 text-[9px] font-black uppercase tracking-widest flex items-center ${theme === \"DARK\" ? \"text-stone-500 bg-stone-900/50\" : \"text-stone-400 bg-stone-50/50\"}`}>
+                            <div className={`px-3 py-3 text-[9px] font-black uppercase tracking-widest flex items-center ${theme === "DARK" ? "text-stone-500 bg-stone-900/50" : "text-stone-400 bg-stone-50/50"}`}>
                               {slot}
                             </div>
                             {DAYS.map(day => {
                               const active = (formData.availability[day] || []).includes(slot);
                               return (
-                                <div key={day} className=\"flex items-center justify-center py-3\">
+                                <div key={day} className="flex items-center justify-center py-3">
                                   <button
-                                    type=\"button\"
+                                    type="button"
                                     onClick={() => toggleAvailability(day, slot)}
                                     className={`w-7 h-7 rounded-lg border-2 flex items-center justify-center transition-all ${
                                       active
-                                        ? (theme === \"DARK\" ? \"bg-[#ccff00] border-[#ccff00]\" : \"bg-[#6348eb] border-[#6348eb]\")
-                                        : (theme === \"DARK\" ? \"border-stone-700 hover:border-stone-500\" : \"border-stone-200 hover:border-stone-400\")
+                                        ? (theme === "DARK" ? "bg-[#ccff00] border-[#ccff00]" : "bg-[#6348eb] border-[#6348eb]")
+                                        : (theme === "DARK" ? "border-stone-700 hover:border-stone-500" : "border-stone-200 hover:border-stone-400")
                                     }`}
                                   >
-                                    {active && <span className={`material-symbols-outlined text-sm ${theme === \"DARK\" ? \"text-stone-950\" : \"text-white\"}`}>check</span>}
+                                    {active && <span className={`material-symbols-outlined text-sm ${theme === "DARK" ? "text-stone-950" : "text-white"}`}>check</span>}
                                   </button>
                                 </div>
                               );
@@ -1508,11 +1508,11 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
           setShowCreateModal(false);
           resetForm();
         }}
-        title=\"Create New Member\"
+        title="Create New Member"
         theme={theme}
         width={860}
         footer={
-          <div className=\"flex gap-4\">
+          <div className="flex gap-4">
             <button 
               onClick={() => {
                 setShowCreateModal(false);
@@ -1520,9 +1520,9 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
               }}
               disabled={isSaving}
               className={`flex-1 py-4 border rounded-2xl text-[10px] font-black tracking-widest transition-all uppercase ${
-                theme === \"DARK\" ? \"border-stone-800 text-stone-400 hover:bg-stone-900\" : 
-                \"bg-white border-stone-200 text-stone-900 hover:bg-stone-50 shadow-sm\"
-              } ${isSaving ? \"opacity-30 cursor-not-allowed\" : \"\"}`}
+                theme === "DARK" ? "border-stone-800 text-stone-400 hover:bg-stone-900" : 
+                "bg-white border-stone-200 text-stone-900 hover:bg-stone-50 shadow-sm"
+              } ${isSaving ? "opacity-30 cursor-not-allowed" : ""}`}
             >
               Cancel
             </button>
@@ -1530,58 +1530,58 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
               onClick={handleCreateUser}
               disabled={isSaving}
               className={`flex-1 py-4 rounded-2xl text-[10px] font-black tracking-widest transition-all uppercase shadow-lg flex items-center justify-center gap-3 ${
-                theme === \"DARK\" ? \"bg-[#ccff00] text-stone-950 shadow-[#ccff00]/20\" : 
-                \"bg-[#6348eb] text-white shadow-[#6348eb]/20\"
-              } ${isSaving ? \"opacity-70 cursor-not-allowed\" : \"hover:opacity-90\"}`}
+                theme === "DARK" ? "bg-[#ccff00] text-stone-950 shadow-[#ccff00]/20" : 
+                "bg-[#6348eb] text-white shadow-[#6348eb]/20"
+              } ${isSaving ? "opacity-70 cursor-not-allowed" : "hover:opacity-90"}`}
             >
               {isSaving ? (
                 <>
                   <div className={`h-3 w-3 animate-spin rounded-full border-2 border-t-transparent ${
-                    theme === \"DARK\" ? \"border-stone-950\" : \"border-white\"
+                    theme === "DARK" ? "border-stone-950" : "border-white"
                   }`}></div>
                   Processing...
                 </>
-              ) : \"Create Member\"}
+              ) : "Create Member"}
             </button>
           </div>
         }
       >
-        <div className=\"space-y-6\">
-          <p className={`text-sm leading-relaxed ${theme === \"DARK\" ? \"text-stone-400\" : \"text-stone-500\"}`}>
+        <div className="space-y-6">
+          <p className={`text-sm leading-relaxed ${theme === "DARK" ? "text-stone-400" : "text-stone-500"}`}>
             This will create a member in your organization responsible for monitoring operations and managing users associated with your business processes.
           </p>
 
           {/* Use the same 2-column layout logic as Edit modal */}
           {(() => {
-            const isCoach = (formData.roles || []).includes(\"R10002\") || formData.role === \"R10002\";
+            const isCoach = (formData.roles || []).includes("R10002") || formData.role === "R10002";
             
             return (
-              <div className=\"space-y-6\">
+              <div className="space-y-6">
                 {/* Portrait */}
-                <div className=\"flex flex-col items-center gap-2\">
-                  <div className=\"relative group\">
+                <div className="flex flex-col items-center gap-2">
+                  <div className="relative group">
                     <div className={`w-20 h-20 rounded-full overflow-hidden flex items-center justify-center border-4 transition-colors ${
-                      theme === \"DARK\" ? \"border-stone-800 bg-stone-900\" : \"border-stone-200 bg-stone-100\"
+                      theme === "DARK" ? "border-stone-800 bg-stone-900" : "border-stone-200 bg-stone-100"
                     }`}>
                       {formData.portrait_url ? (
-                        <img src={formData.portrait_url} alt=\"Portrait\" className=\"w-full h-full object-cover\" />
+                        <img src={formData.portrait_url} alt="Portrait" className="w-full h-full object-cover" />
                       ) : (
-                        <span className={`text-2xl font-black select-none ${theme === \"DARK\" ? \"text-stone-600\" : \"text-stone-400\"}`}>
-                          {(formData.first_name?.[0] || formData.email?.[0] || \"?\").toUpperCase()}
+                        <span className={`text-2xl font-black select-none ${theme === "DARK" ? "text-stone-600" : "text-stone-400"}`}>
+                          {(formData.first_name?.[0] || formData.email?.[0] || "?").toUpperCase()}
                         </span>
                       )}
                       {isUploadingPortrait && (
-                        <div className=\"absolute inset-0 flex items-center justify-center bg-black/50 rounded-full\">
-                          <div className=\"h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent\"></div>
+                        <div className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-full">
+                          <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent"></div>
                         </div>
                       )}
                     </div>
-                    <label className=\"absolute inset-0 flex items-center justify-center rounded-full cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity bg-black/50\">
-                      <span className=\"material-symbols-outlined text-white text-xl\">photo_camera</span>
+                    <label className="absolute inset-0 flex items-center justify-center rounded-full cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity bg-black/50">
+                      <span className="material-symbols-outlined text-white text-xl">photo_camera</span>
                       <input
-                        type=\"file\"
-                        accept=\"image/*\"
-                        className=\"hidden\"
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
                         disabled={isUploadingPortrait}
                         onChange={async (e) => {
                           const file = e.target.files?.[0];
@@ -1591,30 +1591,30 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
                       />
                     </label>
                   </div>
-                  <span className={`text-[8px] font-black uppercase tracking-widest mt-1 ${theme === \"DARK\" ? \"text-stone-600\" : \"text-stone-400\"}`}>Hover to upload</span>
+                  <span className={`text-[8px] font-black uppercase tracking-widest mt-1 ${theme === "DARK" ? "text-stone-600" : "text-stone-400"}`}>Hover to upload</span>
                   {formData.portrait_url && (
                     <button
-                      onClick={() => setFormData(prev => ({ ...prev, portrait_url: \"\" }))}
-                      className=\"text-[9px] font-black tracking-widest uppercase text-red-400 hover:text-red-600 transition-colors\"
+                      onClick={() => setFormData(prev => ({ ...prev, portrait_url: "" }))}
+                      className="text-[9px] font-black tracking-widest uppercase text-red-400 hover:text-red-600 transition-colors"
                     >
                       Remove Photo
                     </button>
                   )}
                 </div>
 
-                <div className=\"grid grid-cols-2 gap-x-8 gap-y-5\">
-                  {sectionDivider(\"Identity\")}
+                <div className="grid grid-cols-2 gap-x-8 gap-y-5">
+                  {sectionDivider("Identity")}
                   
                   {tenantId ? (
-                    <div className=\"col-span-2\">
+                    <div className="col-span-2">
                       <label className={labelCls}>Organization</label>
-                      <div className={readonlyCls}>{tenants.find(t => t.id === tenantId)?.name || \"Current Organization\"}</div>
+                      <div className={readonlyCls}>{tenants.find(t => t.id === tenantId)?.name || "Current Organization"}</div>
                     </div>
                   ) : (
                     <>
                       <div>
                         <label className={labelCls}>Tenant ID</label>
-                        <input value={formData.tenant_id} onChange={e => setFormData({ ...formData, tenant_id: e.target.value })} placeholder=\"e.g. T10001\" className={inputCls} />
+                        <input value={formData.tenant_id} onChange={e => setFormData({ ...formData, tenant_id: e.target.value })} placeholder="e.g. T10001" className={inputCls} />
                       </div>
                       <div>
                         <label className={labelCls}>Upcoming User ID</label>
@@ -1625,151 +1625,151 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
 
                   <div>
                     <label className={labelCls}>Company User ID</label>
-                    <input value={formData.company_user_id} onChange={e => setFormData({ ...formData, company_user_id: e.target.value })} placeholder=\"e.g. EMP-0042\" className={inputCls} />
+                    <input value={formData.company_user_id} onChange={e => setFormData({ ...formData, company_user_id: e.target.value })} placeholder="e.g. EMP-0042" className={inputCls} />
                   </div>
                   <div />
 
-                  {sectionDivider(\"Personal Info\")}
+                  {sectionDivider("Personal Info")}
                   
                   <div>
                     <label className={labelCls}>First Name</label>
-                    <input value={formData.first_name} onChange={e => setFormData({ ...formData, first_name: e.target.value })} placeholder=\"Jane\" className={inputCls} />
+                    <input value={formData.first_name} onChange={e => setFormData({ ...formData, first_name: e.target.value })} placeholder="Jane" className={inputCls} />
                   </div>
                   <div>
                     <label className={labelCls}>Last Name</label>
-                    <input value={formData.last_name} onChange={e => setFormData({ ...formData, last_name: e.target.value })} placeholder=\"Doe\" className={inputCls} />
+                    <input value={formData.last_name} onChange={e => setFormData({ ...formData, last_name: e.target.value })} placeholder="Doe" className={inputCls} />
                   </div>
                   
                   <div>
                     <label className={labelCls}>Email Address</label>
-                    <input value={formData.email} onChange={e => setFormData({ ...formData, email: e.target.value })} placeholder=\"user@company.com\" className={inputCls} />
+                    <input value={formData.email} onChange={e => setFormData({ ...formData, email: e.target.value })} placeholder="user@company.com" className={inputCls} />
                   </div>
                   <div>
                     <label className={labelCls}>Phone</label>
-                    <input value={formData.phone} onChange={e => setFormData({ ...formData, phone: e.target.value })} placeholder=\"123-456-7890\" className={inputCls} />
+                    <input value={formData.phone} onChange={e => setFormData({ ...formData, phone: e.target.value })} placeholder="123-456-7890" className={inputCls} />
                   </div>
 
-                  {sectionDivider(\"Account\")}
+                  {sectionDivider("Account")}
 
-                  <div className=\"col-span-2\">
+                  <div className="col-span-2">
                     <label className={labelCls}>Assigned Roles</label>
-                    <div className=\"flex flex-wrap gap-2 mt-1\">
+                    <div className="flex flex-wrap gap-2 mt-1">
                       {roles.map(r => {
                         const rid = r.role_id || r.id;
                         const active = (formData.roles || []).includes(rid) || formData.role === rid;
                         return (
                           <button
                             key={r.id}
-                            type=\"button\"
+                            type="button"
                             onClick={() => {
                               const current = formData.roles || [];
                               const next = active 
                                 ? current.filter(v => v !== rid) 
                                 : [...current, rid];
-                              setFormData(prev => ({ ...prev, roles: next, role: next[0] || \"\" }));
+                              setFormData(prev => ({ ...prev, roles: next, role: next[0] || "" }));
                             }}
                             className={`px-4 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest border-2 transition-all flex items-center gap-2 ${
                               active
-                                ? (theme === \"DARK\" ? \"bg-[#ccff00] text-stone-950 border-[#ccff00]\" : \"bg-[#6348eb] text-white border-[#6348eb]\")
-                                : (theme === \"DARK\" ? \"border-stone-800 text-stone-400 hover:border-stone-600\" : \"border-stone-200 text-stone-500 hover:border-stone-400\")
+                                ? (theme === "DARK" ? "bg-[#ccff00] text-stone-950 border-[#ccff00]" : "bg-[#6348eb] text-white border-[#6348eb]")
+                                : (theme === "DARK" ? "border-stone-800 text-stone-400 hover:border-stone-600" : "border-stone-200 text-stone-500 hover:border-stone-400")
                             }`}
                           >
-                            <span className=\"material-symbols-outlined text-sm\">
-                              {active ? \"check_circle\" : \"circle\"}
+                            <span className="material-symbols-outlined text-sm">
+                              {active ? "check_circle" : "circle"}
                             </span>
                             {r.role_name}
-                            {r.is_global && <span className=\"opacity-50 ml-1\">[G]</span>}
+                            {r.is_global && <span className="opacity-50 ml-1">[G]</span>}
                           </button>
                         );
                       })}
                     </div>
                   </div>
 
-                  <div className=\"col-span-2\">
-                    <label className=\"flex items-center gap-4 cursor-pointer group mt-2\">
+                  <div className="col-span-2">
+                    <label className="flex items-center gap-4 cursor-pointer group mt-2">
                       <div className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all ${
                         formData.invite_user 
-                          ? (theme === \"DARK\" ? \"bg-[#ccff00] border-[#ccff00]\" : \"bg-[#6348eb] border-[#6348eb]\") 
-                          : (theme === \"DARK\" ? \"border-stone-800\" : \"border-stone-200 shadow-sm\")
+                          ? (theme === "DARK" ? "bg-[#ccff00] border-[#ccff00]" : "bg-[#6348eb] border-[#6348eb]") 
+                          : (theme === "DARK" ? "border-stone-800" : "border-stone-200 shadow-sm")
                       }`}>
-                        {formData.invite_user && <span className={`material-symbols-outlined text-lg ${theme === \"DARK\" ? \"text-stone-950\" : \"text-white\"}`}>check</span>}
+                        {formData.invite_user && <span className={`material-symbols-outlined text-lg ${theme === "DARK" ? "text-stone-950" : "text-white"}`}>check</span>}
                       </div>
                       <input 
-                        type=\"checkbox\"
-                        className=\"hidden\"
+                        type="checkbox"
+                        className="hidden"
                         checked={formData.invite_user}
                         onChange={e => setFormData({ ...formData, invite_user: e.target.checked })}
                       />
                       <span className={`text-sm font-bold transition-colors ${
-                        theme === \"DARK\" ? \"text-white\" : \"text-stone-900\"
+                        theme === "DARK" ? "text-white" : "text-stone-900"
                       }`}>Invite user (Send verification email)</span>
                     </label>
                   </div>
 
-                  {sectionDivider(\"Mailing Address\")}
+                  {sectionDivider("Mailing Address")}
                   
                   <div>
                     <label className={labelCls}>Street Address 1</label>
-                    <input value={formData.address_street_1} onChange={e => setFormData({ ...formData, address_street_1: e.target.value })} placeholder=\"123 Main St\" className={inputCls} />
+                    <input value={formData.address_street_1} onChange={e => setFormData({ ...formData, address_street_1: e.target.value })} placeholder="123 Main St" className={inputCls} />
                   </div>
                   <div>
                     <label className={labelCls}>Street Address 2</label>
-                    <input value={formData.address_street_2} onChange={e => setFormData({ ...formData, address_street_2: e.target.value })} placeholder=\"Apt 4B\" className={inputCls} />
+                    <input value={formData.address_street_2} onChange={e => setFormData({ ...formData, address_street_2: e.target.value })} placeholder="Apt 4B" className={inputCls} />
                   </div>
                   
                   <div>
                     <label className={labelCls}>City</label>
-                    <input value={formData.address_city} onChange={e => setFormData({ ...formData, address_city: e.target.value })} placeholder=\"New York\" className={inputCls} />
+                    <input value={formData.address_city} onChange={e => setFormData({ ...formData, address_city: e.target.value })} placeholder="New York" className={inputCls} />
                   </div>
-                  <div className=\"grid grid-cols-2 gap-4\">
+                  <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label className={labelCls}>State</label>
                       <select value={formData.address_state} onChange={e => setFormData({ ...formData, address_state: e.target.value })} className={`${inputCls} appearance-none cursor-pointer`}>
-                        <option value=\"\">State...</option>
+                        <option value="">State...</option>
                         {US_STATES.map(s => <option key={s} value={s}>{s}</option>)}
                       </select>
                     </div>
                     <div>
                       <label className={labelCls}>Zip</label>
-                      <input value={formData.address_zip} onChange={e => setFormData({ ...formData, address_zip: e.target.value })} placeholder=\"10001\" className={inputCls} />
+                      <input value={formData.address_zip} onChange={e => setFormData({ ...formData, address_zip: e.target.value })} placeholder="10001" className={inputCls} />
                     </div>
                   </div>
 
-                  {sectionDivider(\"Internal Notes\")}
+                  {sectionDivider("Internal Notes")}
                   
-                  <div className=\"col-span-2\">
+                  <div className="col-span-2">
                     <textarea
                       value={formData.notes}
                       onChange={e => setFormData({ ...formData, notes: e.target.value })}
-                      placeholder=\"Private notes...\"
+                      placeholder="Private notes..."
                       rows={3}
                       className={`${inputCls} resize-none`}
                     />
                   </div>
 
                   {/* Coach Details — toggled by role */}
-                  <div className={`col-span-2 pt-2 pb-1 border-b flex items-center justify-between transition-colors ${theme === \"DARK\" ? \"border-stone-800\" : \"border-stone-100\"}`}>
-                    <div className=\"flex items-center gap-3\">
-                      <span className={`text-[10px] font-black uppercase tracking-[0.2em] ${theme === \"DARK\" ? \"text-stone-500\" : \"text-stone-400\"}`}>Coach Details</span>
+                  <div className={`col-span-2 pt-2 pb-1 border-b flex items-center justify-between transition-colors ${theme === "DARK" ? "border-stone-800" : "border-stone-100"}`}>
+                    <div className="flex items-center gap-3">
+                      <span className={`text-[10px] font-black uppercase tracking-[0.2em] ${theme === "DARK" ? "text-stone-500" : "text-stone-400"}`}>Coach Details</span>
                       {isCoach && (
                         <span className={`text-[8px] font-black px-2 py-0.5 rounded-full uppercase tracking-widest ${
-                          theme === \"DARK\" ? \"bg-[#ccff00]/10 text-[#ccff00]\" : \"bg-[#6348eb]/10 text-[#6348eb]\"
+                          theme === "DARK" ? "bg-[#ccff00]/10 text-[#ccff00]" : "bg-[#6348eb]/10 text-[#6348eb]"
                         }`}>Coach Role Active</span>
                       )}
                     </div>
                     {!isCoach && (
-                      <span className={`text-[9px] font-medium ${theme === \"DARK\" ? \"text-stone-600\" : \"text-stone-400\"}`}>Assign role R10002 to enable</span>
+                      <span className={`text-[9px] font-medium ${theme === "DARK" ? "text-stone-600" : "text-stone-400"}`}>Assign role R10002 to enable</span>
                     )}
                   </div>
 
                   {isCoach && (
                     <>
-                      <div className=\"col-span-2\">
+                      <div className="col-span-2">
                         <label className={labelCls}>Coach Description</label>
                         <textarea
                           value={formData.coach_description}
                           onChange={e => setFormData({ ...formData, coach_description: e.target.value })}
-                          placeholder=\"Brief bio visible to members...\"
+                          placeholder="Brief bio visible to members..."
                           rows={3}
                           className={`${inputCls} resize-none`}
                         />
@@ -1778,7 +1778,7 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
                       <div>
                         <label className={labelCls}>Birth Date</label>
                         <input
-                          type=\"date\"
+                          type="date"
                           value={formData.birth_date}
                           onChange={e => setFormData({ ...formData, birth_date: e.target.value })}
                           className={inputCls}
@@ -1787,30 +1787,30 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
                       <div>
                         <label className={labelCls}>Gender</label>
                         <select value={formData.sex} onChange={e => setFormData({ ...formData, sex: e.target.value })} className={`${inputCls} appearance-none cursor-pointer`}>
-                          <option value=\"\">Select...</option>
-                          <option value=\"Male\">Male</option>
-                          <option value=\"Female\">Female</option>
-                          <option value=\"Non-binary\">Non-binary</option>
-                          <option value=\"Prefer not to say\">Prefer not to say</option>
+                          <option value="">Select...</option>
+                          <option value="Male">Male</option>
+                          <option value="Female">Female</option>
+                          <option value="Non-binary">Non-binary</option>
+                          <option value="Prefer not to say">Prefer not to say</option>
                         </select>
                       </div>
 
                       <div>
                         <label className={labelCls}>Tennis Hand</label>
-                        <div className=\"flex gap-3 mt-1\">
+                        <div className="flex gap-3 mt-1">
                           {handOptions.map(hand => (
                             <button
                               key={hand}
-                              type=\"button\"
+                              type="button"
                               onClick={() => setFormData({ ...formData, tennis_hand: hand })}
                               className={`flex-1 py-3.5 rounded-2xl text-xs font-black uppercase tracking-widest border-2 transition-all ${
                                 formData.tennis_hand === hand
-                                  ? (theme === \"DARK\" ? \"bg-[#ccff00] text-stone-950 border-[#ccff00]\" : \"bg-[#6348eb] text-white border-[#6348eb]\")
-                                  : (theme === \"DARK\" ? \"border-stone-800 text-stone-400 hover:border-stone-600\" : \"border-stone-200 text-stone-500 hover:border-stone-400\")
+                                  ? (theme === "DARK" ? "bg-[#ccff00] text-stone-950 border-[#ccff00]" : "bg-[#6348eb] text-white border-[#6348eb]")
+                                  : (theme === "DARK" ? "border-stone-800 text-stone-400 hover:border-stone-600" : "border-stone-200 text-stone-500 hover:border-stone-400")
                               }`}
                             >
-                              <span className=\"material-symbols-outlined text-sm mr-1\" style={{ verticalAlign: \"middle\" }}>
-                                {hand === \"Right\" ? \"back_hand\" : \"front_hand\"}
+                              <span className="material-symbols-outlined text-sm mr-1" style={{ verticalAlign: "middle" }}>
+                                {hand === "Right" ? "back_hand" : "front_hand"}
                               </span>
                               {hand}
                             </button>
@@ -1820,18 +1820,18 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
 
                       <div>
                         <label className={labelCls}>Coaching For</label>
-                        <div className=\"flex flex-wrap gap-2 mt-1\">
+                        <div className="flex flex-wrap gap-2 mt-1">
                           {coachingGroups.map(group => {
                             const active = (formData.coaching_for || []).includes(group);
                             return (
                               <button
                                 key={group}
-                                type=\"button\"
+                                type="button"
                                 onClick={() => toggleCoachingFor(group)}
                                 className={`px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest border-2 transition-all ${
                                   active
-                                    ? (theme === \"DARK\" ? \"bg-[#ccff00] text-stone-950 border-[#ccff00]\" : \"bg-[#6348eb] text-white border-[#6348eb]\")
-                                    : (theme === \"DARK\" ? \"border-stone-800 text-stone-400 hover:border-stone-600\" : \"border-stone-200 text-stone-500 hover:border-stone-400\")
+                                    ? (theme === "DARK" ? "bg-[#ccff00] text-stone-950 border-[#ccff00]" : "bg-[#6348eb] text-white border-[#6348eb]")
+                                    : (theme === "DARK" ? "border-stone-800 text-stone-400 hover:border-stone-600" : "border-stone-200 text-stone-500 hover:border-stone-400")
                                 }`}
                               >
                                 {group}
@@ -1841,48 +1841,48 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
                         </div>
                       </div>
 
-                      <div className=\"col-span-2\">
-                        <div className=\"flex items-center justify-between mb-2\">
+                      <div className="col-span-2">
+                        <div className="flex items-center justify-between mb-2">
                           <label className={labelCls}>Weekly Availability</label>
-                          <label className=\"flex items-center gap-2 cursor-pointer group\">
+                          <label className="flex items-center gap-2 cursor-pointer group">
                             <div className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-all ${
                               formData.availability_enabled 
-                                ? (theme === \"DARK\" ? \"bg-[#ccff00] border-[#ccff00]\" : \"bg-[#6348eb] border-[#6348eb]\") 
-                                : (theme === \"DARK\" ? \"border-stone-800\" : \"border-stone-200\")
+                                ? (theme === "DARK" ? "bg-[#ccff00] border-[#ccff00]" : "bg-[#6348eb] border-[#6348eb]") 
+                                : (theme === "DARK" ? "border-stone-800" : "border-stone-200")
                             }`}>
-                              {formData.availability_enabled && <span className={`material-symbols-outlined text-sm ${theme === \"DARK\" ? \"text-stone-950\" : \"text-white\"}`}>check</span>}
+                              {formData.availability_enabled && <span className={`material-symbols-outlined text-sm ${theme === "DARK" ? "text-stone-950" : "text-white"}`}>check</span>}
                             </div>
                             <input 
-                              type=\"checkbox\"
-                              className=\"hidden\"
+                              type="checkbox"
+                              className="hidden"
                               checked={formData.availability_enabled}
                               onChange={e => setFormData({ ...formData, availability_enabled: e.target.checked })}
                             />
                             <span className={`text-[10px] font-black uppercase tracking-widest ${
                               formData.availability_enabled 
-                                ? (theme === \"DARK\" ? \"text-[#ccff00]\" : \"text-[#6348eb]\") 
-                                : (theme === \"DARK\" ? \"text-stone-500\" : \"text-stone-400\")
+                                ? (theme === "DARK" ? "text-[#ccff00]" : "text-[#6348eb]") 
+                                : (theme === "DARK" ? "text-stone-500" : "text-stone-400")
                             }`}>Enable Dates</span>
                           </label>
                         </div>
 
                         {/* Date span — controlled by checkbox */}
-                        <div className={`flex items-center gap-4 mb-3 mt-1 transition-opacity ${!formData.availability_enabled ? \"opacity-30 pointer-events-none grayscale\" : \"opacity-100\"}`}>
-                          <div className=\"flex-1\">
-                            <label className={`text-[9px] font-black tracking-widest uppercase mb-1 block ${theme === \"DARK\" ? \"text-stone-600\" : \"text-stone-400\"}`}>From</label>
+                        <div className={`flex items-center gap-4 mb-3 mt-1 transition-opacity ${!formData.availability_enabled ? "opacity-30 pointer-events-none grayscale" : "opacity-100"}`}>
+                          <div className="flex-1">
+                            <label className={`text-[9px] font-black tracking-widest uppercase mb-1 block ${theme === "DARK" ? "text-stone-600" : "text-stone-400"}`}>From</label>
                             <input
-                              type=\"date\"
+                              type="date"
                               disabled={!formData.availability_enabled}
                               value={formData.availability_from}
                               onChange={e => setFormData(prev => ({ ...prev, availability_from: e.target.value }))}
                               className={inputCls}
                             />
                           </div>
-                          <div className={`text-xs font-black mt-5 ${theme === \"DARK\" ? \"text-stone-600\" : \"text-stone-400\"}`}>—</div>
-                          <div className=\"flex-1\">
-                            <label className={`text-[9px] font-black tracking-widest uppercase mb-1 block ${theme === \"DARK\" ? \"text-stone-600\" : \"text-stone-400\"}`}>To</label>
+                          <div className={`text-xs font-black mt-5 ${theme === "DARK" ? "text-stone-600" : "text-stone-400"}`}>—</div>
+                          <div className="flex-1">
+                            <label className={`text-[9px] font-black tracking-widest uppercase mb-1 block ${theme === "DARK" ? "text-stone-600" : "text-stone-400"}`}>To</label>
                             <input
-                              type=\"date\"
+                              type="date"
                               disabled={!formData.availability_enabled}
                               value={formData.availability_to}
                               onChange={e => setFormData(prev => ({ ...prev, availability_to: e.target.value }))}
@@ -1892,36 +1892,36 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
                         </div>
 
                         {/* Grid — always enabled */}
-                        <div className={`rounded-2xl border overflow-hidden mt-1 ${theme === \"DARK\" ? \"border-stone-800\" : \"border-stone-200\"}`}>
-                          <div className={`grid border-b ${theme === \"DARK\" ? \"border-stone-800 bg-stone-900\" : \"border-stone-100 bg-stone-50\"}`} style={{ gridTemplateColumns: \"80px repeat(7, 1fr)\" }}>
-                            <div className={`px-3 py-2 text-[9px] font-black uppercase tracking-widest ${theme === \"DARK\" ? \"text-stone-600\" : \"text-stone-400\"}`}></div>
+                        <div className={`rounded-2xl border overflow-hidden mt-1 ${theme === "DARK" ? "border-stone-800" : "border-stone-200"}`}>
+                          <div className={`grid border-b ${theme === "DARK" ? "border-stone-800 bg-stone-900" : "border-stone-100 bg-stone-50"}`} style={{ gridTemplateColumns: "80px repeat(7, 1fr)" }}>
+                            <div className={`px-3 py-2 text-[9px] font-black uppercase tracking-widest ${theme === "DARK" ? "text-stone-600" : "text-stone-400"}`}></div>
                             {DAYS.map(d => (
-                              <div key={d} className={`px-2 py-2 text-center text-[9px] font-black uppercase tracking-widest ${theme === \"DARK\" ? \"text-stone-400\" : \"text-stone-600\"}`}>{d}</div>
+                              <div key={d} className={`px-2 py-2 text-center text-[9px] font-black uppercase tracking-widest ${theme === "DARK" ? "text-stone-400" : "text-stone-600"}`}>{d}</div>
                             ))}
                           </div>
                           {SLOTS.map((slot, si) => (
                             <div
                               key={slot}
-                              className={`grid ${si < SLOTS.length - 1 ? `border-b ${theme === \"DARK\" ? \"border-stone-800\" : \"border-stone-100\"}` : \"\"}`}
-                              style={{ gridTemplateColumns: \"80px repeat(7, 1fr)\" }}
+                              className={`grid ${si < SLOTS.length - 1 ? `border-b ${theme === "DARK" ? "border-stone-800" : "border-stone-100"}` : ""}`}
+                              style={{ gridTemplateColumns: "80px repeat(7, 1fr)" }}
                             >
-                              <div className={`px-3 py-3 text-[9px] font-black uppercase tracking-widest flex items-center ${theme === \"DARK\" ? \"text-stone-500 bg-stone-900/50\" : \"text-stone-400 bg-stone-50/50\"}`}>
+                              <div className={`px-3 py-3 text-[9px] font-black uppercase tracking-widest flex items-center ${theme === "DARK" ? "text-stone-500 bg-stone-900/50" : "text-stone-400 bg-stone-50/50"}`}>
                                 {slot}
                               </div>
                               {DAYS.map(day => {
                                 const active = (formData.availability[day] || []).includes(slot);
                                 return (
-                                  <div key={day} className=\"flex items-center justify-center py-3\">
+                                  <div key={day} className="flex items-center justify-center py-3">
                                     <button
-                                      type=\"button\"
+                                      type="button"
                                       onClick={() => toggleAvailability(day, slot)}
                                       className={`w-7 h-7 rounded-lg border-2 flex items-center justify-center transition-all ${
                                         active
-                                          ? (theme === \"DARK\" ? \"bg-[#ccff00] border-[#ccff00]\" : \"bg-[#6348eb] border-[#6348eb]\")
-                                          : (theme === \"DARK\" ? \"border-stone-700 hover:border-stone-500\" : \"border-stone-200 hover:border-stone-400\")
+                                          ? (theme === "DARK" ? "bg-[#ccff00] border-[#ccff00]" : "bg-[#6348eb] border-[#6348eb]")
+                                          : (theme === "DARK" ? "border-stone-700 hover:border-stone-500" : "border-stone-200 hover:border-stone-400")
                                       }`}
                                     >
-                                      {active && <span className={`material-symbols-outlined text-sm ${theme === \"DARK\" ? \"text-stone-950\" : \"text-white\"}`}>check</span>}
+                                      {active && <span className={`material-symbols-outlined text-sm ${theme === "DARK" ? "text-stone-950" : "text-white"}`}>check</span>}
                                     </button>
                                   </div>
                                 );
@@ -1941,20 +1941,20 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
 
       {/* App Notification Toast */}
       {notification && (
-        <div className=\"fixed top-8 left-1/2 -translate-x-1/2 z-[9999] animate-in fade-in slide-in-from-top-4 duration-300\">
+        <div className="fixed top-8 left-1/2 -translate-x-1/2 z-[9999] animate-in fade-in slide-in-from-top-4 duration-300">
           <div className={`px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-4 border ${
-            notification.type === \"SUCCESS\" 
-              ? (theme === \"DARK\" ? \"bg-[#ccff00] text-stone-950 border-[#ccff00]\" : \"bg-green-600 text-white border-green-500\")
-              : notification.type === \"ERROR\"
-              ? \"bg-red-600 text-white border-red-500\"
-              : (theme === \"DARK\" ? \"bg-stone-800 text-white border-stone-700\" : \"bg-white text-stone-900 border-stone-200\")
+            notification.type === "SUCCESS" 
+              ? (theme === "DARK" ? "bg-[#ccff00] text-stone-950 border-[#ccff00]" : "bg-green-600 text-white border-green-500")
+              : notification.type === "ERROR"
+              ? "bg-red-600 text-white border-red-500"
+              : (theme === "DARK" ? "bg-stone-800 text-white border-stone-700" : "bg-white text-stone-900 border-stone-200")
           }`}>
-            <span className=\"material-symbols-outlined text-xl\">
-              {notification.type === \"SUCCESS\" ? \"check_circle\" : notification.type === \"ERROR\" ? \"error\" : \"info\"}
+            <span className="material-symbols-outlined text-xl">
+              {notification.type === "SUCCESS" ? "check_circle" : notification.type === "ERROR" ? "error" : "info"}
             </span>
-            <span className=\"text-sm font-bold tracking-tight\">{notification.message}</span>
-            <button onClick={() => setNotification(null)} className=\"ml-2 hover:opacity-70\">
-              <span className=\"material-symbols-outlined text-lg\">close</span>
+            <span className="text-sm font-bold tracking-tight">{notification.message}</span>
+            <button onClick={() => setNotification(null)} className="ml-2 hover:opacity-70">
+              <span className="material-symbols-outlined text-lg">close</span>
             </button>
           </div>
         </div>
