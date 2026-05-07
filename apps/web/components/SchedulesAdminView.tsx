@@ -74,7 +74,7 @@ export default function SchedulesAdminView({ theme }: { theme: "LIGHT" | "DARK" 
   const [editingBooking, setEditingBooking] = useState<any | null>(null);
   const [showSettings, setShowSettings] = useState(false);
   const [tenantConfig, setTenantConfig] = useState<any>(null);
-  const [hidePast, setHidePast] = useState(false);
+  const [hidePast, setHidePast] = useState(true);
   const [rowSelection, setRowSelection] = useState({});
   const [columnFilters, setColumnFilters] = useState<any[]>([]);
 
