@@ -306,75 +306,106 @@ export default function SchedulesAdminView({ theme }: { theme: "LIGHT" | "DARK" 
         </div>
       )}
 
-      <div className={`border rounded-[2rem] overflow-hidden ${borderColor}`}>
-        <table className="w-full text-left border-collapse">
-          <thead className={headerBg}>
-            {table.getHeaderGroups().map((headerGroup: any) => (
-              <tr key={headerGroup.id}>
-                {headerGroup.headers.map((header: any) => (
-                  <th 
-                    key={header.id} 
-                    className={`px-6 py-4 text-[10px] font-black uppercase tracking-widest transition-colors relative group ${
-                      header.column.getCanSort() ? "cursor-pointer hover:text-stone-900" : ""
-                    } ${isDark ? "text-stone-500" : "text-stone-400"}`}
-                    style={{ width: header.getSize() }}
-                  >
-                    <div className="flex flex-col gap-3">
-                      <div className="flex items-center gap-2" onClick={header.column.getToggleSortingHandler()}>
-                        {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
-                        {header.column.getIsSorted() === "asc" && <span className="material-symbols-outlined text-sm">arrow_upward</span>}
-                        {header.column.getIsSorted() === "desc" && <span className="material-symbols-outlined text-sm">arrow_downward</span>}
-                      </div>
-                      
-                      {header.column.getCanFilter() && (
-                        <div className="relative" onClick={e => e.stopPropagation()}>
-                          <input
-                            type="text"
-                            value={(header.column.getFilterValue() as string) ?? ""}
-                            onChange={e => header.column.setFilterValue(e.target.value)}
-                            placeholder={`Filter...`}
-                            className={`w-full px-3 py-1.5 rounded-lg border text-[9px] font-bold outline-none transition-all ${
-                              isDark ? "bg-stone-950 border-stone-800 text-white focus:border-[#ccff00]" : "bg-white border-stone-200 text-stone-900 focus:border-stone-400 shadow-sm"
-                            }`}
-                          />
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Resizer */}
-                    <div
-                      onMouseDown={header.getResizeHandler()}
-                      onTouchStart={header.getResizeHandler()}
-                      className={`absolute right-0 top-0 h-full w-[2px] cursor-col-resize select-none touch-none hover:bg-emerald-500 transition-colors ${
-                        header.column.getIsResizing() ? "bg-emerald-500" : (isDark ? "bg-stone-800" : "bg-stone-200")
+      <div className={`border rounded-xl shadow-sm transition-colors duration-500 ${
+        isDark ? "bg-stone-950 border-stone-800" : 
+        theme === "VINTAGE" ? "bg-white border-transparent shadow-md" :
+        "bg-white border-stone-200"
+      }`}>
+        <div className="overflow-x-auto">
+          <table className="w-full text-left border-collapse">
+            <thead className={`sticky top-0 z-10 border-b transition-colors duration-500 ${
+              isDark ? "bg-stone-900 border-stone-800" : 
+              theme === "VINTAGE" ? "bg-white border-stone-100" :
+              "bg-stone-100 border-stone-900"
+            }`}>
+              {table.getHeaderGroups().map((headerGroup: any) => (
+                <tr key={headerGroup.id}>
+                  {headerGroup.headers.map((header: any) => (
+                    <th 
+                      key={header.id} 
+                      className={`px-6 py-4 text-[10px] font-black uppercase tracking-widest relative border-r last:border-r-0 transition-colors duration-500 ${
+                        isDark ? "text-[#ccff00] border-stone-800 bg-stone-900" : 
+                        theme === "VINTAGE" ? "text-black border-stone-100 bg-white" :
+                        "text-black border-stone-900 bg-stone-100"
                       }`}
-                    />
-                  </th>
-                ))}
-              </tr>
-            ))}
-          </thead>
-          <tbody className={isDark ? "bg-black" : "bg-white"}>
-            {table.getRowModel().rows.map((row: any) => (
-              <tr 
-                key={row.id} 
-                className={`border-t transition-all ${borderColor} ${isDark ? "hover:bg-stone-900/50" : "hover:bg-stone-50/50"}`}
-              >
-                {row.getVisibleCells().map((cell: any) => (
-                  <td 
-                    key={cell.id} 
-                    className="px-6 py-5 text-sm font-medium relative"
-                    style={{ width: cell.column.getSize() }}
-                  >
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                    {/* Vertical line separator in body */}
-                    <div className={`absolute right-0 top-0 h-full w-[1px] ${isDark ? "bg-stone-800/50" : "bg-stone-100"}`} />
-                  </td>
-                ))}
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                      style={{ width: header.getSize() }}
+                    >
+                      <div className="space-y-3">
+                        <div 
+                          className={`flex items-center justify-between ${header.column.getCanSort() ? "cursor-pointer hover:opacity-70" : ""}`}
+                          onClick={header.column.getToggleSortingHandler()}
+                        >
+                          <div className="flex-1 flex items-center gap-2">
+                            {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
+                            {header.column.getIsSorted() === "asc" && <span className="material-symbols-outlined text-sm">arrow_upward</span>}
+                            {header.column.getIsSorted() === "desc" && <span className="material-symbols-outlined text-sm">arrow_downward</span>}
+                          </div>
+                        </div>
+                        
+                        {header.column.getCanFilter() ? (
+                          <div className="relative" onClick={e => e.stopPropagation()}>
+                            <input
+                              type="text"
+                              value={(header.column.getFilterValue() as string) ?? ""}
+                              onChange={e => header.column.setFilterValue(e.target.value)}
+                              placeholder={`Filter...`}
+                              className={`w-full border rounded-md px-3 py-1.5 text-xs font-medium outline-none transition-all ${
+                                isDark 
+                                  ? "bg-stone-950 border-stone-800 text-white focus:border-[#ccff00]" 
+                                  : theme === "VINTAGE"
+                                    ? "bg-[#f7f9fb] border-transparent text-black focus:border-stone-200"
+                                    : "bg-white border-stone-100 text-stone-900 focus:border-stone-400"
+                              }`}
+                            />
+                          </div>
+                        ) : <div className="h-6" />}
+                      </div>
+
+                      {/* Resizer */}
+                      <div
+                        onMouseDown={header.getResizeHandler()}
+                        onTouchStart={header.getResizeHandler()}
+                        className={`absolute right-0 top-0 h-full w-[2px] cursor-col-resize select-none touch-none hover:bg-emerald-500 transition-colors ${
+                          header.column.getIsResizing() ? "bg-emerald-500" : (isDark ? "bg-stone-800" : "bg-stone-200")
+                        }`}
+                      />
+                    </th>
+                  ))}
+                </tr>
+              ))}
+            </thead>
+            <tbody>
+              {table.getRowModel().rows.map((row: any, i: number) => (
+                <tr 
+                  key={row.id} 
+                  className={`border-b transition-colors group ${
+                    isDark 
+                      ? (i % 2 !== 0 ? 'bg-stone-900/40 border-stone-800' : 'bg-stone-950 border-stone-800 hover:bg-stone-900/60') 
+                      : theme === "VINTAGE"
+                        ? (i % 2 !== 0 ? 'bg-[#f7f9fb]/50 border-stone-100' : 'bg-white border-stone-100 hover:bg-[#f7f9fb]/80')
+                        : (i % 2 !== 0 ? 'bg-stone-50/50 border-stone-900' : 'bg-white border-stone-900 hover:bg-stone-50')
+                  }`}
+                >
+                  {row.getVisibleCells().map((cell: any) => (
+                    <td 
+                      key={cell.id} 
+                      className={`px-6 py-3 text-sm font-medium border-r last:border-r-0 transition-colors duration-500 ${
+                        isDark ? "text-stone-300 border-stone-800" : 
+                        theme === "VINTAGE" ? "text-black border-stone-100" :
+                        "text-stone-900 border-stone-900"
+                      }`}
+                      style={{ width: cell.column.getSize() }}
+                    >
+                      <div className="flex items-center min-h-[32px]">
+                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                      </div>
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
         {bookings.length === 0 && (
           <div className="py-20 text-center space-y-4">
             <div className={`w-16 h-16 rounded-3xl flex items-center justify-center mx-auto ${isDark ? "bg-stone-900 text-stone-700" : "bg-stone-50 text-stone-200"}`}>
