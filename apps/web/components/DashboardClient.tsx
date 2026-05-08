@@ -1215,32 +1215,52 @@ function ProfileView({ theme, profile, roles }: { theme: "LIGHT" | "DARK" | "VIN
 
   const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file || !profile) return;
+    if (!file) return;
+    
+    if (!profile || !profile.tenant_id || !profile.user_id) {
+      console.error("Missing profile data for upload:", profile);
+      alert("Error: Profile data incomplete. Please refresh and try again.");
+      return;
+    }
 
     setIsUploading(true);
     try {
+      console.log("Starting photo upload for:", profile.user_id);
       const compositeId = `${profile.tenant_id}_${profile.user_id}`;
-      const storageRef = ref(storage, `users/${compositeId}/portrait`);
+      const path = `users/${compositeId}/portrait`;
+      
+      console.log("Storage path:", path);
+      if (!storage) throw new Error("Firebase Storage not initialized");
+
+      const storageRef = ref(storage, path);
+      console.log("Storage ref created");
+
       await uploadBytes(storageRef, file);
+      console.log("Bytes uploaded");
+
       const photoURL = await getDownloadURL(storageRef);
+      console.log("Download URL obtained:", photoURL);
 
       // Update global_users doc
+      if (!profile.id) throw new Error("Missing profile Firestore ID");
       const userRef = doc(db, "global_users", profile.id);
       await updateDoc(userRef, {
         portrait_url: photoURL,
-        updated_at: new Date().toISOString()
+        updated_at: serverTimestamp()
       });
+      console.log("Firestore updated");
 
       // Update auth profile
       if (auth.currentUser) {
         await updateProfile(auth.currentUser, { photoURL });
+        console.log("Auth profile updated");
       }
 
       setShowSuccess("Profile photo updated!");
       setTimeout(() => setShowSuccess(null), 3000);
-    } catch (err) {
+    } catch (err: any) {
       console.error("Photo upload error:", err);
-      alert("Failed to upload photo. Please try again.");
+      alert(`Failed to upload photo: ${err.message || "Unknown error"}`);
     } finally {
       setIsUploading(false);
     }
