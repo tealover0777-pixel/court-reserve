@@ -22,6 +22,7 @@ interface UserProfile {
   availability_to?: string;
   availability_enabled?: boolean;
   id: string;
+  portrait_url?: string;
 }
 
 interface AuthContextType {

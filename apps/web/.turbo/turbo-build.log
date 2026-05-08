@@ -7,16 +7,24 @@
 
 [37m[1m [22m[39m Creating an optimized production build ...
 [32m[1m✓[22m[39m Compiled successfully in 3.1s
-[?25l[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[2K[1G[?25h[?25l[37m[1m [22m[39m Finished TypeScript in 3.5s  [36m.[39m[2K[1G[?25h[37m[1m [22m[39m Finished TypeScript in 3.5s    [32m[1m✓[22m[39m Finished TypeScript in 3.5s 
-[?25l[37m[1m [22m[39m Collecting page data using 5 workers  [36m.[39m[2K[1G[37m[1m [22m[39m Collecting page data using 5 workers  [36m..[39m[2K[1G[?25h[37m[1m [22m[39m Collecting page data using 5 workers in 274ms    [32m[1m✓[22m[39m Collecting page data using 5 workers in 274ms 
-[?25l[37m[1m [22m[39m Generating static pages using 5 workers (0/4)  [36m[    ][39m[2K[1G[37m[1m [22m[39m Generating static pages using 5 workers (0/4)  [36m[=   ][39m[2K[1G[37m[1m [22m[39m Generating static pages using 5 workers (0/4)  [36m[==  ][39m[2K[1G[?25h[32m[1m✓[22m[39m Generating static pages using 5 workers (4/4) in 417ms
-[?25l[37m[1m [22m[39m Finalizing page optimization  [36m.[39m[2K[1G[37m[1m [22m[39m Finalizing page optimization  [36m..[39m[2K[1G[37m[1m [22m[39m Finalizing page optimization  [36m...[39m[2K[1G[?25h[37m[1m [22m[39m Finalizing page optimization in 528ms    [32m[1m✓[22m[39m Finalizing page optimization in 528ms 
+[?25l[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[31mFailed to type check.
+[39m
+[36m./components/DashboardClient.tsx[39m:[33m374[39m:[33m25[39m
+[31m[1mType error[22m[39m: Property 'portrait_url' does not exist on type 'UserProfile'.
 
-[4mRoute (app)[24m
-┌ ○ /
-└ ○ /_not-found
-
-
-○  (Static)  prerendered as static content
-
-[?25h⠙[1G[0K
+  [90m372 |[0m                 [32m"bg-stone-100 group-hover:border-[#4f6b28]"[0m
+  [90m373 |[0m               [32m}`[0m}>
+[31m[1m>[0m [90m374 |[0m               {profile?.portrait_url || authUser?.photoURL ? (
+  [90m    |[0m                         [31m[1m^[0m
+  [90m375 |[0m                 <img
+  [90m376 |[0m                   src={profile?.portrait_url || authUser?.photoURL || [32m""[0m}
+  [90m377 |[0m                   alt=[32m"Profile"[0m
+[2K[1G[?25hNext.js build worker exited with code: 1 and signal: null
+[?25l [36m.[39m [?25h⠙[1G[0K[1mnpm[22m [31merror[39m Lifecycle script `build` failed with error:
+⠙[1G[0K[1mnpm[22m [31merror[39m [94mcode[39m [33m1[39m
+⠙[1G[0K[1mnpm[22m [31merror[39m [94mpath[39m /Users/kyuahn/Documents/AVG/court-reserve/apps/web
+⠙[1G[0K[1mnpm[22m [31merror[39m [94mworkspace[39m web@0.1.0
+⠙[1G[0K[1mnpm[22m [31merror[39m [94mlocation[39m /Users/kyuahn/Documents/AVG/court-reserve/apps/web
+⠙[1G[0K[1mnpm[22m [31merror[39m command failed
+⠙[1G[0K[1mnpm[22m [31merror[39m [94mcommand[39m sh -c next build
+⠙[1G[0K
