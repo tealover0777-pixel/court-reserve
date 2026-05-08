@@ -1206,7 +1206,8 @@ function ProfileView({ theme, profile, roles }: { theme: "LIGHT" | "DARK" | "VIN
     first_name: profile?.first_name || "",
     last_name: profile?.last_name || "",
     phone: profile?.phone || "",
-    address_street: profile?.address_street || "",
+    address_street_1: profile?.address_street_1 || profile?.address_street || "",
+    address_street_2: profile?.address_street_2 || "",
     address_city: profile?.address_city || "",
     address_state: profile?.address_state || "",
     address_zip: profile?.address_zip || ""
@@ -1218,7 +1219,8 @@ function ProfileView({ theme, profile, roles }: { theme: "LIGHT" | "DARK" | "VIN
         first_name: profile.first_name || "",
         last_name: profile.last_name || "",
         phone: profile.phone || "",
-        address_street: profile.address_street || "",
+        address_street_1: profile.address_street_1 || profile.address_street || "",
+        address_street_2: profile.address_street_2 || "",
         address_city: profile.address_city || "",
         address_state: profile.address_state || "",
         address_zip: profile.address_zip || ""
@@ -1308,7 +1310,7 @@ function ProfileView({ theme, profile, roles }: { theme: "LIGHT" | "DARK" | "VIN
             {[
               { label: "REGISTERED EMAIL", value: profile?.email || "alex.sterling@pro.com" },
               { label: "PHONE VERIFIED", value: profile?.phone || "+1 (555) 042-9901" },
-              { label: "MAILING ADDRESS", value: profile?.address_street ? `${profile.address_street}, ${profile.address_city}, ${profile.address_state} ${profile.address_zip}` : "NOT PROVIDED" },
+              { label: "MAILING ADDRESS", value: (profile?.address_street_1 || profile?.address_street) ? `${profile?.address_street_1 || profile?.address_street}${profile?.address_street_2 ? `, ${profile.address_street_2}` : ""}, ${profile.address_city}, ${profile.address_state} ${profile.address_zip}` : "NOT PROVIDED" },
               { label: "INTERNAL ID", value: profile?.user_id || "U00001" },
             ].map((item, i) => (
               <div key={i} className={item.label === "MAILING ADDRESS" ? "col-span-2" : ""}>
@@ -1360,14 +1362,25 @@ function ProfileView({ theme, profile, roles }: { theme: "LIGHT" | "DARK" | "VIN
                   />
                 </div>
               </div>
-              <div>
-                <label className="text-[10px] font-black uppercase tracking-widest text-stone-400 mb-3 block">Street Address</label>
-                <input
-                  value={formData.address_street}
-                  onChange={e => setFormData({ ...formData, address_street: e.target.value })}
-                  placeholder="123 Tennis Court Lane"
-                  className={`w-full bg-transparent border-b-2 py-4 text-lg font-bold outline-none transition-colors ${isDark ? "border-stone-800 focus:border-[#ccff00] text-white" : "border-stone-100 focus:border-[#4f6b28] text-stone-900"}`}
-                />
+              <div className="grid grid-cols-2 gap-8">
+                <div>
+                  <label className="text-[10px] font-black uppercase tracking-widest text-stone-400 mb-3 block">Street Address 1</label>
+                  <input
+                    value={formData.address_street_1}
+                    onChange={e => setFormData({ ...formData, address_street_1: e.target.value })}
+                    placeholder="123 Tennis Court Lane"
+                    className={`w-full bg-transparent border-b-2 py-4 text-lg font-bold outline-none transition-colors ${isDark ? "border-stone-800 focus:border-[#ccff00] text-white" : "border-stone-100 focus:border-[#4f6b28] text-stone-900"}`}
+                  />
+                </div>
+                <div>
+                  <label className="text-[10px] font-black uppercase tracking-widest text-stone-400 mb-3 block">Street Address 2</label>
+                  <input
+                    value={formData.address_street_2}
+                    onChange={e => setFormData({ ...formData, address_street_2: e.target.value })}
+                    placeholder="Apt 4B"
+                    className={`w-full bg-transparent border-b-2 py-4 text-lg font-bold outline-none transition-colors ${isDark ? "border-stone-800 focus:border-[#ccff00] text-white" : "border-stone-100 focus:border-[#4f6b28] text-stone-900"}`}
+                  />
+                </div>
               </div>
               <div>
                 <label className="text-[10px] font-black uppercase tracking-widest text-stone-400 mb-3 block">Phone Number</label>

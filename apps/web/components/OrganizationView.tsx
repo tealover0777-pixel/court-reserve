@@ -197,7 +197,7 @@ function InfoTab({ data, onSave, isSaving, theme }: any) {
 
         <div className="space-y-8">
           <h4 className={`text-[10px] font-black tracking-[0.2em] uppercase opacity-40 ${isDark ? "text-white" : "text-stone-900"}`}>Address</h4>
-          <FormField label="Street Address" theme={theme}>
+          <FormField label="Street Address 1" theme={theme}>
             <input
               value={formData.address_street_1 || ""}
               onChange={(e) => setFormData({ ...formData, address_street_1: e.target.value })}
@@ -205,7 +205,7 @@ function InfoTab({ data, onSave, isSaving, theme }: any) {
               placeholder="123 Tennis Ave"
             />
           </FormField>
-          <FormField label="Suite / Unit" theme={theme}>
+          <FormField label="Street Address 2" theme={theme}>
             <input
               value={formData.address_street_2 || ""}
               onChange={(e) => setFormData({ ...formData, address_street_2: e.target.value })}
