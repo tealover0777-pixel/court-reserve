@@ -294,6 +294,13 @@ export default function DashboardClient({ params }: { params: { tenantId: string
               theme={theme}
             />
           )}
+          <NavItem
+            icon="person"
+            label="Profile"
+            active={activeView === "PROFILE"}
+            onClick={() => handleViewChange("PROFILE")}
+            theme={theme}
+          />
           {hasPermission("PLATFORM_VIEW") && (
             <>
               <NavItem
@@ -1300,7 +1307,7 @@ function ProfileView({ theme, profile, roles }: { theme: "LIGHT" | "DARK" | "VIN
       </div>
 
       <div className="grid grid-cols-12 gap-8">
-        <div className={`col-span-12 lg:col-span-7 rounded-[40px] p-12 shadow-xl space-y-10 transition-colors border ${isDark ? "bg-stone-900 border-stone-800" :
+        <div className={`col-span-12 rounded-[40px] p-12 shadow-xl space-y-10 transition-colors border ${isDark ? "bg-stone-900 border-stone-800" :
           isVintage ? "bg-white border-stone-50" :
             "bg-[#fdfbe6] border-transparent"
           }`}>
@@ -1449,34 +1456,7 @@ function ProfileView({ theme, profile, roles }: { theme: "LIGHT" | "DARK" | "VIN
           </div>
         </div>
 
-        <div className={`col-span-12 lg:col-span-5 rounded-[40px] p-12 shadow-xl flex flex-col justify-between transition-colors border ${isDark ? "bg-stone-950 border-stone-800" :
-          isVintage ? "bg-white border-stone-50" :
-            "bg-white border-stone-100"
-          }`}>
-          <div>
-            <h3 className={`text-3xl font-black tracking-tighter uppercase mb-8 transition-colors ${isDark ? "text-white" : "text-black"
-              }`}>Performance</h3>
-            <div className="space-y-8">
-              <div className="flex justify-between items-end">
-                <span className="text-[10px] font-black text-stone-400 tracking-widest uppercase">Season Progress</span>
-                <span className={`text-sm font-black ${isDark ? "text-[#ccff00]" : "text-black"}`}>74%</span>
-              </div>
-              <div className={`h-3 rounded-full overflow-hidden transition-colors ${isDark ? "bg-stone-900" : "bg-stone-100"
-                }`}>
-                <div className={`h-full w-[74%] rounded-full shadow-lg transition-colors ${isDark ? "bg-[#ccff00]" : isVintage ? "bg-black" : "bg-[#cfff00]"
-                  }`}></div>
-              </div>
-              <p className={`text-sm font-medium leading-relaxed transition-colors ${isDark ? "text-stone-500" : "text-stone-500"
-                }`}>
-                You've completed 12 matches this session. 4 more to qualify for the Autumn Championship.
-              </p>
-            </div>
-          </div>
-          <button className={`mt-12 w-full py-4 rounded-2xl text-[10px] font-black tracking-widest transition-colors uppercase ${isDark ? "bg-[#ccff00] text-stone-950" : "bg-black text-white"
-            }`}>
-            VIEW ANALYTICS
-          </button>
-        </div>
+
       </div>
     </div>
   );
