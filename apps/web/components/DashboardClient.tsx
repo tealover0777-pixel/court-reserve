@@ -40,8 +40,6 @@ export default function DashboardClient({ params }: { params: { tenantId: string
   const [theme, setTheme] = React.useState<"LIGHT" | "DARK" | "VINTAGE">("LIGHT");
   const [roles, setRoles] = React.useState<any[]>([]);
   const [allTenants, setAllTenants] = React.useState<any[]>([]);
-  const [isUploading, setIsUploading] = React.useState(false);
-  const fileInputRef = React.useRef<HTMLInputElement>(null);
   const [globalTenant, setGlobalTenant] = React.useState<any>(null);
   const [isTenantSelectorOpen, setIsTenantSelectorOpen] = React.useState(false);
   const { user: authUser, profile, loading: authLoading } = useAuth();
@@ -1212,6 +1210,41 @@ function ProfileView({ theme, profile, roles }: { theme: "LIGHT" | "DARK" | "VIN
   const [showEditModal, setShowEditModal] = React.useState(false);
   const [isSaving, setIsSaving] = React.useState(false);
   const [showSuccess, setShowSuccess] = React.useState<string | null>(null);
+  const [isUploading, setIsUploading] = React.useState(false);
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
+
+  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !profile) return;
+
+    setIsUploading(true);
+    try {
+      const compositeId = `${profile.tenant_id}_${profile.user_id}`;
+      const storageRef = ref(storage, `users/${compositeId}/portrait`);
+      await uploadBytes(storageRef, file);
+      const photoURL = await getDownloadURL(storageRef);
+
+      // Update global_users doc
+      const userRef = doc(db, "global_users", profile.id);
+      await updateDoc(userRef, {
+        portrait_url: photoURL,
+        updated_at: new Date().toISOString()
+      });
+
+      // Update auth profile
+      if (auth.currentUser) {
+        await updateProfile(auth.currentUser, { photoURL });
+      }
+
+      setShowSuccess("Profile photo updated!");
+      setTimeout(() => setShowSuccess(null), 3000);
+    } catch (err) {
+      console.error("Photo upload error:", err);
+      alert("Failed to upload photo. Please try again.");
+    } finally {
+      setIsUploading(false);
+    }
+  };
   const [formData, setFormData] = React.useState({
     first_name: profile?.first_name || "",
     last_name: profile?.last_name || "",
@@ -1270,38 +1303,6 @@ function ProfileView({ theme, profile, roles }: { theme: "LIGHT" | "DARK" | "VIN
     }
   };
 
-  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file || !profile) return;
-
-    setIsUploading(true);
-    try {
-      const compositeId = `${profile.tenant_id}_${profile.user_id}`;
-      const storageRef = ref(storage, `users/${compositeId}/portrait`);
-      await uploadBytes(storageRef, file);
-      const photoURL = await getDownloadURL(storageRef);
-
-      // Update global_users doc
-      const userRef = doc(db, "global_users", profile.id);
-      await updateDoc(userRef, {
-        portrait_url: photoURL,
-        updated_at: new Date().toISOString()
-      });
-
-      // Update auth profile
-      if (auth.currentUser) {
-        await updateProfile(auth.currentUser, { photoURL });
-      }
-
-      setShowSuccess("Profile photo updated!");
-      setTimeout(() => setShowSuccess(null), 3000);
-    } catch (err) {
-      console.error("Photo upload error:", err);
-      alert("Failed to upload photo. Please try again.");
-    } finally {
-      setIsUploading(false);
-    }
-  };
 
   return (
     <div className="max-w-4xl space-y-16 animate-in fade-in slide-in-from-bottom-4 duration-700">
