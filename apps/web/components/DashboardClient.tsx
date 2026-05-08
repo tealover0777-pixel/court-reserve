@@ -4,7 +4,7 @@ import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import Image from "next/image";
 import { useTenant } from "../context/TenantContext";
 import { auth } from "../lib/firebase";
-import { signOut, sendPasswordResetEmail } from "firebase/auth";
+import { signOut, sendPasswordResetEmail, updateProfile } from "firebase/auth";
 import DimensionsView from "./DimensionsView";
 import RoleTypesView from "./RoleTypesView";
 import UserAdminView from "./UserAdminView";
@@ -17,7 +17,8 @@ import MemberAdminView from "./MemberAdminView";
 
 import { useAuth } from "../context/AuthContext";
 import { collection, onSnapshot, query, orderBy, doc, updateDoc, serverTimestamp } from "firebase/firestore";
-import { db } from "../lib/firebase";
+import { db, storage } from "../lib/firebase";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
 const US_STATES = [
   "AL", "AK", "AZ", "AR", "CA", "CO", "CT", "DE", "FL", "GA",
@@ -39,6 +40,8 @@ export default function DashboardClient({ params }: { params: { tenantId: string
   const [theme, setTheme] = React.useState<"LIGHT" | "DARK" | "VINTAGE">("LIGHT");
   const [roles, setRoles] = React.useState<any[]>([]);
   const [allTenants, setAllTenants] = React.useState<any[]>([]);
+  const [isUploading, setIsUploading] = React.useState(false);
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
   const [globalTenant, setGlobalTenant] = React.useState<any>(null);
   const [isTenantSelectorOpen, setIsTenantSelectorOpen] = React.useState(false);
   const { user: authUser, profile, loading: authLoading } = useAuth();
@@ -1267,6 +1270,39 @@ function ProfileView({ theme, profile, roles }: { theme: "LIGHT" | "DARK" | "VIN
     }
   };
 
+  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !profile) return;
+
+    setIsUploading(true);
+    try {
+      const compositeId = `${profile.tenant_id}_${profile.user_id}`;
+      const storageRef = ref(storage, `users/${compositeId}/portrait`);
+      await uploadBytes(storageRef, file);
+      const photoURL = await getDownloadURL(storageRef);
+
+      // Update global_users doc
+      const userRef = doc(db, "global_users", profile.id);
+      await updateDoc(userRef, {
+        portrait_url: photoURL,
+        updated_at: new Date().toISOString()
+      });
+
+      // Update auth profile
+      if (auth.currentUser) {
+        await updateProfile(auth.currentUser, { photoURL });
+      }
+
+      setShowSuccess("Profile photo updated!");
+      setTimeout(() => setShowSuccess(null), 3000);
+    } catch (err) {
+      console.error("Photo upload error:", err);
+      alert("Failed to upload photo. Please try again.");
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
   return (
     <div className="max-w-4xl space-y-16 animate-in fade-in slide-in-from-bottom-4 duration-700">
       {showSuccess && (
@@ -1278,12 +1314,33 @@ function ProfileView({ theme, profile, roles }: { theme: "LIGHT" | "DARK" | "VIN
       )}
 
       <div className="flex items-center gap-10">
-        <div className={`w-40 h-40 rounded-[40px] overflow-hidden border-4 shadow-2xl transition-colors ${isDark ? "border-stone-800" : "border-white"
+        <div className={`w-40 h-40 rounded-[40px] overflow-hidden border-4 shadow-2xl transition-all relative group ${isDark ? "border-stone-800" : "border-white"
           }`}>
           <img
             src={profile?.portrait_url || "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=2574&auto=format&fit=crop"}
             alt="Profile"
-            className="w-full h-full object-cover"
+            className={`w-full h-full object-cover transition-all ${isUploading ? "opacity-50 blur-sm" : "group-hover:scale-110 group-hover:opacity-50"}`}
+          />
+          <button
+            onClick={() => fileInputRef.current?.click()}
+            disabled={isUploading}
+            className="absolute inset-0 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-all text-white z-10"
+          >
+            {isUploading ? (
+              <div className={`h-8 w-8 animate-spin rounded-full border-4 border-t-transparent ${isDark ? "border-[#ccff00]" : "border-white"}`}></div>
+            ) : (
+              <>
+                <span className="material-symbols-outlined text-4xl mb-1">photo_camera</span>
+                <span className="text-[10px] font-black uppercase tracking-widest">Update</span>
+              </>
+            )}
+          </button>
+          <input
+            type="file"
+            ref={fileInputRef}
+            onChange={handlePhotoUpload}
+            accept="image/*"
+            className="hidden"
           />
         </div>
         <div>
