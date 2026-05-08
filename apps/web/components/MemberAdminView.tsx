@@ -71,6 +71,7 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
   const [isSaving, setIsSaving] = useState(false);
   const [userStatuses, setUserStatuses] = useState<string[]>([]);
   const [roles, setRoles] = useState<any[]>([]);
+  const [defaultPortraits, setDefaultPortraits] = useState<{ id: string; url: string; label: string }[]>([]);
   const [tenants, setTenants] = useState<any[]>([]);
   const [formData, setFormData] = useState({
     user_id: "",
@@ -200,11 +201,20 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
       setTenants(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
     });
 
+    const unsubscribeDefaultPortraits = onSnapshot(collection(db, "default_portraits"), (snapshot) => {
+      const data = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      })) as any[];
+      setDefaultPortraits(data);
+    });
+
     return () => {
       unsubscribe();
       unsubscribeStatus();
       unsubscribeRoles();
       unsubscribeTenants();
+      unsubscribeDefaultPortraits();
     };
   }, [tenantId]);
 
@@ -533,6 +543,30 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
 
   const columnHelper = createColumnHelper<User>();
   const columns = [
+    columnHelper.accessor("portrait_url", {
+      header: "PORTRAIT",
+      size: 80,
+      cell: info => {
+        const url = info.getValue();
+        return (
+          <div className="flex justify-center">
+            <div className={`w-10 h-10 rounded-full overflow-hidden border-2 transition-colors ${
+              theme === "DARK" ? "border-stone-800" : "border-stone-100"
+            }`}>
+              {url ? (
+                <img src={url} alt="User" className="w-full h-full object-cover" />
+              ) : (
+                <div className={`w-full h-full flex items-center justify-center ${
+                  theme === "DARK" ? "bg-stone-900 text-stone-700" : "bg-stone-50 text-stone-300"
+                }`}>
+                  <span className="material-symbols-outlined text-xl">person</span>
+                </div>
+              )}
+            </div>
+          </div>
+        );
+      }
+    }),
     columnHelper.accessor("user_id", {
       header: "USER ID",
       size: 120,
@@ -1163,12 +1197,7 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
                   <div className="flex flex-col items-center gap-3">
                     <span className={`text-[9px] font-black tracking-widest uppercase ${theme === "DARK" ? "text-stone-600" : "text-stone-400"}`}>Or select default</span>
                     <div className="flex gap-2">
-                      {[
-                        { id: 'male_light', url: '/images/defaults/male_light.png' },
-                        { id: 'female_light', url: '/images/defaults/female_light.png' },
-                        { id: 'male_dark', url: '/images/defaults/male_dark.png' },
-                        { id: 'female_dark', url: '/images/defaults/female_dark.png' },
-                      ].map((avatar) => (
+                      {defaultPortraits.map((avatar) => (
                         <button
                           key={avatar.id}
                           onClick={() => setFormData(prev => ({ ...prev, portrait_url: avatar.url }))}
@@ -1176,7 +1205,7 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
                             theme === "DARK" ? "border-stone-800 hover:border-[#ccff00]" : "border-stone-200 hover:border-[#4f6b28]"
                           }`}
                         >
-                          <img src={avatar.url} alt={avatar.id} className="w-full h-full object-cover" />
+                          <img src={avatar.url} alt={avatar.label} title={avatar.label} className="w-full h-full object-cover" />
                         </button>
                       ))}
                     </div>

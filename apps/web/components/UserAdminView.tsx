@@ -74,6 +74,8 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
   const [userStatuses, setUserStatuses] = useState<string[]>([]);
   const [roles, setRoles] = useState<any[]>([]);
   const [tenants, setTenants] = useState<any[]>([]);
+  const [defaultPortraits, setDefaultPortraits] = useState<{ id: string; url: string; label: string }[]>([]);
+  const [showDefaultPortraitsModal, setShowDefaultPortraitsModal] = useState(false);
   const [formData, setFormData] = useState({
     user_id: "",
     auth_uid: "",
@@ -202,11 +204,20 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
       setTenants(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
     });
 
+    const unsubscribeDefaultPortraits = onSnapshot(collection(db, "default_portraits"), (snapshot) => {
+      const data = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      })) as any[];
+      setDefaultPortraits(data);
+    });
+
     return () => {
       unsubscribe();
       unsubscribeStatus();
       unsubscribeRoles();
       unsubscribeTenants();
+      unsubscribeDefaultPortraits();
     };
   }, [tenantId]);
 
@@ -253,6 +264,33 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
       }
     }
   }, [currentUser, users, loading]);
+
+  useEffect(() => {
+    const seedDefaults = async () => {
+      try {
+        const q = query(collection(db, "default_portraits"));
+        const snap = await getDocs(q);
+        if (snap.empty) {
+          const initial = [
+            { id: 'DEF_1', label: 'Male Light', url: '/images/defaults/male_light.png' },
+            { id: 'DEF_2', label: 'Female Light', url: '/images/defaults/female_light.png' },
+            { id: 'DEF_3', label: 'Male Dark', url: '/images/defaults/male_dark.png' },
+            { id: 'DEF_4', label: 'Female Dark', url: '/images/defaults/female_dark.png' },
+          ];
+          for (const item of initial) {
+            await setDoc(doc(db, "default_portraits", item.id), {
+              label: item.label,
+              url: item.url,
+              created_at: new Date().toISOString()
+            });
+          }
+        }
+      } catch (err) {
+        console.error("Failed to seed default portraits:", err);
+      }
+    };
+    seedDefaults();
+  }, []);
 
   const handleDeleteUser = async () => {
     if (!confirmDelete) return;
@@ -557,6 +595,30 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
 
   const columnHelper = createColumnHelper<User>();
   const columns = [
+    columnHelper.accessor("portrait_url", {
+      header: "PORTRAIT",
+      size: 80,
+      cell: info => {
+        const url = info.getValue();
+        return (
+          <div className="flex justify-center">
+            <div className={`w-10 h-10 rounded-full overflow-hidden border-2 transition-colors ${
+              theme === "DARK" ? "border-stone-800" : "border-stone-100"
+            }`}>
+              {url ? (
+                <img src={url} alt="User" className="w-full h-full object-cover" />
+              ) : (
+                <div className={`w-full h-full flex items-center justify-center ${
+                  theme === "DARK" ? "bg-stone-900 text-stone-700" : "bg-stone-50 text-stone-300"
+                }`}>
+                  <span className="material-symbols-outlined text-xl">person</span>
+                </div>
+              )}
+            </div>
+          </div>
+        );
+      }
+    }),
     columnHelper.accessor("user_id", {
       header: "USER ID",
       size: 120,
@@ -861,6 +923,18 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
               onChange={(e) => table.setGlobalFilter(e.target.value)}
             />
           </div>
+          <button 
+            onClick={() => setShowDefaultPortraitsModal(true)}
+            className={`px-8 py-3 rounded-full font-black text-xs tracking-widest transition-all uppercase shadow-lg flex items-center gap-2 ${
+            theme === "DARK"
+              ? "bg-stone-800 text-white hover:bg-stone-700 shadow-black/20"
+              : theme === "VINTAGE"
+                ? "bg-white border border-stone-200 text-black hover:bg-stone-50"
+                : "bg-white border border-stone-200 text-stone-600 hover:bg-stone-50"
+          }`}>
+            <span className="material-symbols-outlined text-sm">auto_awesome</span>
+            Manage Defaults
+          </button>
           <button 
             onClick={() => {
               resetForm();
@@ -1187,12 +1261,7 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
                   <div className="flex flex-col items-center gap-3">
                     <span className={`text-[9px] font-black tracking-widest uppercase ${theme === "DARK" ? "text-stone-600" : "text-stone-400"}`}>Or select default</span>
                     <div className="flex gap-2">
-                      {[
-                        { id: 'male_light', url: '/images/defaults/male_light.png' },
-                        { id: 'female_light', url: '/images/defaults/female_light.png' },
-                        { id: 'male_dark', url: '/images/defaults/male_dark.png' },
-                        { id: 'female_dark', url: '/images/defaults/female_dark.png' },
-                      ].map((avatar) => (
+                      {defaultPortraits.map((avatar) => (
                         <button
                           key={avatar.id}
                           onClick={() => setFormData(prev => ({ ...prev, portrait_url: avatar.url }))}
@@ -1200,9 +1269,12 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
                             theme === "DARK" ? "border-stone-800 hover:border-[#ccff00]" : "border-stone-200 hover:border-[#4f6b28]"
                           }`}
                         >
-                          <img src={avatar.url} alt={avatar.id} className="w-full h-full object-cover" />
+                          <img src={avatar.url} alt={avatar.label} title={avatar.label} className="w-full h-full object-cover" />
                         </button>
                       ))}
+                      {defaultPortraits.length === 0 && (
+                        <span className="text-[10px] text-stone-400">No defaults defined</span>
+                      )}
                     </div>
                   </div>
                 )}
@@ -2003,6 +2075,95 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
           </div>
         </div>
       )}
+      {/* Default Portraits Management Modal */}
+      <Modal
+        isOpen={showDefaultPortraitsModal}
+        onClose={() => setShowDefaultPortraitsModal(false)}
+        title="Manage Default Portraits"
+        theme={theme}
+        width={600}
+      >
+        <div className="space-y-8">
+          <div className="grid grid-cols-2 gap-4">
+            {defaultPortraits.map((avatar) => (
+              <div 
+                key={avatar.id} 
+                className={`p-4 rounded-3xl border flex items-center gap-4 transition-all ${
+                  theme === "DARK" ? "bg-stone-900 border-stone-800" : "bg-stone-50 border-stone-100"
+                }`}
+              >
+                <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-white shadow-md flex-shrink-0">
+                  <img src={avatar.url} alt={avatar.label} className="w-full h-full object-cover" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className={`text-xs font-black uppercase tracking-widest truncate ${theme === "DARK" ? "text-white" : "text-stone-900"}`}>{avatar.label}</p>
+                  <p className="text-[10px] text-stone-400 truncate">{avatar.url}</p>
+                </div>
+                <button 
+                  onClick={async () => {
+                    if (confirm("Are you sure you want to delete this default portrait?")) {
+                      await setDoc(doc(db, "default_portraits", avatar.id), {}, { merge: false });
+                      // Actually we should delete the doc
+                      const { deleteDoc } = await import("firebase/firestore");
+                      await deleteDoc(doc(db, "default_portraits", avatar.id));
+                    }
+                  }}
+                  className="p-2 text-red-400 hover:text-red-600 transition-colors"
+                >
+                  <span className="material-symbols-outlined text-lg">delete</span>
+                </button>
+              </div>
+            ))}
+          </div>
+
+          <div className={`p-8 rounded-[40px] border-2 border-dashed transition-colors ${
+            theme === "DARK" ? "border-stone-800 bg-stone-900/20" : "border-stone-200 bg-stone-50/50"
+          }`}>
+            <h4 className={`text-[10px] font-black uppercase tracking-[0.2em] mb-6 text-center ${theme === "DARK" ? "text-stone-500" : "text-stone-400"}`}>Add New Default</h4>
+            <div className="space-y-4">
+              <input 
+                type="text" 
+                placeholder="Label (e.g. Male Light)" 
+                id="new-avatar-label"
+                className={inputCls} 
+              />
+              <div className="flex gap-4">
+                <input 
+                  type="text" 
+                  placeholder="URL (from Storage or Public)" 
+                  id="new-avatar-url"
+                  className={inputCls} 
+                />
+                <button 
+                  onClick={async () => {
+                    const labelEl = document.getElementById("new-avatar-label") as HTMLInputElement;
+                    const urlEl = document.getElementById("new-avatar-url") as HTMLInputElement;
+                    if (!labelEl.value || !urlEl.value) return;
+                    
+                    const id = `DEF_${Date.now()}`;
+                    await setDoc(doc(db, "default_portraits", id), {
+                      label: labelEl.value,
+                      url: urlEl.value,
+                      created_at: new Date().toISOString()
+                    });
+                    
+                    labelEl.value = "";
+                    urlEl.value = "";
+                  }}
+                  className={`px-8 py-3 rounded-2xl font-black text-xs tracking-widest uppercase transition-all whitespace-nowrap ${
+                    theme === "DARK" ? "bg-[#ccff00] text-stone-950" : "bg-[#4f6b28] text-white"
+                  }`}
+                >
+                  ADD TO LIBRARY
+                </button>
+              </div>
+              <p className="text-[10px] text-stone-400 text-center italic mt-4">
+                Note: You can upload custom images in the User Edit modal first to get a Storage URL, then paste it here to make it a default.
+              </p>
+            </div>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 }
