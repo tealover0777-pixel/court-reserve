@@ -1184,7 +1184,27 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
                     Remove Photo
                   </button>
                 ) : (
-                  <span className={`text-[9px] font-black tracking-widest uppercase ${theme === "DARK" ? "text-stone-600" : "text-stone-400"}`}>Hover to upload</span>
+                  <div className="flex flex-col items-center gap-3">
+                    <span className={`text-[9px] font-black tracking-widest uppercase ${theme === "DARK" ? "text-stone-600" : "text-stone-400"}`}>Or select default</span>
+                    <div className="flex gap-2">
+                      {[
+                        { id: 'male_light', url: '/images/defaults/male_light.png' },
+                        { id: 'female_light', url: '/images/defaults/female_light.png' },
+                        { id: 'male_dark', url: '/images/defaults/male_dark.png' },
+                        { id: 'female_dark', url: '/images/defaults/female_dark.png' },
+                      ].map((avatar) => (
+                        <button
+                          key={avatar.id}
+                          onClick={() => setFormData(prev => ({ ...prev, portrait_url: avatar.url }))}
+                          className={`w-8 h-8 rounded-full overflow-hidden border-2 transition-all hover:scale-110 ${
+                            theme === "DARK" ? "border-stone-800 hover:border-[#ccff00]" : "border-stone-200 hover:border-[#4f6b28]"
+                          }`}
+                        >
+                          <img src={avatar.url} alt={avatar.id} className="w-full h-full object-cover" />
+                        </button>
+                      ))}
+                    </div>
+                  </div>
                 )}
               </div>
 

@@ -1293,15 +1293,27 @@ function ProfileView({ theme, profile, roles }: { theme: "LIGHT" | "DARK" | "VIN
             }`} style={{ fontFamily: 'Lexend, sans-serif' }}>
             {profile ? `${profile.first_name} ${profile.last_name}` : "ALEX STERLING"}
           </h2>
-          <div className="flex gap-4 mt-6">
-            <span className={`px-5 py-2 rounded-full text-[10px] font-black tracking-widest uppercase transition-colors ${isDark ? "bg-stone-800 text-[#ccff00]" : isVintage ? "bg-black text-white" : "bg-[#4f6b28] text-white"
-              }`}>
-              {profile ? (roles.find(r => r.role_id === profile.role)?.role_name || profile.role) : "GOLD TIER MEMBER"}
-            </span>
-            <span className={`px-5 py-2 border-2 rounded-full text-[10px] font-black tracking-widest uppercase transition-colors ${isDark ? "border-stone-800 text-stone-500" : isVintage ? "border-black text-black" : "border-[#4f6b28] text-[#4f6b28]"
-              }`}>
-              NTRP 4.5
-            </span>
+          <div className="flex flex-wrap gap-4 mt-6">
+            {(() => {
+              const roleIds = profile?.roles || (profile?.role ? [profile.role] : []);
+              const userRoles = roles.filter(r => roleIds.includes(r.role_id) || roleIds.includes(r.id));
+              
+              if (userRoles.length > 0) {
+                return userRoles.map(r => (
+                  <span key={r.role_id || r.id} className={`px-5 py-2 rounded-full text-[10px] font-black tracking-widest uppercase transition-colors ${isDark ? "bg-stone-800 text-[#ccff00]" : isVintage ? "bg-black text-white" : "bg-[#4f6b28] text-white"
+                    }`}>
+                    {r.role_name}
+                  </span>
+                ));
+              }
+              
+              return (
+                <span className={`px-5 py-2 rounded-full text-[10px] font-black tracking-widest uppercase transition-colors ${isDark ? "bg-stone-800 text-[#ccff00]" : isVintage ? "bg-black text-white" : "bg-[#4f6b28] text-white"
+                  }`}>
+                  {profile?.role || "GUEST"}
+                </span>
+              );
+            })()}
           </div>
         </div>
       </div>
