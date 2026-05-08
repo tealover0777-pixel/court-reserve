@@ -21,6 +21,7 @@ interface UserProfile {
   availability_from?: string;
   availability_to?: string;
   availability_enabled?: boolean;
+  id: string;
 }
 
 interface AuthContextType {
@@ -57,7 +58,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         unsubscribeProfile = onSnapshot(q, (snapshot) => {
           if (!snapshot.empty && snapshot.docs[0]) {
             const data = snapshot.docs[0].data() as UserProfile;
-            setProfile(data);
+            setProfile({ ...data, id: snapshot.docs[0].id });
             
             // Auto-activate if Invited
             if (data.status === "Invited") {
