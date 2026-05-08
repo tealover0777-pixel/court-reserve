@@ -76,6 +76,8 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
   const [tenants, setTenants] = useState<any[]>([]);
   const [defaultPortraits, setDefaultPortraits] = useState<{ id: string; url: string; label: string }[]>([]);
   const [showDefaultPortraitsModal, setShowDefaultPortraitsModal] = useState(false);
+  const [isUploadingDefault, setIsUploadingDefault] = useState(false);
+  const defaultPortraitFileInputRef = useRef<HTMLInputElement>(null);
   const [formData, setFormData] = useState({
     user_id: "",
     auth_uid: "",
@@ -2116,50 +2118,122 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
             ))}
           </div>
 
-          <div className={`p-8 rounded-[40px] border-2 border-dashed transition-colors ${
-            theme === "DARK" ? "border-stone-800 bg-stone-900/20" : "border-stone-200 bg-stone-50/50"
+          <div className={`p-8 rounded-[40px] border-2 border-dashed transition-all relative ${
+            theme === "DARK" 
+              ? "border-stone-800 bg-stone-900/20 hover:border-[#ccff00]/30" 
+              : "border-stone-200 bg-stone-50/50 hover:border-[#4f6b28]/30"
           }`}>
             <h4 className={`text-[10px] font-black uppercase tracking-[0.2em] mb-6 text-center ${theme === "DARK" ? "text-stone-500" : "text-stone-400"}`}>Add New Default</h4>
-            <div className="space-y-4">
+            
+            <div className="space-y-6">
               <input 
                 type="text" 
                 placeholder="Label (e.g. Male Light)" 
                 id="new-avatar-label"
                 className={inputCls} 
               />
-              <div className="flex gap-4">
-                <input 
-                  type="text" 
-                  placeholder="URL (from Storage or Public)" 
-                  id="new-avatar-url"
-                  className={inputCls} 
-                />
-                <button 
-                  onClick={async () => {
-                    const labelEl = document.getElementById("new-avatar-label") as HTMLInputElement;
-                    const urlEl = document.getElementById("new-avatar-url") as HTMLInputElement;
-                    if (!labelEl.value || !urlEl.value) return;
-                    
+
+              <input
+                type="file"
+                ref={defaultPortraitFileInputRef}
+                className="hidden"
+                accept="image/*"
+                onChange={async (e) => {
+                  const file = e.target.files?.[0];
+                  if (!file) return;
+                  
+                  const labelEl = document.getElementById("new-avatar-label") as HTMLInputElement;
+                  if (!labelEl.value) {
+                    showAppMessage("Please enter a label first.", "ERROR");
+                    return;
+                  }
+
+                  setIsUploadingDefault(true);
+                  try {
                     const id = `DEF_${Date.now()}`;
+                    const storageRef = ref(storage, `defaults/${id}`);
+                    await uploadBytes(storageRef, file);
+                    const url = await getDownloadURL(storageRef);
+
                     await setDoc(doc(db, "default_portraits", id), {
                       label: labelEl.value,
-                      url: urlEl.value,
+                      url: url,
                       created_at: new Date().toISOString()
                     });
-                    
+
                     labelEl.value = "";
-                    urlEl.value = "";
-                  }}
-                  className={`px-8 py-3 rounded-2xl font-black text-xs tracking-widest uppercase transition-all whitespace-nowrap ${
-                    theme === "DARK" ? "bg-[#ccff00] text-stone-950" : "bg-[#4f6b28] text-white"
-                  }`}
-                >
-                  ADD TO LIBRARY
-                </button>
+                    showAppMessage("Default portrait added to library.", "SUCCESS");
+                  } catch (err) {
+                    console.error("Upload failed:", err);
+                    showAppMessage("Failed to upload image.", "ERROR");
+                  } finally {
+                    setIsUploadingDefault(false);
+                  }
+                }}
+              />
+
+              <div 
+                onClick={() => defaultPortraitFileInputRef.current?.click()}
+                onDragOver={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                }}
+                onDrop={async (e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  const file = e.dataTransfer.files?.[0];
+                  if (!file) return;
+
+                  const labelEl = document.getElementById("new-avatar-label") as HTMLInputElement;
+                  if (!labelEl.value) {
+                    showAppMessage("Please enter a label first.", "ERROR");
+                    return;
+                  }
+
+                  setIsUploadingDefault(true);
+                  try {
+                    const id = `DEF_${Date.now()}`;
+                    const storageRef = ref(storage, `defaults/${id}`);
+                    await uploadBytes(storageRef, file);
+                    const url = await getDownloadURL(storageRef);
+
+                    await setDoc(doc(db, "default_portraits", id), {
+                      label: labelEl.value,
+                      url: url,
+                      created_at: new Date().toISOString()
+                    });
+
+                    labelEl.value = "";
+                    showAppMessage("Default portrait added to library.", "SUCCESS");
+                  } catch (err) {
+                    console.error("Upload failed:", err);
+                    showAppMessage("Failed to upload image.", "ERROR");
+                  } finally {
+                    setIsUploadingDefault(false);
+                  }
+                }}
+                className={`group cursor-pointer border-2 border-dashed rounded-3xl p-10 flex flex-col items-center justify-center gap-4 transition-all ${
+                  theme === "DARK" ? "border-stone-800 bg-stone-950/50 hover:bg-stone-900" : "border-stone-200 bg-white hover:bg-stone-50"
+                }`}
+              >
+                {isUploadingDefault ? (
+                  <div className={`h-10 w-10 animate-spin rounded-full border-4 border-t-transparent ${
+                    theme === "DARK" ? "border-[#ccff00]" : "border-[#4f6b28]"
+                  }`}></div>
+                ) : (
+                  <>
+                    <div className={`w-16 h-16 rounded-2xl flex items-center justify-center transition-all ${
+                      theme === "DARK" ? "bg-stone-900 text-stone-700 group-hover:text-[#ccff00]" : "bg-stone-100 text-stone-400 group-hover:text-[#4f6b28]"
+                    }`}>
+                      <span className="material-symbols-outlined text-4xl">cloud_upload</span>
+                    </div>
+                    <div className="text-center">
+                      <p className={`text-xs font-black uppercase tracking-widest ${theme === "DARK" ? "text-stone-300" : "text-stone-900"}`}>Drop image here</p>
+                      <p className="text-[10px] text-stone-400 mt-1 uppercase tracking-widest">or click to browse local files</p>
+                    </div>
+                  </>
+                )}
               </div>
-              <p className="text-[10px] text-stone-400 text-center italic mt-4">
-                Note: You can upload custom images in the User Edit modal first to get a Storage URL, then paste it here to make it a default.
-              </p>
             </div>
           </div>
         </div>
