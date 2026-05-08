@@ -371,15 +371,15 @@ export default function DashboardClient({ params }: { params: { tenantId: string
               theme === "VINTAGE" ? "bg-stone-100 group-hover:border-black" :
                 "bg-stone-100 group-hover:border-[#4f6b28]"
               }`}>
-              {authUser?.photoURL ? (
+              {profile?.portrait_url || authUser?.photoURL ? (
                 <img
-                  src={authUser.photoURL}
+                  src={profile?.portrait_url || authUser?.photoURL || ""}
                   alt="Profile"
                   className="w-full h-full object-cover"
                 />
               ) : (
                 <span className={`text-xs font-black uppercase ${theme === "DARK" ? "text-stone-300" : "text-stone-600"}`}>
-                  {profile ? `${profile.first_name[0]}${profile.last_name[0]}` : "?"}
+                  {profile ? `${profile.first_name?.[0] || ""}${profile.last_name?.[0] || ""}` : "?"}
                 </span>
               )}
             </div>
