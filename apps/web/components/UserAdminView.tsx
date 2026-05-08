@@ -171,7 +171,7 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
 
   useEffect(() => {
     let q = query(collection(db, "global_users"), orderBy("user_id", "asc"));
-    if (tenantId) {
+    if (tenantId && tenantId !== "consolidated") {
       q = query(collection(db, "global_users"), where("tenant_id", "==", tenantId), orderBy("user_id", "asc"));
     }
     const unsubscribe = onSnapshot(q, (snapshot) => {
