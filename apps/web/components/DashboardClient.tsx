@@ -1217,16 +1217,17 @@ function ProfileView({ theme, profile, roles }: { theme: "LIGHT" | "DARK" | "VIN
     const file = e.target.files?.[0];
     if (!file) return;
     
-    if (!profile || !profile.tenant_id || !profile.user_id) {
-      console.error("Missing profile data for upload:", profile);
-      alert("Error: Profile data incomplete. Please refresh and try again.");
+    if (!profile || !profile.user_id) {
+      console.error("Missing profile user_id for upload:", profile);
+      alert("Error: User ID not found. Please refresh and try again.");
       return;
     }
 
     setIsUploading(true);
     try {
       console.log("Starting photo upload for:", profile.user_id);
-      const compositeId = `${profile.tenant_id}_${profile.user_id}`;
+      const effectiveTenantId = profile.tenant_id || "Global";
+      const compositeId = `${effectiveTenantId}_${profile.user_id}`;
       const path = `users/${compositeId}/portrait`;
       
       console.log("Storage path:", path);
