@@ -246,8 +246,8 @@ export default function PlatformTenantAdminView({ theme = "LIGHT" }: { theme?: "
       }
 
       // 3. Create/Update Tenant in Firestore ONLY AFTER successful invitation/check
-      await setDoc(doc(db, "tenants", tenantDocId), {
-        tenant_id: formData.tenant_id,
+      const tenantUpdateData = {
+        tenant_id: formData.tenant_id || "Global",
         name: formData.tenant_name,
         domain: `${formData.tenant_name.toLowerCase().replace(/\s+/g, '-')}.kinetic.com`,
         status: "Active",
@@ -263,7 +263,14 @@ export default function PlatformTenantAdminView({ theme = "LIGHT" }: { theme?: "
         address_city: formData.address_city,
         address_state: formData.address_state,
         address_zip: formData.address_zip
-      });
+      };
+
+      // Filter out undefined values
+      const cleanTenantData = Object.fromEntries(
+        Object.entries(tenantUpdateData).filter(([_, v]) => v !== undefined)
+      );
+
+      await setDoc(doc(db, "tenants", tenantDocId), cleanTenantData);
       
       // 4. Sync Address to Owner in global_users (Tenant-Scoped Record)
       if (formData.owner_id) {

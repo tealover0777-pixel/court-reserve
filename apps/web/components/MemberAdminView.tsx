@@ -327,7 +327,12 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
         updated_at: new Date().toISOString()
       };
 
-      await setDoc(userRef, updateData, { merge: true });
+      // Filter out undefined values
+      const cleanUpdateData = Object.fromEntries(
+        Object.entries(updateData).filter(([_, v]) => v !== undefined)
+      );
+
+      await setDoc(userRef, cleanUpdateData, { merge: true });
       
       // Capture the user ID for tenant sync before clearing the state
       const targetUserId = editingUser.user_id;
@@ -378,7 +383,7 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
       
       const userData = {
         user_id: newUserId,
-        tenant_id: formData.tenant_id,
+        tenant_id: formData.tenant_id || "Global",
         first_name: formData.first_name,
         last_name: formData.last_name,
         email: formData.email,
@@ -407,7 +412,12 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
         updated_at: new Date().toISOString()
       };
 
-      await setDoc(userRef, userData);
+      // Filter out undefined values
+      const cleanUserData = Object.fromEntries(
+        Object.entries(userData).filter(([_, v]) => v !== undefined)
+      );
+
+      await setDoc(userRef, cleanUserData);
 
       // If portrait was uploaded to a temp path, move it to the real compositeId path
       if (formData.portrait_url && formData.portrait_url.includes("temp_")) {

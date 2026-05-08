@@ -62,8 +62,13 @@ export default function OrganizationView({ theme, tenantId: tenantIdProp }: Orga
     if (!tenantId) return;
     setIsSaving(true);
     try {
+      // Filter out undefined values to prevent Firestore errors
+      const cleanData = Object.fromEntries(
+        Object.entries(data).filter(([_, v]) => v !== undefined)
+      );
+
       await setDoc(doc(db, "tenants", tenantId), {
-        ...data,
+        ...cleanData,
         updated_at: serverTimestamp()
       }, { merge: true });
       setNotification({ message: "Organization updated successfully", type: "SUCCESS" });
