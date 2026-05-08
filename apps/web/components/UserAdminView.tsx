@@ -77,6 +77,7 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
   const [defaultPortraits, setDefaultPortraits] = useState<{ id: string; url: string; label: string }[]>([]);
   const [showDefaultPortraitsModal, setShowDefaultPortraitsModal] = useState(false);
   const [isUploadingDefault, setIsUploadingDefault] = useState(false);
+  const [confirmDeleteDefaultId, setConfirmDeleteDefaultId] = useState<string | null>(null);
   const defaultPortraitFileInputRef = useRef<HTMLInputElement>(null);
   const [formData, setFormData] = useState({
     user_id: "",
@@ -2102,14 +2103,7 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
                   <p className="text-[10px] text-stone-400 truncate">{avatar.url}</p>
                 </div>
                 <button 
-                  onClick={async () => {
-                    if (confirm("Are you sure you want to delete this default portrait?")) {
-                      await setDoc(doc(db, "default_portraits", avatar.id), {}, { merge: false });
-                      // Actually we should delete the doc
-                      const { deleteDoc } = await import("firebase/firestore");
-                      await deleteDoc(doc(db, "default_portraits", avatar.id));
-                    }
-                  }}
+                  onClick={() => setConfirmDeleteDefaultId(avatar.id)}
                   className="p-2 text-red-400 hover:text-red-600 transition-colors"
                 >
                   <span className="material-symbols-outlined text-lg">delete</span>
@@ -2236,6 +2230,55 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
               </div>
             </div>
           </div>
+        </div>
+      </Modal>
+
+      {/* Delete Default Portrait Confirmation Modal */}
+      <Modal
+        isOpen={!!confirmDeleteDefaultId}
+        onClose={() => setConfirmDeleteDefaultId(null)}
+        title="Delete Default?"
+        theme={theme}
+        width={400}
+        footer={
+          <div className="flex gap-4">
+            <button 
+              onClick={() => setConfirmDeleteDefaultId(null)}
+              className={`flex-1 py-4 border-2 rounded-2xl text-[10px] font-black tracking-widest transition-all uppercase ${
+                theme === "DARK" ? "border-stone-800 text-stone-400 hover:bg-stone-900" : 
+                "border-stone-100 text-stone-400 hover:bg-stone-50"
+              }`}
+            >
+              Cancel
+            </button>
+            <button 
+              onClick={async () => {
+                if (!confirmDeleteDefaultId) return;
+                try {
+                  const { deleteDoc } = await import("firebase/firestore");
+                  await deleteDoc(doc(db, "default_portraits", confirmDeleteDefaultId));
+                  showAppMessage("Default portrait removed.", "SUCCESS");
+                } catch (err) {
+                  showAppMessage("Failed to remove portrait.", "ERROR");
+                } finally {
+                  setConfirmDeleteDefaultId(null);
+                }
+              }}
+              className="flex-1 py-4 rounded-2xl text-[10px] font-black tracking-widest transition-all uppercase shadow-lg bg-red-500 text-white hover:bg-red-600 shadow-red-500/20"
+            >
+              Delete Now
+            </button>
+          </div>
+        }
+      >
+        <div className="relative z-10 text-center">
+          <div className="w-20 h-20 bg-red-50 rounded-3xl flex items-center justify-center mb-8 mx-auto text-red-500">
+            <span className="material-symbols-outlined text-4xl">delete_forever</span>
+          </div>
+          <h3 className={`text-xl font-black italic tracking-tighter uppercase mb-2 ${theme === "DARK" ? "text-white" : "text-stone-900"}`}>Are you sure?</h3>
+          <p className="text-xs text-stone-400 font-bold uppercase tracking-widest leading-relaxed px-4">
+            This will remove this image from the default selection library for all administrators.
+          </p>
         </div>
       </Modal>
     </div>
