@@ -544,7 +544,7 @@ function EmailTab({ data, onSave, isSaving, theme, tenantId }: any) {
         )}
       </div>
 
-      <div className={`grid grid-cols-1 lg:grid-cols-2 gap-x-16 gap-y-12 transition-opacity duration-300 ${formData.use_platform_email ? "opacity-40 pointer-events-none grayscale" : ""}`}>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-16 gap-y-12">
         {/* Left Column: Common Fields */}
         <div className="space-y-12">
           <div className="space-y-8">
@@ -569,7 +569,7 @@ function EmailTab({ data, onSave, isSaving, theme, tenantId }: any) {
             </div>
           </div>
 
-          <div className="space-y-8 pt-8 border-t border-stone-100 dark:border-stone-800">
+          <div className={`space-y-8 pt-8 border-t border-stone-100 dark:border-stone-800 transition-opacity duration-300 ${formData.use_platform_email ? "opacity-40 pointer-events-none grayscale" : ""}` }>
             <h4 className={`text-[10px] font-black tracking-[0.2em] uppercase opacity-40 ${isDark ? "text-white" : "text-stone-900"}`}>Delivery Method</h4>
             <div className={`p-1 rounded-2xl flex items-center bg-stone-100 dark:bg-stone-950 w-full`}>
               <button
@@ -596,8 +596,7 @@ function EmailTab({ data, onSave, isSaving, theme, tenantId }: any) {
             </div>
           </div>
 
-          <div className={`p-10 rounded-[40px] space-y-6 transition-all ${isDark ? "bg-stone-900/30 border border-stone-800" : "bg-stone-100/50 border border-stone-200"
-            }`}>
+          <div className={`p-10 rounded-[40px] space-y-6 transition-all ${isDark ? "bg-stone-900/30 border border-stone-800" : "bg-stone-100/50 border border-stone-200"} ${formData.use_platform_email ? "opacity-40 pointer-events-none grayscale" : ""}`}>
             <div className="flex gap-4">
               <div className={`w-10 h-10 rounded-full flex items-center justify-center ${isDark ? "bg-[#ccff00]/10 text-[#ccff00]" : "bg-green-100 text-green-700"}`}>
                 <span className="material-symbols-outlined text-xl">send</span>
@@ -685,7 +684,7 @@ function EmailTab({ data, onSave, isSaving, theme, tenantId }: any) {
             </div>
           </div>
 
-          <div className="space-y-8 pt-8 border-t border-stone-100 dark:border-stone-800">
+          <div className={`space-y-8 pt-8 border-t border-stone-100 dark:border-stone-800 transition-opacity duration-300 ${formData.use_platform_email ? "opacity-40 pointer-events-none grayscale" : ""}`}>
             <h4 className={`text-[10px] font-black tracking-[0.2em] uppercase opacity-40 ${isDark ? "text-white" : "text-stone-900"}`}>SMTP Relay Configuration</h4>
             <div className="space-y-6">
               <FormField label="Email Service" theme={theme}>
