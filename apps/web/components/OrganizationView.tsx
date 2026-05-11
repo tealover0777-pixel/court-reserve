@@ -596,7 +596,7 @@ function EmailTab({ data, onSave, isSaving, theme, tenantId }: any) {
             </div>
           </div>
 
-          <div className={`p-10 rounded-[40px] space-y-6 transition-all ${isDark ? "bg-stone-900/30 border border-stone-800" : "bg-stone-100/50 border border-stone-200"} ${formData.use_platform_email ? "opacity-40 pointer-events-none grayscale" : ""}`}>
+          <div className={`p-10 rounded-[40px] space-y-6 transition-all ${isDark ? "bg-stone-900/30 border border-stone-800" : "bg-stone-100/50 border border-stone-200"}`}>
             <div className="flex gap-4">
               <div className={`w-10 h-10 rounded-full flex items-center justify-center ${isDark ? "bg-[#ccff00]/10 text-[#ccff00]" : "bg-green-100 text-green-700"}`}>
                 <span className="material-symbols-outlined text-xl">send</span>
@@ -608,7 +608,7 @@ function EmailTab({ data, onSave, isSaving, theme, tenantId }: any) {
             </div>
             <button 
               onClick={handleVerifyEmail}
-              disabled={isVerifying || formData.use_platform_email}
+              disabled={isVerifying}
               className={`w-full py-4 rounded-2xl border-2 text-[10px] font-black tracking-widest uppercase transition-all ${
                 isVerifying ? "opacity-50 cursor-not-allowed" : ""
               } ${isDark ? "border-white text-white hover:bg-white hover:text-stone-950" : "border-stone-900 text-stone-900 hover:bg-stone-900 hover:text-white"
