@@ -111,13 +111,17 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
     theme === "DARK" ? "bg-stone-950 text-white border-stone-800 focus:border-[#ccff00]" : "bg-white text-stone-900 border-stone-200 focus:border-stone-400 shadow-sm"
   }`;
   const readonlyCls = `w-full border rounded-2xl px-5 py-3.5 text-sm font-bold transition-colors ${
-    theme === "DARK" ? "bg-stone-900 text-stone-400 border-stone-800" : "bg-stone-50 text-stone-500 border-stone-100"
+    theme === "DARK" ? "bg-stone-900 text-stone-200 border-stone-800" : "bg-stone-50 text-stone-800 border-stone-100"
   }`;
-  const labelCls = `text-[10px] font-black tracking-widest uppercase mb-2 block ${theme === "DARK" ? "text-stone-500" : "text-stone-400"}`;
+  const labelCls = `text-[10px] font-black tracking-widest uppercase mb-2 block ${
+    theme === "DARK" ? "text-stone-200" : "text-stone-950"
+  }`;
   
   const sectionDivider = (title: string) => (
     <div className={`col-span-2 pt-2 pb-1 border-b flex items-center gap-3 transition-colors ${theme === "DARK" ? "border-stone-800" : "border-stone-100"}`}>
-      <span className={`text-[10px] font-black uppercase tracking-[0.2em] ${theme === "DARK" ? "text-stone-500" : "text-stone-400"}`}>{title}</span>
+      <span className={`text-[10px] font-black uppercase tracking-[0.2em] ${
+        theme === "DARK" ? "text-stone-200" : "text-stone-950"
+      }`}>{title}</span>
     </div>
   );
 
@@ -581,18 +585,14 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
       header: "USER ID",
       size: 120,
       cell: info => <span className={`font-mono text-xs transition-colors duration-500 ${
-        theme === "DARK" ? "text-stone-400" : 
-        theme === "VINTAGE" ? "text-stone-600" :
-        "text-stone-900"
+        theme === "DARK" ? "text-stone-200" : "text-stone-950"
       }`}>{info.getValue()}</span>,
     }),
     columnHelper.accessor("company_user_id", {
       header: "COMPANY USER ID",
       size: 160,
       cell: info => <span className={`font-mono text-xs transition-colors duration-500 ${
-        theme === "DARK" ? "text-stone-400" :
-        theme === "VINTAGE" ? "text-stone-600" :
-        "text-stone-500"
+        theme === "DARK" ? "text-stone-100" : "text-stone-900"
       }`}>{info.getValue() || "—"}</span>,
     }),
     ...(tenantId ? [] : [columnHelper.accessor("tenant_id", {
@@ -602,9 +602,7 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
         const tid = info.getValue();
         if (!tid) return (
           <span className={`font-mono text-[10px] font-black transition-colors duration-500 ${
-            theme === "DARK" ? "text-stone-500" : 
-            theme === "VINTAGE" ? "text-stone-400" :
-            "text-stone-400"
+            theme === "DARK" ? "text-stone-200" : "text-stone-950"
           }`}>Global</span>
         );
         const tenant = tenants.find(t => t.tenant_id === tid);
@@ -617,10 +615,8 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
             }`}>
               {tenant?.name || "Unknown"}
             </span>
-            <span className={`font-mono text-[9px] font-black transition-colors duration-500 opacity-40 ${
-              theme === "DARK" ? "text-white" : 
-              theme === "VINTAGE" ? "text-stone-600" :
-              "text-stone-500"
+            <span className={`font-mono text-[9px] font-black transition-colors duration-500 opacity-60 ${
+              theme === "DARK" ? "text-stone-200" : "text-stone-900"
             }`}>
               {tid}
             </span>
@@ -644,27 +640,21 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
       header: "FIRST NAME",
       size: 150,
       cell: info => <span className={`text-sm font-bold transition-colors duration-500 ${
-        theme === "DARK" ? "text-white" : 
-        theme === "VINTAGE" ? "text-black" :
-        "text-stone-900"
+        theme === "DARK" ? "text-stone-100" : "text-stone-950"
       }`}>{info.getValue() || "-"}</span>,
     }),
     columnHelper.accessor("last_name", {
       header: "LAST NAME",
       size: 150,
       cell: info => <span className={`text-sm font-bold transition-colors duration-500 ${
-        theme === "DARK" ? "text-white" : 
-        theme === "VINTAGE" ? "text-black" :
-        "text-stone-900"
+        theme === "DARK" ? "text-stone-100" : "text-stone-950"
       }`}>{info.getValue() || "-"}</span>,
     }),
     columnHelper.accessor("email", {
       header: "EMAIL",
       size: 250,
       cell: info => <span className={`text-sm transition-colors duration-500 ${
-        theme === "DARK" ? "text-stone-400" : 
-        theme === "VINTAGE" ? "text-stone-500" :
-        "text-stone-600"
+        theme === "DARK" ? "text-stone-200" : "text-stone-950"
       }`}>{info.getValue()}</span>,
     }),
     columnHelper.accessor("roles", {
@@ -675,15 +665,17 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
         const singleRole = info.row.original.role;
         const allRoleIds = roleIds.length > 0 ? roleIds : (singleRole ? [singleRole] : []);
         
-        if (allRoleIds.length === 0) return <span className="text-xs text-stone-400">—</span>;
+        if (allRoleIds.length === 0) return <span className={`text-xs ${
+          theme === "DARK" ? "text-stone-200" : "text-stone-950"
+        }`}>—</span>;
 
         return (
           <div className="flex flex-wrap gap-1 py-1">
             {allRoleIds.map(rid => {
               const roleMatch = roles.find(r => r.role_id === rid || r.id === rid);
               if (!roleMatch) return (
-                <span key={rid} className={`text-[9px] font-mono px-2 py-0.5 rounded-full border ${
-                  theme === "DARK" ? "border-stone-800 text-stone-500" : "border-stone-200 text-stone-400"
+                <span key={rid} className={`text-[9px] font-mono px-2 py-0.5 rounded-full border border-stone-200 transition-colors ${
+                  theme === "DARK" ? "border-stone-800 text-stone-200" : "text-stone-950"
                 }`}>{rid}</span>
               );
 
@@ -725,14 +717,14 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
       header: "PHONE",
       size: 150,
       cell: info => <span className={`text-xs transition-colors duration-500 ${
-        theme === "DARK" ? "text-stone-400" : "text-stone-600"
+        theme === "DARK" ? "text-stone-200" : "text-stone-950"
       }`}>{info.getValue() || "-"}</span>,
     }),
     columnHelper.accessor("notes", {
       header: "NOTES",
       size: 200,
       cell: info => <span className={`text-xs transition-colors duration-500 truncate max-w-[200px] block ${
-        theme === "DARK" ? "text-stone-500" : "text-stone-400"
+        theme === "DARK" ? "text-stone-100" : "text-stone-900"
       }`}>{info.getValue() || "-"}</span>,
     }),
     columnHelper.display({
@@ -757,7 +749,9 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
             <button
               ref={buttonRef}
               onClick={handleToggle}
-              className="text-stone-400 hover:text-stone-900 transition-colors p-2"
+              className={`transition-colors p-2 ${
+                theme === "DARK" ? "text-stone-200 hover:text-white" : "text-stone-800 hover:text-stone-950"
+              }`}
             >
               <span className="material-symbols-outlined text-xl">more_horiz</span>
             </button>
@@ -778,9 +772,9 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
                       setShowMenu(false);
                     }}
                     className={`w-full flex items-center gap-3 px-4 py-2.5 text-[10px] font-black uppercase tracking-widest transition-colors ${
-                      theme === "DARK" ? "text-stone-400 hover:bg-stone-800" : 
+                      theme === "DARK" ? "text-stone-200 hover:bg-stone-800" : 
                       theme === "VINTAGE" ? "text-black hover:bg-stone-50" :
-                      "text-stone-600 hover:bg-stone-50"
+                      "text-stone-950 hover:bg-stone-50"
                     }`}
                   >
                     <span className="material-symbols-outlined text-base">edit</span>
@@ -854,9 +848,9 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
             Member Admin
           </h2>
           <p className={`font-bold uppercase tracking-widest text-xs mt-2 transition-colors duration-500 ${
-            theme === "DARK" ? "text-stone-400" : 
-            theme === "VINTAGE" ? "text-stone-500" :
-            "text-stone-900"
+            theme === "DARK" ? "text-stone-200" : 
+            theme === "VINTAGE" ? "text-stone-800" :
+            "text-stone-950"
           }`}>
             Platform Management · <span className={
               theme === "DARK" ? "text-[#ccff00]" : 
@@ -867,16 +861,18 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
         </div>
         <div className="flex gap-4">
           <div className="relative w-80">
-            <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-stone-400 text-lg">search</span>
+            <span className={`material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-lg ${
+              theme === "DARK" ? "text-stone-200" : "text-stone-800"
+            }`}>search</span>
             <input 
               type="text"
               placeholder="Search members..."
               className={`w-full border rounded-full pl-12 pr-6 py-3 text-sm font-medium outline-none transition-all shadow-sm ${
                 theme === "DARK" 
-                  ? "bg-stone-900 border-stone-800 text-white focus:border-[#ccff00]" 
+                  ? "bg-stone-900 border-stone-800 text-white focus:border-[#ccff00] placeholder:text-stone-500" 
                   : theme === "VINTAGE"
-                    ? "bg-white border-stone-100 text-black focus:border-black shadow-md"
-                    : "bg-white border-stone-200 text-stone-900 focus:border-[#4f6b28]"
+                    ? "bg-white border-stone-100 text-black focus:border-black shadow-md placeholder:text-stone-400"
+                    : "bg-white border-stone-200 text-stone-900 focus:border-[#4f6b28] placeholder:text-stone-500"
               }`}
               onChange={(e) => table.setGlobalFilter(e.target.value)}
             />
@@ -968,9 +964,9 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
                     <td 
                       key={cell.id} 
                       className={`px-6 py-3 text-sm font-medium border-r last:border-r-0 transition-colors duration-500 ${
-                        theme === "DARK" ? "text-stone-300 border-stone-800" : 
+                        theme === "DARK" ? "text-stone-200 border-stone-800" : 
                         theme === "VINTAGE" ? "text-black border-stone-100" :
-                        "text-stone-900 border-stone-900"
+                        "text-stone-950 border-stone-900"
                       }`}
                     >
                       <div className="flex items-center min-h-[32px]">
@@ -997,9 +993,9 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
             <button 
               onClick={() => setConfirmDelete(null)}
               className={`flex-1 py-4 border-2 rounded-2xl text-[10px] font-black tracking-widest transition-all uppercase ${
-                theme === "DARK" ? "border-stone-800 text-stone-400 hover:bg-stone-900" : 
+                theme === "DARK" ? "border-stone-800 text-stone-200 hover:bg-stone-900" : 
                 theme === "VINTAGE" ? "border-stone-100 text-black hover:bg-stone-50" :
-                "border-stone-100 text-stone-400 hover:bg-stone-50"
+                "border-stone-100 text-stone-800 hover:bg-stone-50"
               }`}
             >
               Go Back
@@ -1022,7 +1018,7 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
             <span className="material-symbols-outlined text-4xl">delete_forever</span>
           </div>
           <p className={`text-center font-medium leading-relaxed transition-colors ${
-            theme === "DARK" ? "text-stone-400" : "text-stone-500"
+            theme === "DARK" ? "text-stone-200" : "text-stone-900"
           }`}>
             Are you sure you want to remove this member from the platform? This action cannot be undone.
           </p>
@@ -1056,7 +1052,7 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
           
           <div className="space-y-2">
             <h4 className={`text-xl font-black transition-colors ${theme === "DARK" ? "text-white" : "text-black"}`}>Success!</h4>
-            <p className={`text-sm font-medium transition-colors ${theme === "DARK" ? "text-stone-400" : "text-stone-500"}`}>
+            <p className={`text-sm font-medium transition-colors ${theme === "DARK" ? "text-stone-200" : "text-stone-900"}`}>
               The member has been created in both the platform and authentication records.
             </p>
           </div>
@@ -1064,7 +1060,7 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
           <div className={`p-6 rounded-2xl border text-left space-y-4 ${
             theme === "DARK" ? "bg-stone-900 border-stone-800" : "bg-stone-50 border-stone-100"
           }`}>
-            <div className={`text-[10px] font-black uppercase tracking-widest ${theme === "DARK" ? "text-stone-500" : "text-stone-400"}`}>
+            <div className={`text-[10px] font-black uppercase tracking-widest ${theme === "DARK" ? "text-stone-200" : "text-stone-950"}`}>
               Direct Password Setup Link
             </div>
             <div className={`p-4 rounded-xl font-mono text-[10px] break-all border transition-colors ${
@@ -1106,8 +1102,8 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
               }}
               disabled={isSaving}
               className={`flex-1 py-4 border rounded-2xl text-[10px] font-black tracking-widest transition-all uppercase ${
-                theme === "DARK" ? "border-stone-800 text-stone-400 hover:bg-stone-900" :
-                "bg-white border-stone-200 text-stone-900 hover:bg-stone-50 shadow-sm"
+                theme === "DARK" ? "border-stone-800 text-stone-200 hover:bg-stone-900" :
+                "bg-white border-stone-200 text-stone-950 hover:bg-stone-50 shadow-sm"
               } ${isSaving ? "opacity-30 cursor-not-allowed" : ""}`}
             >
               Cancel
@@ -1138,12 +1134,12 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
             theme === "DARK" ? "bg-stone-950 text-white border-stone-800 focus:border-[#ccff00]" : "bg-white text-stone-900 border-stone-200 focus:border-stone-400"
           }`;
           const readonlyCls = `w-full border rounded-2xl px-5 py-3.5 text-sm font-bold transition-colors ${
-            theme === "DARK" ? "bg-stone-900 text-stone-400 border-stone-800" : "bg-stone-50 text-stone-500 border-stone-100"
+            theme === "DARK" ? "bg-stone-900 text-stone-200 border-stone-800" : "bg-stone-50 text-stone-800 border-stone-100"
           }`;
-          const labelCls = `text-[10px] font-black tracking-widest uppercase mb-2 block ${theme === "DARK" ? "text-stone-500" : "text-stone-400"}`;
+          const labelCls = `text-[10px] font-black tracking-widest uppercase mb-2 block ${theme === "DARK" ? "text-stone-200" : "text-stone-950"}`;
           const sectionDivider = (title: string) => (
             <div className={`col-span-2 pt-2 pb-1 border-b flex items-center gap-3 transition-colors ${theme === "DARK" ? "border-stone-800" : "border-stone-100"}`}>
-              <span className={`text-[10px] font-black uppercase tracking-[0.2em] ${theme === "DARK" ? "text-stone-500" : "text-stone-400"}`}>{title}</span>
+              <span className={`text-[10px] font-black uppercase tracking-[0.2em] ${theme === "DARK" ? "text-stone-200" : "text-stone-950"}`}>{title}</span>
             </div>
           );
           const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
@@ -1170,7 +1166,7 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
                     {formData.portrait_url ? (
                       <img src={formData.portrait_url} alt="Portrait" className="w-full h-full object-cover" />
                     ) : (
-                      <span className={`text-2xl font-black select-none ${theme === "DARK" ? "text-stone-600" : "text-stone-400"}`}>
+                      <span className={`text-2xl font-black select-none ${theme === "DARK" ? "text-stone-200" : "text-stone-800"}`}>
                         {(formData.first_name?.[0] || formData.email?.[0] || "?").toUpperCase()}
                       </span>
                     )}
@@ -1205,7 +1201,7 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
                   </button>
                 ) : (
                   <div className="flex flex-col items-center gap-3">
-                    <span className={`text-[9px] font-black tracking-widest uppercase ${theme === "DARK" ? "text-stone-600" : "text-stone-400"}`}>Or select default</span>
+                    <span className={`text-[9px] font-black tracking-widest uppercase ${theme === "DARK" ? "text-stone-400" : "text-stone-600"}`}>Or select default</span>
                     <div className="flex gap-2">
                       {defaultPortraits.map((avatar) => (
                         <button
@@ -1298,7 +1294,7 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
                           className={`px-4 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest border-2 transition-all flex items-center gap-2 ${
                             active
                               ? (theme === "DARK" ? "bg-[#ccff00] text-stone-950 border-[#ccff00]" : "bg-[#6348eb] text-white border-[#6348eb]")
-                              : (theme === "DARK" ? "border-stone-800 text-stone-400 hover:border-stone-600" : "border-stone-200 text-stone-500 hover:border-stone-400")
+                              : (theme === "DARK" ? "border-stone-800 text-stone-200 hover:border-stone-600" : "border-stone-200 text-stone-950 hover:border-stone-400")
                           }`}
                         >
                           <span className="material-symbols-outlined text-sm">
@@ -1369,7 +1365,7 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
                 {/* Coach Details — toggled by role */}
                 <div className={`col-span-2 pt-2 pb-1 border-b flex items-center justify-between transition-colors ${theme === "DARK" ? "border-stone-800" : "border-stone-100"}`}>
                   <div className="flex items-center gap-3">
-                    <span className={`text-[10px] font-black uppercase tracking-[0.2em] ${theme === "DARK" ? "text-stone-500" : "text-stone-400"}`}>Coach Details</span>
+                    <span className={`text-[10px] font-black uppercase tracking-[0.2em] ${theme === "DARK" ? "text-stone-200" : "text-stone-950"}`}>Coach Details</span>
                     {isCoach && (
                       <span className={`text-[8px] font-black px-2 py-0.5 rounded-full uppercase tracking-widest ${
                         theme === "DARK" ? "bg-[#ccff00]/10 text-[#ccff00]" : "bg-[#6348eb]/10 text-[#6348eb]"
@@ -1377,7 +1373,7 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
                     )}
                   </div>
                   {!isCoach && (
-                    <span className={`text-[9px] font-medium ${theme === "DARK" ? "text-stone-600" : "text-stone-400"}`}>Assign role R10002 to enable</span>
+                    <span className={`text-[9px] font-medium ${theme === "DARK" ? "text-stone-400" : "text-stone-600"}`}>Assign role R10002 to enable</span>
                   )}
                 </div>
 
@@ -1425,7 +1421,7 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
                             className={`flex-1 py-3.5 rounded-2xl text-xs font-black uppercase tracking-widest border-2 transition-all ${
                               formData.tennis_hand === hand
                                 ? (theme === "DARK" ? "bg-[#ccff00] text-stone-950 border-[#ccff00]" : "bg-[#6348eb] text-white border-[#6348eb]")
-                                : (theme === "DARK" ? "border-stone-800 text-stone-400 hover:border-stone-600" : "border-stone-200 text-stone-500 hover:border-stone-400")
+                                : (theme === "DARK" ? "border-stone-800 text-stone-200 hover:border-stone-600" : "border-stone-200 text-stone-950 hover:border-stone-400")
                             }`}
                           >
                             <span className="material-symbols-outlined text-sm mr-1" style={{ verticalAlign: "middle" }}>
@@ -1450,7 +1446,7 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
                               className={`px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest border-2 transition-all ${
                                 active
                                   ? (theme === "DARK" ? "bg-[#ccff00] text-stone-950 border-[#ccff00]" : "bg-[#6348eb] text-white border-[#6348eb]")
-                                  : (theme === "DARK" ? "border-stone-800 text-stone-400 hover:border-stone-600" : "border-stone-200 text-stone-500 hover:border-stone-400")
+                                  : (theme === "DARK" ? "border-stone-800 text-stone-200 hover:border-stone-600" : "border-stone-200 text-stone-950 hover:border-stone-400")
                               }`}
                             >
                               {group}
@@ -1480,7 +1476,7 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
                           <span className={`text-[10px] font-black uppercase tracking-widest ${
                             formData.availability_enabled 
                               ? (theme === "DARK" ? "text-[#ccff00]" : "text-[#6348eb]") 
-                              : (theme === "DARK" ? "text-stone-500" : "text-stone-400")
+                              : (theme === "DARK" ? "text-stone-200" : "text-stone-950")
                           }`}>Enable Dates</span>
                         </label>
                       </div>
@@ -1488,7 +1484,7 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
                       {/* Date span — controlled by checkbox */}
                       <div className={`flex items-center gap-4 mb-3 mt-1 transition-opacity ${!formData.availability_enabled ? "opacity-30 pointer-events-none grayscale" : "opacity-100"}`}>
                         <div className="flex-1">
-                          <label className={`text-[9px] font-black tracking-widest uppercase mb-1 block ${theme === "DARK" ? "text-stone-600" : "text-stone-400"}`}>From</label>
+                          <label className={`text-[9px] font-black tracking-widest uppercase mb-1 block ${theme === "DARK" ? "text-stone-400" : "text-stone-600"}`}>From</label>
                           <input
                             type="date"
                             disabled={!formData.availability_enabled}
@@ -1497,9 +1493,9 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
                             className={inputCls}
                           />
                         </div>
-                        <div className={`text-xs font-black mt-5 ${theme === "DARK" ? "text-stone-600" : "text-stone-400"}`}>—</div>
+                        <div className={`text-xs font-black mt-5 ${theme === "DARK" ? "text-stone-400" : "text-stone-600"}`}>—</div>
                         <div className="flex-1">
-                          <label className={`text-[9px] font-black tracking-widest uppercase mb-1 block ${theme === "DARK" ? "text-stone-600" : "text-stone-400"}`}>To</label>
+                          <label className={`text-[9px] font-black tracking-widest uppercase mb-1 block ${theme === "DARK" ? "text-stone-400" : "text-stone-600"}`}>To</label>
                           <input
                             type="date"
                             disabled={!formData.availability_enabled}
@@ -1514,7 +1510,7 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
                       <div className={`rounded-2xl border overflow-hidden mt-1 ${theme === "DARK" ? "border-stone-800" : "border-stone-200"}`}>
                         {/* Header row */}
                         <div className={`grid border-b ${theme === "DARK" ? "border-stone-800 bg-stone-900" : "border-stone-100 bg-stone-50"}`} style={{ gridTemplateColumns: "80px repeat(7, 1fr)" }}>
-                          <div className={`px-3 py-2 text-[9px] font-black uppercase tracking-widest ${theme === "DARK" ? "text-stone-600" : "text-stone-400"}`}></div>
+                          <div className={`px-3 py-2 text-[9px] font-black uppercase tracking-widest ${theme === "DARK" ? "text-stone-400" : "text-stone-600"}`}></div>
                           {DAYS.map(d => (
                             <div key={d} className={`px-2 py-2 text-center text-[9px] font-black uppercase tracking-widest ${theme === "DARK" ? "text-stone-400" : "text-stone-600"}`}>{d}</div>
                           ))}
@@ -1526,7 +1522,7 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
                             className={`grid ${si < SLOTS.length - 1 ? `border-b ${theme === "DARK" ? "border-stone-800" : "border-stone-100"}` : ""}`}
                             style={{ gridTemplateColumns: "80px repeat(7, 1fr)" }}
                           >
-                            <div className={`px-3 py-3 text-[9px] font-black uppercase tracking-widest flex items-center ${theme === "DARK" ? "text-stone-500 bg-stone-900/50" : "text-stone-400 bg-stone-50/50"}`}>
+                            <div className={`px-3 py-3 text-[9px] font-black uppercase tracking-widest flex items-center ${theme === "DARK" ? "text-stone-200 bg-stone-900/50" : "text-stone-950 bg-stone-50/50"}`}>
                               {slot}
                             </div>
                             {DAYS.map(day => {
@@ -1606,7 +1602,7 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
         }
       >
         <div className="space-y-6">
-          <p className={`text-sm leading-relaxed ${theme === "DARK" ? "text-stone-400" : "text-stone-500"}`}>
+          <p className={`text-sm leading-relaxed ${theme === "DARK" ? "text-stone-200" : "text-stone-950"}`}>
             This will create a member in your organization responsible for monitoring operations and managing users associated with your business processes.
           </p>
 
@@ -1625,7 +1621,7 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
                       {formData.portrait_url ? (
                         <img src={formData.portrait_url} alt="Portrait" className="w-full h-full object-cover" />
                       ) : (
-                        <span className={`text-2xl font-black select-none ${theme === "DARK" ? "text-stone-600" : "text-stone-400"}`}>
+                        <span className={`text-2xl font-black select-none ${theme === "DARK" ? "text-stone-200" : "text-stone-800"}`}>
                           {(formData.first_name?.[0] || formData.email?.[0] || "?").toUpperCase()}
                         </span>
                       )}
@@ -1650,7 +1646,7 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
                       />
                     </label>
                   </div>
-                  <span className={`text-[8px] font-black uppercase tracking-widest mt-1 ${theme === "DARK" ? "text-stone-600" : "text-stone-400"}`}>Hover to upload</span>
+                  <span className={`text-[8px] font-black uppercase tracking-widest mt-1 ${theme === "DARK" ? "text-stone-400" : "text-stone-600"}`}>Hover to upload</span>
                   {formData.portrait_url && (
                     <button
                       onClick={() => setFormData(prev => ({ ...prev, portrait_url: "" }))}
@@ -1730,7 +1726,7 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
                             className={`px-4 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest border-2 transition-all flex items-center gap-2 ${
                               active
                                 ? (theme === "DARK" ? "bg-[#ccff00] text-stone-950 border-[#ccff00]" : "bg-[#6348eb] text-white border-[#6348eb]")
-                                : (theme === "DARK" ? "border-stone-800 text-stone-400 hover:border-stone-600" : "border-stone-200 text-stone-500 hover:border-stone-400")
+                                : (theme === "DARK" ? "border-stone-800 text-stone-200 hover:border-stone-600" : "border-stone-200 text-stone-950 hover:border-stone-400")
                             }`}
                           >
                             <span className="material-symbols-outlined text-sm">
@@ -1809,7 +1805,7 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
                   {/* Coach Details — toggled by role */}
                   <div className={`col-span-2 pt-2 pb-1 border-b flex items-center justify-between transition-colors ${theme === "DARK" ? "border-stone-800" : "border-stone-100"}`}>
                     <div className="flex items-center gap-3">
-                      <span className={`text-[10px] font-black uppercase tracking-[0.2em] ${theme === "DARK" ? "text-stone-500" : "text-stone-400"}`}>Coach Details</span>
+                      <span className={`text-[10px] font-black uppercase tracking-[0.2em] ${theme === "DARK" ? "text-stone-200" : "text-stone-950"}`}>Coach Details</span>
                       {isCoach && (
                         <span className={`text-[8px] font-black px-2 py-0.5 rounded-full uppercase tracking-widest ${
                           theme === "DARK" ? "bg-[#ccff00]/10 text-[#ccff00]" : "bg-[#6348eb]/10 text-[#6348eb]"
@@ -1817,7 +1813,7 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
                       )}
                     </div>
                     {!isCoach && (
-                      <span className={`text-[9px] font-medium ${theme === "DARK" ? "text-stone-600" : "text-stone-400"}`}>Assign role R10002 to enable</span>
+                      <span className={`text-[9px] font-medium ${theme === "DARK" ? "text-stone-400" : "text-stone-600"}`}>Assign role R10002 to enable</span>
                     )}
                   </div>
 
@@ -1865,7 +1861,7 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
                               className={`flex-1 py-3.5 rounded-2xl text-xs font-black uppercase tracking-widest border-2 transition-all ${
                                 formData.tennis_hand === hand
                                   ? (theme === "DARK" ? "bg-[#ccff00] text-stone-950 border-[#ccff00]" : "bg-[#6348eb] text-white border-[#6348eb]")
-                                  : (theme === "DARK" ? "border-stone-800 text-stone-400 hover:border-stone-600" : "border-stone-200 text-stone-500 hover:border-stone-400")
+                                  : (theme === "DARK" ? "border-stone-800 text-stone-200 hover:border-stone-600" : "border-stone-200 text-stone-950 hover:border-stone-400")
                               }`}
                             >
                               <span className="material-symbols-outlined text-sm mr-1" style={{ verticalAlign: "middle" }}>
@@ -1890,7 +1886,7 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
                                 className={`px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest border-2 transition-all ${
                                   active
                                     ? (theme === "DARK" ? "bg-[#ccff00] text-stone-950 border-[#ccff00]" : "bg-[#6348eb] text-white border-[#6348eb]")
-                                    : (theme === "DARK" ? "border-stone-800 text-stone-400 hover:border-stone-600" : "border-stone-200 text-stone-500 hover:border-stone-400")
+                                    : (theme === "DARK" ? "border-stone-800 text-stone-200 hover:border-stone-600" : "border-stone-200 text-stone-950 hover:border-stone-400")
                                 }`}
                               >
                                 {group}
@@ -1920,7 +1916,7 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
                             <span className={`text-[10px] font-black uppercase tracking-widest ${
                               formData.availability_enabled 
                                 ? (theme === "DARK" ? "text-[#ccff00]" : "text-[#6348eb]") 
-                                : (theme === "DARK" ? "text-stone-500" : "text-stone-400")
+                                : (theme === "DARK" ? "text-stone-200" : "text-stone-950")
                             }`}>Enable Dates</span>
                           </label>
                         </div>
@@ -1928,7 +1924,7 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
                         {/* Date span — controlled by checkbox */}
                         <div className={`flex items-center gap-4 mb-3 mt-1 transition-opacity ${!formData.availability_enabled ? "opacity-30 pointer-events-none grayscale" : "opacity-100"}`}>
                           <div className="flex-1">
-                            <label className={`text-[9px] font-black tracking-widest uppercase mb-1 block ${theme === "DARK" ? "text-stone-600" : "text-stone-400"}`}>From</label>
+                            <label className={`text-[9px] font-black tracking-widest uppercase mb-1 block ${theme === "DARK" ? "text-stone-400" : "text-stone-600"}`}>From</label>
                             <input
                               type="date"
                               disabled={!formData.availability_enabled}
@@ -1937,9 +1933,9 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
                               className={inputCls}
                             />
                           </div>
-                          <div className={`text-xs font-black mt-5 ${theme === "DARK" ? "text-stone-600" : "text-stone-400"}`}>—</div>
+                          <div className={`text-xs font-black mt-5 ${theme === "DARK" ? "text-stone-400" : "text-stone-600"}`}>—</div>
                           <div className="flex-1">
-                            <label className={`text-[9px] font-black tracking-widest uppercase mb-1 block ${theme === "DARK" ? "text-stone-600" : "text-stone-400"}`}>To</label>
+                            <label className={`text-[9px] font-black tracking-widest uppercase mb-1 block ${theme === "DARK" ? "text-stone-400" : "text-stone-600"}`}>To</label>
                             <input
                               type="date"
                               disabled={!formData.availability_enabled}
@@ -1953,7 +1949,7 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
                         {/* Grid — always enabled */}
                         <div className={`rounded-2xl border overflow-hidden mt-1 ${theme === "DARK" ? "border-stone-800" : "border-stone-200"}`}>
                           <div className={`grid border-b ${theme === "DARK" ? "border-stone-800 bg-stone-900" : "border-stone-100 bg-stone-50"}`} style={{ gridTemplateColumns: "80px repeat(7, 1fr)" }}>
-                            <div className={`px-3 py-2 text-[9px] font-black uppercase tracking-widest ${theme === "DARK" ? "text-stone-600" : "text-stone-400"}`}></div>
+                            <div className={`px-3 py-2 text-[9px] font-black uppercase tracking-widest ${theme === "DARK" ? "text-stone-400" : "text-stone-600"}`}></div>
                             {DAYS.map(d => (
                               <div key={d} className={`px-2 py-2 text-center text-[9px] font-black uppercase tracking-widest ${theme === "DARK" ? "text-stone-400" : "text-stone-600"}`}>{d}</div>
                             ))}
@@ -1964,7 +1960,7 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
                               className={`grid ${si < SLOTS.length - 1 ? `border-b ${theme === "DARK" ? "border-stone-800" : "border-stone-100"}` : ""}`}
                               style={{ gridTemplateColumns: "80px repeat(7, 1fr)" }}
                             >
-                              <div className={`px-3 py-3 text-[9px] font-black uppercase tracking-widest flex items-center ${theme === "DARK" ? "text-stone-500 bg-stone-900/50" : "text-stone-400 bg-stone-50/50"}`}>
+                              <div className={`px-3 py-3 text-[9px] font-black uppercase tracking-widest flex items-center ${theme === "DARK" ? "text-stone-200 bg-stone-900/50" : "text-stone-950 bg-stone-50/50"}`}>
                                 {slot}
                               </div>
                               {DAYS.map(day => {

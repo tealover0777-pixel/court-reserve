@@ -96,8 +96,7 @@ export default function OrganizationView({ theme, tenantId: tenantIdProp }: Orga
       <div className="flex flex-col gap-2">
         <h3 className={`text-6xl font-black italic tracking-tighter transition-all duration-500 ${isDark ? "text-white" : isVintage ? "text-black" : "text-stone-900"
           }`}>ORGANIZATION</h3>
-        <p className={`text-xs font-bold tracking-[0.2em] uppercase ${isDark ? "text-stone-500" : "text-stone-400"
-          }`}>Manage your brand and business core</p>
+        <p className={`text-xs font-bold tracking-[0.2em] uppercase ${isDark ? "text-stone-400" : "text-stone-600"}`}>Manage your brand and business core</p>
       </div>
 
       {/* Tabs Navigation */}
@@ -149,8 +148,7 @@ function FormField({ label, children, theme }: { label: string; children: React.
   const isDark = theme === "DARK";
   return (
     <div className="space-y-3">
-      <label className={`text-[10px] font-black tracking-widest uppercase ml-1 ${isDark ? "text-stone-500" : "text-stone-400"
-        }`}>{label}</label>
+      <label className={`text-[10px] font-black tracking-widest uppercase ml-1 ${isDark ? "text-stone-400" : "text-stone-600"}`}>{label}</label>
       {children}
     </div>
   );
@@ -180,7 +178,7 @@ function InfoTab({ data, onSave, isSaving, theme }: any) {
             />
           </FormField>
           <FormField label="Organization ID" theme={theme}>
-            <div className={`px-6 py-4 rounded-2xl font-mono text-sm opacity-50 ${isDark ? "bg-stone-900 text-white" : "bg-stone-100 text-stone-500"}`}>
+            <div className={`px-6 py-4 rounded-2xl font-mono text-sm ${isDark ? "bg-stone-900 text-stone-300" : "bg-stone-100 text-stone-700"}`}>
               {formData.tenant_id}
             </div>
           </FormField>
@@ -384,10 +382,10 @@ function BrandingTab({ data, onSave, isSaving, theme, tenantId }: any) {
                     {isUploading ? "sync" : "add_a_photo"}
                   </span>
                   <div className="text-center space-y-2">
-                    <p className="text-[10px] font-black tracking-widest uppercase opacity-40">
+                    <p className={`text-[10px] font-black tracking-widest uppercase ${isDark ? "text-stone-300" : "text-stone-500"}`}>
                       {isUploading ? "Uploading..." : "Upload Organization Logo"}
                     </p>
-                    <p className="text-[8px] font-bold text-stone-400 uppercase tracking-[0.2em]">Drag and drop or click to browse</p>
+                    <p className={`text-[8px] font-bold uppercase tracking-[0.2em] ${isDark ? "text-stone-500" : "text-stone-400"}`}>Drag and drop or click to browse</p>
                   </div>
                 </>
               )}
@@ -408,8 +406,7 @@ function BrandingTab({ data, onSave, isSaving, theme, tenantId }: any) {
 
         <button
           onClick={() => fileInputRef.current?.click()}
-          className={`px-10 py-5 rounded-2xl text-xs font-black tracking-[0.2em] uppercase transition-all border ${isDark ? "border-stone-700 text-stone-400 hover:text-white hover:border-white" : "border-stone-200 text-stone-500 hover:text-stone-900 hover:border-stone-900"
-            }`}
+          className={`px-10 py-5 rounded-2xl text-xs font-black tracking-[0.2em] uppercase transition-all border ${isDark ? "border-stone-800 text-stone-400 hover:text-white" : "border-stone-200 text-stone-600 hover:text-stone-900"}`}
         >
           Replace LOGO
         </button>
@@ -437,7 +434,7 @@ function EmailTab({ data, onSave, isSaving, theme, tenantId }: any) {
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8">
         <div className="space-y-2">
           <h3 className={`text-3xl font-black tracking-tighter uppercase transition-colors ${isDark ? "text-white" : "text-black"}`}>Email Setup</h3>
-          <p className="text-stone-400 text-xs font-medium">Configure how your marketing and system emails are delivered.</p>
+          <p className={`${isDark ? "text-stone-400" : "text-stone-600"} text-xs font-medium`}>Configure how your marketing and system emails are delivered.</p>
         </div>
 
         {tenantId !== "Global" && (
@@ -445,7 +442,7 @@ function EmailTab({ data, onSave, isSaving, theme, tenantId }: any) {
             }`}>
             <div className="flex-1 space-y-1">
               <h4 className={`text-[10px] font-black uppercase tracking-widest ${isDark ? "text-white" : "text-stone-900"}`}>Use Platform Email Service</h4>
-              <p className="text-[8px] text-stone-400 font-bold uppercase tracking-tight">Inherit from master organization</p>
+              <p className={`text-[8px] font-bold uppercase tracking-tight ${isDark ? "text-stone-500" : "text-stone-400"}`}>Inherit from master organization</p>
             </div>
             <label className="relative inline-flex items-center cursor-pointer">
               <input
@@ -492,7 +489,7 @@ function EmailTab({ data, onSave, isSaving, theme, tenantId }: any) {
                 onClick={() => setFormData({ ...formData, delivery_method: "API" })}
                 className={`flex-1 py-3 px-4 rounded-xl text-[10px] font-black tracking-widest uppercase transition-all ${formData.delivery_method === "API"
                     ? (isDark ? "bg-[#ccff00] text-stone-950 shadow-lg shadow-[#ccff00]/10" : "bg-white text-stone-900 shadow-sm")
-                    : "text-stone-400 hover:text-stone-600"
+                    : (isDark ? "text-stone-500 hover:text-white" : "text-stone-400 hover:text-stone-900")
                   }`}
               >
                 Service Provider (API)
@@ -501,7 +498,7 @@ function EmailTab({ data, onSave, isSaving, theme, tenantId }: any) {
                 onClick={() => setFormData({ ...formData, delivery_method: "SMTP" })}
                 className={`flex-1 py-3 px-4 rounded-xl text-[10px] font-black tracking-widest uppercase transition-all relative ${formData.delivery_method === "SMTP"
                     ? (isDark ? "bg-[#ccff00] text-stone-950 shadow-lg shadow-[#ccff00]/10" : "bg-stone-900 text-white shadow-lg")
-                    : "text-stone-400 hover:text-stone-600"
+                    : (isDark ? "text-stone-500 hover:text-white" : "text-stone-400 hover:text-stone-900")
                   }`}
               >
                 Custom SMTP
@@ -520,15 +517,15 @@ function EmailTab({ data, onSave, isSaving, theme, tenantId }: any) {
               </div>
               <div className="space-y-1">
                 <h6 className={`text-sm font-black uppercase tracking-tight ${isDark ? "text-white" : "text-stone-900"}`}>Test Verification</h6>
-                <p className="text-[10px] text-stone-400 font-medium">Verify your credentials by sending a test message to the configured test address.</p>
+                <p className={`text-[10px] font-medium ${isDark ? "text-stone-400" : "text-stone-600"}`}>Verify your credentials by sending a test message to the configured test address.</p>
               </div>
             </div>
             <button className={`w-full py-4 rounded-2xl border-2 text-[10px] font-black tracking-widest uppercase transition-all ${isDark ? "border-white text-white hover:bg-white hover:text-stone-950" : "border-stone-900 text-stone-900 hover:bg-stone-900 hover:text-white"
               }`}>
               Send Verification Email
             </button>
-            <p className="text-[8px] text-center font-black text-stone-400 uppercase tracking-widest">
-              Target: <span className={isDark ? "text-white/60" : "text-stone-900/60"}>{formData.test_email || "Not Configured"}</span>
+            <p className={`text-[8px] text-center font-black uppercase tracking-widest ${isDark ? "text-stone-500" : "text-stone-400"}`}>
+              Target: <span className={isDark ? "text-white" : "text-stone-950"}>{formData.test_email || "Not Configured"}</span>
             </p>
           </div>
         </div>
@@ -592,7 +589,7 @@ function EmailTab({ data, onSave, isSaving, theme, tenantId }: any) {
                   <option>Amazon SES</option>
                   <option>Custom SMTP</option>
                 </select>
-                <p className="text-[8px] mt-2 font-bold text-stone-400 uppercase tracking-widest italic">Selecting a service will auto-populate host and port details.</p>
+                <p className={`text-[8px] mt-2 font-bold uppercase tracking-widest italic ${isDark ? "text-stone-500" : "text-stone-400"}`}>Selecting a service will auto-populate host and port details.</p>
               </FormField>
 
               <div className="grid grid-cols-4 gap-4">
@@ -635,7 +632,7 @@ function EmailTab({ data, onSave, isSaving, theme, tenantId }: any) {
                     onChange={(e) => setFormData({ ...formData, smtp_2fa: e.target.checked })}
                     className="w-4 h-4 rounded-md border-stone-300 text-stone-900 focus:ring-stone-500"
                   />
-                  <span className={`text-[10px] font-black uppercase tracking-widest ${isDark ? "text-stone-300 group-hover:text-white" : "text-stone-600 group-hover:text-stone-900"}`}>
+                  <span className={`text-[10px] font-black uppercase tracking-widest ${isDark ? "text-stone-400" : "text-stone-600"} group-hover:text-stone-950 dark:group-hover:text-white`}>
                     My account has 2FA enabled (requires App Password)
                   </span>
                 </label>
@@ -649,7 +646,7 @@ function EmailTab({ data, onSave, isSaving, theme, tenantId }: any) {
                       className={inputClasses}
                       placeholder="••••••••••••••••"
                     />
-                    <p className="text-[8px] mt-2 font-bold text-stone-400 uppercase tracking-widest">Generate this in your Google Account Security settings. Use it instead of your regular password.</p>
+                    <p className={`text-[8px] mt-2 font-bold uppercase tracking-widest ${isDark ? "text-stone-500" : "text-stone-400"}`}>Generate this in your Google Account Security settings. Use it instead of your regular password.</p>
                   </FormField>
                 )}
 
@@ -660,7 +657,7 @@ function EmailTab({ data, onSave, isSaving, theme, tenantId }: any) {
                     onChange={(e) => setFormData({ ...formData, smtp_tls: e.target.checked })}
                     className="w-4 h-4 rounded-md border-stone-300 text-stone-900 focus:ring-stone-500"
                   />
-                  <span className={`text-[10px] font-black uppercase tracking-widest ${isDark ? "text-stone-300 group-hover:text-white" : "text-stone-600 group-hover:text-stone-900"}`}>
+                  <span className={`text-[10px] font-black uppercase tracking-widest ${isDark ? "text-stone-400" : "text-stone-600"} group-hover:text-stone-950 dark:group-hover:text-white`}>
                     Use TLS / SSL for secure connection
                   </span>
                 </label>
@@ -699,11 +696,10 @@ function PaymentTab({ data, onSave, isSaving, theme }: any) {
             </div>
             <div className="space-y-1">
               <h6 className={`text-sm font-bold tracking-tight ${isDark ? "text-white" : "text-stone-900"}`}>•••• •••• •••• 4242</h6>
-              <p className="text-[10px] text-stone-400 font-medium uppercase tracking-widest">Expires 12/26</p>
+              <p className={`text-[10px] font-medium uppercase tracking-widest ${isDark ? "text-stone-400" : "text-stone-600"}`}>Expires 12/26</p>
             </div>
           </div>
-          <button className={`w-full py-5 rounded-2xl text-[10px] font-black tracking-widest uppercase transition-all border ${isDark ? "border-stone-800 text-stone-400 hover:text-white hover:bg-stone-800" : "border-stone-200 text-stone-500 hover:text-stone-900 hover:bg-stone-50"
-            }`}>Update Payment Method</button>
+          <button className={`w-full py-5 rounded-2xl text-[10px] font-black tracking-widest uppercase transition-all border ${isDark ? "border-stone-800 text-stone-400 hover:text-white" : "border-stone-200 text-stone-600 hover:text-stone-900"}`}>Update Payment Method</button>
         </div>
         <div className="space-y-8">
           <FormField label="Currency" theme={theme}>
@@ -719,7 +715,7 @@ function PaymentTab({ data, onSave, isSaving, theme }: any) {
               <span className="material-symbols-outlined text-blue-500">verified_user</span>
               <div className="space-y-1">
                 <h6 className={`text-xs font-bold uppercase tracking-tight ${isDark ? "text-white" : "text-stone-900"}`}>Secure Transactions</h6>
-                <p className="text-[10px] text-stone-400 font-medium">All payments are processed securely via Stripe. We do not store full credit card numbers on our servers.</p>
+                <p className={`text-[10px] font-medium ${isDark ? "text-stone-400" : "text-stone-600"}`}>All payments are processed securely via Stripe. We do not store full credit card numbers on our servers.</p>
               </div>
             </div>
           </div>
@@ -965,7 +961,7 @@ function CourtTab({ data, onSave, isSaving, theme, dimensions, tenantId }: any) 
                       )}
                       <div className="overflow-hidden">
                         <p className={`text-[10px] font-black truncate mb-0.5 ${isDark ? "text-white" : "text-stone-900"}`}>{dc.name}</p>
-                        <p className="text-[8px] opacity-40 uppercase font-black tracking-widest">{dc.condition}</p>
+                        <p className={`text-[8px] uppercase font-black tracking-widest ${isDark ? "text-stone-500" : "text-stone-400"}`}>{dc.condition}</p>
                       </div>
                     </button>
                   ))}
@@ -1046,10 +1042,10 @@ function CourtTab({ data, onSave, isSaving, theme, dimensions, tenantId }: any) 
                     {isUploading ? "sync" : "add_a_photo"}
                   </span>
                   <div className="text-center space-y-1">
-                    <p className="text-[10px] font-black tracking-widest uppercase opacity-40">
+                    <p className={`text-[10px] font-black tracking-widest uppercase ${isDark ? "text-stone-300" : "text-stone-500"}`}>
                       {isUploading ? "Uploading..." : "Click or drag photo"}
                     </p>
-                    <p className="text-[8px] font-bold text-stone-400 uppercase tracking-[0.2em]">Drop files here</p>
+                    <p className={`text-[8px] font-bold uppercase tracking-[0.2em] ${isDark ? "text-stone-500" : "text-stone-400"}`}>Drop files here</p>
                   </div>
                 </>
               )}
@@ -1060,7 +1056,7 @@ function CourtTab({ data, onSave, isSaving, theme, dimensions, tenantId }: any) 
                 e.stopPropagation();
                 courtFileRef.current?.click();
               }}
-              className={`mt-3 w-full py-4 rounded-xl text-[9px] font-black tracking-[0.2em] uppercase border transition-all ${isDark ? "border-stone-800 text-stone-400 hover:text-white hover:border-stone-600" : "border-stone-200 text-stone-500 hover:text-stone-900 hover:border-stone-300"
+              className={`mt-3 w-full py-4 rounded-xl text-[9px] font-black tracking-[0.2em] uppercase border transition-all ${isDark ? "border-stone-800 text-stone-400 hover:text-white" : "border-stone-200 text-stone-600 hover:text-stone-900"
                 }`}
             >
               Load from Directory
@@ -1104,7 +1100,7 @@ function CourtTab({ data, onSave, isSaving, theme, dimensions, tenantId }: any) 
           </h4>
           <div className="space-y-4 flex-1 overflow-y-auto pr-2 min-h-[400px]">
             {courts.length === 0 && (
-              <div className={`rounded-2xl border border-dashed px-6 py-8 text-center text-[10px] font-black uppercase tracking-widest ${isDark ? "border-stone-700 text-stone-500" : "border-stone-200 text-stone-400"}`}>
+              <div className={`rounded-2xl border border-dashed px-6 py-8 text-center text-[10px] font-black uppercase tracking-widest ${isDark ? "border-stone-800 text-stone-500" : "border-stone-200 text-stone-400"}`}>
                 No courts registered yet
               </div>
             )}
@@ -1126,7 +1122,7 @@ function CourtTab({ data, onSave, isSaving, theme, dimensions, tenantId }: any) 
                       </div>
                     ) : (
                       <div className={`w-24 flex-shrink-0 flex items-center justify-center ${isDark ? "bg-stone-800" : "bg-stone-100"}`}>
-                        <span className={`material-symbols-outlined text-3xl ${isDark ? "text-stone-600" : "text-stone-300"}`}>sports_tennis</span>
+                        <span className={`material-symbols-outlined text-3xl ${isDark ? "text-stone-700" : "text-stone-300"}`}>sports_tennis</span>
                       </div>
                     )}
 
@@ -1138,7 +1134,7 @@ function CourtTab({ data, onSave, isSaving, theme, dimensions, tenantId }: any) 
                         <div className="flex items-center gap-1 flex-shrink-0">
                           <button
                             onClick={() => handleEditCourt(court)}
-                            className={`p-1.5 rounded-lg transition-colors ${isDark ? "text-stone-400 hover:text-white hover:bg-stone-800" : "text-stone-400 hover:text-stone-900 hover:bg-stone-100"}`}
+                            className={`p-1.5 rounded-lg transition-colors ${isDark ? "text-stone-500 hover:text-white hover:bg-stone-800" : "text-stone-400 hover:text-stone-900 hover:bg-stone-100"}`}
                           >
                             <span className="material-symbols-outlined text-base">edit</span>
                           </button>
@@ -1153,7 +1149,7 @@ function CourtTab({ data, onSave, isSaving, theme, dimensions, tenantId }: any) 
 
                       {/* Row 2: condition badge + status badge */}
                       <div className="flex flex-wrap gap-2">
-                        <span className={`px-2.5 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${isDark ? "bg-stone-800 text-stone-300" : "bg-stone-100 text-stone-600"}`}>
+                        <span className={`px-2.5 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${isDark ? "bg-stone-800 text-stone-400" : "bg-stone-100 text-stone-600"}`}>
                           {court.condition}
                         </span>
                         <span className={`px-2.5 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${isAvailable ? (isDark ? "bg-[#ccff00]/10 text-[#ccff00] border border-[#ccff00]/20" : "bg-green-50 text-green-700 border border-green-200") : (isDark ? "bg-red-500/10 text-red-400 border border-red-500/20" : "bg-red-50 text-red-700 border border-red-200")}`}>
@@ -1165,25 +1161,25 @@ function CourtTab({ data, onSave, isSaving, theme, dimensions, tenantId }: any) 
                       <div className={`flex flex-col gap-1.5 px-4 py-3 rounded-2xl ${isDark ? "bg-stone-800/40" : "bg-stone-50/50 border border-stone-100"}`}>
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2">
-                            <span className={`material-symbols-outlined text-[14px] ${isDark ? "text-[#ccff00]" : "text-stone-400"}`}>schedule</span>
-                            <span className={`text-[9px] font-black uppercase tracking-widest ${isDark ? "text-stone-500" : "text-stone-400"}`}>Operating Hours</span>
+                            <span className={`material-symbols-outlined text-[14px] ${isDark ? "text-[#ccff00]" : "text-stone-500"}`}>schedule</span>
+                            <span className={`text-[9px] font-black uppercase tracking-widest ${isDark ? "text-stone-400" : "text-stone-600"}`}>Operating Hours</span>
                           </div>
                           {!hasHours && (
-                            <span className={`text-[8px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full ${isDark ? "bg-stone-800 text-stone-600" : "bg-stone-200 text-stone-400"}`}>Not set</span>
+                            <span className={`text-[8px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full ${isDark ? "bg-stone-800 text-stone-500" : "bg-stone-200 text-stone-600"}`}>Not set</span>
                           )}
                         </div>
                         
                         <div className="flex items-center gap-4">
                           <div className="flex-1">
-                            <p className={`text-[8px] font-black uppercase tracking-widest opacity-40 mb-0.5 ${isDark ? "text-white" : "text-stone-900"}`}>Available From</p>
-                            <p className={`text-[11px] font-black tabular-nums ${hasHours ? (isDark ? "text-[#ccff00]" : "text-stone-800") : (isDark ? "text-stone-600" : "text-stone-300")}`}>
+                            <p className={`text-[8px] font-black uppercase tracking-widest mb-0.5 ${isDark ? "text-stone-500" : "text-stone-400"}`}>Available From</p>
+                            <p className={`text-[11px] font-black tabular-nums ${hasHours ? (isDark ? "text-[#ccff00]" : "text-stone-900") : (isDark ? "text-stone-700" : "text-stone-300")}`}>
                               {fromTime}
                             </p>
                           </div>
                           <div className={`w-[1px] h-6 ${isDark ? "bg-stone-700" : "bg-stone-200"}`} />
                           <div className="flex-1">
-                            <p className={`text-[8px] font-black uppercase tracking-widest opacity-40 mb-0.5 ${isDark ? "text-white" : "text-stone-900"}`}>Available To</p>
-                            <p className={`text-[11px] font-black tabular-nums ${hasHours ? (isDark ? "text-[#ccff00]" : "text-stone-800") : (isDark ? "text-stone-600" : "text-stone-300")}`}>
+                            <p className={`text-[8px] font-black uppercase tracking-widest mb-0.5 ${isDark ? "text-stone-500" : "text-stone-400"}`}>Available To</p>
+                            <p className={`text-[11px] font-black tabular-nums ${hasHours ? (isDark ? "text-[#ccff00]" : "text-stone-900") : (isDark ? "text-stone-700" : "text-stone-300")}`}>
                               {toTime}
                             </p>
                           </div>
@@ -1193,8 +1189,8 @@ function CourtTab({ data, onSave, isSaving, theme, dimensions, tenantId }: any) 
                       {/* Row 4: restrictions (optional) */}
                       {court.restrictions && (
                         <div className="flex items-start gap-1.5">
-                          <span className={`material-symbols-outlined text-sm flex-shrink-0 mt-px ${isDark ? "text-stone-500" : "text-stone-400"}`}>info</span>
-                          <p className={`text-[10px] font-bold leading-tight ${isDark ? "text-stone-400" : "text-stone-500"}`}>{court.restrictions}</p>
+                          <span className={`material-symbols-outlined text-sm flex-shrink-0 mt-px ${isDark ? "text-[#ccff00]" : "text-stone-600"}`}>info</span>
+                          <p className={`text-[10px] font-bold leading-tight ${isDark ? "text-stone-300" : "text-stone-700"}`}>{court.restrictions}</p>
                         </div>
                       )}
                     </div>

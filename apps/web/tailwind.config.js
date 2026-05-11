@@ -28,6 +28,12 @@ export default {
         "surface-container-highest": "#efec93",
         "tertiary-container": "#fce047",
         "on-tertiary-container": "#5d5000",
+        "stone": {
+          300: "var(--stone-300)",
+          400: "var(--stone-400)",
+          500: "var(--stone-500)",
+          600: "var(--stone-600)",
+        }
       },
       fontFamily: {
         headline: ["Lexend", "sans-serif"],

@@ -238,7 +238,7 @@ export default function DimensionsView({ theme = "LIGHT" }: { theme?: "LIGHT" | 
             <button
               ref={buttonRef}
               onClick={handleToggle}
-              className="text-stone-400 hover:text-stone-900 transition-colors p-2"
+              className={`transition-colors p-2 ${theme === "DARK" ? "text-stone-400 hover:text-[#ccff00]" : "text-stone-500 hover:text-stone-900"}`}
             >
               <span className="material-symbols-outlined text-xl">more_horiz</span>
             </button>
@@ -259,9 +259,9 @@ export default function DimensionsView({ theme = "LIGHT" }: { theme?: "LIGHT" | 
                       setShowMenu(false);
                     }}
                     className={`w-full flex items-center gap-3 px-4 py-2.5 text-[10px] font-black uppercase tracking-widest transition-colors ${
-                      theme === "DARK" ? "text-stone-400 hover:bg-stone-800" : 
+                      theme === "DARK" ? "text-stone-300 hover:bg-stone-800" : 
                       theme === "VINTAGE" ? "text-black hover:bg-stone-50" :
-                      "text-stone-600 hover:bg-stone-50"
+                      "text-stone-900 hover:bg-stone-50"
                     }`}
                   >
                     <span className="material-symbols-outlined text-base">edit</span>
@@ -322,9 +322,9 @@ export default function DimensionsView({ theme = "LIGHT" }: { theme?: "LIGHT" | 
             Dimensions
           </h2>
           <p className={`font-bold uppercase tracking-widest text-xs mt-2 transition-colors duration-500 ${
-            theme === "DARK" ? "text-stone-400" : 
-            theme === "VINTAGE" ? "text-stone-500" :
-            "text-stone-900"
+            theme === "DARK" ? "text-stone-300" : 
+            theme === "VINTAGE" ? "text-stone-800" :
+            "text-stone-800"
           }`}>
             System Architecture · <span className={
               theme === "DARK" ? "text-[#ccff00]" : 
@@ -355,7 +355,7 @@ export default function DimensionsView({ theme = "LIGHT" }: { theme?: "LIGHT" | 
             onClick={() => setShowPermsModal(true)}
             className={`px-8 py-3 rounded-full font-black text-xs tracking-widest transition-all uppercase border-2 flex items-center gap-2 ${
               theme === "DARK" 
-                ? "border-stone-800 text-stone-400 hover:bg-stone-900" 
+                ? "border-stone-800 text-stone-300 hover:bg-stone-900" 
                 : theme === "VINTAGE"
                   ? "border-stone-100 text-black hover:bg-stone-50"
                   : "border-stone-200 text-stone-900 hover:bg-stone-50"
@@ -469,7 +469,7 @@ export default function DimensionsView({ theme = "LIGHT" }: { theme?: "LIGHT" | 
             }`}>
               Manage {dimensions.find(d => d.id === editingCategoryId)?.category}
             </h4>
-            <button onClick={() => setEditingCategoryId(null)} className="text-stone-400 hover:text-stone-900">
+            <button onClick={() => setEditingCategoryId(null)} className={`${theme === "DARK" ? "text-stone-300 hover:text-[#ccff00]" : "text-stone-600 hover:text-stone-900"}`}>
               <span className="material-symbols-outlined">close</span>
             </button>
           </div>
@@ -532,9 +532,9 @@ export default function DimensionsView({ theme = "LIGHT" }: { theme?: "LIGHT" | 
             <button 
               onClick={() => setShowNewModal(false)}
               className={`flex-1 py-4 border-2 rounded-2xl text-[10px] font-black tracking-widest transition-all uppercase ${
-                theme === "DARK" ? "border-stone-800 text-stone-400 hover:bg-stone-900" : 
+                theme === "DARK" ? "border-stone-800 text-stone-300 hover:bg-stone-900" : 
                 theme === "VINTAGE" ? "border-stone-100 text-black hover:bg-stone-50" :
-                "border-stone-100 text-stone-400 hover:bg-stone-50"
+                "border-stone-100 text-stone-700 hover:bg-stone-50"
               }`}
             >
               Cancel
@@ -555,7 +555,7 @@ export default function DimensionsView({ theme = "LIGHT" }: { theme?: "LIGHT" | 
         <div className="space-y-8">
           <div>
             <label className={`text-[10px] font-black tracking-[0.2em] uppercase mb-3 block transition-colors ${
-              theme === "DARK" ? "text-stone-400" : "text-stone-900"
+              theme === "DARK" ? "text-stone-300" : "text-stone-900"
             }`}>Category Name</label>
             <input 
               value={newName}
@@ -573,7 +573,7 @@ export default function DimensionsView({ theme = "LIGHT" }: { theme?: "LIGHT" | 
 
           <div>
             <label className={`text-[10px] font-black tracking-[0.2em] uppercase mb-3 block transition-colors ${
-              theme === "DARK" ? "text-stone-400" : "text-stone-900"
+              theme === "DARK" ? "text-stone-300" : "text-stone-900"
             }`}>Initial Values</label>
             <textarea 
               value={newValuesStr}
@@ -588,7 +588,7 @@ export default function DimensionsView({ theme = "LIGHT" }: { theme?: "LIGHT" | 
                     : "bg-stone-100 text-stone-900 focus:ring-2 focus:ring-[#4f6b28]"
               }`}
             />
-            <p className="text-[10px] text-stone-600 mt-2 font-medium">Separate items with commas to create multiple values at once.</p>
+            <p className={`text-[10px] mt-2 font-medium ${theme === "DARK" ? "text-stone-300" : "text-stone-700"}`}>Separate items with commas to create multiple values at once.</p>
           </div>
         </div>
       </Modal>
@@ -605,9 +605,9 @@ export default function DimensionsView({ theme = "LIGHT" }: { theme?: "LIGHT" | 
             <button 
               onClick={() => setConfirmDelete(null)}
               className={`flex-1 py-4 border-2 rounded-2xl text-[10px] font-black tracking-widest transition-all uppercase ${
-                theme === "DARK" ? "border-stone-800 text-stone-400 hover:bg-stone-900" : 
+                theme === "DARK" ? "border-stone-800 text-stone-300 hover:bg-stone-900" : 
                 theme === "VINTAGE" ? "border-stone-100 text-black hover:bg-stone-50" :
-                "border-stone-100 text-stone-400 hover:bg-stone-50"
+                "border-stone-100 text-stone-700 hover:bg-stone-50"
               }`}
             >
               Go Back
@@ -629,7 +629,7 @@ export default function DimensionsView({ theme = "LIGHT" }: { theme?: "LIGHT" | 
           <span className="material-symbols-outlined text-4xl">delete_forever</span>
         </div>
         <p className={`text-center font-medium leading-relaxed transition-colors ${
-          theme === "DARK" ? "text-stone-400" : "text-stone-500"
+          theme === "DARK" ? "text-stone-200" : "text-stone-800"
         }`}>
           Are you sure you want to delete this category? This action will remove all associated values and cannot be undone.
         </p>
@@ -654,7 +654,7 @@ export default function DimensionsView({ theme = "LIGHT" }: { theme?: "LIGHT" | 
           </button>
         }
       >
-        <p className="text-stone-400 font-bold uppercase tracking-widest text-[10px] mb-8">Manage application-wide permission keys</p>
+        <p className={`${theme === "DARK" ? "text-stone-300" : "text-stone-800"} font-bold uppercase tracking-widest text-[10px] mb-8`}>Manage application-wide permission keys</p>
 
         <div className={`p-8 rounded-[32px] border mb-8 transition-colors ${
           theme === "DARK" ? "bg-stone-900 border-stone-800" : 
@@ -702,7 +702,7 @@ export default function DimensionsView({ theme = "LIGHT" }: { theme?: "LIGHT" | 
                 <span className={`text-[10px] font-black uppercase tracking-widest transition-colors ${
                   permToggles[k as keyof typeof permToggles] 
                     ? (theme === "DARK" ? "text-[#ccff00]" : theme === "VINTAGE" ? "text-black" : "text-[#4f6b28]") 
-                    : "text-stone-300"
+                    : (theme === "DARK" ? "text-stone-500" : "text-stone-400")
                 }`}>{k}</span>
               </label>
             ))}
@@ -717,7 +717,7 @@ export default function DimensionsView({ theme = "LIGHT" }: { theme?: "LIGHT" | 
               "bg-stone-50 border-stone-100"
             }`}>
               <span className={`text-[10px] font-mono font-bold transition-colors ${
-                theme === "DARK" ? "text-stone-400" : "text-stone-500"
+                theme === "DARK" ? "text-stone-300" : "text-stone-700"
               }`}>{p}</span>
               <button onClick={() => handleRemovePermission(p)} className="text-stone-300 hover:text-red-500 transition-colors">
                 <span className="material-symbols-outlined text-lg">close</span>

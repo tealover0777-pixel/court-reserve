@@ -25,6 +25,26 @@
   --surface-container-highest: #e4e4e1;
   --tertiary-container: #fce047;
   --on-tertiary-container: #5d5000;
+
+  /* Theme-aware Grays (Stone Palette) */
+  --stone-400: #57534e; /* Becomes Stone-600 in Light */
+  --stone-500: #44403c; /* Becomes Stone-700 in Light */
+  --stone-300: #78716c; /* Becomes Stone-500 in Light */
+  --stone-600: #292524; /* Becomes Stone-800 in Light */
+}
+
+.theme-dark {
+  --stone-400: #d6d3d1; /* Becomes Stone-300 in Dark */
+  --stone-500: #e7e5e4; /* Becomes Stone-200 in Dark */
+  --stone-300: #a8a29e; /* Becomes Stone-400 in Dark */
+  --stone-600: #f5f5f4; /* Becomes Stone-100 in Dark */
+}
+
+.theme-vintage {
+  --stone-400: #57534e;
+  --stone-500: #44403c;
+  --stone-300: #78716c;
+  --stone-600: #292524;
 }
 
 * {

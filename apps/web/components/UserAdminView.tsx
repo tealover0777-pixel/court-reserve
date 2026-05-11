@@ -119,11 +119,15 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
   const readonlyCls = `w-full border rounded-2xl px-5 py-3.5 text-sm font-bold transition-colors ${
     theme === "DARK" ? "bg-stone-900 text-stone-400 border-stone-800" : "bg-stone-50 text-stone-500 border-stone-100"
   }`;
-  const labelCls = `text-[10px] font-black tracking-widest uppercase mb-2 block ${theme === "DARK" ? "text-stone-500" : "text-stone-400"}`;
+  const labelCls = `text-[10px] font-black tracking-widest uppercase mb-2 block ${
+    theme === "DARK" ? "text-stone-300" : "text-stone-800"
+  }`;
   
   const sectionDivider = (title: string) => (
     <div className={`col-span-2 pt-2 pb-1 border-b flex items-center gap-3 transition-colors ${theme === "DARK" ? "border-stone-800" : "border-stone-100"}`}>
-      <span className={`text-[10px] font-black uppercase tracking-[0.2em] ${theme === "DARK" ? "text-stone-500" : "text-stone-400"}`}>{title}</span>
+      <span className={`text-[10px] font-black uppercase tracking-[0.2em] ${
+        theme === "DARK" ? "text-stone-300" : "text-stone-800"
+      }`}>{title}</span>
     </div>
   );
 
@@ -636,18 +640,14 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
       header: "USER ID",
       size: 120,
       cell: info => <span className={`font-mono text-xs transition-colors duration-500 ${
-        theme === "DARK" ? "text-stone-400" : 
-        theme === "VINTAGE" ? "text-stone-600" :
-        "text-stone-900"
+        theme === "DARK" ? "text-stone-300" : "text-stone-800"
       }`}>{info.getValue()}</span>,
     }),
     columnHelper.accessor("company_user_id", {
       header: "COMPANY USER ID",
       size: 160,
       cell: info => <span className={`font-mono text-xs transition-colors duration-500 ${
-        theme === "DARK" ? "text-stone-400" :
-        theme === "VINTAGE" ? "text-stone-600" :
-        "text-stone-500"
+        theme === "DARK" ? "text-stone-200" : "text-stone-700"
       }`}>{info.getValue() || "—"}</span>,
     }),
     ...(tenantId ? [] : [columnHelper.accessor("tenant_id", {
@@ -657,9 +657,7 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
         const tid = info.getValue();
         if (!tid) return (
           <span className={`font-mono text-[10px] font-black transition-colors duration-500 ${
-            theme === "DARK" ? "text-stone-500" : 
-            theme === "VINTAGE" ? "text-stone-400" :
-            "text-stone-400"
+            theme === "DARK" ? "text-stone-300" : "text-stone-800"
           }`}>Global</span>
         );
         const tenant = tenants.find(t => t.tenant_id === tid);
@@ -717,9 +715,7 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
       header: "EMAIL",
       size: 250,
       cell: info => <span className={`text-sm transition-colors duration-500 ${
-        theme === "DARK" ? "text-stone-400" : 
-        theme === "VINTAGE" ? "text-stone-500" :
-        "text-stone-600"
+        theme === "DARK" ? "text-stone-300" : "text-stone-800"
       }`}>{info.getValue()}</span>,
     }),
     columnHelper.accessor("roles", {
@@ -730,7 +726,9 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
         const singleRole = info.row.original.role;
         const allRoleIds = roleIds.length > 0 ? roleIds : (singleRole ? [singleRole] : []);
         
-        if (allRoleIds.length === 0) return <span className="text-xs text-stone-400">—</span>;
+        if (allRoleIds.length === 0) return <span className={`text-xs ${
+          theme === "DARK" ? "text-stone-300" : "text-stone-800"
+        }`}>—</span>;
 
         return (
           <div className="flex flex-wrap gap-1 py-1">
@@ -738,7 +736,7 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
               const roleMatch = roles.find(r => r.role_id === rid || r.id === rid);
               if (!roleMatch) return (
                 <span key={rid} className={`text-[9px] font-mono px-2 py-0.5 rounded-full border ${
-                  theme === "DARK" ? "border-stone-800 text-stone-500" : "border-stone-200 text-stone-400"
+                  theme === "DARK" ? "border-stone-800 text-stone-300" : "border-stone-200 text-stone-800"
                 }`}>{rid}</span>
               );
 
@@ -780,14 +778,14 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
       header: "PHONE",
       size: 150,
       cell: info => <span className={`text-xs transition-colors duration-500 ${
-        theme === "DARK" ? "text-stone-400" : "text-stone-600"
+        theme === "DARK" ? "text-stone-300" : "text-stone-800"
       }`}>{info.getValue() || "-"}</span>,
     }),
     columnHelper.accessor("notes", {
       header: "NOTES",
       size: 200,
       cell: info => <span className={`text-xs transition-colors duration-500 truncate max-w-[200px] block ${
-        theme === "DARK" ? "text-stone-500" : "text-stone-400"
+        theme === "DARK" ? "text-stone-200" : "text-stone-700"
       }`}>{info.getValue() || "-"}</span>,
     }),
     columnHelper.display({
@@ -812,7 +810,9 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
             <button
               ref={buttonRef}
               onClick={handleToggle}
-              className="text-stone-400 hover:text-stone-900 transition-colors p-2"
+              className={`transition-colors p-2 ${
+                theme === "DARK" ? "text-stone-300 hover:text-white" : "text-stone-500 hover:text-stone-900"
+              }`}
             >
               <span className="material-symbols-outlined text-xl">more_horiz</span>
             </button>
@@ -833,9 +833,9 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
                       setShowMenu(false);
                     }}
                     className={`w-full flex items-center gap-3 px-4 py-2.5 text-[10px] font-black uppercase tracking-widest transition-colors ${
-                      theme === "DARK" ? "text-stone-400 hover:bg-stone-800" : 
-                      theme === "VINTAGE" ? "text-black hover:bg-stone-50" :
-                      "text-stone-600 hover:bg-stone-50"
+                      theme === "DARK" ? "text-stone-300 hover:bg-stone-800" : 
+                      theme === "VINTAGE" ? "text-stone-900 hover:bg-stone-50" :
+                      "text-stone-800 hover:bg-stone-50"
                     }`}
                   >
                     <span className="material-symbols-outlined text-base">edit</span>
@@ -909,8 +909,8 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
             User Admin
           </h2>
           <p className={`font-bold uppercase tracking-widest text-xs mt-2 transition-colors duration-500 ${
-            theme === "DARK" ? "text-stone-400" : 
-            theme === "VINTAGE" ? "text-stone-500" :
+            theme === "DARK" ? "text-stone-300" : 
+            theme === "VINTAGE" ? "text-stone-800" :
             "text-stone-900"
           }`}>
             Platform Management · <span className={
@@ -922,7 +922,9 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
         </div>
         <div className="flex gap-4">
           <div className="relative w-80">
-            <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-stone-400 text-lg">search</span>
+            <span className={`material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-lg ${
+              theme === "DARK" ? "text-stone-300" : "text-stone-500"
+            }`}>search</span>
             <input 
               type="text"
               placeholder="Search users..."
@@ -1064,9 +1066,9 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
             <button 
               onClick={() => setConfirmDelete(null)}
               className={`flex-1 py-4 border-2 rounded-2xl text-[10px] font-black tracking-widest transition-all uppercase ${
-                theme === "DARK" ? "border-stone-800 text-stone-400 hover:bg-stone-900" : 
-                theme === "VINTAGE" ? "border-stone-100 text-black hover:bg-stone-50" :
-                "border-stone-100 text-stone-400 hover:bg-stone-50"
+                theme === "DARK" ? "border-stone-800 text-stone-300 hover:bg-stone-900" : 
+                theme === "VINTAGE" ? "border-stone-100 text-stone-900 hover:bg-stone-50" :
+                "border-stone-100 text-stone-800 hover:bg-stone-50"
               }`}
             >
               Go Back
@@ -1089,7 +1091,7 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
             <span className="material-symbols-outlined text-4xl">delete_forever</span>
           </div>
           <p className={`text-center font-medium leading-relaxed transition-colors ${
-            theme === "DARK" ? "text-stone-400" : "text-stone-500"
+            theme === "DARK" ? "text-stone-300" : "text-stone-800"
           }`}>
             Are you sure you want to remove this user from the platform? This action cannot be undone.
           </p>
