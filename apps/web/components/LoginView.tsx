@@ -84,10 +84,12 @@ export default function LoginView() {
       // Create global_users profile
       await setDoc(doc(db, "global_users", cred.user.uid), {
         user_id: cred.user.uid,
+        auth_uid: cred.user.uid,
         first_name: regFirstName.trim(),
         last_name: regLastName.trim(),
         email: regEmail.trim().toLowerCase(),
         roles: [],
+        status: "Active",
         created_at: serverTimestamp(),
         updated_at: serverTimestamp(),
       });
