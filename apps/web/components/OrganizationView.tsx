@@ -427,7 +427,37 @@ function EmailTab({ data, onSave, isSaving, theme, tenantId }: any) {
   });
 
   const [isVerifying, setIsVerifying] = useState(false);
-  const [verificationStatus, setVerificationStatus] = useState<{ type: "SUCCESS" | "ERROR", message: string } | null>(null);
+  const [verificationStatus, setVerificationStatus] = useState<{
+    type: "SUCCESS" | "ERROR";
+    message: string;
+    hint?: string;
+    helpUrl?: string;
+  } | null>(null);
+
+  /** Maps raw SMTP error text → friendly hint + help link */
+  const classifySmtpError = (raw: string): { message: string; hint: string; helpUrl?: string } => {
+    const r = raw.toLowerCase();
+    if (r.includes("badcredentials") || r.includes("username and password not accepted") || r.includes("535")) {
+      return {
+        message: "Invalid login — Gmail rejected the credentials.",
+        hint: "Gmail requires an App Password when 2FA is enabled. Enable the '2FA' checkbox and paste a 16-character App Password (not your account password).",
+        helpUrl: "https://myaccount.google.com/apppasswords",
+      };
+    }
+    if (r.includes("self signed certificate") || r.includes("certificate")) {
+      return { message: "TLS certificate error.", hint: "Disable the TLS/SSL option or contact your SMTP provider." };
+    }
+    if (r.includes("econnrefused") || r.includes("enotfound") || r.includes("econnreset")) {
+      return { message: "Could not connect to SMTP server.", hint: "Check the SMTP Host and Port. Make sure port 587 (TLS) or 465 (SSL) is correct for your provider." };
+    }
+    if (r.includes("530") || r.includes("authentication required")) {
+      return { message: "SMTP authentication required.", hint: "Your server requires a username and password. Fill in the SMTP User and Password fields." };
+    }
+    if (r.includes("550") || r.includes("user unknown") || r.includes("no such user")) {
+      return { message: "Recipient address rejected.", hint: "The test email address may not exist. Try a different inbox." };
+    }
+    return { message: raw, hint: "Double-check your SMTP credentials, host, and port." };
+  };
 
   const handleVerifyEmail = async () => {
     if (!formData.test_email) {
@@ -467,9 +497,14 @@ function EmailTab({ data, onSave, isSaving, theme, tenantId }: any) {
 
       const json = await res.json();
       if (json.success) {
-        setVerificationStatus({ type: "SUCCESS", message: `Sent! Check ${formData.test_email} for the verification email.` });
+        setVerificationStatus({
+          type: "SUCCESS",
+          message: `Email delivered to ${formData.test_email}`,
+          hint: "Check your inbox — the verification email should arrive within a minute.",
+        });
       } else {
-        setVerificationStatus({ type: "ERROR", message: json.error || "Failed to send. Check your SMTP credentials." });
+        const classified = classifySmtpError(json.error || "");
+        setVerificationStatus({ type: "ERROR", ...classified });
       }
     } catch (err) {
       setVerificationStatus({ type: "ERROR", message: "Network error — make sure the server is running." });
@@ -583,15 +618,41 @@ function EmailTab({ data, onSave, isSaving, theme, tenantId }: any) {
             </button>
 
             {verificationStatus && (
-              <div className={`p-4 rounded-2xl text-[10px] font-black uppercase tracking-widest flex items-center gap-3 animate-in fade-in slide-in-from-top-2 duration-300 ${
-                verificationStatus.type === "SUCCESS" 
-                  ? (isDark ? "bg-[#ccff00]/10 text-[#ccff00]" : "bg-green-50 text-green-700")
-                  : (isDark ? "bg-red-500/10 text-red-500" : "bg-red-50 text-red-700")
+              <div className={`rounded-2xl text-[10px] overflow-hidden ${
+                verificationStatus.type === "SUCCESS"
+                  ? (isDark ? "bg-[#ccff00]/10 border border-[#ccff00]/20" : "bg-green-50 border border-green-200")
+                  : (isDark ? "bg-red-500/10 border border-red-500/20" : "bg-red-50 border border-red-200")
               }`}>
-                <span className="material-symbols-outlined text-sm">
-                  {verificationStatus.type === "SUCCESS" ? "check_circle" : "error"}
-                </span>
-                {verificationStatus.message}
+                <div className="flex items-start gap-3 p-4">
+                  <span className={`material-symbols-outlined text-base mt-0.5 shrink-0 ${
+                    verificationStatus.type === "SUCCESS" ? (isDark ? "text-[#ccff00]" : "text-green-600") : (isDark ? "text-red-400" : "text-red-600")
+                  }`}>
+                    {verificationStatus.type === "SUCCESS" ? "check_circle" : "error"}
+                  </span>
+                  <div className="space-y-1.5 min-w-0">
+                    <p className={`font-black uppercase tracking-widest leading-tight ${
+                      verificationStatus.type === "SUCCESS" ? (isDark ? "text-[#ccff00]" : "text-green-700") : (isDark ? "text-red-400" : "text-red-700")
+                    }`}>{verificationStatus.message}</p>
+                    {verificationStatus.hint && (
+                      <p className={`font-medium normal-case tracking-normal leading-relaxed ${
+                        isDark ? "text-stone-300" : "text-stone-600"
+                      }`}>{verificationStatus.hint}</p>
+                    )}
+                    {verificationStatus.helpUrl && (
+                      <a
+                        href={verificationStatus.helpUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={`inline-flex items-center gap-1 font-black uppercase tracking-widest underline underline-offset-2 ${
+                          isDark ? "text-[#ccff00]" : "text-stone-900"
+                        }`}
+                      >
+                        <span className="material-symbols-outlined text-xs">open_in_new</span>
+                        Generate App Password
+                      </a>
+                    )}
+                  </div>
+                </div>
               </div>
             )}
             <p className={`text-[8px] text-center font-black uppercase tracking-widest ${isDark ? "text-stone-300" : "text-stone-950"}`}>
