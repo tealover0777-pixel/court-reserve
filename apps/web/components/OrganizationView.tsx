@@ -431,24 +431,45 @@ function EmailTab({ data, onSave, isSaving, theme, tenantId }: any) {
 
   const handleVerifyEmail = async () => {
     if (!formData.test_email) {
-      setVerificationStatus({ type: "ERROR", message: "Please configure a test email address first." });
+      setVerificationStatus({ type: "ERROR", message: "Please enter a test email address." });
+      return;
+    }
+    if (!formData.from_email) {
+      setVerificationStatus({ type: "ERROR", message: "Please enter a From Email Address before verifying." });
       return;
     }
 
     setIsVerifying(true);
     setVerificationStatus(null);
 
-    // Simulate verification process
     try {
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      // Randomly succeed or fail for demo purposes, or succeed if test_email exists
-      if (formData.from_email && formData.test_email) {
-        setVerificationStatus({ type: "SUCCESS", message: `Verification email sent successfully to ${formData.test_email}` });
+      const res = await fetch("/api/send-verification-email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          from_email: formData.from_email,
+          from_name: formData.from_name,
+          test_email: formData.test_email,
+          smtp_host: formData.smtp_host,
+          smtp_port: formData.smtp_port,
+          smtp_user: formData.smtp_user,
+          smtp_password: formData.smtp_password,
+          smtp_app_password: formData.smtp_app_password,
+          smtp_2fa: formData.smtp_2fa,
+          smtp_tls: formData.smtp_tls,
+          delivery_method: formData.delivery_method,
+          smtp_service: formData.smtp_service,
+        }),
+      });
+
+      const json = await res.json();
+      if (json.success) {
+        setVerificationStatus({ type: "SUCCESS", message: `Sent! Check ${formData.test_email} for the verification email.` });
       } else {
-        setVerificationStatus({ type: "ERROR", message: "Failed to send verification. Please check your SMTP settings." });
+        setVerificationStatus({ type: "ERROR", message: json.error || "Failed to send. Check your SMTP credentials." });
       }
     } catch (err) {
-      setVerificationStatus({ type: "ERROR", message: "An unexpected error occurred during verification." });
+      setVerificationStatus({ type: "ERROR", message: "Network error — make sure the server is running." });
     } finally {
       setIsVerifying(false);
     }
