@@ -809,7 +809,7 @@ function MonthView({ baseDate, selectedDate, allUserBookings, theme, onDayClick,
       {/* Day-of-week header */}
       <div className="grid grid-cols-7 mb-2">
         {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map(d => (
-          <div key={d} className={`text-center text-[9px] font-black uppercase tracking-widest py-2 ${isDark ? "text-stone-400" : "text-stone-950"}`}>
+          <div key={d} className={`text-center text-[9px] font-black uppercase tracking-widest py-2 ${isDark ? "text-white" : "text-stone-950"}`}>
             {d}
           </div>
         ))}
@@ -840,7 +840,7 @@ function MonthView({ baseDate, selectedDate, allUserBookings, theme, onDayClick,
 
           const dayNumCls = `text-[11px] font-black leading-none mb-1.5 ${
             isToday || isSelected
-              ? (isToday || isSelected ? "opacity-100" : (isDark ? "text-stone-400" : "text-stone-700"))
+              ? (isToday || isSelected ? "opacity-100" : (isDark ? "text-white" : "text-stone-700"))
               : (isDark ? "text-white" : "text-stone-800")
           }`;
 

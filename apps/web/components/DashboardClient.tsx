@@ -699,7 +699,7 @@ function DashboardHome({ theme, profile }: { theme: "LIGHT" | "DARK" | "VINTAGE"
               <span className={`px-3 py-1 rounded-full text-[10px] font-black tracking-widest uppercase mb-4 inline-block ${theme === "DARK" ? "bg-[#ccff00] text-stone-950" : "bg-white text-black"
                 }`}>New Facilities</span>
               <h5 className="text-4xl font-black text-white tracking-tighter">THE CLAY REVOLUTION ARRIVES</h5>
-              <p className="text-white/70 mt-2 max-w-lg">Three new professional-grade clay courts are now open. Experience the authentic European feel.</p>
+              <p className="text-white mt-2 max-w-lg">Three new professional-grade clay courts are now open. Experience the authentic European feel.</p>
             </div>
           </div>
 
@@ -1183,7 +1183,7 @@ function ProgramsView({ theme }: { theme: "LIGHT" | "DARK" | "VINTAGE" }) {
           ].map((item, i) => (
             <div key={i} className={`p-8 rounded-3xl group cursor-pointer hover:shadow-xl transition-all border ${isDark ? "bg-stone-900 border-stone-800" : "bg-white border-stone-100"
               }`}>
-              <div className="text-[10px] font-black text-stone-600 tracking-widest uppercase mb-2">{item.date}</div>
+              <div className={`text-[10px] font-black tracking-widest uppercase mb-2 ${isDark ? "text-white" : "text-stone-600"}`}>{item.date}</div>
               <h5 className={`text-lg font-black tracking-tighter mb-6 group-hover:translate-x-1 transition-all uppercase leading-tight ${isDark ? "text-white group-hover:text-[#ccff00]" : "text-stone-900 group-hover:text-black"
                 }`}>{item.title}</h5>
               <div className="flex justify-between items-center">
@@ -1441,7 +1441,7 @@ function ProfileView({ theme, profile, roles }: { theme: "LIGHT" | "DARK" | "VIN
             <div className="space-y-8">
               <div className="grid grid-cols-2 gap-8">
                 <div>
-                  <label className="text-[10px] font-black uppercase tracking-widest text-stone-600 mb-3 block">First Name</label>
+                  <label className={`text-[10px] font-black uppercase tracking-widest mb-3 block ${isDark ? "text-white" : "text-stone-600"}`}>First Name</label>
                   <input
                     value={formData.first_name}
                     onChange={e => setFormData({ ...formData, first_name: e.target.value })}
@@ -1449,7 +1449,7 @@ function ProfileView({ theme, profile, roles }: { theme: "LIGHT" | "DARK" | "VIN
                   />
                 </div>
                 <div>
-                  <label className="text-[10px] font-black uppercase tracking-widest text-stone-600 mb-3 block">Last Name</label>
+                  <label className={`text-[10px] font-black uppercase tracking-widest mb-3 block ${isDark ? "text-white" : "text-stone-600"}`}>Last Name</label>
                   <input
                     value={formData.last_name}
                     onChange={e => setFormData({ ...formData, last_name: e.target.value })}
@@ -1459,7 +1459,7 @@ function ProfileView({ theme, profile, roles }: { theme: "LIGHT" | "DARK" | "VIN
               </div>
               <div className="grid grid-cols-2 gap-8">
                 <div>
-                  <label className="text-[10px] font-black uppercase tracking-widest text-stone-600 mb-3 block">Street Address 1</label>
+                  <label className={`text-[10px] font-black uppercase tracking-widest mb-3 block ${isDark ? "text-white" : "text-stone-600"}`}>Street Address 1</label>
                   <input
                     value={formData.address_street_1}
                     onChange={e => setFormData({ ...formData, address_street_1: e.target.value })}
@@ -1468,7 +1468,7 @@ function ProfileView({ theme, profile, roles }: { theme: "LIGHT" | "DARK" | "VIN
                   />
                 </div>
                 <div>
-                  <label className="text-[10px] font-black uppercase tracking-widest text-stone-600 mb-3 block">Street Address 2</label>
+                  <label className={`text-[10px] font-black uppercase tracking-widest mb-3 block ${isDark ? "text-white" : "text-stone-600"}`}>Street Address 2</label>
                   <input
                     value={formData.address_street_2}
                     onChange={e => setFormData({ ...formData, address_street_2: e.target.value })}
@@ -1478,7 +1478,7 @@ function ProfileView({ theme, profile, roles }: { theme: "LIGHT" | "DARK" | "VIN
                 </div>
               </div>
               <div>
-                <label className="text-[10px] font-black uppercase tracking-widest text-stone-600 mb-3 block">Phone Number</label>
+                <label className={`text-[10px] font-black uppercase tracking-widest mb-3 block ${isDark ? "text-white" : "text-stone-600"}`}>Phone Number</label>
                 <input
                   value={formData.phone}
                   onChange={e => setFormData({ ...formData, phone: e.target.value })}
@@ -1488,7 +1488,7 @@ function ProfileView({ theme, profile, roles }: { theme: "LIGHT" | "DARK" | "VIN
               </div>
               <div className="grid grid-cols-3 gap-8">
                 <div className="col-span-1">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-stone-600 mb-3 block">City</label>
+                  <label className={`text-[10px] font-black uppercase tracking-widest mb-3 block ${isDark ? "text-white" : "text-stone-600"}`}>City</label>
                   <input
                     value={formData.address_city}
                     onChange={e => setFormData({ ...formData, address_city: e.target.value })}
@@ -1497,7 +1497,7 @@ function ProfileView({ theme, profile, roles }: { theme: "LIGHT" | "DARK" | "VIN
                   />
                 </div>
                 <div className="col-span-1">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-stone-600 mb-3 block">State</label>
+                  <label className={`text-[10px] font-black uppercase tracking-widest mb-3 block ${isDark ? "text-white" : "text-stone-600"}`}>State</label>
                   <select
                     value={formData.address_state}
                     onChange={e => setFormData({ ...formData, address_state: e.target.value })}
@@ -1510,7 +1510,7 @@ function ProfileView({ theme, profile, roles }: { theme: "LIGHT" | "DARK" | "VIN
                   </select>
                 </div>
                 <div className="col-span-1">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-stone-600 mb-3 block">Zip Code</label>
+                  <label className={`text-[10px] font-black uppercase tracking-widest mb-3 block ${isDark ? "text-white" : "text-stone-600"}`}>Zip Code</label>
                   <input
                     value={formData.address_zip}
                     onChange={e => setFormData({ ...formData, address_zip: e.target.value })}

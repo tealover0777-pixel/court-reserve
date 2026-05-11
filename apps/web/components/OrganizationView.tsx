@@ -565,6 +565,7 @@ function EmailTab({ data, onSave, isSaving, theme, tenantId }: any) {
                     const configs: Record<string, { host: string; port: string }> = {
                       "Gmail": { host: "smtp.gmail.com", port: "587" },
                       "Outlook / Office 365": { host: "smtp.office365.com", port: "587" },
+                      "Yahoo!": { host: "smtp.mail.yahoo.com", port: "587" },
                       "SendGrid": { host: "smtp.sendgrid.net", port: "587" },
                       "Amazon SES": { host: "email-smtp.us-east-1.amazonaws.com", port: "587" }
                     };
@@ -585,6 +586,7 @@ function EmailTab({ data, onSave, isSaving, theme, tenantId }: any) {
                   <option>Select Service</option>
                   <option>Gmail</option>
                   <option>Outlook / Office 365</option>
+                  <option>Yahoo!</option>
                   <option>SendGrid</option>
                   <option>Amazon SES</option>
                   <option>Custom SMTP</option>
