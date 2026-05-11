@@ -1129,7 +1129,7 @@ function ScheduleNavigation({
                       : theme === "DARK"
                       ? "bg-[#00E5FF] text-stone-950 scale-110"
                       : "bg-stone-900 text-white scale-110"
-                    : "bg-stone-50 dark:bg-stone-900 text-stone-950 dark:text-white hover:text-black dark:hover:text-white"
+                    : `${isDark ? "bg-stone-900/50 text-white hover:bg-stone-900 hover:text-[#00E5FF]" : "bg-stone-50 text-stone-950 hover:bg-stone-100 hover:text-black"}`
                 }`}
               >
                 {isToday && !isSelected && (
@@ -1137,7 +1137,7 @@ function ScheduleNavigation({
                     theme === "LIGHT" ? "bg-[#4f6b28]" : theme === "DARK" ? "bg-[#00E5FF]" : "bg-stone-900"
                   }`} />
                 )}
-                <span className="text-[8px] font-black uppercase tracking-widest opacity-60">
+                <span className={`text-[8px] font-black uppercase tracking-widest ${isDark ? "opacity-100" : "opacity-60"}`}>
                   {date.toLocaleDateString("en-US", { weekday: "short" })}
                 </span>
                 <span className="text-lg font-black mt-0.5 tracking-tighter">{date.getDate()}</span>
