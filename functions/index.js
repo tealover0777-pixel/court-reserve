@@ -1,8 +1,111 @@
 const functions = require("firebase-functions");
 const admin = require("firebase-admin");
+const nodemailer = require("nodemailer");
 
 admin.initializeApp();
 const db = admin.firestore();
+
+/**
+ * Sends a real SMTP test/verification email using tenant-configured credentials.
+ * Called from the Email Settings panel in the platform UI.
+ */
+exports.sendVerificationEmail = functions.https.onRequest(async (req, res) => {
+  // CORS
+  res.set("Access-Control-Allow-Origin", "*");
+  res.set("Access-Control-Allow-Methods", "POST, OPTIONS");
+  res.set("Access-Control-Allow-Headers", "Content-Type");
+
+  if (req.method === "OPTIONS") {
+    res.status(204).send("");
+    return;
+  }
+
+  if (req.method !== "POST") {
+    res.status(405).json({ success: false, error: "Method not allowed" });
+    return;
+  }
+
+  const {
+    from_email,
+    from_name,
+    test_email,
+    smtp_host,
+    smtp_port,
+    smtp_user,
+    smtp_password,
+    smtp_app_password,
+    smtp_2fa,
+    smtp_tls,
+    delivery_method,
+    smtp_service,
+  } = req.body;
+
+  if (!from_email || !test_email) {
+    res.status(400).json({ success: false, error: "from_email and test_email are required." });
+    return;
+  }
+
+  const password = smtp_2fa && smtp_app_password ? smtp_app_password : smtp_password;
+
+  const serviceMap = {
+    "Gmail":    { host: "smtp.gmail.com",      port: 587 },
+    "Yahoo!":   { host: "smtp.mail.yahoo.com", port: 587 },
+    "Outlook":  { host: "smtp.office365.com",  port: 587 },
+    "SendGrid": { host: "smtp.sendgrid.net",   port: 587 },
+    "Mailgun":  { host: "smtp.mailgun.org",     port: 587 },
+  };
+
+  let host, port;
+  if (delivery_method === "SMTP" && smtp_host) {
+    host = smtp_host;
+    port = Number(smtp_port) || 587;
+  } else {
+    const svc = serviceMap[smtp_service] || serviceMap["Gmail"];
+    host = svc.host;
+    port = svc.port;
+  }
+
+  const transporterConfig = {
+    host,
+    port,
+    secure: port === 465,
+    auth: {
+      user: smtp_user || from_email,
+      pass: password,
+    },
+    tls: { rejectUnauthorized: false },
+  };
+
+  try {
+    const transporter = nodemailer.createTransport(transporterConfig);
+
+    await transporter.sendMail({
+      from: from_name ? `"${from_name}" <${from_email}>` : from_email,
+      to: test_email,
+      subject: "✅ Court Reserve – Email Verification Test",
+      html: `
+        <div style="font-family:Inter,sans-serif;background:#0a0a0a;padding:40px;border-radius:16px;max-width:480px;margin:0 auto;">
+          <div style="margin-bottom:24px;font-size:40px;">✅</div>
+          <h1 style="color:#fff;font-size:24px;font-weight:900;margin:0 0 8px;letter-spacing:-0.5px;">Email Verified</h1>
+          <p style="color:#a8a29e;font-size:14px;margin:0 0 24px;line-height:1.6;">
+            Your SMTP configuration for <strong style="color:#fff;">${from_email}</strong> is working correctly.
+            This test was sent from the Court Reserve platform.
+          </p>
+          <p style="color:#57534e;font-size:11px;border-top:1px solid #1c1917;padding-top:16px;margin:0;">
+            Court Reserve Platform · Email Verification Test
+          </p>
+        </div>
+      `,
+    });
+
+    res.status(200).json({ success: true, message: `Verification email sent to ${test_email}` });
+  } catch (err) {
+    console.error("[sendVerificationEmail] SMTP error:", err.message);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+
 
 /**
  * Invites a user to a tenant and sets their role/claims.

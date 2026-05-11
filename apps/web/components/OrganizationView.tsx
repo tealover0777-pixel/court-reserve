@@ -443,7 +443,10 @@ function EmailTab({ data, onSave, isSaving, theme, tenantId }: any) {
     setVerificationStatus(null);
 
     try {
-      const res = await fetch("/api/send-verification-email", {
+      const FUNCTION_URL =
+        "https://us-central1-court-reserve-9eeed.cloudfunctions.net/sendVerificationEmail";
+
+      const res = await fetch(FUNCTION_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
