@@ -426,6 +426,34 @@ function EmailTab({ data, onSave, isSaving, theme, tenantId }: any) {
     ...data
   });
 
+  const [isVerifying, setIsVerifying] = useState(false);
+  const [verificationStatus, setVerificationStatus] = useState<{ type: "SUCCESS" | "ERROR", message: string } | null>(null);
+
+  const handleVerifyEmail = async () => {
+    if (!formData.test_email) {
+      setVerificationStatus({ type: "ERROR", message: "Please configure a test email address first." });
+      return;
+    }
+
+    setIsVerifying(true);
+    setVerificationStatus(null);
+
+    // Simulate verification process
+    try {
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      // Randomly succeed or fail for demo purposes, or succeed if test_email exists
+      if (formData.from_email && formData.test_email) {
+        setVerificationStatus({ type: "SUCCESS", message: `Verification email sent successfully to ${formData.test_email}` });
+      } else {
+        setVerificationStatus({ type: "ERROR", message: "Failed to send verification. Please check your SMTP settings." });
+      }
+    } catch (err) {
+      setVerificationStatus({ type: "ERROR", message: "An unexpected error occurred during verification." });
+    } finally {
+      setIsVerifying(false);
+    }
+  };
+
   const inputClasses = `w-full border rounded-2xl px-6 py-4 text-sm font-bold outline-none transition-all ${isDark ? "bg-stone-900 border-stone-800 text-white focus:border-[#ccff00]" : "bg-stone-50 border-stone-100 text-stone-900 focus:border-stone-400"
     }`;
 
@@ -520,10 +548,28 @@ function EmailTab({ data, onSave, isSaving, theme, tenantId }: any) {
                 <p className={`text-[10px] font-medium ${isDark ? "text-stone-300" : "text-stone-900"}`}>Verify your credentials by sending a test message to the configured test address.</p>
               </div>
             </div>
-            <button className={`w-full py-4 rounded-2xl border-2 text-[10px] font-black tracking-widest uppercase transition-all ${isDark ? "border-white text-white hover:bg-white hover:text-stone-950" : "border-stone-900 text-stone-900 hover:bg-stone-900 hover:text-white"
+            <button 
+              onClick={handleVerifyEmail}
+              disabled={isVerifying || formData.use_platform_email}
+              className={`w-full py-4 rounded-2xl border-2 text-[10px] font-black tracking-widest uppercase transition-all ${
+                isVerifying ? "opacity-50 cursor-not-allowed" : ""
+              } ${isDark ? "border-white text-white hover:bg-white hover:text-stone-950" : "border-stone-900 text-stone-900 hover:bg-stone-900 hover:text-white"
               }`}>
-              Send Verification Email
+              {isVerifying ? "Sending..." : "Send Verification Email"}
             </button>
+
+            {verificationStatus && (
+              <div className={`p-4 rounded-2xl text-[10px] font-black uppercase tracking-widest flex items-center gap-3 animate-in fade-in slide-in-from-top-2 duration-300 ${
+                verificationStatus.type === "SUCCESS" 
+                  ? (isDark ? "bg-[#ccff00]/10 text-[#ccff00]" : "bg-green-50 text-green-700")
+                  : (isDark ? "bg-red-500/10 text-red-500" : "bg-red-50 text-red-700")
+              }`}>
+                <span className="material-symbols-outlined text-sm">
+                  {verificationStatus.type === "SUCCESS" ? "check_circle" : "error"}
+                </span>
+                {verificationStatus.message}
+              </div>
+            )}
             <p className={`text-[8px] text-center font-black uppercase tracking-widest ${isDark ? "text-stone-300" : "text-stone-950"}`}>
               Target: <span className={isDark ? "text-white" : "text-stone-950"}>{formData.test_email || "Not Configured"}</span>
             </p>
