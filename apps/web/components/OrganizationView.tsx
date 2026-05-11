@@ -684,7 +684,8 @@ function EmailTab({ data, onSave, isSaving, theme, tenantId }: any) {
             </div>
           </div>
 
-          <div className={`space-y-8 pt-8 border-t border-stone-100 dark:border-stone-800 transition-opacity duration-300 ${formData.use_platform_email ? "opacity-40 pointer-events-none grayscale" : ""}`}>
+          {!formData.use_platform_email && (
+          <div className={`space-y-8 pt-8 border-t border-stone-100 dark:border-stone-800`}>
             <h4 className={`text-[10px] font-black tracking-[0.2em] uppercase opacity-40 ${isDark ? "text-white" : "text-stone-900"}`}>SMTP Relay Configuration</h4>
             <div className="space-y-6">
               <FormField label="Email Service" theme={theme}>
@@ -796,6 +797,7 @@ function EmailTab({ data, onSave, isSaving, theme, tenantId }: any) {
               </div>
             </div>
           </div>
+          )}
         </div>
       </div>
 
