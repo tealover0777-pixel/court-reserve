@@ -238,7 +238,7 @@ export default function DimensionsView({ theme = "LIGHT" }: { theme?: "LIGHT" | 
             <button
               ref={buttonRef}
               onClick={handleToggle}
-              className={`transition-colors p-2 ${theme === "DARK" ? "text-stone-400 hover:text-[#ccff00]" : "text-stone-500 hover:text-stone-900"}`}
+              className={`transition-colors p-2 ${theme === "DARK" ? "text-stone-300 hover:text-[#ccff00]" : "text-stone-900 hover:text-stone-900"}`}
             >
               <span className="material-symbols-outlined text-xl">more_horiz</span>
             </button>
@@ -469,7 +469,7 @@ export default function DimensionsView({ theme = "LIGHT" }: { theme?: "LIGHT" | 
             }`}>
               Manage {dimensions.find(d => d.id === editingCategoryId)?.category}
             </h4>
-            <button onClick={() => setEditingCategoryId(null)} className={`${theme === "DARK" ? "text-stone-300 hover:text-[#ccff00]" : "text-stone-600 hover:text-stone-900"}`}>
+            <button onClick={() => setEditingCategoryId(null)} className={`${theme === "DARK" ? "text-stone-200 hover:text-[#ccff00]" : "text-stone-950 hover:text-stone-900"}`}>
               <span className="material-symbols-outlined">close</span>
             </button>
           </div>
@@ -702,7 +702,7 @@ export default function DimensionsView({ theme = "LIGHT" }: { theme?: "LIGHT" | 
                 <span className={`text-[10px] font-black uppercase tracking-widest transition-colors ${
                   permToggles[k as keyof typeof permToggles] 
                     ? (theme === "DARK" ? "text-[#ccff00]" : theme === "VINTAGE" ? "text-black" : "text-[#4f6b28]") 
-                    : (theme === "DARK" ? "text-stone-500" : "text-stone-400")
+                    : (theme === "DARK" ? "text-stone-300" : "text-stone-950")
                 }`}>{k}</span>
               </label>
             ))}

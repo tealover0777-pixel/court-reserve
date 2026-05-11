@@ -391,7 +391,7 @@ export default function CourtBookingView({ theme, isAdmin, tenantId: tenantIdPro
           : theme === "DARK"
           ? "bg-[#00E5FF] text-stone-950 shadow-md"
           : "bg-stone-900 text-white shadow-md"
-        : isDark ? "text-stone-400 hover:text-white" : "text-stone-600 hover:text-stone-950"
+        : isDark ? "text-stone-300 hover:text-white" : "text-stone-950 hover:text-stone-800"
     }`;
 
   return (
@@ -402,7 +402,7 @@ export default function CourtBookingView({ theme, isAdmin, tenantId: tenantIdPro
           <h3 className={`text-6xl font-black italic tracking-tighter transition-all duration-500 ${
             isDark ? "text-white" : "text-stone-900"
           }`}>MY SCHEDULE</h3>
-          <p className={`text-[9px] font-black uppercase tracking-[0.2em] ${isDark ? "text-stone-400" : "text-stone-500"}`}>
+          <p className={`text-[9px] font-black uppercase tracking-[0.2em] ${isDark ? "text-stone-300" : "text-stone-900"}`}>
             {theme === "LIGHT" ? "Kinetic Lemon Edition" : theme === "DARK" ? "Noir Edition" : "Pure Edition"}
           </p>
         </div>
@@ -537,7 +537,7 @@ function BookingForm({
       ? "bg-stone-900 border-stone-800 text-white focus:border-[#00E5FF]"
       : "bg-stone-50 border-stone-100 text-stone-900 focus:border-stone-400"
   }`;
-  const labelCls = `text-[9px] font-black uppercase tracking-widest mb-2 block ${isDark ? "text-stone-400" : "text-stone-600"}`;
+  const labelCls = `text-[9px] font-black uppercase tracking-widest mb-2 block ${isDark ? "text-stone-300" : "text-stone-950"}`;
   const readonlyCls = `px-4 py-3 rounded-2xl text-sm font-bold border ${
     isDark ? "bg-stone-900 border-stone-800 text-white" : "bg-stone-50 border-stone-100 text-stone-900"
   }`;
@@ -548,7 +548,7 @@ function BookingForm({
       : theme === "DARK"
       ? "bg-[#00E5FF] text-stone-950 border-[#00E5FF]"
       : "bg-stone-900 text-white border-stone-900";
-    : `bg-transparent border-stone-200 ${isDark ? "text-stone-400 hover:text-white hover:border-stone-600" : "text-stone-600 hover:text-stone-900 hover:border-stone-400"}`;
+  const btnInactive = `bg-transparent border-stone-200 ${isDark ? "text-stone-300 hover:text-white hover:border-stone-600" : "text-stone-950 hover:text-stone-900 hover:border-stone-400"}`;
 
   const stepperBtn = `w-10 h-10 rounded-xl flex items-center justify-center text-lg font-black transition-all border ${
     isDark ? "border-stone-800 text-white hover:border-stone-600" : "border-stone-200 text-stone-900 hover:border-stone-400"
@@ -564,7 +564,7 @@ function BookingForm({
         <div className="flex-1 min-w-0">
           <p className="text-base font-black tracking-tight truncate">{modal.court.name}</p>
           {modal.court.condition && (
-            <p className={`text-[9px] font-black uppercase tracking-widest mt-0.5 ${isDark ? "text-stone-400" : "text-stone-600"}`}>
+            <p className={`text-[9px] font-black uppercase tracking-widest mt-0.5 ${isDark ? "text-stone-300" : "text-stone-950"}`}>
               {modal.court.condition}
             </p>
           )}
@@ -614,7 +614,7 @@ function BookingForm({
           <div className="min-w-0">
             <p className="text-sm font-bold truncate">{user?.displayName || user?.email}</p>
             {user?.displayName && (
-              <p className={`text-[10px] font-bold truncate ${isDark ? "text-stone-400" : "text-stone-600"}`}>{user.email}</p>
+              <p className={`text-[10px] font-bold truncate ${isDark ? "text-stone-300" : "text-stone-900"}`}>{user.email}</p>
             )}
           </div>
         </div>
@@ -631,7 +631,7 @@ function BookingForm({
           <button onClick={() => onChange({ ...modal, playerCount: Math.min(6, modal.playerCount + 1) })} className={stepperBtn}>
             +
           </button>
-          <span className={`text-[10px] font-bold uppercase tracking-widest ${isDark ? "text-stone-400" : "text-stone-600"}`}>
+          <span className={`text-[10px] font-bold uppercase tracking-widest ${isDark ? "text-stone-300" : "text-stone-900"}`}>
             {modal.playerCount === 1 ? "solo" : `${modal.playerCount} players`}
           </span>
         </div>
@@ -741,8 +741,8 @@ function MonthView({ baseDate, selectedDate, allUserBookings, theme, onDayClick,
             onClick={onToday}
             className={`px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest border transition-all ${
               isDark
-                ? "border-stone-800 text-stone-400 hover:border-stone-600 hover:text-white"
-                : "border-stone-200 text-stone-600 hover:border-stone-400 hover:text-stone-950"
+                ? "border-stone-800 text-stone-300 hover:border-stone-600 hover:text-white"
+                : "border-stone-200 text-stone-950 hover:border-stone-400 hover:text-stone-950"
             }`}
           >
             Today
@@ -766,11 +766,11 @@ function MonthView({ baseDate, selectedDate, allUserBookings, theme, onDayClick,
                 isDark ? "bg-stone-950 border-stone-800" : "bg-white border-stone-100"
               }`}>
                 <div className="flex items-center justify-between mb-3">
-                  <button onClick={() => setPickerYear(y => y - 1)} className={`p-1 rounded-lg ${isDark ? "text-stone-400 hover:text-white" : "text-stone-600 hover:text-stone-950"}`}>
+                  <button onClick={() => setPickerYear(y => y - 1)} className={`p-1 rounded-lg ${isDark ? "text-stone-300 hover:text-white" : "text-stone-950 hover:text-stone-950"}`}>
                     <span className="material-symbols-outlined text-sm">chevron_left</span>
                   </button>
-                  <span className="text-sm font-black">{pickerYear}</span>
-                  <button onClick={() => setPickerYear(y => y + 1)} className={`p-1 rounded-lg ${isDark ? "text-stone-400 hover:text-white" : "text-stone-600 hover:text-stone-950"}`}>
+                  <span className="text-sm font-black italic">{pickerYear}</span>
+                  <button onClick={() => setPickerYear(y => y + 1)} className={`p-1 rounded-lg ${isDark ? "text-stone-300 hover:text-white" : "text-stone-950 hover:text-stone-950"}`}>
                     <span className="material-symbols-outlined text-sm">chevron_right</span>
                   </button>
                 </div>
@@ -784,7 +784,7 @@ function MonthView({ baseDate, selectedDate, allUserBookings, theme, onDayClick,
                           ? accentBg
                           : isDark
                           ? "text-stone-300 hover:bg-stone-900 hover:text-white"
-                          : "text-stone-600 hover:bg-stone-50 hover:text-stone-950"
+                          : "text-stone-950 hover:bg-stone-50 hover:text-stone-950"
                       }`}
                     >
                       {m}
@@ -798,7 +798,7 @@ function MonthView({ baseDate, selectedDate, allUserBookings, theme, onDayClick,
             <span className="material-symbols-outlined text-sm">chevron_right</span>
           </button>
         </div>
-        <span className={`text-[10px] font-black uppercase tracking-widest ${isDark ? "text-stone-400" : "text-stone-500"}`}>
+        <span className={`text-[10px] font-black uppercase tracking-widest ${isDark ? "text-stone-300" : "text-stone-950"}`}>
           {allUserBookings.filter(b => {
             const d = new Date(b.date);
             return d.getFullYear() === year && d.getMonth() === month;
@@ -809,7 +809,7 @@ function MonthView({ baseDate, selectedDate, allUserBookings, theme, onDayClick,
       {/* Day-of-week header */}
       <div className="grid grid-cols-7 mb-2">
         {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map(d => (
-          <div key={d} className={`text-center text-[9px] font-black uppercase tracking-widest py-2 ${isDark ? "text-stone-500" : "text-stone-600"}`}>
+          <div key={d} className={`text-center text-[9px] font-black uppercase tracking-widest py-2 ${isDark ? "text-stone-400" : "text-stone-950"}`}>
             {d}
           </div>
         ))}
@@ -840,7 +840,7 @@ function MonthView({ baseDate, selectedDate, allUserBookings, theme, onDayClick,
 
           const dayNumCls = `text-[11px] font-black leading-none mb-1.5 ${
             isToday || isSelected
-              ? (isToday || isSelected ? "opacity-100" : (isDark ? "text-stone-500" : "text-stone-400"))
+              ? (isToday || isSelected ? "opacity-100" : (isDark ? "text-stone-400" : "text-stone-700"))
               : (isDark ? "text-stone-300" : "text-stone-800")
           }`;
 
@@ -867,7 +867,7 @@ function MonthView({ baseDate, selectedDate, allUserBookings, theme, onDayClick,
                         isToday || isSelected
                           ? "text-white/80"
                           : bPast
-                          ? "text-stone-400"
+                          ? "text-stone-300"
                           : isDark ? "text-emerald-400" : "text-emerald-700"
                       }`}>
                         {b.time} {b.courtName}
@@ -877,7 +877,7 @@ function MonthView({ baseDate, selectedDate, allUserBookings, theme, onDayClick,
                 })}
                 {dayBookings.length > 2 && (
                   <p className={`text-[7px] font-black pl-1 ${
-                    isToday || isSelected ? "text-white/60" : (isDark ? "text-stone-500" : "text-stone-600")
+                    isToday || isSelected ? "text-white/60" : (isDark ? "text-stone-300" : "text-stone-950")
                   }`}>
                     +{dayBookings.length - 2} more
                   </p>
@@ -928,25 +928,25 @@ function MoveConfirmDialog({ booking, targetCourt, targetTime, theme, isMoving, 
         <span className="material-symbols-outlined text-3xl opacity-60">drag_pan</span>
       </div>
 
-      <p className={`text-center text-xs font-bold leading-relaxed ${isDark ? "text-stone-400" : "text-stone-600"}`}>
+      <p className={`text-center text-xs font-bold leading-relaxed ${isDark ? "text-stone-200" : "text-stone-950"}`}>
         Move this reservation to a new time slot?
       </p>
 
       {/* From → To */}
       <div className="space-y-2">
         <div>
-          <p className={`text-[9px] font-black uppercase tracking-widest mb-1 ${isDark ? "text-stone-500" : "text-stone-400"}`}>From</p>
+          <p className={`text-[9px] font-black uppercase tracking-widest mb-1 ${isDark ? "text-stone-300" : "text-stone-950"}`}>From</p>
           <div className={`${rowCls} flex items-center gap-3`}>
             <span className="material-symbols-outlined text-base opacity-30">sports_tennis</span>
             <span>{booking.courtName}</span>
-            <span className={`ml-auto text-[10px] font-bold ${isDark ? "text-stone-500" : "text-stone-400"}`}>
+            <span className={`ml-auto text-[10px] font-bold ${isDark ? "text-stone-300" : "text-stone-950"}`}>
               {booking.time} – {booking.endTime}
             </span>
           </div>
         </div>
         <div className={`flex items-center justify-center text-xl ${isDark ? "text-stone-700" : "text-stone-300"}`}>↓</div>
         <div>
-          <p className={`text-[9px] font-black uppercase tracking-widest mb-1 ${isDark ? "text-stone-500" : "text-stone-400"}`}>To</p>
+          <p className={`text-[9px] font-black uppercase tracking-widest mb-1 ${isDark ? "text-stone-300" : "text-stone-950"}`}>To</p>
           <div className={`${rowCls} flex items-center gap-3 ${
             isDark ? "border-[#00E5FF]/30" : "border-emerald-200"
           }`}>
@@ -1012,7 +1012,7 @@ function ScheduleNavigation({
     : "bg-stone-900 text-white border-stone-900";
 
   const navBtn = `p-2 rounded-xl transition-all ${
-    isDark ? "bg-stone-900 text-white hover:bg-stone-800" : "bg-stone-100 text-stone-600 hover:bg-stone-200"
+    isDark ? "bg-stone-900 text-white hover:bg-stone-800" : "bg-stone-100 text-stone-900 hover:bg-stone-200"
   }`;
 
   return (
@@ -1025,8 +1025,8 @@ function ScheduleNavigation({
             onClick={onToday}
             className={`px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest border transition-all ${
               isDark
-                ? "border-stone-800 text-stone-400 hover:border-stone-600 hover:text-white"
-                : "border-stone-200 text-stone-600 hover:border-stone-400 hover:text-stone-950"
+                ? "border-stone-800 text-stone-300 hover:border-stone-600 hover:text-white"
+                : "border-stone-200 text-stone-950 hover:border-stone-400 hover:text-stone-950"
             }`}
           >
             Today
@@ -1059,14 +1059,14 @@ function ScheduleNavigation({
                 <div className="flex items-center justify-between mb-3">
                   <button
                     onClick={() => setPickerYear((y) => y - 1)}
-                    className={`p-1 rounded-lg transition-all ${isDark ? "text-stone-400 hover:text-white" : "text-stone-600 hover:text-stone-950"}`}
+                    className={`p-1 rounded-lg transition-all ${isDark ? "text-stone-300 hover:text-white" : "text-stone-950 hover:text-stone-800"}`}
                   >
                     <span className="material-symbols-outlined text-sm">chevron_left</span>
                   </button>
                   <span className="text-sm font-black">{pickerYear}</span>
                   <button
                     onClick={() => setPickerYear((y) => y + 1)}
-                    className={`p-1 rounded-lg transition-all ${isDark ? "text-stone-400 hover:text-white" : "text-stone-600 hover:text-stone-950"}`}
+                    className={`p-1 rounded-lg transition-all ${isDark ? "text-stone-300 hover:text-white" : "text-stone-950 hover:text-stone-800"}`}
                   >
                     <span className="material-symbols-outlined text-sm">chevron_right</span>
                   </button>
@@ -1083,8 +1083,8 @@ function ScheduleNavigation({
                           isCurrent
                             ? accentBg
                             : isDark
-                            ? "text-stone-400 hover:bg-stone-900 hover:text-white"
-                            : "text-stone-500 hover:bg-stone-50 hover:text-stone-900"
+                            ? "text-stone-300 hover:bg-stone-900 hover:text-white"
+                            : "text-stone-950 hover:bg-stone-50 hover:text-stone-900"
                         }`}
                       >
                         {m}
@@ -1102,7 +1102,7 @@ function ScheduleNavigation({
         </div>
 
         {/* Week range label */}
-        <div className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest flex-shrink-0 ${isDark ? "bg-stone-900 text-stone-400" : "bg-stone-900/5 text-stone-600"}`}>
+        <div className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest flex-shrink-0 ${isDark ? "bg-stone-900 text-stone-300" : "bg-stone-900/5 text-stone-950"}`}>
           {weekDates[0].toLocaleDateString("en-US", { month: "short", day: "numeric" })}
           {" – "}
           {weekDates[6].toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
@@ -1129,7 +1129,7 @@ function ScheduleNavigation({
                       : theme === "DARK"
                       ? "bg-[#00E5FF] text-stone-950 scale-110"
                       : "bg-stone-900 text-white scale-110"
-                    : "bg-stone-50 dark:bg-stone-900 text-stone-400 hover:text-stone-900 dark:hover:text-white"
+                    : "bg-stone-50 dark:bg-stone-900 text-stone-950 dark:text-stone-300 hover:text-black dark:hover:text-white"
                 }`}
               >
                 {isToday && !isSelected && (
@@ -1221,8 +1221,8 @@ function SlotCell({ status, theme, booking, user, onDragStart }: { status: SlotS
     const bgCls      = isPast ? "bg-stone-400/10"    : (isOwner ? "bg-emerald-500/15" : "bg-indigo-500/15");
     const bgHoverCls = isPast ? ""                   : (isOwner ? "hover:bg-emerald-500/25" : "hover:bg-indigo-500/25");
     const avatarCls  = isPast ? "bg-stone-400"       : (isOwner ? "bg-emerald-500" : "bg-indigo-500");
-    const nameCls    = isPast ? "text-stone-400"     : (isOwner ? "text-emerald-700" : "text-indigo-700");
-    const subCls     = isPast ? "text-stone-400/60"  : (isOwner ? "text-emerald-600/70" : "text-indigo-600/70");
+    const nameCls    = isPast ? "text-stone-300"     : (isOwner ? "text-emerald-700" : "text-indigo-700");
+    const subCls     = isPast ? "text-stone-300/60"  : (isOwner ? "text-emerald-600/70" : "text-indigo-600/70");
     const dragCls    = isOwner && !isPast ? "cursor-grab active:cursor-grabbing hover:scale-[1.02]" : "cursor-default";
 
     return (
@@ -1349,7 +1349,7 @@ function CourtHeader({ court, theme }: { court: any; theme: string }) {
           </span>
         </div>
         <div className="flex items-center justify-between gap-2">
-          <span className={`text-[8px] font-black uppercase tracking-widest truncate ${isDark ? "text-stone-400" : "text-stone-500"}`}>
+          <span className={`text-[8px] font-black uppercase tracking-widest truncate ${isDark ? "text-stone-300" : "text-stone-950"}`}>
             {court.condition}
           </span>
           {fromDisplay && toDisplay && (
@@ -1484,12 +1484,13 @@ function KineticLemonSchedule(props: any) {
 }
 
 function VintagePureSchedule(props: any) {
+  const isDark = props.theme === "DARK";
   return (
     <div className="bg-white rounded-[2rem] p-10 shadow-sm border border-stone-100 animate-in slide-in-from-bottom-4 duration-700">
       <ScheduleNavigation {...props} />
       <ScheduleGrid
         {...props}
-        timeLabelColor="text-stone-900"
+        timeLabelColor={isDark ? "text-stone-300" : "text-stone-900"}
         borderColor="border-stone-100"
         rowBorder="border-stone-50"
       />
@@ -1498,6 +1499,7 @@ function VintagePureSchedule(props: any) {
 }
 
 function VintageNoirSchedule(props: any) {
+  const isDark = props.theme === "DARK";
   return (
     <div className="bg-stone-950 rounded-[2rem] p-10 shadow-2xl border border-stone-800 animate-in fade-in zoom-in-95 duration-700">
       <ScheduleNavigation {...props} />
@@ -1526,7 +1528,7 @@ function UpcomingSection({ bookings, theme, onBookingClick }: { bookings: any[];
           Upcoming Schedule
         </h4>
         <span className={`px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-widest ${
-          isDark ? "bg-stone-800 text-stone-300" : "bg-stone-50 text-stone-600"
+          isDark ? "bg-stone-800 text-stone-100" : "bg-stone-50 text-stone-950"
         }`}>
           {bookings.length}
         </span>
@@ -1565,7 +1567,7 @@ function UpcomingSection({ bookings, theme, onBookingClick }: { bookings: any[];
               >
                 <div className="flex justify-between items-start mb-2">
                   <span className={`text-[8px] font-black uppercase tracking-widest ${
-                    isDark ? "text-stone-400" : "text-stone-600"
+                    isDark ? "text-stone-300" : "text-stone-950"
                   }`}>
                     {dateLabel} · {booking.time}
                   </span>
@@ -1577,12 +1579,13 @@ function UpcomingSection({ bookings, theme, onBookingClick }: { bookings: any[];
                   {booking.courtName}
                 </p>
                 <div className="flex items-center gap-2">
-                  <span className={`text-[9px] font-bold ${isDark ? "text-stone-600" : "text-stone-400"}`}>
+                  <span className={`text-[9px] font-bold ${isDark ? "text-stone-400" : "text-stone-700"}`}>
                     {booking.duration} hr session
                   </span>
                   {booking.playerCount > 1 && (
                     <>
                       <span className={`w-1 h-1 rounded-full ${isDark ? "bg-stone-800" : "bg-stone-200"}`} />
+                      <span className={`text-[9px] font-bold ${isDark ? "text-stone-400" : "text-stone-700"}`}>
                         {booking.playerCount} players
                       </span>
                     </>
@@ -1680,7 +1683,7 @@ function BookingDetails({ booking, theme, user, isAdmin, canModify, onClose, tim
     }
   };
 
-  const labelCls = `text-[9px] font-black uppercase tracking-widest mb-2 block ${isDark ? "text-stone-400" : "text-stone-600"}`;
+  const labelCls = `text-[9px] font-black uppercase tracking-widest mb-2 block ${isDark ? "text-stone-300" : "text-stone-950"}`;
   const infoCls = `px-4 py-3 rounded-2xl text-sm font-bold border transition-all ${
     isDark ? "bg-stone-900 border-stone-800 text-white" : "bg-stone-50 border-stone-100 text-stone-900"
   }`;
@@ -1754,7 +1757,7 @@ function BookingDetails({ booking, theme, user, isAdmin, canModify, onClose, tim
           <button
             onClick={() => setIsEditing(true)}
             className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${
-              isDark ? "hover:bg-stone-800 text-stone-400" : "hover:bg-stone-200 text-stone-500"
+              isDark ? "hover:bg-stone-800 text-stone-200" : "hover:bg-stone-200 text-stone-900"
             }`}
           >
             <span className="material-symbols-outlined text-xl">edit</span>
@@ -1838,7 +1841,7 @@ function BookingDetails({ booking, theme, user, isAdmin, canModify, onClose, tim
           </div>
           <div>
             <p className="text-sm font-bold">{booking.userName}</p>
-            <p className={`text-[10px] font-bold ${isDark ? "text-stone-400" : "text-stone-600"}`}>{booking.userEmail}</p>
+            <p className={`text-[10px] font-bold ${isDark ? "text-stone-300" : "text-stone-900"}`}>{booking.userEmail}</p>
           </div>
         </div>
       </div>
@@ -1856,7 +1859,7 @@ function BookingDetails({ booking, theme, user, isAdmin, canModify, onClose, tim
             />
           </div>
           <div className="text-center">
-            <p className={`text-[9px] font-black uppercase tracking-[0.2em] mb-1 ${isDark ? "text-stone-400" : "text-stone-600"}`}>
+            <p className={`text-[9px] font-black uppercase tracking-[0.2em] mb-1 ${isDark ? "text-stone-300" : "text-stone-950"}`}>
               Verification Pass
             </p>
             <p className={`text-[10px] font-black tabular-nums opacity-60 ${isDark ? "text-white" : "text-stone-900"}`}>
@@ -1904,7 +1907,7 @@ function BookingDetails({ booking, theme, user, isAdmin, canModify, onClose, tim
                   Cancel Reservation
                 </button>
               ) : (
-                <div className={`py-4 px-6 rounded-2xl text-[9px] font-bold text-center border border-dashed ${isDark ? "border-stone-800 text-stone-600" : "border-stone-100 text-stone-400"}`}>
+                <div className={`py-4 px-6 rounded-2xl text-[9px] font-bold text-center border border-dashed ${isDark ? "border-stone-800 text-stone-300" : "border-stone-100 text-stone-950"}`}>
                   This session is locked according to the organization's schedule policy.
                 </div>
               )}

@@ -6,17 +6,41 @@
 [1m[38;2;173;127;168m▲ Next.js 16.2.0[39m[22m (Turbopack)
 
 [37m[1m [22m[39m Creating an optimized production build ...
-[32m[1m✓[22m[39m Compiled successfully in 3.3s
-[?25l[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[2K[1G[?25h[?25l[37m[1m [22m[39m Finished TypeScript in 3.5s  [36m.[39m[2K[1G[?25h[37m[1m [22m[39m Finished TypeScript in 3.5s    [32m[1m✓[22m[39m Finished TypeScript in 3.5s 
-[?25l[37m[1m [22m[39m Collecting page data using 5 workers  [36m.[39m[2K[1G[37m[1m [22m[39m Collecting page data using 5 workers  [36m..[39m[2K[1G[?25h[37m[1m [22m[39m Collecting page data using 5 workers in 283ms    [32m[1m✓[22m[39m Collecting page data using 5 workers in 283ms 
-[?25l[37m[1m [22m[39m Generating static pages using 5 workers (0/4)  [36m[    ][39m[2K[1G[37m[1m [22m[39m Generating static pages using 5 workers (0/4)  [36m[=   ][39m[2K[1G[37m[1m [22m[39m Generating static pages using 5 workers (0/4)  [36m[==  ][39m[2K[1G[?25h[32m[1m✓[22m[39m Generating static pages using 5 workers (4/4) in 443ms
-[?25l[37m[1m [22m[39m Finalizing page optimization  [36m.[39m[2K[1G[37m[1m [22m[39m Finalizing page optimization  [36m..[39m[2K[1G[37m[1m [22m[39m Finalizing page optimization  [36m...[39m[2K[1G[?25h[37m[1m [22m[39m Finalizing page optimization in 520ms    [32m[1m✓[22m[39m Finalizing page optimization in 520ms 
 
-[4mRoute (app)[24m
-┌ ○ /
-└ ○ /_not-found
+> Build error occurred
+Error: Turbopack build failed with 1 errors:
+./apps/web/components/CourtBookingView.tsx:551:5
+Expression expected
+  [90m549 |[0m       ? [32m"bg-[#00E5FF] text-stone-950 border-[#00E5FF]"[0m
+  [90m550 |[0m       : [32m"bg-stone-900 text-white border-stone-900"[0m;
+[31m[1m>[0m [90m551 |[0m     : [32m`bg-transparent border-stone-200 [0m${isDark ? [32m"text-stone-400 hover:text-white hover:border-stone-600"[0m : [32m"text-stone-600 hover:text-stone-900 hover:border-stone-400"[0m[32m}`[0m;
+  [90m    |[0m     [31m[1m^[0m
+  [90m552 |[0m
+  [90m553 |[0m   [36mconst[0m stepperBtn = [32m`w-10 h-10 rounded-xl flex items-center justify-center text-lg font-black transition-all border [0m${
+  [90m554 |[0m     isDark ? [32m"border-stone-800 text-white hover:border-stone-600"[0m : [32m"border-stone-200 text-stone-900 hover:border-stone-400"[0m
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./apps/web/components/CourtBookingView.tsx [Client Component Browser]
+    ./apps/web/components/DashboardClient.tsx [Client Component Browser]
+    ./apps/web/app/page.tsx [Client Component Browser]
+    ./apps/web/app/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./apps/web/components/CourtBookingView.tsx [Client Component SSR]
+    ./apps/web/components/DashboardClient.tsx [Client Component SSR]
+    ./apps/web/app/page.tsx [Client Component SSR]
+    ./apps/web/app/page.tsx [Server Component]
 
 
-○  (Static)  prerendered as static content
-
-[?25h⠙[1G[0K
+    at <unknown> (./apps/web/components/CourtBookingView.tsx:551:5)
+⠙[1G[0K[1mnpm[22m [31merror[39m Lifecycle script `build` failed with error:
+⠙[1G[0K[1mnpm[22m [31merror[39m [94mcode[39m [33m1[39m
+⠙[1G[0K[1mnpm[22m [31merror[39m [94mpath[39m /Users/kyuahn/Documents/AVG/court-reserve/apps/web
+⠙[1G[0K[1mnpm[22m [31merror[39m [94mworkspace[39m web@0.1.0
+⠙[1G[0K[1mnpm[22m [31merror[39m [94mlocation[39m /Users/kyuahn/Documents/AVG/court-reserve/apps/web
+⠙[1G[0K[1mnpm[22m [31merror[39m command failed
+⠙[1G[0K[1mnpm[22m [31merror[39m [94mcommand[39m sh -c next build
+⠙[1G[0K
