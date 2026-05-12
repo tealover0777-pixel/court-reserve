@@ -6,7 +6,7 @@ import {
   sendPasswordResetEmail,
 } from "firebase/auth";
 import { auth, db } from "../lib/firebase";
-import { doc, onSnapshot, setDoc, serverTimestamp, collection, query, where, orderBy } from "firebase/firestore";
+import { doc, onSnapshot, setDoc, serverTimestamp, collection } from "firebase/firestore";
 
 type Tab = "signin" | "register";
 
@@ -41,25 +41,22 @@ export default function LoginView() {
     return () => unsub();
   }, []);
 
-  // Live-subscribe to active tenants for club selector (exclude Global)
+  // Live-subscribe to all tenants, filter client-side (avoids composite index requirement)
   useEffect(() => {
-    const q = query(
-      collection(db, "tenants"),
-      where("status", "==", "Active"),
-      orderBy("name")
-    );
-    const unsub = onSnapshot(q, (snap) => {
+    const unsub = onSnapshot(collection(db, "tenants"), (snap) => {
       const clubs = snap.docs
-        .filter((d) => d.id !== "Global")
+        .filter((d) => d.id !== "Global" && d.data().status === "Active")
         .map((d) => ({
           id: d.id,
           name: d.data().name as string,
           tenant_id: d.data().tenant_id as string,
-        }));
+        }))
+        .sort((a, b) => a.name.localeCompare(b.name));
       setTenants(clubs);
       setTenantsLoading(false);
-    }, () => {
-      setTenantsLoading(false); // silently fail if rules block unauthenticated reads
+    }, (err) => {
+      console.error("Tenant fetch error:", err);
+      setTenantsLoading(false);
     });
     return () => unsub();
   }, []);
