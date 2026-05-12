@@ -324,21 +324,12 @@ export default function RegisterForm(p: Props) {
       </p>
 
       {/* Portrait Selector Modal */}
-      <Modal isOpen={p.showPortraitSelector} onClose={() => p.setShowPortraitSelector(false)}>
-        <div className="p-8 max-w-2xl w-full bg-white rounded-[32px] shadow-2xl">
-          <div className="flex items-center justify-between mb-8">
-            <div>
-              <h3 className="text-2xl font-black text-[#3b3a06] uppercase tracking-tight" style={{fontFamily:"Lexend, sans-serif"}}>
-                Default Portraits
-              </h3>
-              <p className="text-[10px] font-bold text-[#686730] uppercase tracking-[0.2em] mt-1">Select a premium character</p>
-            </div>
-            <button onClick={() => p.setShowPortraitSelector(false)} className="w-10 h-10 rounded-xl bg-[#fffcca] flex items-center justify-center text-[#686730] hover:bg-red-50 hover:text-red-500 transition-all">
-              <span className="material-symbols-outlined">close</span>
-            </button>
-          </div>
-
-          <div className="grid grid-cols-3 sm:grid-cols-4 gap-4 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
+      <Modal 
+        isOpen={p.showPortraitSelector} 
+        onClose={() => p.setShowPortraitSelector(false)}
+        title="Default Portraits"
+      >
+        <div className="grid grid-cols-3 sm:grid-cols-4 gap-4 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
             {p.defaultPortraits.map((portrait) => (
               <button
                 key={portrait.id}
@@ -371,7 +362,6 @@ export default function RegisterForm(p: Props) {
               <p className="text-[10px] font-black text-[#686730] uppercase tracking-widest">No default portraits available</p>
             </div>
           )}
-        </div>
       </Modal>
 
       <style jsx>{`

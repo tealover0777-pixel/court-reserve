@@ -137,7 +137,7 @@ export const Modal = ({
   const s = themeStyles[theme];
 
   return ReactDOM.createPortal(
-    <div style={{ position: "fixed", inset: 0, zIndex: 100, display: "flex", alignItems: "center", justifyContent: "center", padding: 24 }}>
+    <div style={{ position: "fixed", inset: 0, zIndex: 200, display: "flex", alignItems: "center", justifyContent: "center", padding: 24 }}>
       {/* Backdrop */}
       <div 
         style={{ position: "absolute", inset: 0, backgroundColor: s.backdrop, backdropFilter: "blur(4px)" }} 

@@ -14,7 +14,7 @@ import OrganizationView from "./OrganizationView";
 import CourtBookingView from "./CourtBookingView";
 import SchedulesAdminView from "./SchedulesAdminView";
 import MemberAdminView from "./MemberAdminView";
-
+import { Modal } from "@repo/ui/modal";
 import { useAuth } from "../context/AuthContext";
 import { collection, onSnapshot, query, orderBy, doc, updateDoc, serverTimestamp } from "firebase/firestore";
 import { db, storage } from "../lib/firebase";
@@ -1369,7 +1369,7 @@ function ProfileView({ theme, profile, roles }: { theme: "LIGHT" | "DARK" | "VIN
   return (
     <div className="max-w-4xl space-y-16 animate-in fade-in slide-in-from-bottom-4 duration-700">
       {showSuccess && (
-        <div className={`fixed top-8 right-8 z-[100] px-8 py-4 rounded-2xl shadow-2xl animate-in slide-in-from-right-8 duration-500 border flex items-center gap-3 ${isDark ? "bg-[#ccff00] text-stone-950 border-[#ccff00]" : "bg-[#4f6b28] text-white border-[#4f6b28]"
+        <div className={`fixed top-8 right-8 z-[9999] px-8 py-4 rounded-2xl shadow-2xl animate-in slide-in-from-right-8 duration-500 border flex items-center gap-3 ${isDark ? "bg-[#ccff00] text-stone-950 border-[#ccff00]" : "bg-[#4f6b28] text-white border-[#4f6b28]"
           }`}>
           <span className="material-symbols-outlined">check_circle</span>
           <span className="text-xs font-black uppercase tracking-widest">{showSuccess}</span>
@@ -1481,96 +1481,14 @@ function ProfileView({ theme, profile, roles }: { theme: "LIGHT" | "DARK" | "VIN
           </div>
         </div>
 
-        {/* Edit Modal */}
-        <div className={`fixed inset-0 z-[100] flex items-center justify-center p-8 transition-opacity duration-300 ${showEditModal ? "opacity-100" : "opacity-0 pointer-events-none"}`}>
-          <div className="absolute inset-0 bg-stone-950/80 backdrop-blur-md" onClick={() => setShowEditModal(false)}></div>
-          <div className={`relative w-full max-w-xl rounded-[40px] p-12 shadow-2xl animate-in zoom-in-95 duration-300 border ${isDark ? "bg-stone-900 border-stone-800" : "bg-white border-stone-100"}`}>
-            <h3 className={`text-4xl font-black tracking-tighter uppercase mb-10 ${isDark ? "text-white" : "text-stone-900"}`}>Edit Information</h3>
-
-            <div className="space-y-8">
-              <div className="grid grid-cols-2 gap-8">
-                <div>
-                  <label className={`text-[10px] font-black uppercase tracking-widest mb-3 block ${isDark ? "text-white" : "text-stone-600"}`}>First Name</label>
-                  <input
-                    value={formData.first_name}
-                    onChange={e => setFormData({ ...formData, first_name: e.target.value })}
-                    className={`w-full bg-transparent border-b-2 py-4 text-lg font-bold outline-none transition-colors ${isDark ? "border-stone-800 focus:border-[#ccff00] text-white" : "border-stone-100 focus:border-[#4f6b28] text-stone-900"}`}
-                  />
-                </div>
-                <div>
-                  <label className={`text-[10px] font-black uppercase tracking-widest mb-3 block ${isDark ? "text-white" : "text-stone-600"}`}>Last Name</label>
-                  <input
-                    value={formData.last_name}
-                    onChange={e => setFormData({ ...formData, last_name: e.target.value })}
-                    className={`w-full bg-transparent border-b-2 py-4 text-lg font-bold outline-none transition-colors ${isDark ? "border-stone-800 focus:border-[#ccff00] text-white" : "border-stone-100 focus:border-[#4f6b28] text-stone-900"}`}
-                  />
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-8">
-                <div>
-                  <label className={`text-[10px] font-black uppercase tracking-widest mb-3 block ${isDark ? "text-white" : "text-stone-600"}`}>Street Address 1</label>
-                  <input
-                    value={formData.address_street_1}
-                    onChange={e => setFormData({ ...formData, address_street_1: e.target.value })}
-                    placeholder="123 Tennis Court Lane"
-                    className={`w-full bg-transparent border-b-2 py-4 text-lg font-bold outline-none transition-colors ${isDark ? "border-stone-800 focus:border-[#ccff00] text-white" : "border-stone-100 focus:border-[#4f6b28] text-stone-900"}`}
-                  />
-                </div>
-                <div>
-                  <label className={`text-[10px] font-black uppercase tracking-widest mb-3 block ${isDark ? "text-white" : "text-stone-600"}`}>Street Address 2</label>
-                  <input
-                    value={formData.address_street_2}
-                    onChange={e => setFormData({ ...formData, address_street_2: e.target.value })}
-                    placeholder="Apt 4B"
-                    className={`w-full bg-transparent border-b-2 py-4 text-lg font-bold outline-none transition-colors ${isDark ? "border-stone-800 focus:border-[#ccff00] text-white" : "border-stone-100 focus:border-[#4f6b28] text-stone-900"}`}
-                  />
-                </div>
-              </div>
-              <div>
-                <label className={`text-[10px] font-black uppercase tracking-widest mb-3 block ${isDark ? "text-white" : "text-stone-600"}`}>Phone Number</label>
-                <input
-                  value={formData.phone}
-                  onChange={e => setFormData({ ...formData, phone: e.target.value })}
-                  placeholder="+1 (555) 000-0000"
-                  className={`w-full bg-transparent border-b-2 py-4 text-lg font-bold outline-none transition-colors ${isDark ? "border-stone-800 focus:border-[#ccff00] text-white" : "border-stone-100 focus:border-[#4f6b28] text-stone-900"}`}
-                />
-              </div>
-              <div className="grid grid-cols-3 gap-8">
-                <div className="col-span-1">
-                  <label className={`text-[10px] font-black uppercase tracking-widest mb-3 block ${isDark ? "text-white" : "text-stone-600"}`}>City</label>
-                  <input
-                    value={formData.address_city}
-                    onChange={e => setFormData({ ...formData, address_city: e.target.value })}
-                    placeholder="Wimbledon"
-                    className={`w-full bg-transparent border-b-2 py-4 text-lg font-bold outline-none transition-colors ${isDark ? "border-stone-800 focus:border-[#ccff00] text-white" : "border-stone-100 focus:border-[#4f6b28] text-stone-900"}`}
-                  />
-                </div>
-                <div className="col-span-1">
-                  <label className={`text-[10px] font-black uppercase tracking-widest mb-3 block ${isDark ? "text-white" : "text-stone-600"}`}>State</label>
-                  <select
-                    value={formData.address_state}
-                    onChange={e => setFormData({ ...formData, address_state: e.target.value })}
-                    className={`w-full bg-transparent border-b-2 py-4 text-lg font-bold outline-none transition-colors appearance-none ${isDark ? "border-stone-800 focus:border-[#ccff00] text-white" : "border-stone-100 focus:border-[#4f6b28] text-stone-900"}`}
-                  >
-                    <option value="" className={isDark ? "bg-stone-900" : "bg-white"}>Select State</option>
-                    {US_STATES.map(state => (
-                      <option key={state} value={state} className={isDark ? "bg-stone-900" : "bg-white"}>{state}</option>
-                    ))}
-                  </select>
-                </div>
-                <div className="col-span-1">
-                  <label className={`text-[10px] font-black uppercase tracking-widest mb-3 block ${isDark ? "text-white" : "text-stone-600"}`}>Zip Code</label>
-                  <input
-                    value={formData.address_zip}
-                    onChange={e => setFormData({ ...formData, address_zip: e.target.value })}
-                    placeholder="SW19"
-                    className={`w-full bg-transparent border-b-2 py-4 text-lg font-bold outline-none transition-colors ${isDark ? "border-stone-800 focus:border-[#ccff00] text-white" : "border-stone-100 focus:border-[#4f6b28] text-stone-900"}`}
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div className="flex gap-4 mt-16">
+        <Modal
+          isOpen={showEditModal}
+          onClose={() => setShowEditModal(false)}
+          title="Edit Information"
+          theme={theme}
+          width={600}
+          footer={
+            <div className="flex gap-4">
               <button
                 onClick={() => setShowEditModal(false)}
                 className={`flex-1 py-5 rounded-2xl text-[10px] font-black tracking-widest uppercase transition-colors border ${isDark ? "border-stone-800 text-white hover:bg-stone-800" : "border-stone-200 text-stone-900 hover:bg-stone-50"}`}
@@ -1590,23 +1508,101 @@ function ProfileView({ theme, profile, roles }: { theme: "LIGHT" | "DARK" | "VIN
                 ) : "SAVE CHANGES"}
               </button>
             </div>
+          }
+        >
+          <div className="space-y-8">
+            <div className="grid grid-cols-2 gap-8">
+              <div>
+                <label className={`text-[10px] font-black uppercase tracking-widest mb-3 block ${isDark ? "text-white" : "text-stone-600"}`}>First Name</label>
+                <input
+                  value={formData.first_name}
+                  onChange={e => setFormData({ ...formData, first_name: e.target.value })}
+                  className={`w-full bg-transparent border-b-2 py-4 text-lg font-bold outline-none transition-colors ${isDark ? "border-stone-800 focus:border-[#ccff00] text-white" : "border-stone-100 focus:border-[#4f6b28] text-stone-900"}`}
+                />
+              </div>
+              <div>
+                <label className={`text-[10px] font-black uppercase tracking-widest mb-3 block ${isDark ? "text-white" : "text-stone-600"}`}>Last Name</label>
+                <input
+                  value={formData.last_name}
+                  onChange={e => setFormData({ ...formData, last_name: e.target.value })}
+                  className={`w-full bg-transparent border-b-2 py-4 text-lg font-bold outline-none transition-colors ${isDark ? "border-stone-800 focus:border-[#ccff00] text-white" : "border-stone-100 focus:border-[#4f6b28] text-stone-900"}`}
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-8">
+              <div>
+                <label className={`text-[10px] font-black uppercase tracking-widest mb-3 block ${isDark ? "text-white" : "text-stone-600"}`}>Street Address 1</label>
+                <input
+                  value={formData.address_street_1}
+                  onChange={e => setFormData({ ...formData, address_street_1: e.target.value })}
+                  placeholder="123 Tennis Court Lane"
+                  className={`w-full bg-transparent border-b-2 py-4 text-lg font-bold outline-none transition-colors ${isDark ? "border-stone-800 focus:border-[#ccff00] text-white" : "border-stone-100 focus:border-[#4f6b28] text-stone-900"}`}
+                />
+              </div>
+              <div>
+                <label className={`text-[10px] font-black uppercase tracking-widest mb-3 block ${isDark ? "text-white" : "text-stone-600"}`}>Street Address 2</label>
+                <input
+                  value={formData.address_street_2}
+                  onChange={e => setFormData({ ...formData, address_street_2: e.target.value })}
+                  placeholder="Apt 4B"
+                  className={`w-full bg-transparent border-b-2 py-4 text-lg font-bold outline-none transition-colors ${isDark ? "border-stone-800 focus:border-[#ccff00] text-white" : "border-stone-100 focus:border-[#4f6b28] text-stone-900"}`}
+                />
+              </div>
+            </div>
+            <div>
+              <label className={`text-[10px] font-black uppercase tracking-widest mb-3 block ${isDark ? "text-white" : "text-stone-600"}`}>Phone Number</label>
+              <input
+                value={formData.phone}
+                onChange={e => setFormData({ ...formData, phone: e.target.value })}
+                placeholder="+1 (555) 000-0000"
+                className={`w-full bg-transparent border-b-2 py-4 text-lg font-bold outline-none transition-colors ${isDark ? "border-stone-800 focus:border-[#ccff00] text-white" : "border-stone-100 focus:border-[#4f6b28] text-stone-900"}`}
+              />
+            </div>
+            <div className="grid grid-cols-3 gap-8">
+              <div className="col-span-1">
+                <label className={`text-[10px] font-black uppercase tracking-widest mb-3 block ${isDark ? "text-white" : "text-stone-600"}`}>City</label>
+                <input
+                  value={formData.address_city}
+                  onChange={e => setFormData({ ...formData, address_city: e.target.value })}
+                  placeholder="Wimbledon"
+                  className={`w-full bg-transparent border-b-2 py-4 text-lg font-bold outline-none transition-colors ${isDark ? "border-stone-800 focus:border-[#ccff00] text-white" : "border-stone-100 focus:border-[#4f6b28] text-stone-900"}`}
+                />
+              </div>
+              <div className="col-span-1">
+                <label className={`text-[10px] font-black uppercase tracking-widest mb-3 block ${isDark ? "text-white" : "text-stone-600"}`}>State</label>
+                <select
+                  value={formData.address_state}
+                  onChange={e => setFormData({ ...formData, address_state: e.target.value })}
+                  className={`w-full bg-transparent border-b-2 py-4 text-lg font-bold outline-none transition-colors appearance-none ${isDark ? "border-stone-800 focus:border-[#ccff00] text-white" : "border-stone-100 focus:border-[#4f6b28] text-stone-900"}`}
+                >
+                  <option value="" className={isDark ? "bg-stone-900" : "bg-white"}>Select State</option>
+                  {US_STATES.map(state => (
+                    <option key={state} value={state} className={isDark ? "bg-stone-900" : "bg-white"}>{state}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="col-span-1">
+                <label className={`text-[10px] font-black uppercase tracking-widest mb-3 block ${isDark ? "text-white" : "text-stone-600"}`}>Zip Code</label>
+                <input
+                  value={formData.address_zip}
+                  onChange={e => setFormData({ ...formData, address_zip: e.target.value })}
+                  placeholder="SW19"
+                  className={`w-full bg-transparent border-b-2 py-4 text-lg font-bold outline-none transition-colors ${isDark ? "border-stone-800 focus:border-[#ccff00] text-white" : "border-stone-100 focus:border-[#4f6b28] text-stone-900"}`}
+                />
+              </div>
+            </div>
           </div>
-        </div>
+        </Modal>
 
         {/* Default Portrait Selector Modal */}
-        <div className={`fixed inset-0 z-[110] flex items-center justify-center p-8 transition-opacity duration-300 ${showPortraitSelector ? "opacity-100" : "opacity-0 pointer-events-none"}`}>
-          <div className="absolute inset-0 bg-stone-950/80 backdrop-blur-md" onClick={() => setShowPortraitSelector(false)}></div>
-          <div className={`relative w-full max-w-2xl rounded-[40px] p-12 shadow-2xl animate-in zoom-in-95 duration-300 border ${isDark ? "bg-stone-900 border-stone-800" : "bg-white border-stone-100"}`}>
-            <div className="flex items-center justify-between mb-10">
-              <h3 className={`text-3xl font-black tracking-tighter uppercase ${isDark ? "text-white" : "text-stone-900"}`}>Select Default Portrait</h3>
-              <button 
-                onClick={() => setShowPortraitSelector(false)}
-                className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors ${isDark ? "hover:bg-stone-800 text-stone-400" : "hover:bg-stone-100 text-stone-600"}`}
-              >
-                <span className="material-symbols-outlined">close</span>
-              </button>
-            </div>
-
+        <Modal
+          isOpen={showPortraitSelector}
+          onClose={() => setShowPortraitSelector(false)}
+          title="Select Default Portrait"
+          theme={theme}
+          width={700}
+        >
+          <div className="space-y-10 py-4">
             <div className="grid grid-cols-4 gap-6">
               {defaultPortraits.map((portrait) => (
                 <button
@@ -1634,7 +1630,7 @@ function ProfileView({ theme, profile, roles }: { theme: "LIGHT" | "DARK" | "VIN
               )}
             </div>
           </div>
-        </div>
+        </Modal>
       </div>
     </div>
   );
