@@ -6,7 +6,7 @@ import {
   sendPasswordResetEmail,
 } from "firebase/auth";
 import { auth, db } from "../lib/firebase";
-import { doc, onSnapshot, setDoc, serverTimestamp, collection, getDocs, query, where, orderBy } from "firebase/firestore";
+import { doc, onSnapshot, setDoc, serverTimestamp, collection, query, where, orderBy } from "firebase/firestore";
 
 type Tab = "signin" | "register";
 
@@ -18,12 +18,11 @@ export default function LoginView() {
   const [password, setPassword] = useState("");
 
   // Register state
-  const [regFirstName, setRegFirstName] = useState("");
-  const [regLastName, setRegLastName] = useState("");
   const [regEmail, setRegEmail] = useState("");
   const [regPassword, setRegPassword] = useState("");
   const [regConfirm, setRegConfirm] = useState("");
   const [regTenantId, setRegTenantId] = useState("");
+  const [tenantsLoading, setTenantsLoading] = useState(true);
 
   // Shared
   const [error, setError] = useState("");
@@ -42,14 +41,14 @@ export default function LoginView() {
     return () => unsub();
   }, []);
 
-  // Fetch active tenants for club selector (exclude Global)
+  // Live-subscribe to active tenants for club selector (exclude Global)
   useEffect(() => {
     const q = query(
       collection(db, "tenants"),
       where("status", "==", "Active"),
       orderBy("name")
     );
-    getDocs(q).then((snap) => {
+    const unsub = onSnapshot(q, (snap) => {
       const clubs = snap.docs
         .filter((d) => d.id !== "Global")
         .map((d) => ({
@@ -58,9 +57,11 @@ export default function LoginView() {
           tenant_id: d.data().tenant_id as string,
         }));
       setTenants(clubs);
-    }).catch(() => {
-      // Firestore rules may prevent unauthenticated reads — silently skip
+      setTenantsLoading(false);
+    }, () => {
+      setTenantsLoading(false); // silently fail if rules block unauthenticated reads
     });
+    return () => unsub();
   }, []);
 
   // Reset errors when switching tabs
@@ -93,6 +94,10 @@ export default function LoginView() {
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+    if (!regTenantId) {
+      setError("Please select a club to continue.");
+      return;
+    }
     if (regPassword !== regConfirm) {
       setError("Passwords do not match.");
       return;
@@ -104,21 +109,16 @@ export default function LoginView() {
     setLoading(true);
     try {
       const cred = await createUserWithEmailAndPassword(auth, regEmail, regPassword);
-      // Create global_users profile
       const selectedTenant = tenants.find((t) => t.id === regTenantId);
       await setDoc(doc(db, "global_users", cred.user.uid), {
         user_id: cred.user.uid,
         auth_uid: cred.user.uid,
-        first_name: regFirstName.trim(),
-        last_name: regLastName.trim(),
         email: regEmail.trim().toLowerCase(),
         roles: [],
         status: "Active",
-        ...(regTenantId && {
-          tenant_id: selectedTenant?.tenant_id || regTenantId,
-          tenantId: regTenantId,
-          tenant_name: selectedTenant?.name || "",
-        }),
+        tenant_id: selectedTenant?.tenant_id || regTenantId,
+        tenantId: regTenantId,
+        tenant_name: selectedTenant?.name || "",
         created_at: serverTimestamp(),
         updated_at: serverTimestamp(),
       });
@@ -458,68 +458,48 @@ export default function LoginView() {
                 Join the Club
               </h3>
               <p className="text-[#686730] text-sm font-medium mb-8">
-                Create your member account and secure your spot on the court.
+                Select your club first, then create your member account.
               </p>
 
               <form onSubmit={handleRegister} className="space-y-5">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="text-[10px] font-black uppercase tracking-widest text-[#686730] mb-2 block">
-                      First Name
-                    </label>
-                    <input
-                      type="text"
-                      value={regFirstName}
-                      onChange={(e) => setRegFirstName(e.target.value)}
-                      required
-                      placeholder="Alex"
-                      className={inputCls}
-                    />
-                  </div>
-                  <div>
-                    <label className="text-[10px] font-black uppercase tracking-widest text-[#686730] mb-2 block">
-                      Last Name
-                    </label>
-                    <input
-                      type="text"
-                      value={regLastName}
-                      onChange={(e) => setRegLastName(e.target.value)}
-                      required
-                      placeholder="Sterling"
-                      className={inputCls}
-                    />
-                  </div>
-                </div>
 
-                {/* ── Club / Facility Selector ── */}
+                {/* ── Step 1: Club selector (always active) ── */}
                 <div>
-                  <label className="text-[10px] font-black uppercase tracking-widest text-[#686730] mb-2 block">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-[#686730] mb-2 flex items-center gap-2">
                     Club / Facility
-                    <span className="ml-2 text-[#bfbc7c] normal-case tracking-normal font-bold">
-                      (optional)
+                    <span className="px-2 py-0.5 rounded-full text-[8px] font-black uppercase tracking-widest bg-[#cafd00] text-[#3b3a06]">
+                      Required
                     </span>
                   </label>
                   <div className="relative">
+                    {/* tennis icon */}
                     <span
-                      className="material-symbols-outlined absolute left-5 top-1/2 -translate-y-1/2 text-[#686730]/50 text-lg pointer-events-none"
-                      style={{ fontVariationSettings: "'FILL' 1" }}
+                      className="material-symbols-outlined absolute left-5 top-1/2 -translate-y-1/2 text-lg pointer-events-none transition-colors"
+                      style={{
+                        fontVariationSettings: "'FILL' 1",
+                        color: regTenantId ? "#556d00" : "rgba(104,103,48,0.5)",
+                      }}
                     >
                       sports_tennis
                     </span>
                     <select
                       value={regTenantId}
-                      onChange={(e) => setRegTenantId(e.target.value)}
-                      className="w-full bg-[#fffcca] border border-[#bfbc7c]/30 rounded-2xl pl-14 pr-10 py-4 text-sm font-bold text-[#3b3a06] outline-none focus:ring-2 focus:ring-[#556d00]/30 focus:border-[#556d00]/40 transition-all appearance-none cursor-pointer"
+                      onChange={(e) => { setRegTenantId(e.target.value); setError(""); }}
+                      required
+                      className={`w-full rounded-2xl pl-14 pr-10 py-4 text-sm font-bold outline-none transition-all appearance-none cursor-pointer border ${
+                        regTenantId
+                          ? "bg-[#fffcca] border-[#556d00]/40 text-[#3b3a06] ring-2 ring-[#556d00]/20"
+                          : "bg-[#fffcca] border-[#bfbc7c]/30 text-[#686730]"
+                      }`}
                       style={{
                         backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23686730' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E")`,
                         backgroundRepeat: "no-repeat",
                         backgroundPosition: "right 16px center",
                       }}
                     >
-                      <option value="">— Select a club to join —</option>
-                      {tenants.length === 0 && (
-                        <option value="" disabled>Loading clubs…</option>
-                      )}
+                      <option value="">
+                        {tenantsLoading ? "Loading clubs…" : "— Select your club —"}
+                      </option>
                       {tenants.map((t) => (
                         <option key={t.id} value={t.id}>
                           {t.name}
@@ -527,6 +507,8 @@ export default function LoginView() {
                       ))}
                     </select>
                   </div>
+
+                  {/* Club selected confirmation badge */}
                   {regTenantId && (
                     <div className="mt-2 flex items-center gap-2 animate-in slide-in-from-top-1 duration-200">
                       <span
@@ -536,63 +518,91 @@ export default function LoginView() {
                         check_circle
                       </span>
                       <p className="text-[10px] font-black uppercase tracking-widest text-[#556d00]">
-                        Joining: {tenants.find((t) => t.id === regTenantId)?.name}
+                        Joining · {tenants.find((t) => t.id === regTenantId)?.name}
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Lock hint when no club selected */}
+                  {!regTenantId && (
+                    <div className="mt-2 flex items-center gap-2">
+                      <span className="material-symbols-outlined text-[#bfbc7c] text-sm">
+                        lock
+                      </span>
+                      <p className="text-[10px] font-bold text-[#bfbc7c] uppercase tracking-widest">
+                        Select a club to unlock registration
                       </p>
                     </div>
                   )}
                 </div>
 
-                <div>
-                  <label className="text-[10px] font-black uppercase tracking-widest text-[#686730] mb-2 block">
-                    Email Address
-                  </label>
-                  <input
-                    type="email"
-                    value={regEmail}
-                    onChange={(e) => setRegEmail(e.target.value)}
-                    required
-                    placeholder="name@example.com"
-                    className={inputCls}
-                  />
-                </div>
+                {/* ── Step 2: Email & Password (locked until club selected) ── */}
+                <div className={`space-y-5 transition-all duration-300 ${
+                  !regTenantId ? "opacity-40 pointer-events-none select-none" : "opacity-100"
+                }`}>
 
-                <div>
-                  <label className="text-[10px] font-black uppercase tracking-widest text-[#686730] mb-2 block">
-                    Password
-                  </label>
-                  <input
-                    type="password"
-                    value={regPassword}
-                    onChange={(e) => setRegPassword(e.target.value)}
-                    required
-                    placeholder="Min. 6 characters"
-                    className={inputCls}
-                  />
-                </div>
+                  <div>
+                    <label className="text-[10px] font-black uppercase tracking-widest text-[#686730] mb-2 block">
+                      Email Address
+                    </label>
+                    <input
+                      type="email"
+                      value={regEmail}
+                      onChange={(e) => setRegEmail(e.target.value)}
+                      required
+                      disabled={!regTenantId}
+                      placeholder="name@example.com"
+                      className={inputCls}
+                      tabIndex={regTenantId ? 0 : -1}
+                    />
+                  </div>
 
-                <div>
-                  <label className="text-[10px] font-black uppercase tracking-widest text-[#686730] mb-2 block">
-                    Confirm Password
-                  </label>
-                  <input
-                    type="password"
-                    value={regConfirm}
-                    onChange={(e) => setRegConfirm(e.target.value)}
-                    required
-                    placeholder="Repeat password"
-                    className={`${inputCls} ${regConfirm && regConfirm !== regPassword ? "border-red-300 ring-2 ring-red-100" : ""}`}
-                  />
-                  {regConfirm && regConfirm !== regPassword && (
-                    <p className="mt-1.5 text-[10px] font-bold text-red-500 uppercase tracking-widest">
-                      Passwords don't match
-                    </p>
-                  )}
+                  <div>
+                    <label className="text-[10px] font-black uppercase tracking-widest text-[#686730] mb-2 block">
+                      Password
+                    </label>
+                    <input
+                      type="password"
+                      value={regPassword}
+                      onChange={(e) => setRegPassword(e.target.value)}
+                      required
+                      disabled={!regTenantId}
+                      placeholder="Min. 6 characters"
+                      className={inputCls}
+                      tabIndex={regTenantId ? 0 : -1}
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-[10px] font-black uppercase tracking-widest text-[#686730] mb-2 block">
+                      Confirm Password
+                    </label>
+                    <input
+                      type="password"
+                      value={regConfirm}
+                      onChange={(e) => setRegConfirm(e.target.value)}
+                      required
+                      disabled={!regTenantId}
+                      placeholder="Repeat password"
+                      tabIndex={regTenantId ? 0 : -1}
+                      className={`${inputCls} ${
+                        regConfirm && regConfirm !== regPassword
+                          ? "border-red-300 ring-2 ring-red-100"
+                          : ""
+                      }`}
+                    />
+                    {regConfirm && regConfirm !== regPassword && (
+                      <p className="mt-1.5 text-[10px] font-bold text-red-500 uppercase tracking-widest">
+                        Passwords don't match
+                      </p>
+                    )}
+                  </div>
                 </div>
 
                 <button
                   type="submit"
-                  disabled={loading}
-                  className="w-full py-5 rounded-2xl text-[11px] font-black uppercase tracking-widest text-[#3b3a06] transition-all hover:opacity-90 active:scale-[0.98] disabled:opacity-60 flex items-center justify-center gap-3 mt-2"
+                  disabled={loading || !regTenantId}
+                  className="w-full py-5 rounded-2xl text-[11px] font-black uppercase tracking-widest text-[#3b3a06] transition-all hover:opacity-90 active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-3 mt-2"
                   style={{ background: "linear-gradient(135deg, #cafd00 0%, #beee00 100%)" }}
                 >
                   {loading ? (
