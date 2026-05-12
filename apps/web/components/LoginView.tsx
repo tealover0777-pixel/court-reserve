@@ -6,8 +6,9 @@ import {
   createUserWithEmailAndPassword,
   sendPasswordResetEmail,
 } from "firebase/auth";
-import { auth, db } from "../lib/firebase";
+import { auth, db, storage } from "../lib/firebase";
 import { doc, onSnapshot, setDoc, serverTimestamp, collection, query, where, getDocs, orderBy } from "firebase/firestore";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
 type Tab = "signin" | "register";
 
@@ -41,6 +42,9 @@ export default function LoginView() {
   const [profCity, setProfCity]          = useState("");
   const [profState, setProfState]        = useState("");
   const [profZip, setProfZip]            = useState("");
+  const [profPortraitUrl, setProfPortraitUrl] = useState("");
+  const [isUploadingPortrait, setIsUploadingPortrait] = useState(false);
+  const [showPortraitSelector, setShowPortraitSelector] = useState(false);
 
   // Shared
   const [error, setError] = useState("");
@@ -52,6 +56,7 @@ export default function LoginView() {
   const [showPassword, setShowPassword] = useState(false);
   const [tenants, setTenants] = useState<{ id: string; name: string; tenant_id: string }[]>([]);
   const [genderDimensionItems, setGenderDimensionItems] = useState<string[]>([]);
+  const [defaultPortraits, setDefaultPortraits] = useState<{ id: string; url: string; label: string }[]>([]);
 
   useEffect(() => {
     const unsub = onSnapshot(doc(db, "tenants", "Global"), (snap) => {
@@ -99,6 +104,19 @@ export default function LoginView() {
     return () => unsub();
   }, []);
 
+  useEffect(() => {
+    const qPortraits = query(collection(db, "default_portraits"), orderBy("label", "asc"));
+    const unsub = onSnapshot(qPortraits, (snap) => {
+      const p = snap.docs.map(d => ({
+        id: d.id,
+        url: d.data().url,
+        label: d.data().label || "Portrait"
+      }));
+      setDefaultPortraits(p);
+    });
+    return () => unsub();
+  }, []);
+
   // Reset register flow when switching tabs
   useEffect(() => {
     setError("");
@@ -120,6 +138,9 @@ export default function LoginView() {
     setProfCity("");
     setProfState("");
     setProfZip("");
+    setProfPortraitUrl("");
+    setShowPortraitSelector(false);
+    setIsUploadingPortrait(false);
   }, [tab]);
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -202,6 +223,27 @@ export default function LoginView() {
     }
   };
 
+  const handlePortraitUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsUploadingPortrait(true);
+    setError("");
+
+    try {
+      const tempId = Math.random().toString(36).substring(7);
+      const storageRef = ref(storage, `temp_portraits/${tempId}`);
+      await uploadBytes(storageRef, file);
+      const url = await getDownloadURL(storageRef);
+      setProfPortraitUrl(url);
+    } catch (err) {
+      console.error("Portrait upload error:", err);
+      setError("Failed to upload photo. Please try again.");
+    } finally {
+      setIsUploadingPortrait(false);
+    }
+  };
+
   // Step 2 — create Auth user + Firestore member profile for selected tenant
   const handleCreateAccount = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -248,6 +290,7 @@ export default function LoginView() {
         tenant_id: selectedTenant?.tenant_id || regTenantId,
         tenantId: regTenantId,
         tenant_name: selectedTenant?.name || "",
+        portrait_url: profPortraitUrl,
         created_at: serverTimestamp(),
         updated_at: serverTimestamp(),
       });
@@ -628,6 +671,13 @@ export default function LoginView() {
                 setProfState={setProfState}
                 profZip={profZip}
                 setProfZip={setProfZip}
+                profPortraitUrl={profPortraitUrl}
+                setProfPortraitUrl={setProfPortraitUrl}
+                isUploadingPortrait={isUploadingPortrait}
+                onPortraitUpload={handlePortraitUpload}
+                showPortraitSelector={showPortraitSelector}
+                setShowPortraitSelector={setShowPortraitSelector}
+                defaultPortraits={defaultPortraits}
                 genderOptions={genderDimensionItems}
                 onCreateAccount={handleCreateAccount}
                 onBack={() => {

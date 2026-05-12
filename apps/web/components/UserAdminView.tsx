@@ -75,6 +75,7 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
   const [roles, setRoles] = useState<any[]>([]);
   const [tenants, setTenants] = useState<any[]>([]);
   const [defaultPortraits, setDefaultPortraits] = useState<{ id: string; url: string; label: string }[]>([]);
+  const [showPortraitSelectorModal, setShowPortraitSelectorModal] = useState(false);
   const [showDefaultPortraitsModal, setShowDefaultPortraitsModal] = useState(false);
   const [isUploadingDefault, setIsUploadingDefault] = useState(false);
   const [confirmDeleteDefaultId, setConfirmDeleteDefaultId] = useState<string | null>(null);
@@ -353,13 +354,38 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
     setShowEditModal(true);
   };
 
+  const handlePortraitSync = async (url: string) => {
+    if (!editingUser) return;
+    setIsUploadingPortrait(true);
+    try {
+      const userRef = doc(db, "global_users", editingUser.id);
+      await setDoc(userRef, {
+        portrait_url: url,
+        updated_at: new Date().toISOString()
+      }, { merge: true });
+      
+      setFormData(prev => ({ ...prev, portrait_url: url }));
+      showAppMessage("Profile photo synchronized!", "SUCCESS");
+    } catch (err) {
+      console.error("Portrait sync failed:", err);
+      showAppMessage("Failed to sync portrait.", "ERROR");
+    } finally {
+      setIsUploadingPortrait(false);
+    }
+  };
+
   const handlePortraitUpload = async (file: File, compositeId: string) => {
     setIsUploadingPortrait(true);
     try {
       const storageRef = ref(storage, `users/${compositeId}/portrait`);
       await uploadBytes(storageRef, file);
       const url = await getDownloadURL(storageRef);
-      setFormData(prev => ({ ...prev, portrait_url: url }));
+      
+      if (editingUser) {
+        await handlePortraitSync(url);
+      } else {
+        setFormData(prev => ({ ...prev, portrait_url: url }));
+      }
       return url;
     } catch (err) {
       console.error("Portrait upload failed:", err);
@@ -1231,68 +1257,93 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
           return (
             <div className="space-y-6">
               {/* Portrait — centered above grid */}
-              <div className="flex flex-col items-center gap-2">
+              <div className="flex flex-col items-center gap-4">
                 <div className="relative group">
-                  <div className={`w-20 h-20 rounded-full overflow-hidden flex items-center justify-center border-4 transition-colors ${
-                    theme === "DARK" ? "border-stone-800 bg-stone-900" : "border-stone-200 bg-stone-100"
+                  <div className={`w-32 h-32 rounded-full overflow-hidden flex items-center justify-center border-4 shadow-2xl transition-all relative ${
+                    theme === "DARK" ? "border-stone-800 bg-stone-900" : "border-stone-100 bg-stone-50"
                   }`}>
                     {formData.portrait_url ? (
-                      <img src={formData.portrait_url} alt="Portrait" className="w-full h-full object-cover" />
+                      <img 
+                        src={formData.portrait_url} 
+                        alt="Portrait" 
+                        className={`w-full h-full object-cover transition-all ${isUploadingPortrait ? "opacity-30 blur-sm" : "group-hover:scale-110 group-hover:opacity-40"}`} 
+                      />
                     ) : (
-                      <span className={`text-2xl font-black select-none ${theme === "DARK" ? "text-stone-600" : "text-stone-400"}`}>
-                        {(formData.first_name?.[0] || formData.email?.[0] || "?").toUpperCase()}
-                      </span>
+                      <div className={`flex flex-col items-center gap-2 transition-all ${isUploadingPortrait ? "opacity-30 blur-sm" : "group-hover:opacity-20"}`}>
+                        <span className={`text-4xl font-black select-none ${theme === "DARK" ? "text-stone-700" : "text-stone-300"}`}>
+                          {(formData.first_name?.[0] || formData.email?.[0] || "?").toUpperCase()}
+                        </span>
+                      </div>
                     )}
+                    
+                    {/* Hover Overlay */}
+                    <div className="absolute inset-0 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-all text-white z-10 gap-4">
+                      <button
+                        onClick={() => {
+                          const fileInput = document.getElementById('user-portrait-upload') as HTMLInputElement;
+                          fileInput?.click();
+                        }}
+                        disabled={isUploadingPortrait}
+                        className="flex flex-col items-center hover:scale-110 transition-transform bg-black/40 w-12 h-12 rounded-full justify-center backdrop-blur-sm"
+                        title="Upload Custom Photo"
+                      >
+                        <span className="material-symbols-outlined text-xl">photo_camera</span>
+                      </button>
+                      
+                      <button
+                        onClick={() => setShowPortraitSelectorModal(true)}
+                        disabled={isUploadingPortrait}
+                        className="flex flex-col items-center hover:scale-110 transition-transform bg-black/40 w-12 h-12 rounded-full justify-center backdrop-blur-sm"
+                        title="Select Default Portrait"
+                      >
+                        <span className="material-symbols-outlined text-xl">face</span>
+                      </button>
+                    </div>
+
                     {isUploadingPortrait && (
                       <div className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-full">
-                        <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent"></div>
+                        <div className="h-6 w-6 animate-spin rounded-full border-2 border-white border-t-transparent"></div>
                       </div>
                     )}
                   </div>
-                  <label className="absolute inset-0 flex items-center justify-center rounded-full cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity bg-black/50">
-                    <span className="material-symbols-outlined text-white text-xl">photo_camera</span>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      className="hidden"
-                      disabled={isUploadingPortrait}
-                      onChange={async (e) => {
-                        const file = e.target.files?.[0];
-                        if (!file) return;
-                        const id = editingUser ? `${formData.tenant_id}_${formData.user_id}` : `temp_${Date.now()}`;
-                        await handlePortraitUpload(file, id);
-                      }}
-                    />
-                  </label>
+                  
+                  <input
+                    id="user-portrait-upload"
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    disabled={isUploadingPortrait}
+                    onChange={async (e) => {
+                      const file = e.target.files?.[0];
+                      if (!file) return;
+                      const id = editingUser ? `${formData.tenant_id}_${formData.user_id}` : `temp_${Date.now()}`;
+                      await handlePortraitUpload(file, id);
+                    }}
+                  />
                 </div>
-                {formData.portrait_url ? (
+
+                <div className="flex items-center gap-6">
+                  {formData.portrait_url && (
+                    <button
+                      onClick={() => setFormData(prev => ({ ...prev, portrait_url: "" }))}
+                      className="text-[9px] font-black tracking-[0.2em] uppercase text-red-400 hover:text-red-500 transition-all flex items-center gap-2 px-4 py-2 rounded-full border border-red-400/20 hover:bg-red-400/10"
+                    >
+                      <span className="material-symbols-outlined text-xs">delete</span>
+                      Remove Photo
+                    </button>
+                  )}
                   <button
-                    onClick={() => setFormData(prev => ({ ...prev, portrait_url: "" }))}
-                    className="text-[9px] font-black tracking-widest uppercase text-red-400 hover:text-red-600 transition-colors"
+                    onClick={() => setShowPortraitSelectorModal(true)}
+                    className={`text-[9px] font-black tracking-[0.2em] uppercase transition-all flex items-center gap-2 px-4 py-2 rounded-full border ${
+                      theme === "DARK" 
+                        ? "border-[#ccff00]/20 text-[#ccff00] hover:bg-[#ccff00]/10" 
+                        : "border-[#6348eb]/20 text-[#6348eb] hover:bg-[#6348eb]/10"
+                    }`}
                   >
-                    Remove Photo
+                    <span className="material-symbols-outlined text-xs">auto_fix_high</span>
+                    Choose Default
                   </button>
-                ) : (
-                  <div className="flex flex-col items-center gap-3">
-                    <span className={`text-[9px] font-black tracking-widest uppercase ${theme === "DARK" ? "text-stone-600" : "text-stone-400"}`}>Or select default</span>
-                    <div className="flex gap-2">
-                      {defaultPortraits.map((avatar) => (
-                        <button
-                          key={avatar.id}
-                          onClick={() => setFormData(prev => ({ ...prev, portrait_url: avatar.url }))}
-                          className={`w-8 h-8 rounded-full overflow-hidden border-2 transition-all hover:scale-110 ${
-                            theme === "DARK" ? "border-stone-800 hover:border-[#ccff00]" : "border-stone-200 hover:border-[#4f6b28]"
-                          }`}
-                        >
-                          <img src={avatar.url} alt={avatar.label} title={avatar.label} className="w-full h-full object-cover" />
-                        </button>
-                      ))}
-                      {defaultPortraits.length === 0 && (
-                        <span className="text-[10px] text-stone-400">No defaults defined</span>
-                      )}
-                    </div>
-                  </div>
-                )}
+                </div>
               </div>
 
               {/* 2-column grid */}
@@ -2291,6 +2342,97 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
           <p className="text-xs text-stone-400 font-bold uppercase tracking-widest leading-relaxed px-4">
             This will remove this image from the default selection library for all administrators.
           </p>
+        </div>
+      </Modal>
+
+      {/* Default Portrait Selector Modal (Premium Selection Interface) */}
+      <Modal
+        isOpen={showPortraitSelectorModal}
+        onClose={() => setShowPortraitSelectorModal(false)}
+        title="Select Default Portrait"
+        theme={theme}
+        width={700}
+      >
+        <div className="space-y-10 py-4">
+          <div className="grid grid-cols-4 gap-6">
+            {defaultPortraits.map((portrait) => (
+              <button
+                key={portrait.id}
+                onClick={async () => {
+                  if (editingUser) {
+                    await handlePortraitSync(portrait.url);
+                  } else {
+                    setFormData(prev => ({ ...prev, portrait_url: portrait.url }));
+                    showAppMessage("Portrait selected!", "INFO");
+                  }
+                  setShowPortraitSelectorModal(false);
+                }}
+                className={`group relative aspect-square rounded-[32px] overflow-hidden border-4 transition-all hover:scale-105 active:scale-95 ${
+                  theme === "DARK" 
+                    ? "border-stone-900 bg-stone-900 hover:border-[#ccff00]" 
+                    : "border-white bg-white hover:border-[#6348eb] shadow-md hover:shadow-xl"
+                } ${formData.portrait_url === portrait.url ? (theme === "DARK" ? "border-[#ccff00]" : "border-[#6348eb]") : ""}`}
+              >
+                <img 
+                  src={portrait.url} 
+                  alt={portrait.label} 
+                  className="w-full h-full object-cover transition-transform group-hover:scale-110"
+                />
+                <div className={`absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-[2px]`}>
+                  <div className={`px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest bg-white text-black shadow-lg transform translate-y-4 group-hover:translate-y-0 transition-transform`}>
+                    Select
+                  </div>
+                </div>
+                {formData.portrait_url === portrait.url && (
+                  <div className={`absolute top-3 right-3 w-8 h-8 rounded-full flex items-center justify-center shadow-lg animate-in zoom-in-50 duration-300 ${
+                    theme === "DARK" ? "bg-[#ccff00] text-stone-950" : "bg-[#6348eb] text-white"
+                  }`}>
+                    <span className="material-symbols-outlined text-sm font-black">check</span>
+                  </div>
+                )}
+              </button>
+            ))}
+            {defaultPortraits.length === 0 && (
+              <div className={`col-span-4 py-20 text-center rounded-[40px] border-2 border-dashed ${
+                theme === "DARK" ? "border-stone-800 text-stone-500" : "border-stone-100 text-stone-400"
+              }`}>
+                <span className="material-symbols-outlined text-5xl mb-4 opacity-20">face</span>
+                <p className="text-xs font-black uppercase tracking-widest">No portraits available in the library</p>
+                <button 
+                  onClick={() => {
+                    setShowPortraitSelectorModal(false);
+                    setShowDefaultPortraitsModal(true);
+                  }}
+                  className="mt-6 text-[10px] font-black uppercase tracking-widest text-[#6348eb] underline"
+                >
+                  Manage Library
+                </button>
+              </div>
+            )}
+          </div>
+          
+          <div className={`p-8 rounded-[40px] flex items-center justify-between gap-6 transition-colors ${
+            theme === "DARK" ? "bg-stone-900/50" : "bg-stone-50"
+          }`}>
+            <div className="flex items-center gap-4">
+              <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${
+                theme === "DARK" ? "bg-stone-800 text-[#ccff00]" : "bg-white text-[#6348eb] shadow-sm"
+              }`}>
+                <span className="material-symbols-outlined">info</span>
+              </div>
+              <p className={`text-[11px] font-medium leading-relaxed max-w-sm ${theme === "DARK" ? "text-stone-400" : "text-stone-500"}`}>
+                Default portraits provide a professional and consistent look across the platform. You can always revert to a custom photo later.
+              </p>
+            </div>
+            <button
+              onClick={() => setShowPortraitSelectorModal(false)}
+              className={`px-8 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all ${
+                theme === "DARK" ? "bg-stone-800 text-white hover:bg-stone-700" : "bg-white text-stone-900 border hover:bg-stone-50 shadow-sm"
+              }`}
+            >
+              Close
+            </button>
+          </div>
         </div>
       </Modal>
     </div>

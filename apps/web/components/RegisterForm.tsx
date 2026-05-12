@@ -1,5 +1,6 @@
 "use client";
-import React from "react";
+import React, { useRef } from "react";
+import { Modal } from "@repo/ui/modal";
 
 const US_STATES = ["AL","AK","AZ","AR","CA","CO","CT","DE","FL","GA","HI","ID","IL","IN","IA","KS","KY","LA","ME","MD","MA","MI","MN","MS","MO","MT","NE","NV","NH","NJ","NM","NY","NC","ND","OH","OK","OR","PA","RI","SC","SD","TN","TX","UT","VT","VA","WA","WV","WI","WY"];
 const MONTHS = ["01","02","03","04","05","06","07","08","09","10","11","12"];
@@ -33,6 +34,14 @@ interface Props {
   onCreateAccount: (e:React.FormEvent)=>void;
   onBack: ()=>void;
   genderOptions: string[];
+  // portraits
+  profPortraitUrl: string;
+  setProfPortraitUrl: (v:string)=>void;
+  isUploadingPortrait: boolean;
+  onPortraitUpload: (e:React.ChangeEvent<HTMLInputElement>)=>void;
+  showPortraitSelector: boolean;
+  setShowPortraitSelector: (v:boolean)=>void;
+  defaultPortraits: {id:string; url:string; label:string}[];
   // shared
   loading: boolean;
   error: string;
@@ -155,6 +164,38 @@ export default function RegisterForm(p: Props) {
       {/* ── STEP 2: Profile ── */}
       {p.step === "profile" && (
         <form onSubmit={p.onCreateAccount} className="space-y-4">
+          {/* Portrait Selection */}
+          <div className="flex flex-col items-center mb-6">
+            <div className="relative group">
+              <div className="w-24 h-24 rounded-2xl overflow-hidden bg-[#fffcca] border-2 border-[#bfbc7c]/30 shadow-inner flex items-center justify-center transition-all group-hover:border-[#556d00]/50">
+                {p.profPortraitUrl ? (
+                  <img src={p.profPortraitUrl} alt="Profile" className="w-full h-full object-cover" />
+                ) : (
+                  <span className="material-symbols-outlined text-4xl text-[#bfbc7c]/50">person</span>
+                )}
+                
+                {/* Upload Overlay */}
+                <label className="absolute inset-0 bg-[#3b3a06]/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center cursor-pointer">
+                  <input type="file" className="hidden" accept="image/*" onChange={p.onPortraitUpload} />
+                  <span className="material-symbols-outlined text-white text-2xl mb-1">upload</span>
+                  <span className="text-[8px] font-black uppercase tracking-widest text-[#cafd00]">Upload</span>
+                </label>
+              </div>
+
+              {p.isUploadingPortrait && (
+                <div className="absolute inset-0 bg-[#fffcca]/80 flex items-center justify-center rounded-2xl">
+                  <div className="w-5 h-5 border-2 border-[#556d00]/30 border-t-[#556d00] rounded-full animate-spin" />
+                </div>
+              )}
+            </div>
+
+            <button type="button" onClick={() => p.setShowPortraitSelector(true)}
+              className="mt-3 px-4 py-1.5 rounded-full bg-[#fbf7a7] border border-[#bfbc7c]/30 text-[9px] font-black uppercase tracking-widest text-[#686730] hover:bg-[#fffcca] hover:text-[#3b3a06] transition-all flex items-center gap-2">
+              <span className="material-symbols-outlined text-xs">gallery_thumbnail</span>
+              Choose Default
+            </button>
+          </div>
+
           {/* Name row */}
           <div className="grid grid-cols-2 gap-3">
             <div>
@@ -281,6 +322,64 @@ export default function RegisterForm(p: Props) {
           Sign In
         </button>
       </p>
+
+      {/* Portrait Selector Modal */}
+      <Modal isOpen={p.showPortraitSelector} onClose={() => p.setShowPortraitSelector(false)}>
+        <div className="p-8 max-w-2xl w-full bg-white rounded-[32px] shadow-2xl">
+          <div className="flex items-center justify-between mb-8">
+            <div>
+              <h3 className="text-2xl font-black text-[#3b3a06] uppercase tracking-tight" style={{fontFamily:"Lexend, sans-serif"}}>
+                Default Portraits
+              </h3>
+              <p className="text-[10px] font-bold text-[#686730] uppercase tracking-[0.2em] mt-1">Select a premium character</p>
+            </div>
+            <button onClick={() => p.setShowPortraitSelector(false)} className="w-10 h-10 rounded-xl bg-[#fffcca] flex items-center justify-center text-[#686730] hover:bg-red-50 hover:text-red-500 transition-all">
+              <span className="material-symbols-outlined">close</span>
+            </button>
+          </div>
+
+          <div className="grid grid-cols-3 sm:grid-cols-4 gap-4 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
+            {p.defaultPortraits.map((portrait) => (
+              <button
+                key={portrait.id}
+                type="button"
+                onClick={() => {
+                  p.setProfPortraitUrl(portrait.url);
+                  p.setShowPortraitSelector(false);
+                }}
+                className={`group relative aspect-square rounded-2xl overflow-hidden border-2 transition-all hover:scale-105 active:scale-95 ${
+                  p.profPortraitUrl === portrait.url ? "border-[#556d00] ring-4 ring-[#556d00]/10" : "border-[#bfbc7c]/20 hover:border-[#556d00]/30"
+                }`}
+              >
+                <img src={portrait.url} alt={portrait.label} className="w-full h-full object-cover" />
+                <div className={`absolute inset-0 bg-[#556d00]/10 transition-opacity ${p.profPortraitUrl === portrait.url ? "opacity-100" : "opacity-0 group-hover:opacity-100"}`} />
+                {p.profPortraitUrl === portrait.url && (
+                  <div className="absolute top-2 right-2 w-6 h-6 bg-[#556d00] rounded-full flex items-center justify-center shadow-lg border-2 border-white">
+                    <span className="material-symbols-outlined text-white text-sm font-bold">check</span>
+                  </div>
+                )}
+                <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/60 to-transparent p-2">
+                  <p className="text-[8px] font-black text-white uppercase tracking-widest truncate">{portrait.label}</p>
+                </div>
+              </button>
+            ))}
+          </div>
+
+          {p.defaultPortraits.length === 0 && (
+            <div className="flex flex-col items-center justify-center py-12 bg-[#fffcca]/30 rounded-3xl border-2 border-dashed border-[#bfbc7c]/30">
+              <span className="material-symbols-outlined text-4xl text-[#bfbc7c] mb-3">image_not_supported</span>
+              <p className="text-[10px] font-black text-[#686730] uppercase tracking-widest">No default portraits available</p>
+            </div>
+          )}
+        </div>
+      </Modal>
+
+      <style jsx>{`
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #bfbc7c; border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #686730; }
+      `}</style>
     </div>
   );
 }
