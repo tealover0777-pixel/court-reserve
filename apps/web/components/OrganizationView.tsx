@@ -1,9 +1,10 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { db, storage } from "../lib/firebase";
-import { collection, doc, onSnapshot, orderBy, query, setDoc, serverTimestamp } from "firebase/firestore";
+import { collection, doc, onSnapshot, orderBy, query, setDoc, serverTimestamp, deleteDoc } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { useTenant } from "../context/TenantContext";
+import { Modal } from "@repo/ui/modal";
 
 const US_STATES = [
   "AL", "AK", "AZ", "AR", "CA", "CO", "CT", "DE", "FL", "GA",
@@ -21,7 +22,7 @@ interface OrganizationViewProps {
 export default function OrganizationView({ theme, tenantId: tenantIdProp }: OrganizationViewProps) {
   const { tenantId: contextTenantId } = useTenant();
   const tenantId = tenantIdProp ?? contextTenantId;
-  const [activeTab, setActiveTab] = useState<"INFO" | "BRANDING" | "EMAIL" | "COURT" | "PAYMENT">("INFO");
+  const [activeTab, setActiveTab] = useState<"INFO" | "BRANDING" | "EMAIL" | "COURT" | "PAYMENT" | "PHOTOS">("INFO");
   const [tenantData, setTenantData] = useState<any>(null);
   const [dimensions, setDimensions] = useState<Record<string, string[]>>({});
   const [isSaving, setIsSaving] = useState(false);
@@ -86,6 +87,7 @@ export default function OrganizationView({ theme, tenantId: tenantIdProp }: Orga
     { id: "EMAIL", label: "Email Settings", icon: "mail" },
     { id: "COURT", label: tenantId === "Global" ? "Default Court" : "Court", icon: "sports_tennis" },
     { id: "PAYMENT", label: "Payment & Billing", icon: "payments" },
+    ...(tenantId === "Global" ? [{ id: "PHOTOS", label: "Manage Default Photos", icon: "add_a_photo" }] : [])
   ];
 
   const isDark = theme === "DARK";
@@ -124,6 +126,7 @@ export default function OrganizationView({ theme, tenantId: tenantIdProp }: Orga
         {activeTab === "EMAIL" && <EmailTab data={tenantData} onSave={handleSave} isSaving={isSaving} theme={theme} tenantId={tenantId} />}
         {activeTab === "COURT" && <CourtTab data={tenantData} onSave={handleSave} isSaving={isSaving} theme={theme} dimensions={dimensions} tenantId={tenantId} />}
         {activeTab === "PAYMENT" && <PaymentTab data={tenantData} onSave={handleSave} isSaving={isSaving} theme={theme} />}
+        {activeTab === "PHOTOS" && <PhotosTab theme={theme} setNotification={setNotification} />}
       </div>
 
       {/* Notification Toast */}
@@ -1346,6 +1349,248 @@ function CourtTab({ data, onSave, isSaving, theme, dimensions, tenantId }: any) 
           {isSaving ? "Saving..." : (tenantId === "Global" ? "Save Default Court Configuration" : "Save Court Configuration")}
         </button>
       </div>
+    </div>
+  );
+}
+
+function PhotosTab({ theme, setNotification }: { theme: "LIGHT" | "DARK" | "VINTAGE", setNotification: any }) {
+  const [defaultPortraits, setDefaultPortraits] = useState<any[]>([]);
+  const [isUploading, setIsUploading] = useState(false);
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
+  const isDark = theme === "DARK";
+
+  useEffect(() => {
+    const unsub = onSnapshot(collection(db, "default_portraits"), (snapshot) => {
+      const items = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      setDefaultPortraits(items.sort((a: any, b: any) => 
+        new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime()
+      ));
+    });
+    return () => unsub();
+  }, []);
+
+  const showAppMessage = (message: string, type: "SUCCESS" | "ERROR") => {
+    setNotification({ message, type });
+    setTimeout(() => setNotification(null), 3000);
+  };
+
+  const inputCls = `w-full border rounded-2xl px-6 py-4 text-sm font-bold outline-none transition-all ${
+    isDark ? "bg-stone-900 border-stone-800 text-white focus:border-[#ccff00]" : "bg-stone-50 border-stone-100 text-stone-900 focus:border-stone-400"
+  }`;
+
+  return (
+    <div className="space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-700">
+      <div className="flex flex-col gap-4">
+        <h4 className={`text-[10px] font-black tracking-[0.2em] uppercase opacity-40 ${isDark ? "text-white" : "text-stone-900"}`}>MANAGE DEFAULT PHOTOS</h4>
+        <p className="text-xs text-stone-400 font-bold uppercase tracking-widest leading-relaxed">
+          Manage the standard portraits available for all administrative users when creating or editing profiles.
+        </p>
+      </div>
+
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-12">
+        {/* Left: Library Grid */}
+        <div className={`p-8 rounded-[32px] border flex flex-col min-h-[500px] ${isDark ? "bg-stone-900/20 border-stone-800" : "bg-white border-stone-100"}`}>
+          <h4 className={`text-[10px] font-black tracking-[0.2em] uppercase mb-6 opacity-50 ${isDark ? "text-white" : "text-stone-900"}`}>
+            Stored Portraits ({defaultPortraits.length})
+          </h4>
+          
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 overflow-y-auto pr-2 max-h-[600px]">
+            {defaultPortraits.map((avatar) => (
+              <div 
+                key={avatar.id} 
+                className={`p-4 rounded-3xl border flex items-center gap-4 transition-all group ${
+                  isDark ? "bg-stone-900 border-stone-800 hover:border-stone-700" : "bg-stone-50 border-stone-100 hover:bg-stone-100/50"
+                }`}
+              >
+                <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-white shadow-md flex-shrink-0">
+                  <img src={avatar.url} alt={avatar.label} className="w-full h-full object-cover" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className={`text-[10px] font-black uppercase tracking-widest truncate ${isDark ? "text-white" : "text-stone-900"}`}>{avatar.label}</p>
+                  <p className="text-[8px] text-stone-400 truncate opacity-50">{avatar.id}</p>
+                </div>
+                <button 
+                  onClick={() => setConfirmDeleteId(avatar.id)}
+                  className="p-2 text-red-400 hover:text-red-600 transition-colors"
+                >
+                  <span className="material-symbols-outlined text-lg">delete</span>
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Right: Upload Section */}
+        <div className="space-y-8">
+          <div className={`p-8 rounded-[40px] border-2 border-dashed transition-all relative ${
+            isDark 
+              ? "border-stone-800 bg-stone-900/20 hover:border-[#ccff00]/30" 
+              : "border-stone-200 bg-stone-50/50 hover:border-[#4f6b28]/30"
+          }`}>
+            <h4 className={`text-[10px] font-black uppercase tracking-[0.2em] mb-6 text-center ${isDark ? "text-stone-500" : "text-stone-400"}`}>Add New Default Photo</h4>
+            
+            <div className="space-y-6">
+              <input 
+                type="text" 
+                placeholder="Label (e.g. Male Executive)" 
+                id="new-portrait-label"
+                className={inputCls} 
+              />
+
+              <input
+                type="file"
+                ref={fileInputRef}
+                className="hidden"
+                accept="image/*"
+                onChange={async (e) => {
+                  const file = e.target.files?.[0];
+                  if (!file) return;
+                  
+                  const labelEl = document.getElementById("new-portrait-label") as HTMLInputElement;
+                  if (!labelEl.value) {
+                    showAppMessage("Please enter a label first.", "ERROR");
+                    return;
+                  }
+
+                  setIsUploading(true);
+                  try {
+                    const id = `DEF_${Date.now()}`;
+                    const storageRef = ref(storage, `defaults/${id}`);
+                    await uploadBytes(storageRef, file);
+                    const url = await getDownloadURL(storageRef);
+
+                    await setDoc(doc(db, "default_portraits", id), {
+                      label: labelEl.value,
+                      url: url,
+                      created_at: new Date().toISOString()
+                    });
+
+                    labelEl.value = "";
+                    showAppMessage("Portrait added to library.", "SUCCESS");
+                  } catch (err) {
+                    console.error("Upload failed:", err);
+                    showAppMessage("Failed to upload image.", "ERROR");
+                  } finally {
+                    setIsUploading(false);
+                  }
+                }}
+              />
+
+              <div 
+                onClick={() => fileInputRef.current?.click()}
+                onDragOver={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                }}
+                onDrop={async (e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  const file = e.dataTransfer.files?.[0];
+                  if (!file) return;
+
+                  const labelEl = document.getElementById("new-portrait-label") as HTMLInputElement;
+                  if (!labelEl.value) {
+                    showAppMessage("Please enter a label first.", "ERROR");
+                    return;
+                  }
+
+                  setIsUploading(true);
+                  try {
+                    const id = `DEF_${Date.now()}`;
+                    const storageRef = ref(storage, `defaults/${id}`);
+                    await uploadBytes(storageRef, file);
+                    const url = await getDownloadURL(storageRef);
+
+                    await setDoc(doc(db, "default_portraits", id), {
+                      label: labelEl.value,
+                      url: url,
+                      created_at: new Date().toISOString()
+                    });
+
+                    labelEl.value = "";
+                    showAppMessage("Portrait added to library.", "SUCCESS");
+                  } catch (err) {
+                    console.error("Upload failed:", err);
+                    showAppMessage("Failed to upload image.", "ERROR");
+                  } finally {
+                    setIsUploading(false);
+                  }
+                }}
+                className={`group cursor-pointer border-2 border-dashed rounded-3xl p-12 flex flex-col items-center justify-center gap-4 transition-all ${
+                  isDark ? "border-stone-800 bg-stone-950/50 hover:bg-stone-900" : "border-stone-200 bg-white hover:bg-stone-50"
+                }`}
+              >
+                {isUploading ? (
+                  <div className={`h-10 w-10 animate-spin rounded-full border-4 border-t-transparent ${
+                    isDark ? "border-[#ccff00]" : "border-[#4f6b28]"
+                  }`}></div>
+                ) : (
+                  <>
+                    <div className={`w-16 h-16 rounded-2xl flex items-center justify-center transition-all ${
+                      isDark ? "bg-stone-900 text-stone-700 group-hover:text-[#ccff00]" : "bg-stone-100 text-stone-400 group-hover:text-[#4f6b28]"
+                    }`}>
+                      <span className="material-symbols-outlined text-4xl">cloud_upload</span>
+                    </div>
+                    <div className="text-center">
+                      <p className={`text-xs font-black uppercase tracking-widest ${isDark ? "text-stone-300" : "text-stone-900"}`}>Drop image here</p>
+                      <p className="text-[10px] text-stone-400 mt-1 uppercase tracking-widest">or click to browse local files</p>
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Delete Confirmation Modal */}
+      <Modal
+        isOpen={!!confirmDeleteId}
+        onClose={() => setConfirmDeleteId(null)}
+        title="Delete Default Photo?"
+        theme={theme}
+        width={400}
+        footer={
+          <div className="flex gap-4">
+            <button 
+              onClick={() => setConfirmDeleteId(null)}
+              className={`flex-1 py-4 border-2 rounded-2xl text-[10px] font-black tracking-widest transition-all uppercase ${
+                isDark ? "border-stone-800 text-stone-400 hover:bg-stone-900" : 
+                "border-stone-100 text-stone-400 hover:bg-stone-50"
+              }`}
+            >
+              Cancel
+            </button>
+            <button 
+              onClick={async () => {
+                if (!confirmDeleteId) return;
+                try {
+                  await deleteDoc(doc(db, "default_portraits", confirmDeleteId));
+                  showAppMessage("Portrait removed.", "SUCCESS");
+                } catch (err) {
+                  showAppMessage("Failed to remove portrait.", "ERROR");
+                } finally {
+                  setConfirmDeleteId(null);
+                }
+              }}
+              className="flex-1 py-4 rounded-2xl text-[10px] font-black tracking-widest transition-all uppercase shadow-lg bg-red-500 text-white hover:bg-red-600 shadow-red-500/20"
+            >
+              Delete Now
+            </button>
+          </div>
+        }
+      >
+        <div className="relative z-10 text-center py-4">
+          <div className="w-20 h-20 bg-red-50 rounded-3xl flex items-center justify-center mb-8 mx-auto text-red-500">
+            <span className="material-symbols-outlined text-4xl">delete_forever</span>
+          </div>
+          <h3 className={`text-xl font-black italic tracking-tighter uppercase mb-2 ${isDark ? "text-white" : "text-stone-900"}`}>Are you sure?</h3>
+          <p className="text-[10px] text-stone-400 font-bold uppercase tracking-widest leading-relaxed px-4">
+            This will permanently remove this photo from the default library.
+          </p>
+        </div>
+      </Modal>
     </div>
   );
 }

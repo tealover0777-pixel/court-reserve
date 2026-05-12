@@ -76,10 +76,6 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
   const [tenants, setTenants] = useState<any[]>([]);
   const [defaultPortraits, setDefaultPortraits] = useState<{ id: string; url: string; label: string }[]>([]);
   const [showPortraitSelectorModal, setShowPortraitSelectorModal] = useState(false);
-  const [showDefaultPortraitsModal, setShowDefaultPortraitsModal] = useState(false);
-  const [isUploadingDefault, setIsUploadingDefault] = useState(false);
-  const [confirmDeleteDefaultId, setConfirmDeleteDefaultId] = useState<string | null>(null);
-  const defaultPortraitFileInputRef = useRef<HTMLInputElement>(null);
   const [formData, setFormData] = useState({
     user_id: "",
     auth_uid: "",
@@ -964,18 +960,6 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
               onChange={(e) => table.setGlobalFilter(e.target.value)}
             />
           </div>
-          <button 
-            onClick={() => setShowDefaultPortraitsModal(true)}
-            className={`px-8 py-3 rounded-full font-black text-xs tracking-widest transition-all uppercase shadow-lg flex items-center gap-2 ${
-            theme === "DARK"
-              ? "bg-stone-800 text-white hover:bg-stone-700 shadow-black/20"
-              : theme === "VINTAGE"
-                ? "bg-white border border-stone-200 text-black hover:bg-stone-50"
-                : "bg-white border border-stone-200 text-stone-600 hover:bg-stone-50"
-          }`}>
-            <span className="material-symbols-outlined text-sm">auto_awesome</span>
-            Manage Defaults
-          </button>
           <button 
             onClick={() => {
               resetForm();
@@ -2185,209 +2169,8 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
           </div>
         </div>
       )}
-      {/* Default Portraits Management Modal */}
-      <Modal
-        isOpen={showDefaultPortraitsModal}
-        onClose={() => setShowDefaultPortraitsModal(false)}
-        title="Manage Default Portraits"
-        theme={theme}
-        width={600}
-      >
-        <div className="space-y-8">
-          <div className="grid grid-cols-2 gap-4">
-            {defaultPortraits.map((avatar) => (
-              <div 
-                key={avatar.id} 
-                className={`p-4 rounded-3xl border flex items-center gap-4 transition-all ${
-                  theme === "DARK" ? "bg-stone-900 border-stone-800" : "bg-stone-50 border-stone-100"
-                }`}
-              >
-                <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-white shadow-md flex-shrink-0">
-                  <img src={avatar.url} alt={avatar.label} className="w-full h-full object-cover" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className={`text-xs font-black uppercase tracking-widest truncate ${theme === "DARK" ? "text-white" : "text-stone-900"}`}>{avatar.label}</p>
-                  <p className="text-[10px] text-stone-400 truncate">{avatar.url}</p>
-                </div>
-                <button 
-                  onClick={() => setConfirmDeleteDefaultId(avatar.id)}
-                  className="p-2 text-red-400 hover:text-red-600 transition-colors"
-                >
-                  <span className="material-symbols-outlined text-lg">delete</span>
-                </button>
-              </div>
-            ))}
-          </div>
 
-          <div className={`p-8 rounded-[40px] border-2 border-dashed transition-all relative ${
-            theme === "DARK" 
-              ? "border-stone-800 bg-stone-900/20 hover:border-[#ccff00]/30" 
-              : "border-stone-200 bg-stone-50/50 hover:border-[#4f6b28]/30"
-          }`}>
-            <h4 className={`text-[10px] font-black uppercase tracking-[0.2em] mb-6 text-center ${theme === "DARK" ? "text-stone-500" : "text-stone-400"}`}>Add New Default</h4>
-            
-            <div className="space-y-6">
-              <input 
-                type="text" 
-                placeholder="Label (e.g. Male Light)" 
-                id="new-avatar-label"
-                className={inputCls} 
-              />
 
-              <input
-                type="file"
-                ref={defaultPortraitFileInputRef}
-                className="hidden"
-                accept="image/*"
-                onChange={async (e) => {
-                  const file = e.target.files?.[0];
-                  if (!file) return;
-                  
-                  const labelEl = document.getElementById("new-avatar-label") as HTMLInputElement;
-                  if (!labelEl.value) {
-                    showAppMessage("Please enter a label first.", "ERROR");
-                    return;
-                  }
-
-                  setIsUploadingDefault(true);
-                  try {
-                    const id = `DEF_${Date.now()}`;
-                    const storageRef = ref(storage, `defaults/${id}`);
-                    await uploadBytes(storageRef, file);
-                    const url = await getDownloadURL(storageRef);
-
-                    await setDoc(doc(db, "default_portraits", id), {
-                      label: labelEl.value,
-                      url: url,
-                      created_at: new Date().toISOString()
-                    });
-
-                    labelEl.value = "";
-                    showAppMessage("Default portrait added to library.", "SUCCESS");
-                  } catch (err) {
-                    console.error("Upload failed:", err);
-                    showAppMessage("Failed to upload image.", "ERROR");
-                  } finally {
-                    setIsUploadingDefault(false);
-                  }
-                }}
-              />
-
-              <div 
-                onClick={() => defaultPortraitFileInputRef.current?.click()}
-                onDragOver={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                }}
-                onDrop={async (e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  const file = e.dataTransfer.files?.[0];
-                  if (!file) return;
-
-                  const labelEl = document.getElementById("new-avatar-label") as HTMLInputElement;
-                  if (!labelEl.value) {
-                    showAppMessage("Please enter a label first.", "ERROR");
-                    return;
-                  }
-
-                  setIsUploadingDefault(true);
-                  try {
-                    const id = `DEF_${Date.now()}`;
-                    const storageRef = ref(storage, `defaults/${id}`);
-                    await uploadBytes(storageRef, file);
-                    const url = await getDownloadURL(storageRef);
-
-                    await setDoc(doc(db, "default_portraits", id), {
-                      label: labelEl.value,
-                      url: url,
-                      created_at: new Date().toISOString()
-                    });
-
-                    labelEl.value = "";
-                    showAppMessage("Default portrait added to library.", "SUCCESS");
-                  } catch (err) {
-                    console.error("Upload failed:", err);
-                    showAppMessage("Failed to upload image.", "ERROR");
-                  } finally {
-                    setIsUploadingDefault(false);
-                  }
-                }}
-                className={`group cursor-pointer border-2 border-dashed rounded-3xl p-10 flex flex-col items-center justify-center gap-4 transition-all ${
-                  theme === "DARK" ? "border-stone-800 bg-stone-950/50 hover:bg-stone-900" : "border-stone-200 bg-white hover:bg-stone-50"
-                }`}
-              >
-                {isUploadingDefault ? (
-                  <div className={`h-10 w-10 animate-spin rounded-full border-4 border-t-transparent ${
-                    theme === "DARK" ? "border-[#ccff00]" : "border-[#4f6b28]"
-                  }`}></div>
-                ) : (
-                  <>
-                    <div className={`w-16 h-16 rounded-2xl flex items-center justify-center transition-all ${
-                      theme === "DARK" ? "bg-stone-900 text-stone-700 group-hover:text-[#ccff00]" : "bg-stone-100 text-stone-400 group-hover:text-[#4f6b28]"
-                    }`}>
-                      <span className="material-symbols-outlined text-4xl">cloud_upload</span>
-                    </div>
-                    <div className="text-center">
-                      <p className={`text-xs font-black uppercase tracking-widest ${theme === "DARK" ? "text-stone-300" : "text-stone-900"}`}>Drop image here</p>
-                      <p className="text-[10px] text-stone-400 mt-1 uppercase tracking-widest">or click to browse local files</p>
-                    </div>
-                  </>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
-      </Modal>
-
-      {/* Delete Default Portrait Confirmation Modal */}
-      <Modal
-        isOpen={!!confirmDeleteDefaultId}
-        onClose={() => setConfirmDeleteDefaultId(null)}
-        title="Delete Default?"
-        theme={theme}
-        width={400}
-        footer={
-          <div className="flex gap-4">
-            <button 
-              onClick={() => setConfirmDeleteDefaultId(null)}
-              className={`flex-1 py-4 border-2 rounded-2xl text-[10px] font-black tracking-widest transition-all uppercase ${
-                theme === "DARK" ? "border-stone-800 text-stone-400 hover:bg-stone-900" : 
-                "border-stone-100 text-stone-400 hover:bg-stone-50"
-              }`}
-            >
-              Cancel
-            </button>
-            <button 
-              onClick={async () => {
-                if (!confirmDeleteDefaultId) return;
-                try {
-                  const { deleteDoc } = await import("firebase/firestore");
-                  await deleteDoc(doc(db, "default_portraits", confirmDeleteDefaultId));
-                  showAppMessage("Default portrait removed.", "SUCCESS");
-                } catch (err) {
-                  showAppMessage("Failed to remove portrait.", "ERROR");
-                } finally {
-                  setConfirmDeleteDefaultId(null);
-                }
-              }}
-              className="flex-1 py-4 rounded-2xl text-[10px] font-black tracking-widest transition-all uppercase shadow-lg bg-red-500 text-white hover:bg-red-600 shadow-red-500/20"
-            >
-              Delete Now
-            </button>
-          </div>
-        }
-      >
-        <div className="relative z-10 text-center">
-          <div className="w-20 h-20 bg-red-50 rounded-3xl flex items-center justify-center mb-8 mx-auto text-red-500">
-            <span className="material-symbols-outlined text-4xl">delete_forever</span>
-          </div>
-          <h3 className={`text-xl font-black italic tracking-tighter uppercase mb-2 ${theme === "DARK" ? "text-white" : "text-stone-900"}`}>Are you sure?</h3>
-          <p className="text-xs text-stone-400 font-bold uppercase tracking-widest leading-relaxed px-4">
-            This will remove this image from the default selection library for all administrators.
-          </p>
-        </div>
-      </Modal>
 
       {/* Default Portrait Selector Modal (Premium Selection Interface) */}
       <Modal
@@ -2442,15 +2225,7 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
               }`}>
                 <span className="material-symbols-outlined text-5xl mb-4 opacity-20">face</span>
                 <p className="text-xs font-black uppercase tracking-widest">No portraits available in the library</p>
-                <button 
-                  onClick={() => {
-                    setShowPortraitSelectorModal(false);
-                    setShowDefaultPortraitsModal(true);
-                  }}
-                  className="mt-6 text-[10px] font-black uppercase tracking-widest text-[#6348eb] underline"
-                >
-                  Manage Library
-                </button>
+
               </div>
             )}
           </div>
