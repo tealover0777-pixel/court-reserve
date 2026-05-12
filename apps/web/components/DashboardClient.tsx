@@ -43,7 +43,9 @@ export default function DashboardClient({ params }: { params: { tenantId: string
   const [globalTenant, setGlobalTenant] = React.useState<any>(null);
   const [isTenantSelectorOpen, setIsTenantSelectorOpen] = React.useState(false);
   const { user: authUser, profile, loading: authLoading } = useAuth();
-  const tenantId = params.tenantId || (profile?.tenant_id && profile.tenant_id !== "Global" ? profile.tenant_id : contextTenantId);
+  const [overrideTenantId, setOverrideTenantId] = React.useState<string | null>(null);
+  
+  const tenantId = overrideTenantId || params.tenantId || (profile?.tenant_id && profile.tenant_id !== "Global" ? profile.tenant_id : contextTenantId);
   const tenantSelectorRef = React.useRef<HTMLDivElement>(null);
 
   // --- Permission derivation ---
@@ -464,7 +466,8 @@ export default function DashboardClient({ params }: { params: { tenantId: string
                 <div className="px-1 space-y-1">
                   <button
                     onClick={() => {
-                      window.location.href = `/consolidated`;
+                      setOverrideTenantId("consolidated");
+                      window.history.pushState(null, "", `/consolidated`);
                       setIsTenantSelectorOpen(false);
                     }}
                     className={`w-full flex flex-col gap-0.5 items-start px-4 py-3 rounded-2xl transition-all ${tenantId === "consolidated"
@@ -484,7 +487,8 @@ export default function DashboardClient({ params }: { params: { tenantId: string
                     <button
                       key={t.id}
                       onClick={() => {
-                        window.location.href = `/${t.tenant_id}`;
+                        setOverrideTenantId(t.tenant_id);
+                        window.history.pushState(null, "", `/${t.tenant_id}`);
                         setIsTenantSelectorOpen(false);
                       }}
                       className={`w-full flex flex-col gap-0.5 items-start px-4 py-3 rounded-2xl transition-all ${t.tenant_id === tenantId

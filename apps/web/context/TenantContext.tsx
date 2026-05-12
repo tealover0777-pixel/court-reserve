@@ -7,11 +7,13 @@ import { onAuthStateChanged } from "firebase/auth";
 interface TenantContextType {
   tenantId: string | null;
   loading: boolean;
+  setTenantId: (id: string | null) => void;
 }
 
 const TenantContext = createContext<TenantContextType>({
   tenantId: null,
   loading: true,
+  setTenantId: () => {},
 });
 
 export const TenantProvider = ({ children }: { children: React.ReactNode }) => {
@@ -45,7 +47,7 @@ export const TenantProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   return (
-    <TenantContext.Provider value={{ tenantId, loading }}>
+    <TenantContext.Provider value={{ tenantId, loading, setTenantId }}>
       {children}
     </TenantContext.Provider>
   );
