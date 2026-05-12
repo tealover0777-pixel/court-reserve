@@ -85,7 +85,7 @@ export default function OrganizationView({ theme, tenantId: tenantIdProp }: Orga
     { id: "INFO", label: "Information", icon: "info" },
     { id: "BRANDING", label: "Branding", icon: "palette" },
     { id: "EMAIL", label: "Email Settings", icon: "mail" },
-    { id: "COURT", label: tenantId === "Global" ? "Default Court" : "Court", icon: "sports_tennis" },
+    { id: "COURT", label: tenantId === "Global" ? "Manage Default Courts" : "Court", icon: "sports_tennis" },
     { id: "PAYMENT", label: "Payment & Billing", icon: "payments" },
     ...(tenantId === "Global" ? [{ id: "PHOTOS", label: "Manage Default Photos", icon: "add_a_photo" }] : [])
   ];
@@ -124,7 +124,11 @@ export default function OrganizationView({ theme, tenantId: tenantIdProp }: Orga
         {activeTab === "INFO" && <InfoTab data={tenantData} onSave={handleSave} isSaving={isSaving} theme={theme} />}
         {activeTab === "BRANDING" && <BrandingTab data={tenantData} onSave={handleSave} isSaving={isSaving} theme={theme} tenantId={tenantId} />}
         {activeTab === "EMAIL" && <EmailTab data={tenantData} onSave={handleSave} isSaving={isSaving} theme={theme} tenantId={tenantId} />}
-        {activeTab === "COURT" && <CourtTab data={tenantData} onSave={handleSave} isSaving={isSaving} theme={theme} dimensions={dimensions} tenantId={tenantId} />}
+        {activeTab === "COURT" && (
+          tenantId === "Global" 
+            ? <DefaultCourtsTab theme={theme} setNotification={setNotification} />
+            : <CourtTab data={tenantData} onSave={handleSave} isSaving={isSaving} theme={theme} dimensions={dimensions} tenantId={tenantId} />
+        )}
         {activeTab === "PAYMENT" && <PaymentTab data={tenantData} onSave={handleSave} isSaving={isSaving} theme={theme} />}
         {activeTab === "PHOTOS" && <PhotosTab theme={theme} setNotification={setNotification} />}
       </div>
@@ -928,10 +932,13 @@ function CourtTab({ data, onSave, isSaving, theme, dimensions, tenantId }: any) 
 
   useEffect(() => {
     if (tenantId === "Global") return;
-    const unsub = onSnapshot(doc(db, "tenants", "Global"), (snap) => {
-      if (snap.exists()) {
-        setDefaultCourts(Array.isArray(snap.data().courts) ? snap.data().courts : []);
-      }
+    const q = query(collection(db, "default_courts"), orderBy("created_at", "desc"));
+    const unsub = onSnapshot(q, (snap) => {
+      const courts = snap.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+      setDefaultCourts(courts);
     });
     return () => unsub();
   }, [tenantId]);
@@ -1081,24 +1088,21 @@ function CourtTab({ data, onSave, isSaving, theme, dimensions, tenantId }: any) 
                       key={dc.id}
                       type="button"
                       onClick={() => {
-                        setCourtName(dc.name);
-                        setCourtCondition(dc.condition);
-                        setCourtImageUrl(dc.image_url || "");
-                        setRestrictions(dc.restrictions || "");
+                        setCourtName(dc.name || dc.label || "");
+                        setCourtImageUrl(dc.url || dc.image_url || "");
                       }}
                       className={`flex items-center gap-3 p-3 rounded-2xl border transition-all text-left group ${isDark ? "bg-stone-800/40 border-stone-800 hover:border-[#ccff00]/50" : "bg-white border-stone-100 hover:border-stone-400 shadow-sm"
                         }`}
                     >
-                      {dc.image_url ? (
-                        <img src={dc.image_url} className="w-10 h-10 rounded-xl object-cover flex-shrink-0" alt={dc.name} />
+                      {(dc.url || dc.image_url) ? (
+                        <img src={dc.url || dc.image_url} className="w-10 h-10 rounded-xl object-cover flex-shrink-0" alt={dc.name || dc.label} />
                       ) : (
                         <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${isDark ? "bg-stone-900" : "bg-stone-50"}`}>
                           <span className="material-symbols-outlined text-sm opacity-20">sports_tennis</span>
                         </div>
                       )}
                       <div className="overflow-hidden">
-                        <p className={`text-[10px] font-black truncate mb-0.5 ${isDark ? "text-white" : "text-stone-900"}`}>{dc.name}</p>
-                        <p className={`text-[8px] uppercase font-black tracking-widest ${isDark ? "text-stone-300" : "text-stone-950"}`}>{dc.condition}</p>
+                        <p className={`text-[10px] font-black truncate mb-0.5 ${isDark ? "text-white" : "text-stone-900"}`}>{dc.name || dc.label}</p>
                       </div>
                     </button>
                   ))}
@@ -1349,6 +1353,257 @@ function CourtTab({ data, onSave, isSaving, theme, dimensions, tenantId }: any) 
           {isSaving ? "Saving..." : (tenantId === "Global" ? "Save Default Court Configuration" : "Save Court Configuration")}
         </button>
       </div>
+    </div>
+  );
+}
+
+function DefaultCourtsTab({ theme, setNotification }: { theme: string; setNotification: any }) {
+  const isDark = theme === "DARK";
+  const [courts, setCourts] = useState<any[]>([]);
+  const [isUploading, setIsUploading] = useState(false);
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const q = query(collection(db, "default_courts"), orderBy("created_at", "desc"));
+    const unsub = onSnapshot(q, (snap) => {
+      setCourts(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+    });
+    return () => unsub();
+  }, []);
+
+  const showAppMessage = (message: string, type: "SUCCESS" | "ERROR") => {
+    setNotification({ message, type });
+    setTimeout(() => setNotification(null), 3000);
+  };
+
+  const inputCls = `w-full border rounded-2xl px-6 py-4 text-sm font-bold outline-none transition-all ${
+    isDark ? "bg-stone-950 border-stone-800 text-white focus:border-[#ccff00]" : "bg-white border-stone-100 text-stone-900 focus:border-[#4f6b28]"
+  }`;
+
+  return (
+    <div className="space-y-12">
+      <div className="flex items-center justify-between">
+        <div className="flex flex-col gap-2">
+          <h4 className={`text-[10px] font-black tracking-[0.2em] uppercase opacity-40 ${isDark ? "text-white" : "text-stone-900"}`}>MANAGE DEFAULT COURTS</h4>
+          <p className={`text-xs font-bold tracking-tight ${isDark ? "text-stone-400" : "text-stone-500"}`}>Add standardized courts to the platform library</p>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-12">
+        <div className="xl:col-span-2">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            {courts.map((court) => (
+              <div 
+                key={court.id} 
+                className={`group relative aspect-square rounded-[32px] overflow-hidden border transition-all ${
+                  isDark ? "bg-stone-900 border-stone-800 hover:border-[#ccff00]/50" : "bg-white border-stone-100 hover:border-stone-300 shadow-sm"
+                }`}
+              >
+                <img src={court.url} alt={court.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                
+                {/* Overlay with Actions */}
+                <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-all duration-300 flex flex-col items-center justify-center gap-3 p-6">
+                  <p className="text-white text-[10px] font-black uppercase tracking-widest text-center">{court.name}</p>
+                  <button 
+                    onClick={() => setConfirmDeleteId(court.id)}
+                    className="w-10 h-10 rounded-full bg-red-500 text-white flex items-center justify-center hover:bg-red-600 transition-colors shadow-lg shadow-red-500/20"
+                  >
+                    <span className="material-symbols-outlined text-xl">delete</span>
+                  </button>
+                </div>
+              </div>
+            ))}
+            
+            {courts.length === 0 && (
+              <div className={`col-span-full h-64 rounded-[32px] border-2 border-dashed flex flex-col items-center justify-center gap-4 ${
+                isDark ? "border-stone-800 bg-stone-950/30" : "border-stone-100 bg-stone-50/30"
+              }`}>
+                <span className="material-symbols-outlined text-4xl opacity-20">inventory_2</span>
+                <p className="text-[10px] font-black uppercase tracking-widest opacity-40">No default courts yet</p>
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className="relative">
+          <div className={`sticky top-8 p-8 rounded-[40px] border space-y-8 ${
+            isDark ? "bg-stone-900/40 border-stone-800" : "bg-stone-50 border-stone-100"
+          }`}>
+            <div className="space-y-6">
+              <div className="flex items-center gap-3">
+                <div className={`w-8 h-8 rounded-xl flex items-center justify-center ${isDark ? "bg-[#ccff00] text-stone-950" : "bg-stone-900 text-white"}`}>
+                  <span className="material-symbols-outlined text-sm">add</span>
+                </div>
+                <h5 className={`text-[10px] font-black uppercase tracking-widest ${isDark ? "text-white" : "text-stone-900"}`}>Add New Court</h5>
+              </div>
+
+              <div className="space-y-4">
+                <label className={`text-[9px] font-black uppercase tracking-widest ml-4 ${isDark ? "text-stone-400" : "text-stone-500"}`}>Court Name</label>
+                <input 
+                  id="new-court-name"
+                  type="text" 
+                  placeholder="e.g. Center Court"
+                  className={inputCls}
+                />
+              </div>
+
+              <div className="space-y-4">
+                <label className={`text-[9px] font-black uppercase tracking-widest ml-4 ${isDark ? "text-stone-400" : "text-stone-500"}`}>Court Photo</label>
+                <input 
+                  type="file" 
+                  ref={fileInputRef}
+                  className="hidden" 
+                  accept="image/*"
+                  onChange={async (e) => {
+                    const file = e.target.files?.[0];
+                    if (!file) return;
+
+                    const nameEl = document.getElementById("new-court-name") as HTMLInputElement;
+                    if (!nameEl.value) {
+                      showAppMessage("Please enter a court name first.", "ERROR");
+                      return;
+                    }
+
+                    setIsUploading(true);
+                    try {
+                      const id = `CRT_${Date.now()}`;
+                      const storageRef = ref(storage, `defaults/${id}`);
+                      await uploadBytes(storageRef, file);
+                      const url = await getDownloadURL(storageRef);
+
+                      await setDoc(doc(db, "default_courts", id), {
+                        name: nameEl.value,
+                        url: url,
+                        created_at: new Date().toISOString()
+                      });
+
+                      nameEl.value = "";
+                      showAppMessage("Court added to library.", "SUCCESS");
+                    } catch (err) {
+                      console.error("Upload failed:", err);
+                      showAppMessage("Failed to upload image.", "ERROR");
+                    } finally {
+                      setIsUploading(false);
+                    }
+                  }}
+                />
+
+                <div 
+                  onClick={() => fileInputRef.current?.click()}
+                  onDragOver={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                  }}
+                  onDrop={async (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const file = e.dataTransfer.files?.[0];
+                    if (!file) return;
+
+                    const nameEl = document.getElementById("new-court-name") as HTMLInputElement;
+                    if (!nameEl.value) {
+                      showAppMessage("Please enter a court name first.", "ERROR");
+                      return;
+                    }
+
+                    setIsUploading(true);
+                    try {
+                      const id = `CRT_${Date.now()}`;
+                      const storageRef = ref(storage, `defaults/${id}`);
+                      await uploadBytes(storageRef, file);
+                      const url = await getDownloadURL(storageRef);
+
+                      await setDoc(doc(db, "default_courts", id), {
+                        name: nameEl.value,
+                        url: url,
+                        created_at: new Date().toISOString()
+                      });
+
+                      nameEl.value = "";
+                      showAppMessage("Court added to library.", "SUCCESS");
+                    } catch (err) {
+                      console.error("Upload failed:", err);
+                      showAppMessage("Failed to upload image.", "ERROR");
+                    } finally {
+                      setIsUploading(false);
+                    }
+                  }}
+                  className={`group cursor-pointer border-2 border-dashed rounded-3xl p-12 flex flex-col items-center justify-center gap-4 transition-all ${
+                    isDark ? "border-stone-800 bg-stone-950/50 hover:bg-stone-900" : "border-stone-200 bg-white hover:bg-stone-50"
+                  }`}
+                >
+                  {isUploading ? (
+                    <div className={`h-10 w-10 animate-spin rounded-full border-4 border-t-transparent ${
+                      isDark ? "border-[#ccff00]" : "border-[#4f6b28]"
+                    }`}></div>
+                  ) : (
+                    <>
+                      <div className={`w-16 h-16 rounded-2xl flex items-center justify-center transition-all ${
+                        isDark ? "bg-stone-900 text-stone-700 group-hover:text-[#ccff00]" : "bg-stone-100 text-stone-400 group-hover:text-[#4f6b28]"
+                      }`}>
+                        <span className="material-symbols-outlined text-4xl">cloud_upload</span>
+                      </div>
+                      <div className="text-center">
+                        <p className={`text-xs font-black uppercase tracking-widest ${isDark ? "text-stone-300" : "text-stone-900"}`}>Drop image here</p>
+                        <p className="text-[10px] text-stone-400 mt-1 uppercase tracking-widest">or click to browse local files</p>
+                      </div>
+                    </>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Delete Confirmation Modal */}
+      <Modal
+        isOpen={!!confirmDeleteId}
+        onClose={() => setConfirmDeleteId(null)}
+        title="Delete Default Court?"
+        theme={theme as any}
+        width={400}
+        footer={
+          <div className="flex gap-4">
+            <button 
+              onClick={() => setConfirmDeleteId(null)}
+              className={`flex-1 py-4 border-2 rounded-2xl text-[10px] font-black tracking-widest transition-all uppercase ${
+                isDark ? "border-stone-800 text-stone-400 hover:bg-stone-900" : 
+                "border-stone-100 text-stone-400 hover:bg-stone-50"
+              }`}
+            >
+              Cancel
+            </button>
+            <button 
+              onClick={async () => {
+                if (!confirmDeleteId) return;
+                try {
+                  await deleteDoc(doc(db, "default_courts", confirmDeleteId));
+                  showAppMessage("Court removed.", "SUCCESS");
+                } catch (err) {
+                  showAppMessage("Failed to remove court.", "ERROR");
+                } finally {
+                  setConfirmDeleteId(null);
+                }
+              }}
+              className="flex-1 py-4 rounded-2xl text-[10px] font-black tracking-widest transition-all uppercase shadow-lg bg-red-500 text-white hover:bg-red-600 shadow-red-500/20"
+            >
+              Delete Now
+            </button>
+          </div>
+        }
+      >
+        <div className="relative z-10 text-center py-4">
+          <div className="w-20 h-20 bg-red-50 rounded-3xl flex items-center justify-center mb-8 mx-auto text-red-500">
+            <span className="material-symbols-outlined text-4xl">delete_forever</span>
+          </div>
+          <h3 className={`text-xl font-black italic tracking-tighter uppercase mb-2 ${isDark ? "text-white" : "text-stone-900"}`}>Are you sure?</h3>
+          <p className="text-[10px] text-stone-400 font-bold uppercase tracking-widest leading-relaxed px-4">
+            This will permanently remove this court from the default library.
+          </p>
+        </div>
+      </Modal>
     </div>
   );
 }
