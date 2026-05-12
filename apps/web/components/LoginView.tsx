@@ -114,7 +114,10 @@ export default function LoginView() {
     setLoading(true);
     setError("");
     try {
-      await sendPasswordResetEmail(auth, forgotEmail);
+      await sendPasswordResetEmail(auth, forgotEmail, {
+        url: "https://court-reserve-9eeed.web.app/reset-password",
+        handleCodeInApp: false,
+      });
       setSuccess("Reset link sent! Check your inbox.");
       setShowForgot(false);
     } catch {

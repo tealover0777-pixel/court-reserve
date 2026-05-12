@@ -163,8 +163,12 @@ exports.inviteUser = functions.https.onCall(async (data, context) => {
       updated_at: admin.firestore.FieldValue.serverTimestamp()
     });
 
-    // 5. Generate Password Reset Link (Setup Link)
-    const invitationLink = await admin.auth().generatePasswordResetLink(email);
+    // 5. Generate Password Reset Link (Setup Link) pointing to our custom page
+    const actionCodeSettings = {
+      url: "https://court-reserve-9eeed.web.app/reset-password",
+      handleCodeInApp: false,
+    };
+    const invitationLink = await admin.auth().generatePasswordResetLink(email, actionCodeSettings);
     
     return { 
       status: "success", 
