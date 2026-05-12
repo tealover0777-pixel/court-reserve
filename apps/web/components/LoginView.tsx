@@ -1,12 +1,13 @@
 "use client";
 import React, { useState, useEffect } from "react";
+import RegisterForm from "./RegisterForm";
 import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   sendPasswordResetEmail,
 } from "firebase/auth";
 import { auth, db } from "../lib/firebase";
-import { doc, onSnapshot, setDoc, serverTimestamp, collection } from "firebase/firestore";
+import { doc, onSnapshot, setDoc, serverTimestamp, collection, query, where, getDocs, orderBy } from "firebase/firestore";
 
 type Tab = "signin" | "register";
 
@@ -17,12 +18,29 @@ export default function LoginView() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  // Register state
+  // Register — step control
+  type RegStep = "credentials" | "profile";
+  const [regStep, setRegStep] = useState<RegStep>("credentials");
+
+  // Register — step 1
   const [regEmail, setRegEmail] = useState("");
   const [regPassword, setRegPassword] = useState("");
   const [regConfirm, setRegConfirm] = useState("");
   const [regTenantId, setRegTenantId] = useState("");
   const [tenantsLoading, setTenantsLoading] = useState(true);
+
+  // Register — step 2 (profile)
+  const [profFirstName, setProfFirstName] = useState("");
+  const [profLastName, setProfLastName]  = useState("");
+  const [profGender, setProfGender]      = useState("");
+  const [profPhone, setProfPhone]        = useState("");
+  const [profDobMonth, setProfDobMonth]  = useState("");
+  const [profDobDay, setProfDobDay]      = useState("");
+  const [profDobYear, setProfDobYear]    = useState("");
+  const [profStreet, setProfStreet]      = useState("");
+  const [profCity, setProfCity]          = useState("");
+  const [profState, setProfState]        = useState("");
+  const [profZip, setProfZip]            = useState("");
 
   // Shared
   const [error, setError] = useState("");
@@ -33,6 +51,7 @@ export default function LoginView() {
   const [globalTenant, setGlobalTenant] = useState<any>(null);
   const [showPassword, setShowPassword] = useState(false);
   const [tenants, setTenants] = useState<{ id: string; name: string; tenant_id: string }[]>([]);
+  const [genderDimensionItems, setGenderDimensionItems] = useState<string[]>([]);
 
   useEffect(() => {
     const unsub = onSnapshot(doc(db, "tenants", "Global"), (snap) => {
@@ -61,11 +80,46 @@ export default function LoginView() {
     return () => unsub();
   }, []);
 
-  // Reset errors when switching tabs
+  useEffect(() => {
+    const dimQuery = query(collection(db, "dimensions"), orderBy("category", "asc"));
+    const unsub = onSnapshot(dimQuery, (snapshot) => {
+      const items: string[] = [];
+      snapshot.docs.forEach((d) => {
+        const data = d.data();
+        const cat = String(data.category || "").toLowerCase().replace(/\s+/g, "");
+        if (cat === "gender" || cat.includes("gender")) {
+          const raw = Array.isArray(data.items) ? data.items : [];
+          raw.forEach((x: unknown) => {
+            if (typeof x === "string" && x.trim()) items.push(x.trim());
+          });
+        }
+      });
+      setGenderDimensionItems([...new Set(items)].sort((a, b) => a.localeCompare(b)));
+    });
+    return () => unsub();
+  }, []);
+
+  // Reset register flow when switching tabs
   useEffect(() => {
     setError("");
     setSuccess("");
     setShowForgot(false);
+    setRegStep("credentials");
+    setRegEmail("");
+    setRegPassword("");
+    setRegConfirm("");
+    setRegTenantId("");
+    setProfFirstName("");
+    setProfLastName("");
+    setProfGender("");
+    setProfPhone("");
+    setProfDobMonth("");
+    setProfDobDay("");
+    setProfDobYear("");
+    setProfStreet("");
+    setProfCity("");
+    setProfState("");
+    setProfZip("");
   }, [tab]);
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -88,7 +142,27 @@ export default function LoginView() {
     }
   };
 
-  const handleRegister = async (e: React.FormEvent) => {
+  /** True if a global_users row already exists for this email at the selected club (matches doc id or tenant slug). */
+  const emailExistsForTenant = (emailLower: string, tenantDocId: string) => {
+    const selected = tenants.find((t) => t.id === tenantDocId);
+    const slug = selected?.tenant_id;
+    return (snapDocs: { data: () => Record<string, unknown> }[]) =>
+      snapDocs.some((d) => {
+        const u = d.data() as Record<string, unknown>;
+        const uEmail = String(u.email || "").trim().toLowerCase();
+        if (uEmail !== emailLower) return false;
+        const tid = u.tenantId ?? u.tenant_id;
+        return (
+          tid === tenantDocId ||
+          tid === slug ||
+          u.tenant_id === tenantDocId ||
+          u.tenant_id === slug
+        );
+      });
+  };
+
+  // Step 1 — "Create Account": validate credentials + check email uniqueness in tenant, then Additional Info
+  const handleCheckCredentials = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     if (!regTenantId) {
@@ -103,14 +177,72 @@ export default function LoginView() {
       setError("Password must be at least 6 characters.");
       return;
     }
+    const emailLower = regEmail.trim().toLowerCase();
+    if (!emailLower) {
+      setError("Please enter a valid email address.");
+      return;
+    }
     setLoading(true);
     try {
-      const cred = await createUserWithEmailAndPassword(auth, regEmail, regPassword);
+      const q = query(collection(db, "global_users"), where("email", "==", emailLower));
+      const snap = await getDocs(q);
+      const existsHere = emailExistsForTenant(emailLower, regTenantId)(snap.docs);
+      if (existsHere) {
+        const selectedTenant = tenants.find((t) => t.id === regTenantId);
+        setError(
+          `This email is already registered at ${selectedTenant?.name || "this club"}. Please sign in or use a different email.`
+        );
+        return;
+      }
+      setRegStep("profile");
+    } catch {
+      setError("Could not verify email. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Step 2 — create Auth user + Firestore member profile for selected tenant
+  const handleCreateAccount = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+    setSuccess("");
+    if (!profFirstName.trim() || !profLastName.trim()) {
+      setError("First and last name are required.");
+      return;
+    }
+    if (!regTenantId) {
+      setError("Club selection is missing. Go back and select your club.");
+      return;
+    }
+    setLoading(true);
+    try {
+      const emailLower = regEmail.trim().toLowerCase();
+      const preCheck = query(collection(db, "global_users"), where("email", "==", emailLower));
+      const preSnap = await getDocs(preCheck);
+      if (emailExistsForTenant(emailLower, regTenantId)(preSnap.docs)) {
+        setError("This email was just registered at this club. Please sign in.");
+        return;
+      }
+      const cred = await createUserWithEmailAndPassword(auth, regEmail.trim(), regPassword);
       const selectedTenant = tenants.find((t) => t.id === regTenantId);
+      const dob =
+        profDobYear && profDobMonth && profDobDay
+          ? `${profDobYear}-${profDobMonth.padStart(2, "0")}-${profDobDay.padStart(2, "0")}`
+          : "";
       await setDoc(doc(db, "global_users", cred.user.uid), {
         user_id: cred.user.uid,
         auth_uid: cred.user.uid,
-        email: regEmail.trim().toLowerCase(),
+        email: emailLower,
+        first_name: profFirstName.trim(),
+        last_name: profLastName.trim(),
+        gender: profGender,
+        phone: profPhone.trim(),
+        date_of_birth: dob,
+        address_street_1: profStreet.trim(),
+        address_city: profCity.trim(),
+        address_state: profState,
+        address_zip: profZip.trim(),
         roles: [],
         status: "Active",
         tenant_id: selectedTenant?.tenant_id || regTenantId,
@@ -119,17 +251,28 @@ export default function LoginView() {
         created_at: serverTimestamp(),
         updated_at: serverTimestamp(),
       });
+      setRegStep("credentials");
+      setRegEmail("");
+      setRegPassword("");
+      setRegConfirm("");
+      setRegTenantId("");
+      setProfFirstName("");
+      setProfLastName("");
+      setProfGender("");
+      setProfPhone("");
+      setProfDobMonth("");
+      setProfDobDay("");
+      setProfDobYear("");
+      setProfStreet("");
+      setProfCity("");
+      setProfState("");
+      setProfZip("");
     } catch (err: any) {
       const code = err?.code || "";
-      if (code === "auth/email-already-in-use") {
-        setError("An account with this email already exists. Please sign in.");
-      } else if (code === "auth/weak-password") {
-        setError("Password is too weak. Use at least 6 characters.");
-      } else if (code === "auth/invalid-email") {
-        setError("Please enter a valid email address.");
-      } else {
-        setError("Registration failed. Please try again.");
-      }
+      if (code === "auth/email-already-in-use") setError("An account with this email already exists. Please sign in.");
+      else if (code === "auth/weak-password") setError("Password is too weak. Use at least 6 characters.");
+      else if (code === "auth/invalid-email") setError("Please enter a valid email address.");
+      else setError("Registration failed. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -299,8 +442,8 @@ export default function LoginView() {
             </div>
           )}
 
-          {/* Error banner */}
-          {error && (
+          {/* Error banner (register errors show inside RegisterForm) */}
+          {error && tab !== "register" && (
             <div className="mb-6 px-5 py-4 rounded-2xl bg-red-50 border border-red-100 flex items-center gap-3 animate-in slide-in-from-top-2 duration-300">
               <span className="material-symbols-outlined text-red-500 text-lg" style={{ fontVariationSettings: "'FILL' 1" }}>
                 error
@@ -446,182 +589,56 @@ export default function LoginView() {
               </p>
             </div>
           ) : (
-            /* ── Register Form ─────────────────────────────────────── */
             <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-              <h3
-                className="text-3xl font-black text-[#3b3a06] uppercase tracking-tight mb-2"
-                style={{ fontFamily: "Lexend, sans-serif" }}
-              >
-                Join the Club
-              </h3>
-              <p className="text-[#686730] text-sm font-medium mb-8">
-                Select your club first, then create your member account.
-              </p>
-
-              <form onSubmit={handleRegister} className="space-y-5">
-
-                {/* ── Step 1: Club selector (always active) ── */}
-                <div>
-                  <label className="text-[10px] font-black uppercase tracking-widest text-[#686730] mb-2 flex items-center gap-2">
-                    Club / Facility
-                    <span className="px-2 py-0.5 rounded-full text-[8px] font-black uppercase tracking-widest bg-[#cafd00] text-[#3b3a06]">
-                      Required
-                    </span>
-                  </label>
-                  <div className="relative">
-                    {/* tennis icon */}
-                    <span
-                      className="material-symbols-outlined absolute left-5 top-1/2 -translate-y-1/2 text-lg pointer-events-none transition-colors"
-                      style={{
-                        fontVariationSettings: "'FILL' 1",
-                        color: regTenantId ? "#556d00" : "rgba(104,103,48,0.5)",
-                      }}
-                    >
-                      sports_tennis
-                    </span>
-                    <select
-                      value={regTenantId}
-                      onChange={(e) => { setRegTenantId(e.target.value); setError(""); }}
-                      required
-                      className={`w-full rounded-2xl pl-14 pr-10 py-4 text-sm font-bold outline-none transition-all appearance-none cursor-pointer border ${
-                        regTenantId
-                          ? "bg-[#fffcca] border-[#556d00]/40 text-[#3b3a06] ring-2 ring-[#556d00]/20"
-                          : "bg-[#fffcca] border-[#bfbc7c]/30 text-[#686730]"
-                      }`}
-                      style={{
-                        backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23686730' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E")`,
-                        backgroundRepeat: "no-repeat",
-                        backgroundPosition: "right 16px center",
-                      }}
-                    >
-                      <option value="">
-                        {tenantsLoading ? "Loading clubs…" : "— Select your club —"}
-                      </option>
-                      {tenants.map((t) => (
-                        <option key={t.id} value={t.id}>
-                          {t.name}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  {/* Club selected confirmation badge */}
-                  {regTenantId && (
-                    <div className="mt-2 flex items-center gap-2 animate-in slide-in-from-top-1 duration-200">
-                      <span
-                        className="material-symbols-outlined text-[#556d00] text-sm"
-                        style={{ fontVariationSettings: "'FILL' 1" }}
-                      >
-                        check_circle
-                      </span>
-                      <p className="text-[10px] font-black uppercase tracking-widest text-[#556d00]">
-                        Joining · {tenants.find((t) => t.id === regTenantId)?.name}
-                      </p>
-                    </div>
-                  )}
-
-                  {/* Lock hint when no club selected */}
-                  {!regTenantId && (
-                    <div className="mt-2 flex items-center gap-2">
-                      <span className="material-symbols-outlined text-[#bfbc7c] text-sm">
-                        lock
-                      </span>
-                      <p className="text-[10px] font-bold text-[#bfbc7c] uppercase tracking-widest">
-                        Select a club to unlock registration
-                      </p>
-                    </div>
-                  )}
-                </div>
-
-                {/* ── Step 2: Email & Password (locked until club selected) ── */}
-                <div className={`space-y-5 transition-all duration-300 ${
-                  !regTenantId ? "opacity-40 pointer-events-none select-none" : "opacity-100"
-                }`}>
-
-                  <div>
-                    <label className="text-[10px] font-black uppercase tracking-widest text-[#686730] mb-2 block">
-                      Email Address
-                    </label>
-                    <input
-                      type="email"
-                      value={regEmail}
-                      onChange={(e) => setRegEmail(e.target.value)}
-                      required
-                      disabled={!regTenantId}
-                      placeholder="name@example.com"
-                      className={inputCls}
-                      tabIndex={regTenantId ? 0 : -1}
-                    />
-                  </div>
-
-                  <div>
-                    <label className="text-[10px] font-black uppercase tracking-widest text-[#686730] mb-2 block">
-                      Password
-                    </label>
-                    <input
-                      type="password"
-                      value={regPassword}
-                      onChange={(e) => setRegPassword(e.target.value)}
-                      required
-                      disabled={!regTenantId}
-                      placeholder="Min. 6 characters"
-                      className={inputCls}
-                      tabIndex={regTenantId ? 0 : -1}
-                    />
-                  </div>
-
-                  <div>
-                    <label className="text-[10px] font-black uppercase tracking-widest text-[#686730] mb-2 block">
-                      Confirm Password
-                    </label>
-                    <input
-                      type="password"
-                      value={regConfirm}
-                      onChange={(e) => setRegConfirm(e.target.value)}
-                      required
-                      disabled={!regTenantId}
-                      placeholder="Repeat password"
-                      tabIndex={regTenantId ? 0 : -1}
-                      className={`${inputCls} ${
-                        regConfirm && regConfirm !== regPassword
-                          ? "border-red-300 ring-2 ring-red-100"
-                          : ""
-                      }`}
-                    />
-                    {regConfirm && regConfirm !== regPassword && (
-                      <p className="mt-1.5 text-[10px] font-bold text-red-500 uppercase tracking-widest">
-                        Passwords don't match
-                      </p>
-                    )}
-                  </div>
-                </div>
-
-                <button
-                  type="submit"
-                  disabled={loading || !regTenantId}
-                  className="w-full py-5 rounded-2xl text-[11px] font-black uppercase tracking-widest text-[#3b3a06] transition-all hover:opacity-90 active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-3 mt-2"
-                  style={{ background: "linear-gradient(135deg, #cafd00 0%, #beee00 100%)" }}
-                >
-                  {loading ? (
-                    <div className="w-5 h-5 border-2 border-[#3b3a06]/30 border-t-[#3b3a06] rounded-full animate-spin" />
-                  ) : (
-                    <>
-                      Create Account
-                      <span className="material-symbols-outlined text-sm">person_add</span>
-                    </>
-                  )}
-                </button>
-              </form>
-
-              <p className="mt-8 text-center text-[11px] font-bold text-[#686730]">
-                Already a member?{" "}
-                <button
-                  onClick={() => setTab("signin")}
-                  className="font-black text-[#556d00] underline underline-offset-2 hover:text-[#3b3a06] transition-colors"
-                >
-                  Sign In
-                </button>
-              </p>
+              <RegisterForm
+                step={regStep}
+                regTenantId={regTenantId}
+                setRegTenantId={(v) => {
+                  setRegTenantId(v);
+                  setError("");
+                }}
+                regEmail={regEmail}
+                setRegEmail={setRegEmail}
+                regPassword={regPassword}
+                setRegPassword={setRegPassword}
+                regConfirm={regConfirm}
+                setRegConfirm={setRegConfirm}
+                tenants={tenants}
+                tenantsLoading={tenantsLoading}
+                onCredentials={handleCheckCredentials}
+                profFirstName={profFirstName}
+                setProfFirstName={setProfFirstName}
+                profLastName={profLastName}
+                setProfLastName={setProfLastName}
+                profGender={profGender}
+                setProfGender={setProfGender}
+                profPhone={profPhone}
+                setProfPhone={setProfPhone}
+                profDobMonth={profDobMonth}
+                setProfDobMonth={setProfDobMonth}
+                profDobDay={profDobDay}
+                setProfDobDay={setProfDobDay}
+                profDobYear={profDobYear}
+                setProfDobYear={setProfDobYear}
+                profStreet={profStreet}
+                setProfStreet={setProfStreet}
+                profCity={profCity}
+                setProfCity={setProfCity}
+                profState={profState}
+                setProfState={setProfState}
+                profZip={profZip}
+                setProfZip={setProfZip}
+                genderOptions={genderDimensionItems}
+                onCreateAccount={handleCreateAccount}
+                onBack={() => {
+                  setRegStep("credentials");
+                  setError("");
+                }}
+                loading={loading}
+                error={error}
+                inputCls={inputCls}
+                onSignIn={() => setTab("signin")}
+              />
             </div>
           )}
 
