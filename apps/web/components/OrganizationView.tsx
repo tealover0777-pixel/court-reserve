@@ -929,6 +929,7 @@ function CourtTab({ data, onSave, isSaving, theme, dimensions, tenantId }: any) 
   const [isDraggingPhoto, setIsDraggingPhoto] = useState(false);
   const courtFileRef = React.useRef<HTMLInputElement>(null);
   const [defaultCourts, setDefaultCourts] = useState<any[]>([]);
+  const [showLibraryModal, setShowLibraryModal] = useState(false);
 
   useEffect(() => {
     if (tenantId === "Global") return;
@@ -1191,18 +1192,71 @@ function CourtTab({ data, onSave, isSaving, theme, dimensions, tenantId }: any) 
                 </>
               )}
             </div>
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                courtFileRef.current?.click();
-              }}
-              className={`mt-3 w-full py-4 rounded-xl text-[9px] font-black tracking-[0.2em] uppercase border transition-all ${isDark ? "border-stone-800 text-stone-400 hover:text-white" : "border-stone-200 text-stone-600 hover:text-stone-900"
-                }`}
-            >
-              Load from Directory
-            </button>
+            <div className="flex gap-3">
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  courtFileRef.current?.click();
+                }}
+                className={`mt-3 flex-1 py-4 rounded-xl text-[9px] font-black tracking-[0.2em] uppercase border transition-all ${isDark ? "border-stone-800 text-stone-400 hover:text-white" : "border-stone-200 text-stone-600 hover:text-stone-900"
+                  }`}
+              >
+                Load from Directory
+              </button>
+              {tenantId !== "Global" && (
+                <button
+                  type="button"
+                  onClick={() => setShowLibraryModal(true)}
+                  className={`mt-3 flex-1 py-4 rounded-xl text-[9px] font-black tracking-[0.2em] uppercase border transition-all ${isDark ? "border-[#ccff00]/20 text-[#ccff00] hover:bg-[#ccff00]/10" : "border-stone-900 text-stone-900 hover:bg-stone-50"
+                    }`}
+                >
+                  Pick from Library
+                </button>
+              )}
+            </div>
           </FormField>
+
+          {/* Library Modal */}
+          <Modal isOpen={showLibraryModal} onClose={() => setShowLibraryModal(false)} title="Select Court Photo">
+            <div className="p-8 max-w-2xl w-full bg-white rounded-[32px] shadow-2xl overflow-hidden">
+              <div className="flex items-center justify-between mb-8">
+                <div>
+                  <h2 className="text-2xl font-black text-stone-900 tracking-tight uppercase italic leading-none">Court Library</h2>
+                  <p className="text-[10px] font-bold text-stone-500 uppercase tracking-[0.2em] mt-2">Pick a professional template</p>
+                </div>
+                <button onClick={() => setShowLibraryModal(false)} className="w-10 h-10 rounded-full hover:bg-stone-100 flex items-center justify-center transition-colors">
+                  <span className="material-symbols-outlined text-stone-400">close</span>
+                </button>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4 max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar">
+                {defaultCourts.map(dc => (
+                  <button
+                    key={dc.id}
+                    onClick={() => {
+                      setCourtImageUrl(dc.url || dc.image_url);
+                      // If name is empty, suggest the template name
+                      if (!courtName.trim()) setCourtName(dc.name || dc.label);
+                      setShowLibraryModal(false);
+                    }}
+                    className="group relative aspect-[4/3] rounded-2xl overflow-hidden border-2 border-transparent hover:border-stone-900 transition-all text-left"
+                  >
+                    <img src={dc.url || dc.image_url} alt={dc.name} className="w-full h-full object-cover transition-transform group-hover:scale-110" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-60 group-hover:opacity-80 transition-opacity" />
+                    <div className="absolute bottom-4 left-4 right-4">
+                      <p className="text-white text-[10px] font-black uppercase tracking-widest leading-tight">{dc.name || dc.label}</p>
+                    </div>
+                  </button>
+                ))}
+                {defaultCourts.length === 0 && (
+                  <div className="col-span-2 py-20 text-center border-2 border-dashed border-stone-100 rounded-3xl">
+                    <p className="text-stone-400 text-[10px] font-black uppercase tracking-widest">No professional photos available</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </Modal>
 
           <FormField label="Restrictions" theme={theme}>
             <textarea
