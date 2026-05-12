@@ -29,7 +29,7 @@ const US_STATES = [
 ];
 
 export default function DashboardClient({ params }: { params: { tenantId: string } }) {
-  const { tenantId: contextTenantId, loading } = useTenant();
+  const { tenantId: contextTenantId, loading, setTenantId } = useTenant();
   const router = useRouter();
   const searchParams = useSearchParams();
   const pathname = usePathname();
@@ -467,6 +467,7 @@ export default function DashboardClient({ params }: { params: { tenantId: string
                   <button
                     onClick={() => {
                       setOverrideTenantId("consolidated");
+                      setTenantId("consolidated");
                       window.history.pushState(null, "", `/consolidated`);
                       setIsTenantSelectorOpen(false);
                     }}
@@ -488,6 +489,7 @@ export default function DashboardClient({ params }: { params: { tenantId: string
                       key={t.id}
                       onClick={() => {
                         setOverrideTenantId(t.tenant_id);
+                        setTenantId(t.tenant_id);
                         window.history.pushState(null, "", `/${t.tenant_id}`);
                         setIsTenantSelectorOpen(false);
                       }}
@@ -1212,7 +1214,20 @@ function ProfileView({ theme, profile, roles }: { theme: "LIGHT" | "DARK" | "VIN
   const [isSaving, setIsSaving] = React.useState(false);
   const [showSuccess, setShowSuccess] = React.useState<string | null>(null);
   const [isUploading, setIsUploading] = React.useState(false);
+  const [showPortraitSelector, setShowPortraitSelector] = React.useState(false);
+  const [defaultPortraits, setDefaultPortraits] = React.useState<{ id: string; url: string; label: string }[]>([]);
   const fileInputRef = React.useRef<HTMLInputElement>(null);
+
+  React.useEffect(() => {
+    const unsubscribe = onSnapshot(collection(db, "default_portraits"), (snapshot) => {
+      const data = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      })) as any[];
+      setDefaultPortraits(data);
+    });
+    return () => unsubscribe();
+  }, []);
 
   const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -1263,6 +1278,31 @@ function ProfileView({ theme, profile, roles }: { theme: "LIGHT" | "DARK" | "VIN
     } catch (err: any) {
       console.error("Photo upload error:", err);
       alert(`Failed to upload photo: ${err.message || "Unknown error"}`);
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const handlePortraitSelect = async (url: string) => {
+    if (!profile || !profile.id) return;
+    setIsUploading(true);
+    try {
+      const userRef = doc(db, "global_users", profile.id);
+      await updateDoc(userRef, {
+        portrait_url: url,
+        updated_at: serverTimestamp()
+      });
+
+      if (auth.currentUser) {
+        await updateProfile(auth.currentUser, { photoURL: url });
+      }
+
+      setShowSuccess("Profile photo updated!");
+      setTimeout(() => setShowSuccess(null), 3000);
+      setShowPortraitSelector(false);
+    } catch (err: any) {
+      console.error("Portrait update error:", err);
+      alert(`Failed to update photo: ${err.message || "Unknown error"}`);
     } finally {
       setIsUploading(false);
     }
@@ -1344,20 +1384,25 @@ function ProfileView({ theme, profile, roles }: { theme: "LIGHT" | "DARK" | "VIN
             alt="Profile"
             className={`w-full h-full object-cover transition-all ${isUploading ? "opacity-50 blur-sm" : "group-hover:scale-110 group-hover:opacity-50"}`}
           />
-          <button
-            onClick={() => fileInputRef.current?.click()}
-            disabled={isUploading}
-            className="absolute inset-0 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-all text-white z-10"
-          >
-            {isUploading ? (
-              <div className={`h-8 w-8 animate-spin rounded-full border-4 border-t-transparent ${isDark ? "border-[#ccff00]" : "border-white"}`}></div>
-            ) : (
-              <>
-                <span className="material-symbols-outlined text-4xl mb-1">photo_camera</span>
-                <span className="text-[10px] font-black uppercase tracking-widest">Update</span>
-              </>
-            )}
-          </button>
+          <div className="absolute inset-0 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-all text-white z-10 gap-3">
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              disabled={isUploading}
+              className="flex flex-col items-center hover:scale-110 transition-transform"
+            >
+              <span className="material-symbols-outlined text-3xl mb-0.5">photo_camera</span>
+              <span className="text-[8px] font-black uppercase tracking-widest">Upload</span>
+            </button>
+            <div className={`w-8 h-[1px] ${isDark ? "bg-stone-700" : "bg-white/30"}`}></div>
+            <button
+              onClick={() => setShowPortraitSelector(true)}
+              disabled={isUploading}
+              className="flex flex-col items-center hover:scale-110 transition-transform"
+            >
+              <span className="material-symbols-outlined text-3xl mb-0.5">face</span>
+              <span className="text-[8px] font-black uppercase tracking-widest">Default</span>
+            </button>
+          </div>
           <input
             type="file"
             ref={fileInputRef}
@@ -1548,7 +1593,48 @@ function ProfileView({ theme, profile, roles }: { theme: "LIGHT" | "DARK" | "VIN
           </div>
         </div>
 
+        {/* Default Portrait Selector Modal */}
+        <div className={`fixed inset-0 z-[110] flex items-center justify-center p-8 transition-opacity duration-300 ${showPortraitSelector ? "opacity-100" : "opacity-0 pointer-events-none"}`}>
+          <div className="absolute inset-0 bg-stone-950/80 backdrop-blur-md" onClick={() => setShowPortraitSelector(false)}></div>
+          <div className={`relative w-full max-w-2xl rounded-[40px] p-12 shadow-2xl animate-in zoom-in-95 duration-300 border ${isDark ? "bg-stone-900 border-stone-800" : "bg-white border-stone-100"}`}>
+            <div className="flex items-center justify-between mb-10">
+              <h3 className={`text-3xl font-black tracking-tighter uppercase ${isDark ? "text-white" : "text-stone-900"}`}>Select Default Portrait</h3>
+              <button 
+                onClick={() => setShowPortraitSelector(false)}
+                className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors ${isDark ? "hover:bg-stone-800 text-stone-400" : "hover:bg-stone-100 text-stone-600"}`}
+              >
+                <span className="material-symbols-outlined">close</span>
+              </button>
+            </div>
 
+            <div className="grid grid-cols-4 gap-6">
+              {defaultPortraits.map((portrait) => (
+                <button
+                  key={portrait.id}
+                  onClick={() => handlePortraitSelect(portrait.url)}
+                  className={`group relative aspect-square rounded-3xl overflow-hidden border-2 transition-all hover:scale-105 ${
+                    isDark ? "border-stone-800 hover:border-[#ccff00]" : "border-stone-100 hover:border-[#4f6b28]"
+                  }`}
+                >
+                  <img 
+                    src={portrait.url} 
+                    alt={portrait.label} 
+                    className="w-full h-full object-cover transition-transform group-hover:scale-110"
+                  />
+                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                    <span className="text-[8px] font-black text-white uppercase tracking-widest">Select</span>
+                  </div>
+                </button>
+              ))}
+              {defaultPortraits.length === 0 && (
+                <div className={`col-span-4 py-20 text-center ${isDark ? "text-stone-500" : "text-stone-400"}`}>
+                  <span className="material-symbols-outlined text-4xl mb-4 opacity-20">face</span>
+                  <p className="text-[10px] font-black uppercase tracking-widest">No default portraits found</p>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

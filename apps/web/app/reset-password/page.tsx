@@ -5,15 +5,18 @@ import {
   verifyPasswordResetCode,
   confirmPasswordReset,
   applyActionCode,
+  signInWithEmailAndPassword,
 } from "firebase/auth";
 import { auth, db } from "../../lib/firebase";
 import { doc, onSnapshot } from "firebase/firestore";
+import { useRouter } from "next/navigation";
 
 /* ─────────────────────────────────────────────────────────────────────────────
    Inner component (uses useSearchParams — must be inside <Suspense>)
 ───────────────────────────────────────────────────────────────────────────── */
 function ResetPasswordInner() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const oobCode = searchParams.get("oobCode") || "";
   const mode = searchParams.get("mode") || "resetPassword";
 
@@ -81,6 +84,10 @@ function ResetPasswordInner() {
     setLoading(true);
     try {
       await confirmPasswordReset(auth, oobCode, password);
+      // Auto sign in after password reset
+      if (mode === "resetPassword") {
+        await signInWithEmailAndPassword(auth, email, password);
+      }
       setStage("success");
     } catch (err: any) {
       setErrorMsg(friendlyError(err.code));
@@ -399,7 +406,7 @@ function ResetPasswordInner() {
                   <p className="text-[#686730] text-sm font-medium mt-1">
                     {mode === "verifyEmail"
                       ? "Your email has been verified. You can now sign in."
-                      : "Your password has been updated. You're ready to sign in."}
+                      : "Your password has been updated. You are now signed in."}
                   </p>
                 </div>
               </div>
@@ -409,7 +416,7 @@ function ResetPasswordInner() {
                 className="w-full py-5 rounded-2xl text-[11px] font-black uppercase tracking-widest text-[#3b3a06] transition-all hover:opacity-90 flex items-center justify-center gap-3"
                 style={{ background: "linear-gradient(135deg, #cafd00 0%, #beee00 100%)" }}
               >
-                Continue to Sign In
+                {mode === "verifyEmail" ? "Continue to Sign In" : "Continue to Dashboard"}
                 <span className="material-symbols-outlined text-sm">arrow_forward</span>
               </a>
             </div>
