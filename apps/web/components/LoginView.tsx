@@ -6,7 +6,7 @@ import {
   sendPasswordResetEmail,
 } from "firebase/auth";
 import { auth, db } from "../lib/firebase";
-import { doc, onSnapshot, setDoc, serverTimestamp } from "firebase/firestore";
+import { doc, onSnapshot, setDoc, serverTimestamp, collection, getDocs, query, where, orderBy } from "firebase/firestore";
 
 type Tab = "signin" | "register";
 
@@ -23,6 +23,7 @@ export default function LoginView() {
   const [regEmail, setRegEmail] = useState("");
   const [regPassword, setRegPassword] = useState("");
   const [regConfirm, setRegConfirm] = useState("");
+  const [regTenantId, setRegTenantId] = useState("");
 
   // Shared
   const [error, setError] = useState("");
@@ -32,12 +33,34 @@ export default function LoginView() {
   const [forgotEmail, setForgotEmail] = useState("");
   const [globalTenant, setGlobalTenant] = useState<any>(null);
   const [showPassword, setShowPassword] = useState(false);
+  const [tenants, setTenants] = useState<{ id: string; name: string; tenant_id: string }[]>([]);
 
   useEffect(() => {
     const unsub = onSnapshot(doc(db, "tenants", "Global"), (snap) => {
       if (snap.exists()) setGlobalTenant(snap.data());
     });
     return () => unsub();
+  }, []);
+
+  // Fetch active tenants for club selector (exclude Global)
+  useEffect(() => {
+    const q = query(
+      collection(db, "tenants"),
+      where("status", "==", "Active"),
+      orderBy("name")
+    );
+    getDocs(q).then((snap) => {
+      const clubs = snap.docs
+        .filter((d) => d.id !== "Global")
+        .map((d) => ({
+          id: d.id,
+          name: d.data().name as string,
+          tenant_id: d.data().tenant_id as string,
+        }));
+      setTenants(clubs);
+    }).catch(() => {
+      // Firestore rules may prevent unauthenticated reads — silently skip
+    });
   }, []);
 
   // Reset errors when switching tabs
@@ -82,6 +105,7 @@ export default function LoginView() {
     try {
       const cred = await createUserWithEmailAndPassword(auth, regEmail, regPassword);
       // Create global_users profile
+      const selectedTenant = tenants.find((t) => t.id === regTenantId);
       await setDoc(doc(db, "global_users", cred.user.uid), {
         user_id: cred.user.uid,
         auth_uid: cred.user.uid,
@@ -90,6 +114,11 @@ export default function LoginView() {
         email: regEmail.trim().toLowerCase(),
         roles: [],
         status: "Active",
+        ...(regTenantId && {
+          tenant_id: selectedTenant?.tenant_id || regTenantId,
+          tenantId: regTenantId,
+          tenant_name: selectedTenant?.name || "",
+        }),
         created_at: serverTimestamp(),
         updated_at: serverTimestamp(),
       });
@@ -460,6 +489,57 @@ export default function LoginView() {
                       className={inputCls}
                     />
                   </div>
+                </div>
+
+                {/* ── Club / Facility Selector ── */}
+                <div>
+                  <label className="text-[10px] font-black uppercase tracking-widest text-[#686730] mb-2 block">
+                    Club / Facility
+                    <span className="ml-2 text-[#bfbc7c] normal-case tracking-normal font-bold">
+                      (optional)
+                    </span>
+                  </label>
+                  <div className="relative">
+                    <span
+                      className="material-symbols-outlined absolute left-5 top-1/2 -translate-y-1/2 text-[#686730]/50 text-lg pointer-events-none"
+                      style={{ fontVariationSettings: "'FILL' 1" }}
+                    >
+                      sports_tennis
+                    </span>
+                    <select
+                      value={regTenantId}
+                      onChange={(e) => setRegTenantId(e.target.value)}
+                      className="w-full bg-[#fffcca] border border-[#bfbc7c]/30 rounded-2xl pl-14 pr-10 py-4 text-sm font-bold text-[#3b3a06] outline-none focus:ring-2 focus:ring-[#556d00]/30 focus:border-[#556d00]/40 transition-all appearance-none cursor-pointer"
+                      style={{
+                        backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23686730' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E")`,
+                        backgroundRepeat: "no-repeat",
+                        backgroundPosition: "right 16px center",
+                      }}
+                    >
+                      <option value="">— Select a club to join —</option>
+                      {tenants.length === 0 && (
+                        <option value="" disabled>Loading clubs…</option>
+                      )}
+                      {tenants.map((t) => (
+                        <option key={t.id} value={t.id}>
+                          {t.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  {regTenantId && (
+                    <div className="mt-2 flex items-center gap-2 animate-in slide-in-from-top-1 duration-200">
+                      <span
+                        className="material-symbols-outlined text-[#556d00] text-sm"
+                        style={{ fontVariationSettings: "'FILL' 1" }}
+                      >
+                        check_circle
+                      </span>
+                      <p className="text-[10px] font-black uppercase tracking-widest text-[#556d00]">
+                        Joining: {tenants.find((t) => t.id === regTenantId)?.name}
+                      </p>
+                    </div>
+                  )}
                 </div>
 
                 <div>
