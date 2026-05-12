@@ -6,20 +6,41 @@
 [1m[38;2;173;127;168m▲ Next.js 16.2.0[39m[22m (Turbopack)
 
 [37m[1m [22m[39m Creating an optimized production build ...
-[32m[1m✓[22m[39m Compiled successfully in 3.9s
-[?25l[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[?25h[?25l[37m[1m [22m[39m Finished TypeScript in 3.9s  [36m.[39m[2K[1G[?25h[37m[1m [22m[39m Finished TypeScript in 3.9s    [32m[1m✓[22m[39m Finished TypeScript in 3.9s 
-[?25l[37m[1m [22m[39m Collecting page data using 7 workers  [36m.[39m[2K[1G[37m[1m [22m[39m Collecting page data using 7 workers  [36m..[39m[2K[1G[?25h[37m[1m [22m[39m Collecting page data using 7 workers in 334ms    [32m[1m✓[22m[39m Collecting page data using 7 workers in 334ms 
-[?25l[37m[1m [22m[39m Generating static pages using 7 workers (0/6)  [36m[    ][39m[2K[1G[37m[1m [22m[39m Generating static pages using 7 workers (0/6)  [36m[=   ][39m[2K[1G[37m[1m [22m[39m Generating static pages using 7 workers (1/6)  [36m[==  ][39m[2K[1G[?25h[32m[1m✓[22m[39m Generating static pages using 7 workers (6/6) in 453ms
-[?25l[37m[1m [22m[39m Finalizing page optimization  [36m.[39m[2K[1G[37m[1m [22m[39m Finalizing page optimization  [36m..[39m[2K[1G[37m[1m [22m[39m Finalizing page optimization  [36m...[39m[2K[1G[?25h[37m[1m [22m[39m Finalizing page optimization in 529ms    [32m[1m✓[22m[39m Finalizing page optimization in 529ms 
 
-[4mRoute (app)[24m
-┌ ○ /
-├ ○ /_not-found
-├ ƒ /api/send-verification-email
-└ ○ /reset-password
+> Build error occurred
+Error: Turbopack build failed with 1 errors:
+./apps/web/components/MemberAdminView.tsx:1755:22
+Expected '</', got 'ident'
+  [90m1753 |[0m                 <[35m/div>         </div[0m>
+  [90m1754 |[0m
+[31m[1m>[0m [90m1755 |[0m                 <div className=[32m"grid grid-cols-2 gap-x-8 gap-y-5"[0m>
+  [90m     |[0m                      [31m[1m^^^^^^^^^[0m
+  [90m1756 |[0m                   {sectionDivider([32m"Identity"[0m)}
+  [90m1757 |[0m                   
+  [90m1758 |[0m                   {tenantId ? (
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./apps/web/components/MemberAdminView.tsx [Client Component Browser]
+    ./apps/web/components/DashboardClient.tsx [Client Component Browser]
+    ./apps/web/app/page.tsx [Client Component Browser]
+    ./apps/web/app/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./apps/web/components/MemberAdminView.tsx [Client Component SSR]
+    ./apps/web/components/DashboardClient.tsx [Client Component SSR]
+    ./apps/web/app/page.tsx [Client Component SSR]
+    ./apps/web/app/page.tsx [Server Component]
 
 
-○  (Static)   prerendered as static content
-ƒ  (Dynamic)  server-rendered on demand
-
-[?25h⠙[1G[0K
+    at <unknown> (./apps/web/components/MemberAdminView.tsx:1755:22)
+⠙[1G[0K[1mnpm[22m [31merror[39m Lifecycle script `build` failed with error:
+⠙[1G[0K[1mnpm[22m [31merror[39m [94mcode[39m [33m1[39m
+⠙[1G[0K[1mnpm[22m [31merror[39m [94mpath[39m /Users/kyuahn/Documents/AVG/court-reserve/apps/web
+⠙[1G[0K[1mnpm[22m [31merror[39m [94mworkspace[39m web@0.1.0
+⠙[1G[0K[1mnpm[22m [31merror[39m [94mlocation[39m /Users/kyuahn/Documents/AVG/court-reserve/apps/web
+⠙[1G[0K[1mnpm[22m [31merror[39m command failed
+⠙[1G[0K[1mnpm[22m [31merror[39m [94mcommand[39m sh -c next build
+⠙[1G[0K

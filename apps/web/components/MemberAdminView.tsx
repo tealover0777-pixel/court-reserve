@@ -1750,7 +1750,7 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
                       Choose Default
                     </button>
                   </div>
-                </div>         </div>
+                </div>
 
                 <div className="grid grid-cols-2 gap-x-8 gap-y-5">
                   {sectionDivider("Identity")}
