@@ -460,7 +460,11 @@ export default function DashboardClient({ params }: { params: { tenantId: string
             </span>
             <span className="text-stone-800">/</span>
             <span className={`text-xs font-black tracking-widest uppercase ${theme === "DARK" ? "text-white" : "text-stone-900"}`}>
-              {activeView === "TENANT_USER_ADMIN" ? "USER ADMIN" : activeView.replace(/_/g, ' ')}
+              {activeView === "TENANT_USER_ADMIN"
+                ? "USER ADMIN"
+                : activeView === "USER_ADMIN"
+                  ? "Tenant User Admin"
+                  : activeView.replace(/_/g, " ")}
             </span>
           </div>
         </div>

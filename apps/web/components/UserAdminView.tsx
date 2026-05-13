@@ -929,7 +929,7 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
             theme === "VINTAGE" ? "text-black" :
             "text-[#4f6b28]"
           }`} style={{ fontFamily: 'Lexend, sans-serif' }}>
-            User Admin
+            {tenantId ? "User Admin" : "Tenant User Admin"}
           </h2>
           <p className={`font-bold uppercase tracking-widest text-xs mt-2 transition-colors duration-500 ${
             theme === "DARK" ? "text-stone-300" : 
