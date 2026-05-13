@@ -44,7 +44,7 @@ export default function DashboardClient({ params }: { params: { tenantId: string
   const [isTenantSelectorOpen, setIsTenantSelectorOpen] = React.useState(false);
   const { user: authUser, profile, loading: authLoading } = useAuth();
   const [overrideTenantId, setOverrideTenantId] = React.useState<string | null>(null);
-  
+
   const isGlobalUser = !profile?.tenant_id;
   const tenantId = overrideTenantId || (!isGlobalUser ? profile?.tenant_id : params.tenantId || contextTenantId) || "";
 
@@ -90,22 +90,22 @@ export default function DashboardClient({ params }: { params: { tenantId: string
 
   // View → required permission mapping
   const VIEW_PERMISSIONS: Partial<Record<typeof activeView, string>> = {
-    "DASHBOARD":              "DASHBOARD_VIEW",
-    "COURT BOOKING":          "MY_SCHEDULE_VIEW",
-    "PROGRAMS":               "PROGRAMS_VIEW",
-    "MEMBERSHIP":             "MEMBERSHIP_VIEW",
-    "ROLE_TYPES":             "ADMINISTRATION_VIEW",
-    "COMPANY":                "ADMINISTRATION_VIEW",
-    "TENANT_USER_ADMIN":      "ADMINISTRATION_VIEW",
-    "MEMBER_ADMIN":           "ADMINISTRATION_VIEW",
-    "SCHEDULES":              "ADMINISTRATION_VIEW",
-    "SETTINGS":               "SETTINGS_VIEW",
-    "AI_ADMIN":               "PLATFORM_VIEW",
-    "DIMENSIONS":             "PLATFORM_VIEW",
-    "USER_ADMIN":             "PLATFORM_VIEW",
-    "PLATFORM_TENANT_ADMIN":  "PLATFORM_VIEW",
-    "PLATFORM_COMPANY":       "PLATFORM_VIEW",
-    "PLATFORM_ROLE_TYPES":    "PLATFORM_VIEW",
+    "DASHBOARD": "DASHBOARD_VIEW",
+    "COURT BOOKING": "MY_SCHEDULE_VIEW",
+    "PROGRAMS": "PROGRAMS_VIEW",
+    "MEMBERSHIP": "MEMBERSHIP_VIEW",
+    "ROLE_TYPES": "ADMINISTRATION_VIEW",
+    "COMPANY": "ADMINISTRATION_VIEW",
+    "TENANT_USER_ADMIN": "ADMINISTRATION_VIEW",
+    "MEMBER_ADMIN": "ADMINISTRATION_VIEW",
+    "SCHEDULES": "ADMINISTRATION_VIEW",
+    "SETTINGS": "SETTINGS_VIEW",
+    "AI_ADMIN": "PLATFORM_VIEW",
+    "DIMENSIONS": "PLATFORM_VIEW",
+    "USER_ADMIN": "PLATFORM_VIEW",
+    "PLATFORM_TENANT_ADMIN": "PLATFORM_VIEW",
+    "PLATFORM_COMPANY": "PLATFORM_VIEW",
+    "PLATFORM_ROLE_TYPES": "PLATFORM_VIEW",
   };
 
   // Sync state with History API for clean URL + Back/Forward support
@@ -142,7 +142,7 @@ export default function DashboardClient({ params }: { params: { tenantId: string
     if (requiredPerm && !hasPermission(requiredPerm)) {
       setActiveView("DASHBOARD");
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userPermissions.join(","), activeView]);
 
   React.useEffect(() => {
@@ -199,7 +199,7 @@ export default function DashboardClient({ params }: { params: { tenantId: string
           {(() => {
             const currentTenant = allTenants.find(t => t.tenant_id === tenantId || t.id === tenantId);
             const logoUrl = currentTenant?.logo_url || ((!tenantId || tenantId === "consolidated") ? globalTenant?.logo_url : null);
-            
+
             if (logoUrl) {
               return (
                 <div className="w-full mb-6 flex justify-center">
@@ -211,7 +211,7 @@ export default function DashboardClient({ params }: { params: { tenantId: string
                 </div>
               );
             }
-            
+
             return (
               <h1 className={`text-3xl font-black italic tracking-tighter ${theme === "DARK" ? "text-[#ccff00]" :
                 theme === "VINTAGE" ? "text-black" :
@@ -347,7 +347,7 @@ export default function DashboardClient({ params }: { params: { tenantId: string
                     theme={theme}
                   />
                   <SubNavItem
-                    label="PLATFORM DIMENSIONS"
+                    label="DIMENSIONS"
                     active={activeView === "DIMENSIONS"}
                     onClick={() => handleViewChange("DIMENSIONS")}
                     theme={theme}
@@ -446,8 +446,8 @@ export default function DashboardClient({ params }: { params: { tenantId: string
         }`}>
         <div className="flex items-center gap-3">
           <div className={`w-8 h-8 rounded-xl flex items-center justify-center transition-all ${theme === "DARK" ? "bg-stone-900 text-[#ccff00]" :
-              theme === "VINTAGE" ? "bg-black text-white" :
-                "bg-stone-100 text-[#4f6b28]"
+            theme === "VINTAGE" ? "bg-black text-white" :
+              "bg-stone-100 text-[#4f6b28]"
             }`}>
             <span className="material-symbols-outlined text-sm">
               {activeView === "DASHBOARD" ? "dashboard" :
@@ -503,8 +503,8 @@ export default function DashboardClient({ params }: { params: { tenantId: string
                       setIsTenantSelectorOpen(false);
                     }}
                     className={`w-full flex flex-col gap-0.5 items-start px-4 py-3 rounded-2xl transition-all ${tenantId === "consolidated"
-                        ? (theme === "DARK" ? "bg-[#ccff00] text-stone-950 shadow-lg shadow-[#ccff00]/10" : "bg-stone-900 text-white shadow-lg")
-                        : (theme === "DARK" ? "hover:bg-stone-900 text-white" : "hover:bg-stone-50 text-stone-700 hover:text-stone-900")
+                      ? (theme === "DARK" ? "bg-[#ccff00] text-stone-950 shadow-lg shadow-[#ccff00]/10" : "bg-stone-900 text-white shadow-lg")
+                      : (theme === "DARK" ? "hover:bg-stone-900 text-white" : "hover:bg-stone-50 text-stone-700 hover:text-stone-900")
                       }`}
                   >
                     <span className="text-[10px] font-black tracking-tight uppercase truncate w-full text-left italic">Consolidated (All Tenants)</span>
@@ -516,23 +516,23 @@ export default function DashboardClient({ params }: { params: { tenantId: string
                   {allTenants
                     .filter(t => t.tenant_id && /^T\d+/.test(t.tenant_id))
                     .map((t) => (
-                    <button
-                      key={t.id}
-                      onClick={() => {
-                        setOverrideTenantId(t.tenant_id);
-                        setTenantId(t.tenant_id);
-                        window.history.pushState(null, "", `/${t.tenant_id}`);
-                        setIsTenantSelectorOpen(false);
-                      }}
-                      className={`w-full flex flex-col gap-0.5 items-start px-4 py-3 rounded-2xl transition-all ${t.tenant_id === tenantId
+                      <button
+                        key={t.id}
+                        onClick={() => {
+                          setOverrideTenantId(t.tenant_id);
+                          setTenantId(t.tenant_id);
+                          window.history.pushState(null, "", `/${t.tenant_id}`);
+                          setIsTenantSelectorOpen(false);
+                        }}
+                        className={`w-full flex flex-col gap-0.5 items-start px-4 py-3 rounded-2xl transition-all ${t.tenant_id === tenantId
                           ? (theme === "DARK" ? "bg-[#ccff00] text-stone-950 shadow-lg shadow-[#ccff00]/10" : "bg-stone-900 text-white shadow-lg")
                           : (theme === "DARK" ? "hover:bg-stone-900 text-white" : "hover:bg-stone-50 text-stone-700 hover:text-stone-900")
-                        }`}
-                    >
-                      <span className="text-[10px] font-black tracking-tight uppercase truncate w-full text-left">{t.name}</span>
-                      <span className={`text-[8px] font-mono opacity-50 ${t.tenant_id === tenantId ? "opacity-70" : ""}`}>{t.tenant_id}</span>
-                    </button>
-                  ))}
+                          }`}
+                      >
+                        <span className="text-[10px] font-black tracking-tight uppercase truncate w-full text-left">{t.name}</span>
+                        <span className={`text-[8px] font-mono opacity-50 ${t.tenant_id === tenantId ? "opacity-70" : ""}`}>{t.tenant_id}</span>
+                      </button>
+                    ))}
                 </div>
               </div>
             )}
@@ -1263,7 +1263,7 @@ function ProfileView({ theme, profile, roles }: { theme: "LIGHT" | "DARK" | "VIN
   const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    
+
     if (!profile || !profile.user_id) {
       console.error("Missing profile user_id for upload:", profile);
       alert("Error: User ID not found. Please refresh and try again.");
@@ -1276,7 +1276,7 @@ function ProfileView({ theme, profile, roles }: { theme: "LIGHT" | "DARK" | "VIN
       const effectiveTenantId = profile.tenant_id || "Global";
       const compositeId = `${effectiveTenantId}_${profile.user_id}`;
       const path = `users/${compositeId}/portrait`;
-      
+
       console.log("Storage path:", path);
       if (!storage) throw new Error("Firebase Storage not initialized");
 
@@ -1453,7 +1453,7 @@ function ProfileView({ theme, profile, roles }: { theme: "LIGHT" | "DARK" | "VIN
             {(() => {
               const roleIds = profile?.roles || (profile?.role ? [profile.role] : []);
               const userRoles = roles.filter(r => roleIds.includes(r.role_id) || roleIds.includes(r.id));
-              
+
               if (userRoles.length > 0) {
                 return userRoles.map(r => (
                   <span key={r.role_id || r.id} className={`px-5 py-2 rounded-full text-[10px] font-black tracking-widest uppercase transition-colors ${isDark ? "bg-stone-800 text-[#ccff00]" : isVintage ? "bg-black text-white" : "bg-[#4f6b28] text-white"
@@ -1462,7 +1462,7 @@ function ProfileView({ theme, profile, roles }: { theme: "LIGHT" | "DARK" | "VIN
                   </span>
                 ));
               }
-              
+
               return (
                 <span className={`px-5 py-2 rounded-full text-[10px] font-black tracking-widest uppercase transition-colors ${isDark ? "bg-stone-800 text-[#ccff00]" : isVintage ? "bg-black text-white" : "bg-[#4f6b28] text-white"
                   }`}>
@@ -1639,13 +1639,12 @@ function ProfileView({ theme, profile, roles }: { theme: "LIGHT" | "DARK" | "VIN
                 <button
                   key={portrait.id}
                   onClick={() => handlePortraitSelect(portrait.url)}
-                  className={`group relative aspect-square rounded-3xl overflow-hidden border-2 transition-all hover:scale-105 ${
-                    isDark ? "border-stone-800 hover:border-[#ccff00]" : "border-stone-100 hover:border-[#4f6b28]"
-                  }`}
+                  className={`group relative aspect-square rounded-3xl overflow-hidden border-2 transition-all hover:scale-105 ${isDark ? "border-stone-800 hover:border-[#ccff00]" : "border-stone-100 hover:border-[#4f6b28]"
+                    }`}
                 >
-                  <img 
-                    src={portrait.url} 
-                    alt={portrait.label} 
+                  <img
+                    src={portrait.url}
+                    alt={portrait.label}
                     className="w-full h-full object-cover transition-transform group-hover:scale-110"
                   />
                   <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
