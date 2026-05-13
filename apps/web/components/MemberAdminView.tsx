@@ -169,21 +169,34 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
   }, [users, formData.tenant_id]);
 
   useEffect(() => {
-    let qGlobal = query(collection(db, "global_users"), orderBy("user_id", "asc"));
-    let qTenantScoped = query(collectionGroup(db, "users"), orderBy("user_id", "asc"));
+    let qGlobal: any;
+    let qTenantScoped: any = null;
 
-    if (tenantId && tenantId !== "consolidated") {
+    if (!tenantId) {
+      // Platform view: ONLY global_users
+      qGlobal = query(collection(db, "global_users"), orderBy("user_id", "asc"));
+    } else if (tenantId === "consolidated") {
+      // Consolidated view: both
+      qGlobal = query(collection(db, "global_users"), orderBy("user_id", "asc"));
+      qTenantScoped = query(collectionGroup(db, "users"), orderBy("user_id", "asc"));
+    } else {
+      // Specific tenant view: filtered both
       qGlobal = query(collection(db, "global_users"), where("tenant_id", "==", tenantId), orderBy("user_id", "asc"));
       qTenantScoped = query(collectionGroup(db, "users"), where("tenant_id", "==", tenantId), orderBy("user_id", "asc"));
     }
 
-    const unsubGlobal = onSnapshot(qGlobal, (snap) => {
-      setGlobalUsers(snap.docs.map(d => ({ id: d.id, ...d.data() } as User)));
+    const unsubGlobal = onSnapshot(qGlobal, (snap: any) => {
+      setGlobalUsers(snap.docs.map((d: any) => ({ id: d.id, ...d.data() } as User)));
     });
 
-    const unsubTenant = onSnapshot(qTenantScoped, (snap) => {
-      setScopedUsers(snap.docs.map(d => ({ id: d.id, ...d.data() } as User)));
-    });
+    let unsubTenant = () => {};
+    if (qTenantScoped) {
+      unsubTenant = onSnapshot(qTenantScoped, (snap: any) => {
+        setScopedUsers(snap.docs.map((d: any) => ({ id: d.id, ...d.data() } as User)));
+      });
+    } else {
+      setScopedUsers([]);
+    }
 
     return () => {
       unsubGlobal();
@@ -202,8 +215,8 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
     setLoading(false);
   }, [globalUsers, scopedUsers]);
 
-  useEffect(() => {const unsubscribeStatus = onSnapshot(query(collection(db, "dimensions"), orderBy("category", "asc")), (snapshot) => {
-      const statusDim = snapshot.docs.find(doc => doc.data().category?.toUpperCase() === "USERSTATUS");
+  useEffect(() => {const unsubscribeStatus = onSnapshot(query(collection(db, "dimensions"), orderBy("category", "asc")), (snapshot: any) => {
+      const statusDim = snapshot.docs.find((doc: any) => doc.data().category?.toUpperCase() === "USERSTATUS");
       if (statusDim) {
         setUserStatuses(statusDim.data().items || []);
       } else {
@@ -211,20 +224,20 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
       }
     });
 
-    const unsubscribeRoles = onSnapshot(query(collection(db, "role_types"), orderBy("role_id", "asc")), (snapshot) => {
-      const roleData = snapshot.docs.map(doc => ({
+    const unsubscribeRoles = onSnapshot(query(collection(db, "role_types"), orderBy("role_id", "asc")), (snapshot: any) => {
+      const roleData = snapshot.docs.map((doc: any) => ({
         id: doc.id,
         ...doc.data()
       }));
       setRoles(roleData);
     });
 
-    const unsubscribeTenants = onSnapshot(collection(db, "tenants"), (snapshot) => {
-      setTenants(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+    const unsubscribeTenants = onSnapshot(collection(db, "tenants"), (snapshot: any) => {
+      setTenants(snapshot.docs.map((doc: any) => ({ id: doc.id, ...doc.data() })));
     });
 
-    const unsubscribeDefaultPortraits = onSnapshot(collection(db, "organization", "defaults", "portraits"), (snapshot) => {
-      const data = snapshot.docs.map(doc => ({
+    const unsubscribeDefaultPortraits = onSnapshot(collection(db, "organization", "defaults", "portraits"), (snapshot: any) => {
+      const data = snapshot.docs.map((doc: any) => ({
         id: doc.id,
         ...doc.data()
       })) as any[];

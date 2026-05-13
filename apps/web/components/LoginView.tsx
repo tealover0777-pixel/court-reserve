@@ -59,7 +59,7 @@ export default function LoginView() {
   const [defaultPortraits, setDefaultPortraits] = useState<{ id: string; url: string; label: string }[]>([]);
 
   useEffect(() => {
-    const unsub = onSnapshot(doc(db, "tenants", "Global"), (snap) => {
+    const unsub = onSnapshot(doc(db, "organization", "branding"), (snap) => {
       if (snap.exists()) setGlobalTenant(snap.data());
     });
     return () => unsub();

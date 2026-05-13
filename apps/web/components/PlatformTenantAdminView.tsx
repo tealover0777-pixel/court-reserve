@@ -225,15 +225,15 @@ export default function PlatformTenantAdminView({ theme = "LIGHT" }: { theme?: "
     setEditingTenantId(null);
     setFormData({
       ...initialFormData,
-      owner_id: `U${Math.floor(10000 + Math.random() * 90000)}`
+      owner_id: "" // Will be populated by nextOwnerId useEffect
     });
   };
 
   const handleSave = async () => {
     const tenantDocId = editingTenantId || formData.tenant_id;
     try {
-      if (!formData.tenant_name || !formData.owner_email) {
-        showAppMessage("Please fill in the tenant name and owner email.", "ERROR");
+      if (!formData.tenant_name || !formData.owner_email || !formData.tenant_id) {
+        showAppMessage("Please fill in the tenant name, owner email, and ensure a tenant ID is generated.", "ERROR");
         return;
       }
       
@@ -270,7 +270,7 @@ export default function PlatformTenantAdminView({ theme = "LIGHT" }: { theme?: "
 
       // 3. Create/Update Tenant in Firestore ONLY AFTER successful invitation/check
       const tenantUpdateData = {
-        tenant_id: formData.tenant_id || "Global",
+        tenant_id: formData.tenant_id,
         name: formData.tenant_name,
         domain: `${formData.tenant_name.toLowerCase().replace(/\s+/g, '-')}.kinetic.com`,
         status: "Active",

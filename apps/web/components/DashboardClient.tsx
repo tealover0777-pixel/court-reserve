@@ -45,7 +45,7 @@ export default function DashboardClient({ params }: { params: { tenantId: string
   const { user: authUser, profile, loading: authLoading } = useAuth();
   const [overrideTenantId, setOverrideTenantId] = React.useState<string | null>(null);
   
-  const isGlobalUser = profile?.tenant_id === "Global" || !profile?.tenant_id;
+  const isGlobalUser = !profile?.tenant_id;
   const tenantId = overrideTenantId || (!isGlobalUser ? profile?.tenant_id : params.tenantId || contextTenantId) || "";
 
   // Redirect to correct tenant if URL mismatch (for non-global users)
@@ -155,7 +155,7 @@ export default function DashboardClient({ params }: { params: { tenantId: string
       setAllTenants(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
     });
 
-    const unsubscribeGlobal = onSnapshot(doc(db, "tenants", "Global"), (snapshot) => {
+    const unsubscribeGlobal = onSnapshot(doc(db, "organization", "branding"), (snapshot) => {
       if (snapshot.exists()) {
         setGlobalTenant(snapshot.data());
       }
@@ -577,7 +577,7 @@ export default function DashboardClient({ params }: { params: { tenantId: string
           if (activeView === "ORGANIZATION") return <OrganizationView theme={theme} tenantId={tenantId} />;
           if (activeView === "TENANT_USER_ADMIN") return <UserAdminView theme={theme} tenantId={tenantId} />;
           if (activeView === "MEMBER_ADMIN") return <MemberAdminView theme={theme} tenantId={tenantId} />;
-          if (activeView === "PLATFORM_ORGANIZATION") return <OrganizationView theme={theme} tenantId="Global" />;
+          if (activeView === "PLATFORM_ORGANIZATION") return <OrganizationView theme={theme} tenantId={null} />;
           if (activeView === "USER_ADMIN") return <UserAdminView theme={theme} />;
           if (activeView === "PLATFORM_TENANT_ADMIN") return <PlatformTenantAdminView theme={theme} />;
           if (activeView === "PLATFORM_ROLE_TYPES") return <RoleTypesView theme={theme} />;

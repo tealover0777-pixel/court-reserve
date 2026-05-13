@@ -90,9 +90,9 @@ export default function OrganizationView({ theme, tenantId: tenantIdProp }: Orga
     { id: "INFO", label: "Information", icon: "info" },
     { id: "BRANDING", label: "Branding", icon: "palette" },
     { id: "EMAIL", label: "Email Settings", icon: "mail" },
-    { id: "COURT", label: tenantId === "Global" ? "Manage Default Courts" : "Court", icon: "sports_tennis" },
+    { id: "COURT", label: !tenantId ? "Manage Default Courts" : "Court", icon: "sports_tennis" },
     { id: "PAYMENT", label: "Payment & Billing", icon: "payments" },
-    ...(tenantId === "Global" ? [{ id: "PHOTOS", label: "Manage Default Photos", icon: "add_a_photo" }] : [])
+    ...(!tenantId ? [{ id: "PHOTOS", label: "Manage Default Photos", icon: "add_a_photo" }] : [])
   ];
 
   const isDark = theme === "DARK";
