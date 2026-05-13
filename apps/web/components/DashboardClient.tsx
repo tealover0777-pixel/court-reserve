@@ -1246,7 +1246,7 @@ function ProfileView({ theme, profile, roles }: { theme: "LIGHT" | "DARK" | "VIN
   const fileInputRef = React.useRef<HTMLInputElement>(null);
 
   React.useEffect(() => {
-    const unsubscribe = onSnapshot(collection(db, "default_portraits"), (snapshot) => {
+    const unsubscribe = onSnapshot(collection(db, "organization", "settings", "default_portraits"), (snapshot) => {
       const data = snapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()

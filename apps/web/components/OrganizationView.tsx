@@ -29,12 +29,12 @@ export default function OrganizationView({ theme, tenantId: tenantIdProp }: Orga
   const [notification, setNotification] = useState<{ message: string; type: "SUCCESS" | "ERROR" } | null>(null);
 
   useEffect(() => {
-    if (!tenantId) return;
-    const unsub = onSnapshot(doc(db, "tenants", tenantId), (doc) => {
+    // Centralized organization settings
+    const unsub = onSnapshot(doc(db, "organization", "settings"), (doc) => {
       if (doc.exists()) setTenantData(doc.data());
     });
     return () => unsub();
-  }, [tenantId]);
+  }, []);
 
   useEffect(() => {
     const dimQuery = query(collection(db, "dimensions"), orderBy("category", "asc"));
@@ -60,7 +60,6 @@ export default function OrganizationView({ theme, tenantId: tenantIdProp }: Orga
   }, [notification]);
 
   const handleSave = async (data: any) => {
-    if (!tenantId) return;
     setIsSaving(true);
     try {
       // Filter out undefined values to prevent Firestore errors
@@ -68,7 +67,7 @@ export default function OrganizationView({ theme, tenantId: tenantIdProp }: Orga
         Object.entries(data).filter(([_, v]) => v !== undefined)
       );
 
-      await setDoc(doc(db, "tenants", tenantId), {
+      await setDoc(doc(db, "organization", "settings"), {
         ...cleanData,
         updated_at: serverTimestamp()
       }, { merge: true });
@@ -933,7 +932,7 @@ function CourtTab({ data, onSave, isSaving, theme, dimensions, tenantId }: any) 
 
   useEffect(() => {
     if (tenantId === "Global") return;
-    const q = query(collection(db, "default_courts"), orderBy("created_at", "desc"));
+    const q = query(collection(db, "organization", "settings", "default_courts"), orderBy("created_at", "desc"));
     const unsub = onSnapshot(q, (snap) => {
       const courts = snap.docs.map(doc => ({
         id: doc.id,
@@ -1419,7 +1418,7 @@ function DefaultCourtsTab({ theme, setNotification }: { theme: string; setNotifi
   const fileInputRef = React.useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    const q = query(collection(db, "default_courts"), orderBy("created_at", "desc"));
+    const q = query(collection(db, "organization", "settings", "default_courts"), orderBy("created_at", "desc"));
     const unsub = onSnapshot(q, (snap) => {
       setCourts(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
     });
@@ -1526,7 +1525,7 @@ function DefaultCourtsTab({ theme, setNotification }: { theme: string; setNotifi
                       await uploadBytes(storageRef, file);
                       const url = await getDownloadURL(storageRef);
 
-                      await setDoc(doc(db, "default_courts", id), {
+                      await setDoc(doc(db, "organization", "settings", "default_courts", id), {
                         name: nameEl.value,
                         url: url,
                         created_at: new Date().toISOString()
@@ -1568,7 +1567,7 @@ function DefaultCourtsTab({ theme, setNotification }: { theme: string; setNotifi
                       await uploadBytes(storageRef, file);
                       const url = await getDownloadURL(storageRef);
 
-                      await setDoc(doc(db, "default_courts", id), {
+                      await setDoc(doc(db, "organization", "settings", "default_courts", id), {
                         name: nameEl.value,
                         url: url,
                         created_at: new Date().toISOString()
@@ -1633,7 +1632,7 @@ function DefaultCourtsTab({ theme, setNotification }: { theme: string; setNotifi
               onClick={async () => {
                 if (!confirmDeleteId) return;
                 try {
-                  await deleteDoc(doc(db, "default_courts", confirmDeleteId));
+                  await deleteDoc(doc(db, "organization", "settings", "default_courts", confirmDeleteId));
                   showAppMessage("Court removed.", "SUCCESS");
                 } catch (err) {
                   showAppMessage("Failed to remove court.", "ERROR");
@@ -1670,7 +1669,7 @@ function PhotosTab({ theme, setNotification }: { theme: "LIGHT" | "DARK" | "VINT
   const isDark = theme === "DARK";
 
   useEffect(() => {
-    const unsub = onSnapshot(collection(db, "default_portraits"), (snapshot) => {
+    const unsub = onSnapshot(collection(db, "organization", "settings", "default_portraits"), (snapshot) => {
       const items = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       setDefaultPortraits(items.sort((a: any, b: any) => 
         new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime()
@@ -1769,7 +1768,7 @@ function PhotosTab({ theme, setNotification }: { theme: "LIGHT" | "DARK" | "VINT
                     await uploadBytes(storageRef, file);
                     const url = await getDownloadURL(storageRef);
 
-                    await setDoc(doc(db, "default_portraits", id), {
+                    await setDoc(doc(db, "organization", "settings", "default_portraits", id), {
                       label: labelEl.value,
                       url: url,
                       created_at: new Date().toISOString()
@@ -1811,7 +1810,7 @@ function PhotosTab({ theme, setNotification }: { theme: "LIGHT" | "DARK" | "VINT
                     await uploadBytes(storageRef, file);
                     const url = await getDownloadURL(storageRef);
 
-                    await setDoc(doc(db, "default_portraits", id), {
+                    await setDoc(doc(db, "organization", "settings", "default_portraits", id), {
                       label: labelEl.value,
                       url: url,
                       created_at: new Date().toISOString()
@@ -1875,7 +1874,7 @@ function PhotosTab({ theme, setNotification }: { theme: "LIGHT" | "DARK" | "VINT
               onClick={async () => {
                 if (!confirmDeleteId) return;
                 try {
-                  await deleteDoc(doc(db, "default_portraits", confirmDeleteId));
+                  await deleteDoc(doc(db, "organization", "settings", "default_portraits", confirmDeleteId));
                   showAppMessage("Portrait removed.", "SUCCESS");
                 } catch (err) {
                   showAppMessage("Failed to remove portrait.", "ERROR");
