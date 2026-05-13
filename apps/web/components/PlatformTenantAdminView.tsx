@@ -138,10 +138,12 @@ export default function PlatformTenantAdminView({ theme = "LIGHT" }: { theme?: "
   const nextTenantId = (() => {
     if (tenants.length === 0) return "T10001";
     const maxNum = Math.max(...tenants.map(p => {
-      const m = String(p.tenant_id).match(/^T(\d+)$/);
+      const tid = p.tenant_id || p.id;
+      const m = String(tid).match(/^T(\d+)$/);
       return m ? Number(m[1]) : 0;
     }));
-    return "T" + (maxNum + 1);
+    const baseNum = Math.max(10000, maxNum);
+    return "T" + (baseNum + 1);
   })();
 
   const nextOwnerId = useMemo(() => {
