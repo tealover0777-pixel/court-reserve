@@ -254,7 +254,7 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
       setTenants(snapshot.docs.map((doc: any) => ({ id: doc.id, ...doc.data() })));
     });
 
-    const unsubscribeDefaultPortraits = onSnapshot(collection(db, "organization", "defaults", "portraits"), (snapshot: any) => {
+    const unsubscribeDefaultPortraits = onSnapshot(collection(db, "platform_company", "defaults", "portraits"), (snapshot: any) => {
       const data = snapshot.docs.map((doc: any) => ({
         id: doc.id,
         ...doc.data()
@@ -317,7 +317,7 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
   useEffect(() => {
     const seedDefaults = async () => {
       try {
-        const q = query(collection(db, "organization", "defaults", "portraits"));
+        const q = query(collection(db, "platform_company", "defaults", "portraits"));
         const snap = await getDocs(q);
         if (snap.empty) {
           const initial = [
@@ -327,7 +327,7 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
             { id: 'DEF_4', label: 'Female Dark', url: '/images/defaults/female_dark.png' },
           ];
           for (const item of initial) {
-            await setDoc(doc(db, "organization", "defaults", "portraits", item.id), {
+            await setDoc(doc(db, "platform_company", "defaults", "portraits", item.id), {
               label: item.label,
               url: item.url,
               created_at: new Date().toISOString()
@@ -961,7 +961,7 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
               theme === "VINTAGE" ? "text-black" :
                 "text-[#4f6b28]"
             }`} style={{ fontFamily: 'Lexend, sans-serif' }}>
-            {tenantId ? "User Admin" : "Platform User Admin"}
+            {(!tenantId || tenantId === "Global" || tenantId === "consolidated") ? "Platform User Admin" : "User Admin"}
           </h2>
           <p className={`font-bold uppercase tracking-widest text-xs mt-2 transition-colors duration-500 ${theme === "DARK" ? "text-stone-300" :
               theme === "VINTAGE" ? "text-stone-800" :

@@ -237,7 +237,7 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
       setTenants(snapshot.docs.map((doc: any) => ({ id: doc.id, ...doc.data() })));
     });
 
-    const unsubscribeDefaultPortraits = onSnapshot(collection(db, "organization", "defaults", "portraits"), (snapshot: any) => {
+    const unsubscribeDefaultPortraits = onSnapshot(collection(db, "platform_company", "defaults", "portraits"), (snapshot: any) => {
       const data = snapshot.docs.map((doc: any) => ({
         id: doc.id,
         ...doc.data()
@@ -897,7 +897,7 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
             theme === "VINTAGE" ? "text-black" :
             "text-[#4f6b28]"
           }`} style={{ fontFamily: 'Lexend, sans-serif' }}>
-            Member Admin
+            {(!tenantId || tenantId === "Global" || tenantId === "consolidated") ? "Platform Member Admin" : "Member Admin"}
           </h2>
           <p className={`font-bold uppercase tracking-widest text-xs mt-2 transition-colors duration-500 ${
             theme === "DARK" ? "text-stone-200" : 

@@ -155,7 +155,7 @@ export default function DashboardClient({ params }: { params: { tenantId: string
       setAllTenants(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
     });
 
-    const unsubscribeGlobal = onSnapshot(doc(db, "organization", "branding"), (snapshot) => {
+    const unsubscribeGlobal = onSnapshot(doc(db, "platform_company", "branding"), (snapshot) => {
       if (snapshot.exists()) {
         setGlobalTenant(snapshot.data());
       }
@@ -1250,7 +1250,7 @@ function ProfileView({ theme, profile, roles }: { theme: "LIGHT" | "DARK" | "VIN
   const fileInputRef = React.useRef<HTMLInputElement>(null);
 
   React.useEffect(() => {
-    const unsubscribe = onSnapshot(collection(db, "organization", "defaults", "portraits"), (snapshot) => {
+    const unsubscribe = onSnapshot(collection(db, "platform_company", "defaults", "portraits"), (snapshot) => {
       const data = snapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()

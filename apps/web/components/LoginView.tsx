@@ -59,7 +59,7 @@ export default function LoginView() {
   const [defaultPortraits, setDefaultPortraits] = useState<{ id: string; url: string; label: string }[]>([]);
 
   useEffect(() => {
-    const unsub = onSnapshot(doc(db, "organization", "branding"), (snap) => {
+    const unsub = onSnapshot(doc(db, "platform_company", "branding"), (snap) => {
       if (snap.exists()) setGlobalTenant(snap.data());
     });
     return () => unsub();
@@ -105,7 +105,7 @@ export default function LoginView() {
   }, []);
 
   useEffect(() => {
-    const qPortraits = query(collection(db, "organization", "defaults", "portraits"), orderBy("label", "asc"));
+    const qPortraits = query(collection(db, "platform_company", "defaults", "portraits"), orderBy("label", "asc"));
     const unsub = onSnapshot(qPortraits, (snap) => {
       const p = snap.docs.map(d => ({
         id: d.id,
