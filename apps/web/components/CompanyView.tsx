@@ -145,9 +145,9 @@ export default function CompanyView({ theme, tenantId: tenantIdProp }: CompanyVi
       {/* Tab Content */}
       <div className={`p-12 rounded-[40px] border transition-all duration-500 ${isDark ? "bg-stone-950 border-stone-800" : "bg-white border-stone-100 shadow-xl shadow-stone-200/50"
         }`}>
-        {activeTab === "INFO" && <InfoTab data={tenantData} onSave={(d: any) => handleSave(d, "information")} isSaving={isSaving} theme={theme} />}
-        {activeTab === "BRANDING" && <BrandingTab data={tenantData} onSave={(d: any) => handleSave(d, "branding")} isSaving={isSaving} theme={theme} tenantId={tenantId} />}
-        {activeTab === "EMAIL" && <EmailTab data={tenantData} onSave={(d: any) => handleSave(d, "email")} isSaving={isSaving} theme={theme} tenantId={tenantId} />}
+        {activeTab === "INFO" && <InfoTab data={tenantData} onSave={(d: any) => handleSave(d, "information")} isSaving={isSaving} theme={theme} isGlobalView={isGlobalView} />}
+        {activeTab === "BRANDING" && <BrandingTab data={tenantData} onSave={(d: any) => handleSave(d, "branding")} isSaving={isSaving} theme={theme} tenantId={tenantId} isGlobalView={isGlobalView} />}
+        {activeTab === "EMAIL" && <EmailTab data={tenantData} onSave={(d: any) => handleSave(d, "email")} isSaving={isSaving} theme={theme} tenantId={tenantId} isGlobalView={isGlobalView} />}
         {activeTab === "COURT" && (
           isGlobalView 
             ? <DefaultCourtsTab theme={theme} setNotification={setNotification} />
@@ -310,7 +310,7 @@ function InfoTab({ data, onSave, isSaving, theme }: any) {
   );
 }
 
-function BrandingTab({ data, onSave, isSaving, theme, tenantId }: any) {
+function BrandingTab({ data, onSave, isSaving, theme, tenantId, isGlobalView }: any) {
   const isDark = theme === "DARK";
   const [formData, setFormData] = useState(data || {});
   const [isUploading, setIsUploading] = useState(false);
@@ -322,18 +322,32 @@ function BrandingTab({ data, onSave, isSaving, theme, tenantId }: any) {
   }, [data]);
 
   const processLogoFile = async (file: File) => {
-    if (!file || !tenantId) return;
+    if (!file) return;
+    if (!isGlobalView && !tenantId) return;
+    
     setIsUploading(true);
     try {
-      const storageRef = ref(storage, `tenants/${tenantId}/branding/logo_${Date.now()}`);
+      const storagePath = isGlobalView 
+        ? `platform/branding/logo_${Date.now()}` 
+        : `tenants/${tenantId}/branding/logo_${Date.now()}`;
+        
+      const storageRef = ref(storage, storagePath);
       const snapshot = await uploadBytes(storageRef, file);
       const downloadURL = await getDownloadURL(snapshot.ref);
 
       setFormData({ ...formData, logo_url: downloadURL });
-      await setDoc(doc(db, "tenants", tenantId), {
-        logo_url: downloadURL,
-        updated_at: serverTimestamp()
-      }, { merge: true });
+      
+      if (isGlobalView) {
+        await setDoc(doc(db, "platform_company", "branding"), {
+          logo_url: downloadURL,
+          updated_at: serverTimestamp()
+        }, { merge: true });
+      } else if (tenantId) {
+        await setDoc(doc(db, "tenants", tenantId), {
+          logo_url: downloadURL,
+          updated_at: serverTimestamp()
+        }, { merge: true });
+      }
     } catch (err) {
       console.error("Logo upload failed:", err);
     } finally {
