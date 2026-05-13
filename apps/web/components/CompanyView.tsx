@@ -31,16 +31,15 @@ export default function CompanyView({ theme, tenantId: tenantIdProp }: CompanyVi
 
   useEffect(() => {
     if (isGlobalView) {
-      // Platform view: Listen to multiple documents in platform_company
-      const documents = ["information", "branding", "email", "payment"];
-      const unsubs = documents.map(docId => 
-        onSnapshot(doc(db, "platform_company", docId), (snapshot) => {
-          if (snapshot.exists()) {
-            setTenantData((prev: any) => ({ ...prev, ...snapshot.data() }));
-          }
-        })
-      );
-      return () => unsubs.forEach(unsub => unsub());
+      // Platform view: Listen to a single document in platform_company for all settings
+      const unsub = onSnapshot(doc(db, "platform_company", "branding"), (snapshot) => {
+        if (snapshot.exists()) {
+          setTenantData(snapshot.data());
+        } else {
+          setTenantData({});
+        }
+      });
+      return () => unsub();
     } else if (tenantId) {
       // Tenant view: Listen to the single tenant document
       const unsub = onSnapshot(doc(db, "tenants", tenantId), (snapshot) => {
@@ -84,8 +83,8 @@ export default function CompanyView({ theme, tenantId: tenantIdProp }: CompanyVi
       );
 
       if (isGlobalView) {
-        // Save to specific platform_company document
-        await setDoc(doc(db, "platform_company", docId), {
+        // Global settings all save to platform_company/branding
+        await setDoc(doc(db, "platform_company", "branding"), {
           ...cleanData,
           updated_at: serverTimestamp()
         }, { merge: true });
@@ -145,9 +144,9 @@ export default function CompanyView({ theme, tenantId: tenantIdProp }: CompanyVi
       {/* Tab Content */}
       <div className={`p-12 rounded-[40px] border transition-all duration-500 ${isDark ? "bg-stone-950 border-stone-800" : "bg-white border-stone-100 shadow-xl shadow-stone-200/50"
         }`}>
-        {activeTab === "INFO" && <InfoTab data={tenantData} onSave={(d: any) => handleSave(d, "information")} isSaving={isSaving} theme={theme} isGlobalView={isGlobalView} />}
+        {activeTab === "INFO" && <InfoTab data={tenantData} onSave={(d: any) => handleSave(d, "branding")} isSaving={isSaving} theme={theme} isGlobalView={isGlobalView} />}
         {activeTab === "BRANDING" && <BrandingTab data={tenantData} onSave={(d: any) => handleSave(d, "branding")} isSaving={isSaving} theme={theme} tenantId={tenantId} isGlobalView={isGlobalView} />}
-        {activeTab === "EMAIL" && <EmailTab data={tenantData} onSave={(d: any) => handleSave(d, "email")} isSaving={isSaving} theme={theme} tenantId={tenantId} isGlobalView={isGlobalView} />}
+        {activeTab === "EMAIL" && <EmailTab data={tenantData} onSave={(d: any) => handleSave(d, "branding")} isSaving={isSaving} theme={theme} tenantId={tenantId} isGlobalView={isGlobalView} />}
         {activeTab === "COURT" && (
           isGlobalView 
             ? <DefaultCourtsTab theme={theme} setNotification={setNotification} />
