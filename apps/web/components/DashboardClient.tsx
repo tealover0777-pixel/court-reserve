@@ -347,19 +347,19 @@ export default function DashboardClient({ params }: { params: { tenantId: string
                     theme={theme}
                   />
                   <SubNavItem
-                    label="Dimensions"
+                    label="PLATFORM DIMENSIONS"
                     active={activeView === "DIMENSIONS"}
                     onClick={() => handleViewChange("DIMENSIONS")}
                     theme={theme}
                   />
                   <SubNavItem
-                    label="Platform User"
+                    label="PLATFORM USER"
                     active={activeView === "USER_ADMIN"}
                     onClick={() => handleViewChange("USER_ADMIN")}
                     theme={theme}
                   />
                   <SubNavItem
-                    label="Tenant Admin"
+                    label="PLATFORM TENANT"
                     active={activeView === "PLATFORM_TENANT_ADMIN"}
                     onClick={() => handleViewChange("PLATFORM_TENANT_ADMIN")}
                     theme={theme}

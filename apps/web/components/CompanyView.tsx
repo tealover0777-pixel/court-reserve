@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { db, storage } from "../lib/firebase";
+import { db, storage, auth } from "../lib/firebase";
 import { collection, doc, onSnapshot, orderBy, query, setDoc, serverTimestamp, deleteDoc } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { useTenant } from "../context/TenantContext";
@@ -22,7 +22,8 @@ interface CompanyViewProps {
 export default function CompanyView({ theme, tenantId: tenantIdProp }: CompanyViewProps) {
   const { tenantId: contextTenantId } = useTenant();
   const tenantId = tenantIdProp !== undefined ? tenantIdProp : contextTenantId;
-  const isGlobalView = tenantId === "consolidated" || tenantId === "Global" || tenantId === null;
+  const isGlobalView = tenantId === "consolidated" || tenantId === "Global" || tenantId === null || tenantId === "";
+  
   const [activeTab, setActiveTab] = useState<"INFO" | "BRANDING" | "EMAIL" | "COURT" | "PAYMENT" | "PHOTOS">("INFO");
   const [tenantData, setTenantData] = useState<any>(null);
   const [dimensions, setDimensions] = useState<Record<string, string[]>>({});
@@ -322,7 +323,7 @@ function BrandingTab({ data, onSave, isSaving, theme, tenantId, isGlobalView }: 
 
   const processLogoFile = async (file: File) => {
     if (!file) return;
-    if (!isGlobalView && !tenantId) return;
+    if (!isGlobalView && (!tenantId || tenantId === "")) return;
     
     setIsUploading(true);
     try {
@@ -330,6 +331,7 @@ function BrandingTab({ data, onSave, isSaving, theme, tenantId, isGlobalView }: 
         ? `platform/branding/logo_${Date.now()}` 
         : `tenants/${tenantId}/branding/logo_${Date.now()}`;
         
+      console.log("Attempting logo upload to:", storagePath, "with auth:", auth.currentUser?.email || "NOT LOGGED IN");
       const storageRef = ref(storage, storagePath);
       const snapshot = await uploadBytes(storageRef, file);
       const downloadURL = await getDownloadURL(snapshot.ref);
@@ -341,11 +343,14 @@ function BrandingTab({ data, onSave, isSaving, theme, tenantId, isGlobalView }: 
           logo_url: downloadURL,
           updated_at: serverTimestamp()
         }, { merge: true });
+        // Also update the local state to ensure it's reflected
+        onSave({ ...formData, logo_url: downloadURL });
       } else if (tenantId) {
         await setDoc(doc(db, "tenants", tenantId), {
           logo_url: downloadURL,
           updated_at: serverTimestamp()
         }, { merge: true });
+        onSave({ ...formData, logo_url: downloadURL });
       }
     } catch (err) {
       console.error("Logo upload failed:", err);
@@ -459,7 +464,7 @@ function BrandingTab({ data, onSave, isSaving, theme, tenantId, isGlobalView }: 
   );
 }
 
-function EmailTab({ data, onSave, isSaving, theme, tenantId }: any) {
+function EmailTab({ data, onSave, isSaving, theme, tenantId, isGlobalView }: any) {
   const isDark = theme === "DARK";
   const [formData, setFormData] = useState({
     delivery_method: "API",
@@ -568,7 +573,7 @@ function EmailTab({ data, onSave, isSaving, theme, tenantId }: any) {
           <p className={`${isDark ? "text-stone-300" : "text-stone-900"} text-xs font-medium`}>Configure how your marketing and system emails are delivered.</p>
         </div>
 
-        {tenantId !== "Global" && (
+        {!isGlobalView && tenantId !== null && (
           <div className={`p-6 px-8 rounded-3xl border transition-all flex items-center gap-6 min-w-[320px] ${isDark ? "bg-stone-900/50 border-stone-800" : "bg-stone-50 border-stone-100"
             }`}>
             <div className="flex-1 space-y-1">

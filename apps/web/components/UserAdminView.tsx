@@ -171,13 +171,9 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
     let qGlobal: any;
     let qTenantScoped: any = null;
 
-    if (!tenantId) {
-      // Platform view: show ALL scoped users (per user request to hide global)
-      qGlobal = null;
-      qTenantScoped = query(collectionGroup(db, "users"), orderBy("user_id", "asc"));
-    } else if (tenantId === "consolidated") {
-      // Consolidated view: ONLY scoped users (per user request to hide global)
-      qGlobal = null;
+    if (!tenantId || tenantId === "" || tenantId === "consolidated" || tenantId === "Global") {
+      // Platform/Consolidated view: show ALL scoped users + Global users
+      qGlobal = query(collection(db, "global_users"), orderBy("user_id", "asc"));
       qTenantScoped = query(collectionGroup(db, "users"), orderBy("user_id", "asc"));
     } else {
       // Specific tenant view: ONLY scoped users
@@ -279,15 +275,12 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
   }, []);
 
   const filteredUsers = useMemo(() => {
-    const superEmail = "kyuahn@yahoo.com";
-    // Only show the super user if the logged in user is that super user
-    if (currentUser?.email === superEmail) return users;
-    return users.filter(u => u.email !== superEmail);
-  }, [users, currentUser]);
+    return users;
+  }, [users]);
 
   useEffect(() => {
     const superEmail = "kyuahn@yahoo.com";
-    if (currentUser?.email === superEmail && !loading && users.length > 0) {
+    if (currentUser?.email === superEmail && !loading) {
       const exists = users.find(u => u.email === superEmail);
       if (!exists) {
         const provisionSuper = async () => {
