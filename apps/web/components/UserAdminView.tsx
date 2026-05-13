@@ -1705,7 +1705,7 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
       >
         <div className="space-y-6">
           <p className={`text-sm leading-relaxed ${theme === "DARK" ? "text-stone-400" : "text-stone-500"}`}>
-            This will create a user in your organization responsible for monitoring operations and managing users associated with your business processes.
+            This will create a user in your company responsible for monitoring operations and managing users associated with your business processes.
           </p>
 
           {/* Use the same 2-column layout logic as Edit modal */}
@@ -1806,8 +1806,8 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
 
                   {tenantId ? (
                     <div className="col-span-2">
-                      <label className={labelCls}>Organization</label>
-                      <div className={readonlyCls}>{tenants.find(t => t.id === tenantId)?.name || "Current Organization"}</div>
+                      <label className={labelCls}>Company</label>
+                      <div className={readonlyCls}>{tenants.find(t => t.id === tenantId)?.name || "Current Company"}</div>
                     </div>
                   ) : (
                     <>

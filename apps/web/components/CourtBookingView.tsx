@@ -1916,7 +1916,7 @@ function BookingDetails({ tenantId, booking, theme, user, isAdmin, canModify, on
                 </button>
               ) : (
                 <div className={`py-4 px-6 rounded-2xl text-[9px] font-bold text-center border border-dashed ${isDark ? "border-stone-800 text-white" : "border-stone-100 text-stone-950"}`}>
-                  This session is locked according to the organization's schedule policy.
+                  This session is locked according to the company's schedule policy.
                 </div>
               )}
             </div>

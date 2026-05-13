@@ -14,12 +14,12 @@ const US_STATES = [
   "SD", "TN", "TX", "UT", "VT", "VA", "WA", "WV", "WI", "WY"
 ];
 
-interface OrganizationViewProps {
+interface CompanyViewProps {
   theme: "LIGHT" | "DARK" | "VINTAGE";
   tenantId?: string | null;
 }
 
-export default function OrganizationView({ theme, tenantId: tenantIdProp }: OrganizationViewProps) {
+export default function CompanyView({ theme, tenantId: tenantIdProp }: CompanyViewProps) {
   const { tenantId: contextTenantId } = useTenant();
   const tenantId = tenantIdProp ?? contextTenantId;
   const [activeTab, setActiveTab] = useState<"INFO" | "BRANDING" | "EMAIL" | "COURT" | "PAYMENT" | "PHOTOS">("INFO");
@@ -77,10 +77,10 @@ export default function OrganizationView({ theme, tenantId: tenantIdProp }: Orga
         ...cleanData,
         updated_at: serverTimestamp()
       }, { merge: true });
-      setNotification({ message: "Organization updated successfully", type: "SUCCESS" });
+      setNotification({ message: "Company updated successfully", type: "SUCCESS" });
     } catch (err) {
       console.error(err);
-      setNotification({ message: "Failed to update organization", type: "ERROR" });
+      setNotification({ message: "Failed to update company", type: "ERROR" });
     } finally {
       setIsSaving(false);
     }
@@ -102,7 +102,7 @@ export default function OrganizationView({ theme, tenantId: tenantIdProp }: Orga
     <div className="space-y-8 animate-in fade-in duration-700">
       <div className="flex flex-col gap-2">
         <h3 className={`text-6xl font-black italic tracking-tighter transition-all duration-500 ${isDark ? "text-white" : isVintage ? "text-black" : "text-stone-900"
-          }`}>ORGANIZATION</h3>
+          }`}>COMPANY</h3>
         <p className={`text-xs font-bold tracking-[0.2em] uppercase ${isDark ? "text-stone-200" : "text-stone-900"}`}>Manage your brand and business core</p>
       </div>
 
@@ -182,14 +182,14 @@ function InfoTab({ data, onSave, isSaving, theme }: any) {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8">
         <div className="space-y-8">
           <h4 className={`text-[10px] font-black tracking-[0.2em] uppercase opacity-40 ${isDark ? "text-white" : "text-stone-900"}`}>General Info</h4>
-          <FormField label="Organization Name" theme={theme}>
+          <FormField label="Company Name" theme={theme}>
             <input
               value={formData.name || ""}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
               className={inputClasses}
             />
           </FormField>
-          <FormField label="Organization ID" theme={theme}>
+          <FormField label="Company ID" theme={theme}>
             <div className={`px-6 py-4 rounded-2xl font-mono text-sm ${isDark ? "bg-stone-900 text-stone-300" : "bg-stone-100 text-stone-700"}`}>
               {formData.tenant_id}
             </div>
@@ -351,19 +351,19 @@ function BrandingTab({ data, onSave, isSaving, theme, tenantId }: any) {
     <div className="space-y-12">
       <div className="max-w-4xl space-y-12">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8">
-          <FormField label="Organization Name" theme={theme}>
+          <FormField label="Company Name" theme={theme}>
             <input
               value={formData.name || ""}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
               className={`w-full border rounded-2xl px-6 py-4 text-sm font-bold outline-none transition-all ${isDark ? "bg-stone-900 border-stone-800 text-white focus:border-[#ccff00]" : "bg-stone-50 border-stone-100 text-stone-900 focus:border-stone-400"
                 }`}
-              placeholder="Enter organization name"
+              placeholder="Enter company name"
             />
           </FormField>
         </div>
 
         <div className="space-y-6">
-          <FormField label="Organization Logo" theme={theme}>
+          <FormField label="Company Logo" theme={theme}>
             <input
               type="file"
               ref={fileInputRef}
@@ -395,7 +395,7 @@ function BrandingTab({ data, onSave, isSaving, theme, tenantId }: any) {
                   </span>
                   <div className="text-center space-y-2">
                     <p className={`text-[10px] font-black tracking-widest uppercase ${isDark ? "text-stone-300" : "text-stone-500"}`}>
-                      {isUploading ? "Uploading..." : "Upload Organization Logo"}
+                      {isUploading ? "Uploading..." : "Upload Company Logo"}
                     </p>
                     <p className={`text-[8px] font-bold uppercase tracking-[0.2em] ${isDark ? "text-stone-300" : "text-stone-950"}`}>Drag and drop or click to browse</p>
                   </div>
@@ -541,7 +541,7 @@ function EmailTab({ data, onSave, isSaving, theme, tenantId }: any) {
             }`}>
             <div className="flex-1 space-y-1">
               <h4 className={`text-[10px] font-black uppercase tracking-widest ${isDark ? "text-white" : "text-stone-900"}`}>Use Platform Email Service</h4>
-              <p className={`text-[8px] font-bold uppercase tracking-tight ${isDark ? "text-stone-300" : "text-stone-950"}`}>Inherit from master organization</p>
+              <p className={`text-[8px] font-bold uppercase tracking-tight ${isDark ? "text-stone-300" : "text-stone-950"}`}>Inherit from master company</p>
             </div>
             <label className="relative inline-flex items-center cursor-pointer">
               <input
@@ -567,7 +567,7 @@ function EmailTab({ data, onSave, isSaving, theme, tenantId }: any) {
                   value={formData.from_email || ""}
                   onChange={(e) => setFormData({ ...formData, from_email: e.target.value })}
                   className={inputClasses}
-                  placeholder="e.g. hello@organization.com"
+                  placeholder="e.g. hello@company.com"
                 />
               </FormField>
               <FormField label="From Name" theme={theme}>
@@ -575,7 +575,7 @@ function EmailTab({ data, onSave, isSaving, theme, tenantId }: any) {
                   value={formData.from_name || ""}
                   onChange={(e) => setFormData({ ...formData, from_name: e.target.value })}
                   className={inputClasses}
-                  placeholder="e.g. Organization Team"
+                  placeholder="e.g. Company Team"
                 />
               </FormField>
             </div>
@@ -682,7 +682,7 @@ function EmailTab({ data, onSave, isSaving, theme, tenantId }: any) {
                   value={formData.reply_to_email || ""}
                   onChange={(e) => setFormData({ ...formData, reply_to_email: e.target.value })}
                   className={inputClasses}
-                  placeholder="e.g. support@organization.com"
+                  placeholder="e.g. support@company.com"
                 />
               </FormField>
               <FormField label="Test Email Address" theme={theme}>
@@ -690,7 +690,7 @@ function EmailTab({ data, onSave, isSaving, theme, tenantId }: any) {
                   value={formData.test_email || ""}
                   onChange={(e) => setFormData({ ...formData, test_email: e.target.value })}
                   className={inputClasses}
-                  placeholder="e.g. test@organization.com"
+                  placeholder="e.g. test@company.com"
                 />
               </FormField>
             </div>
@@ -765,7 +765,7 @@ function EmailTab({ data, onSave, isSaving, theme, tenantId }: any) {
                   value={formData.smtp_user || ""}
                   onChange={(e) => setFormData({ ...formData, smtp_user: e.target.value })}
                   className={inputClasses}
-                  placeholder="Organization Login"
+                  placeholder="Company Login"
                 />
               </FormField>
 
