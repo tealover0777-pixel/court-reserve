@@ -53,7 +53,7 @@ const US_STATES = [
 
 
 import { db, functions, storage } from "../lib/firebase";
-import { collection, onSnapshot, query, orderBy, doc, setDoc, where, getDocs } from "firebase/firestore";
+import { collection, onSnapshot, query, orderBy, doc, setDoc, where, getDocs, collectionGroup } from "firebase/firestore";
 import { httpsCallable } from "firebase/functions";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
@@ -171,22 +171,40 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
   }, [users, formData.tenant_id]);
 
   useEffect(() => {
-    let q = query(collection(db, "global_users"), orderBy("user_id", "asc"));
+    let qGlobal = query(collection(db, "global_users"), orderBy("user_id", "asc"));
+    let qTenantScoped = query(collectionGroup(db, "users"), orderBy("user_id", "asc"));
+
     if (tenantId && tenantId !== "consolidated") {
-      q = query(collection(db, "global_users"), where("tenant_id", "==", tenantId), orderBy("user_id", "asc"));
+      qGlobal = query(collection(db, "global_users"), where("tenant_id", "==", tenantId), orderBy("user_id", "asc"));
+      qTenantScoped = query(collectionGroup(db, "users"), where("tenant_id", "==", tenantId), orderBy("user_id", "asc"));
     }
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const data = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      })) as User[];
-      setUsers(data);
-      setLoading(false);
-    }, (error) => {
-      console.error("Error fetching users:", error);
-      setLoading(false);
+
+    const unsubGlobal = onSnapshot(qGlobal, (snap) => {
+      setGlobalUsers(snap.docs.map(d => ({ id: d.id, ...d.data() } as User)));
     });
 
+    const unsubTenant = onSnapshot(qTenantScoped, (snap) => {
+      setScopedUsers(snap.docs.map(d => ({ id: d.id, ...d.data() } as User)));
+    });
+
+    return () => {
+      unsubGlobal();
+      unsubTenant();
+    };
+  }, [tenantId]);
+
+  const [globalUsers, setGlobalUsers] = useState<User[]>([]);
+  const [scopedUsers, setScopedUsers] = useState<User[]>([]);
+  
+  useEffect(() => {
+    // Merge and deduplicate
+    const all = [...globalUsers, ...scopedUsers];
+    const unique = Array.from(new Map(all.map(u => [u.id, u])).values());
+    setUsers(unique.sort((a, b) => (a.user_id || "").localeCompare(b.user_id || "")));
+    setLoading(false);
+  }, [globalUsers, scopedUsers]);
+
+  useEffect(() => {
     const unsubscribeStatus = onSnapshot(query(collection(db, "dimensions"), orderBy("category", "asc")), (snapshot) => {
       const statusDim = snapshot.docs.find(doc => doc.data().category?.toUpperCase() === "USERSTATUS");
       if (statusDim) {

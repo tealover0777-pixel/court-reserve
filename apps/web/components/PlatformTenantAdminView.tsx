@@ -61,7 +61,7 @@ export default function PlatformTenantAdminView({ theme = "LIGHT" }: { theme?: "
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
   const [showNewModal, setShowNewModal] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [formData, setFormData] = useState({
+  const initialFormData = {
     tenant_id: "",
     tenant_name: "",
     owner_id: "",
@@ -77,7 +77,8 @@ export default function PlatformTenantAdminView({ theme = "LIGHT" }: { theme?: "
     address_city: "",
     address_state: "",
     address_zip: ""
-  });
+  };
+  const [formData, setFormData] = useState(initialFormData);
   const [editingTenantId, setEditingTenantId] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [isInviting, setIsInviting] = useState(false);
@@ -218,6 +219,14 @@ export default function PlatformTenantAdminView({ theme = "LIGHT" }: { theme?: "
     setShowNewModal(true);
   };
 
+  const resetForm = () => {
+    setEditingTenantId(null);
+    setFormData({
+      ...initialFormData,
+      owner_id: `U${Math.floor(10000 + Math.random() * 90000)}`
+    });
+  };
+
   const handleSave = async () => {
     const tenantDocId = editingTenantId || formData.tenant_id;
     try {
@@ -283,26 +292,41 @@ export default function PlatformTenantAdminView({ theme = "LIGHT" }: { theme?: "
       );
 
       await setDoc(doc(db, "tenants", tenantDocId), cleanTenantData);
+
+      // 4. ADD OWNER TO TENANT'S USERS COLLECTION (New requirement)
+      // This ensures the owner user is stored under the tenant, not global_users
+      const ownerUserDocData = {
+        user_id: formData.owner_id,
+        email: formData.owner_email,
+        first_name: formData.owner_first_name,
+        last_name: formData.owner_last_name,
+        phone: formData.owner_phone,
+        role: "R10005", // Owner role ID
+        status: "Invited",
+        tenant_id: formData.tenant_id,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      };
       
+      const ownerUserRef = doc(db, "tenants", tenantDocId, "users", formData.owner_id);
+      await setDoc(ownerUserRef, ownerUserDocData, { merge: true });
+      
+      // 5. Cleanup legacy global user records if they exist to maintain tenant scoping
+      // We only do this if we successfully saved the tenant-scoped record
+      try {
+        const legacyRef = doc(db, "global_users", formData.owner_id);
+        const compositeRef = doc(db, "global_users", `${tenantDocId}_${formData.owner_id}`);
+        await Promise.all([
+          deleteDoc(legacyRef).catch(() => {}),
+          deleteDoc(compositeRef).catch(() => {})
+        ]);
+      } catch (e) {
+        console.warn("Cleanup of legacy global records skipped or failed:", e);
+      }
+
       setShowNewModal(false);
       setEditingTenantId(null);
-      setFormData({
-        tenant_id: "",
-        tenant_name: "",
-        owner_id: "",
-        owner_email: "",
-        owner_first_name: "",
-        owner_last_name: "",
-        owner_phone: "",
-        owner_role: "Owner",
-        invite_user: true,
-        notes: "",
-        address_street_1: "",
-        address_street_2: "",
-        address_city: "",
-        address_state: "",
-        address_zip: ""
-      });
+      setFormData(initialFormData);
     } catch (err) {
       console.error("Failed to save tenant:", err);
       showAppMessage("Failed to save tenant: " + (err instanceof Error ? err.message : "Unknown error"), "ERROR");
@@ -318,6 +342,36 @@ export default function PlatformTenantAdminView({ theme = "LIGHT" }: { theme?: "
     }
     setIsInviting(true);
     try {
+      // 1. Explicitly ensure the owner is in the tenant's users collection (Requirement)
+      if (tenant.owner_id) {
+        const ownerUserDocData = {
+          user_id: tenant.owner_id,
+          email: tenant.owner_email,
+          first_name: tenant.owner_first_name || "",
+          last_name: tenant.owner_last_name || "",
+          phone: tenant.owner_phone || "",
+          role: "R10005",
+          status: "Invited",
+          tenant_id: tenant.tenant_id,
+          updated_at: new Date().toISOString()
+        };
+        const ownerUserRef = doc(db, "tenants", tenant.id, "users", tenant.owner_id);
+        await setDoc(ownerUserRef, ownerUserDocData, { merge: true });
+        
+        // 2. Cleanup legacy global records if any
+        try {
+          const legacyRef = doc(db, "global_users", tenant.owner_id);
+          const compositeRef = doc(db, "global_users", `${tenant.id}_${tenant.owner_id}`);
+          await Promise.all([
+            deleteDoc(legacyRef).catch(() => {}),
+            deleteDoc(compositeRef).catch(() => {})
+          ]);
+        } catch (e) {
+          // Non-fatal
+        }
+      }
+
+      // 3. Call invitation function
       const inviteUserFn = httpsCallable(functions, "inviteUser");
       const result: any = await inviteUserFn({
         email: tenant.owner_email,
@@ -608,7 +662,7 @@ export default function PlatformTenantAdminView({ theme = "LIGHT" }: { theme?: "
           </button>
           <button 
             onClick={() => {
-              console.log("Opening New Tenant Modal");
+              resetForm();
               setShowNewModal(true);
             }}
             className={`px-8 py-3 rounded-full font-black text-xs tracking-widest transition-all uppercase shadow-lg flex items-center gap-2 ${
@@ -874,7 +928,7 @@ export default function PlatformTenantAdminView({ theme = "LIGHT" }: { theme?: "
           setShowNewModal(false);
           setEditingTenantId(null);
         }}
-        title={editingTenantId ? "Edit Tenant" : "New Tenant"}
+        title={editingTenantId ? "Edit Tenant" : "Create New Tenant"}
         theme={theme}
         width={600}
         footer={
