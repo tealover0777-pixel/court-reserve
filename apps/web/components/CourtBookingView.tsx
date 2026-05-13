@@ -62,6 +62,15 @@ const addMinutesToTime = (timeStr: string, minutes: number): string => {
   return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
 };
 
+/** Bookings are stored per tenant: tenants/{tenantId}/bookings/{bookingId} */
+function tenantBookingsCollection(tenantId: string) {
+  return collection(db, "tenants", tenantId, "bookings");
+}
+
+function tenantBookingDoc(tenantId: string, bookingId: string) {
+  return doc(db, "tenants", tenantId, "bookings", bookingId);
+}
+
 type SlotStatus = "AVAILABLE" | "SCHEDULED" | "BLOCKED" | "NOT_AVAILABLE" | "CLOSED";
 
 const getSlotStatus = (court: any, timeStr: string, bookings: any[], selectedDate: Date): SlotStatus => {
@@ -141,8 +150,7 @@ export default function CourtBookingView({ theme, isAdmin, tenantId: tenantIdPro
   useEffect(() => {
     if (!tenantId) return;
     const q = query(
-      collection(db, "bookings"),
-      where("tenantId", "==", tenantId),
+      tenantBookingsCollection(tenantId),
       where("date", "==", selectedDate.toDateString())
     );
     const unsub = onSnapshot(q, (snap) => {
@@ -155,8 +163,7 @@ export default function CourtBookingView({ theme, isAdmin, tenantId: tenantIdPro
   useEffect(() => {
     if (!tenantId || !user) return;
     const q = query(
-      collection(db, "bookings"),
-      where("tenantId", "==", tenantId),
+      tenantBookingsCollection(tenantId),
       where("userId", "==", user.uid)
     );
     const unsub = onSnapshot(q, (snap) => {
@@ -180,10 +187,7 @@ export default function CourtBookingView({ theme, isAdmin, tenantId: tenantIdPro
   // All tenant bookings — used by admin for the month view
   useEffect(() => {
     if (!tenantId || !isAdmin) return;
-    const q = query(
-      collection(db, "bookings"),
-      where("tenantId", "==", tenantId)
-    );
+    const q = query(tenantBookingsCollection(tenantId));
     const unsub = onSnapshot(q, (snap) => {
       setAllUserBookings(snap.docs.map((d) => ({ id: d.id, ...d.data() })));
     });
@@ -266,11 +270,11 @@ export default function CourtBookingView({ theme, isAdmin, tenantId: tenantIdPro
   };
 
   const handleConfirmMove = async () => {
-    if (!pendingMove) return;
+    if (!pendingMove || !tenantId) return;
     const { bookingId, booking, targetCourt, targetTime } = pendingMove;
     setIsMoving(true);
     try {
-      await updateDoc(doc(db, "bookings", bookingId), {
+      await updateDoc(tenantBookingDoc(tenantId, bookingId), {
         courtId: targetCourt.id || targetCourt.name,
         courtName: targetCourt.name,
         time: targetTime,
@@ -319,7 +323,7 @@ export default function CourtBookingView({ theme, isAdmin, tenantId: tenantIdPro
     }
 
     try {
-      await addDoc(collection(db, "bookings"), {
+      await addDoc(tenantBookingsCollection(tenantId), {
         tenantId,
         courtId: bookingModal.court.id || bookingModal.court.name,
         courtName: bookingModal.court.name,
@@ -334,6 +338,7 @@ export default function CourtBookingView({ theme, isAdmin, tenantId: tenantIdPro
         notes: bookingModal.notes.trim(),
         status: "SCHEDULED",
         created_at: serverTimestamp(),
+        createdAt: serverTimestamp(),
       });
       setBookingModal(null);
     } catch (err) {
@@ -456,8 +461,9 @@ export default function CourtBookingView({ theme, isAdmin, tenantId: tenantIdPro
         theme={theme}
         width={480}
       >
-        {viewBooking && (
+        {viewBooking && tenantId && (
           <BookingDetails
+            tenantId={tenantId}
             booking={viewBooking}
             theme={theme}
             user={user}
@@ -1609,7 +1615,8 @@ function UpcomingSection({ bookings, theme, onBookingClick }: { bookings: any[];
 }
 
 // ─── Booking Details ─────────────────────────────────────────────────────────
-function BookingDetails({ booking, theme, user, isAdmin, canModify, onClose, times, allBookings, courts }: { 
+function BookingDetails({ tenantId, booking, theme, user, isAdmin, canModify, onClose, times, allBookings, courts }: { 
+  tenantId: string;
   booking: any; 
   theme: string; 
   user: any; 
@@ -1636,7 +1643,7 @@ function BookingDetails({ booking, theme, user, isAdmin, canModify, onClose, tim
 
   const handleCancel = async () => {
     try {
-      await deleteDoc(doc(db, "bookings", booking.id));
+      await deleteDoc(tenantBookingDoc(tenantId, booking.id));
       onClose();
     } catch (err) {
       console.error("Cancellation failed:", err);
@@ -1666,7 +1673,7 @@ function BookingDetails({ booking, theme, user, isAdmin, canModify, onClose, tim
 
     try {
       const selectedCourt = courts.find((c: any) => (c.id || c.name) === editCourtId);
-      await updateDoc(doc(db, "bookings", booking.id), {
+      await updateDoc(tenantBookingDoc(tenantId, booking.id), {
         date: new Date(editDate).toDateString(),
         time: editTime,
         endTime: addMinutesToTime(editTime, editDuration * 60),
@@ -1674,6 +1681,7 @@ function BookingDetails({ booking, theme, user, isAdmin, canModify, onClose, tim
         courtId: editCourtId,
         courtName: selectedCourt?.name || booking.courtName,
         playerCount: editPlayerCount,
+        updatedAt: serverTimestamp(),
       });
       setIsEditing(false);
     } catch (err) {

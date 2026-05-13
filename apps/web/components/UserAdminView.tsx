@@ -803,7 +803,8 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
         theme === "DARK" ? "text-stone-300" : "text-stone-800"
       }`}>{info.getValue() || "-"}</span>,
     }),
-    columnHelper.accessor("notes", {
+    columnHelper.accessor(row => (row as any).notes || (row as any).Notes, {
+      id: "notes",
       header: "NOTES",
       size: 200,
       cell: info => <span className={`text-xs transition-colors duration-500 truncate max-w-[200px] block ${
@@ -1461,7 +1462,7 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
                   </div>
                 </div>
 
-                {sectionDivider("Internal Notes")}
+                {sectionDivider("Notes")}
 
                 <div className="col-span-2">
                   <textarea
@@ -1945,7 +1946,7 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
                     </div>
                   </div>
 
-                  {sectionDivider("Internal Notes")}
+                  {sectionDivider("Notes")}
                   
                   <div className="col-span-2">
                     <textarea

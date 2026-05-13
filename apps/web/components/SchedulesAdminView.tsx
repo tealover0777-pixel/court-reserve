@@ -3,9 +3,7 @@ import React, { useState, useEffect, useMemo } from "react";
 import { 
   collection, 
   query, 
-  where, 
   onSnapshot, 
-  orderBy, 
   doc, 
   deleteDoc, 
   updateDoc,
@@ -50,6 +48,15 @@ const getInitials = (name: string) => {
   return name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
 };
 
+/** Bookings: tenants/{tenantId}/bookings/{bookingId} */
+function tenantBookingsCollection(tenantId: string) {
+  return collection(db, "tenants", tenantId, "bookings");
+}
+
+function tenantBookingDoc(tenantId: string, bookingId: string) {
+  return doc(db, "tenants", tenantId, "bookings", bookingId);
+}
+
 function toDisplayTime(value: string | null | undefined): string {
   if (!value) return "—";
   const str = String(value).trim();
@@ -91,18 +98,14 @@ export default function SchedulesAdminView({ theme }: { theme: "LIGHT" | "DARK" 
       }
     });
 
-    // Fetch all bookings for this tenant
-    const q = query(
-      collection(db, "bookings"),
-      where("tenantId", "==", tenantId)
-    );
+    const q = query(tenantBookingsCollection(tenantId));
     
     const unsubBookings = onSnapshot(q, (snap) => {
       const all = snap.docs.map(d => ({ id: d.id, ...d.data() }));
       // Sort by last updated (or created_at) descending
       all.sort((a: any, b: any) => {
-        const tA = a.updatedAt?.toMillis() || a.createdAt?.toMillis() || 0;
-        const tB = b.updatedAt?.toMillis() || b.createdAt?.toMillis() || 0;
+        const tA = a.updatedAt?.toMillis() || a.createdAt?.toMillis() || a.created_at?.toMillis?.() || 0;
+        const tB = b.updatedAt?.toMillis() || b.createdAt?.toMillis() || b.created_at?.toMillis?.() || 0;
         return tB - tA;
       });
       setBookings(all);
@@ -197,8 +200,9 @@ export default function SchedulesAdminView({ theme }: { theme: "LIGHT" | "DARK" 
           </button>
           <button
             onClick={async () => {
+              if (!tenantId) return;
               if (confirm("Are you sure you want to delete this reservation?")) {
-                await deleteDoc(doc(db, "bookings", info.row.original.id));
+                await deleteDoc(tenantBookingDoc(tenantId, info.row.original.id));
               }
             }}
             className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all ${
@@ -210,7 +214,7 @@ export default function SchedulesAdminView({ theme }: { theme: "LIGHT" | "DARK" 
         </div>
       ),
     }),
-  ], [isDark, columnHelper]);
+  ], [isDark, columnHelper, tenantId]);
 
   const filteredBookings = useMemo(() => {
     if (!hidePast) return bookings;
@@ -242,12 +246,13 @@ export default function SchedulesAdminView({ theme }: { theme: "LIGHT" | "DARK" 
   });
 
   const handleBulkDelete = async () => {
+    if (!tenantId) return;
     const selectedRows = table.getSelectedRowModel().rows;
     if (selectedRows.length === 0) return;
     if (!confirm(`Are you sure you want to delete ${selectedRows.length} reservations?`)) return;
 
     for (const row of selectedRows) {
-      await deleteDoc(doc(db, "bookings", row.original.id));
+      await deleteDoc(tenantBookingDoc(tenantId, row.original.id));
     }
     setRowSelection({});
   };
@@ -416,7 +421,7 @@ export default function SchedulesAdminView({ theme }: { theme: "LIGHT" | "DARK" 
         )}
       </div>
 
-      {editingBooking && (
+      {editingBooking && tenantId && (
         <Modal
           isOpen={!!editingBooking}
           onClose={() => setEditingBooking(null)}
@@ -424,6 +429,7 @@ export default function SchedulesAdminView({ theme }: { theme: "LIGHT" | "DARK" 
           theme={theme}
         >
           <AdminBookingEdit 
+            tenantId={tenantId}
             booking={editingBooking} 
             courts={courts} 
             theme={theme} 
@@ -529,7 +535,7 @@ function ScheduleSettings({ config, tenantId, theme, onClose }: any) {
   );
 }
 
-function AdminBookingEdit({ booking, courts, theme, onClose }: any) {
+function AdminBookingEdit({ tenantId, booking, courts, theme, onClose }: { tenantId: string; booking: any; courts: any[]; theme: string; onClose: () => void }) {
   const [editDate, setEditDate] = useState(booking.date);
   const [editTime, setEditTime] = useState(booking.time);
   const [editDuration, setEditDuration] = useState(booking.duration);
@@ -553,7 +559,7 @@ function AdminBookingEdit({ booking, courts, theme, onClose }: any) {
     setIsSubmitting(true);
     try {
       const selectedCourt = courts.find((c: any) => (c.id || c.name) === editCourtId);
-      await updateDoc(doc(db, "bookings", booking.id), {
+      await updateDoc(tenantBookingDoc(tenantId, booking.id), {
         date: new Date(editDate).toDateString(),
         time: editTime,
         endTime: addMinutesToTime(editTime, editDuration * 60),

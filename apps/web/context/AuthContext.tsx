@@ -2,6 +2,7 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { onAuthStateChanged, User, getAuth, signOut } from "firebase/auth";
 import { auth } from "../lib/firebase";
+import type { DocumentReference, DocumentSnapshot } from "firebase/firestore";
 
 interface UserProfile {
   first_name: string;
@@ -45,47 +46,94 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    let unsubscribeProfile: (() => void) | null = null;
+    const unsubscribeProfileRef = { current: null as (() => void) | null };
 
     const unsubscribeAuth = onAuthStateChanged(auth, async (firebaseUser) => {
+      const prevUnsub = unsubscribeProfileRef.current;
+      if (prevUnsub) {
+        prevUnsub();
+        unsubscribeProfileRef.current = null;
+      }
       setUser(firebaseUser);
       
       if (firebaseUser) {
-        // Fetch profile from Firestore
         const { db } = await import("../lib/firebase");
-        const { collection, query, where, onSnapshot, updateDoc } = await import("firebase/firestore");
-        
-        const q = query(collection(db, "global_users"), where("auth_uid", "==", firebaseUser.uid));
-        unsubscribeProfile = onSnapshot(q, (snapshot) => {
-          if (!snapshot.empty && snapshot.docs[0]) {
-            const data = snapshot.docs[0].data() as UserProfile;
-            setProfile({ ...data, id: snapshot.docs[0].id });
-            
-            // Auto-activate if Invited
-            if (data.status === "Invited") {
-              updateDoc(snapshot.docs[0].ref, { 
-                status: "Active",
-                last_login: new Date().toISOString()
-              }).catch((err: any) => console.error("Failed to auto-activate user:", err));
+        const {
+          collection,
+          collectionGroup,
+          query,
+          where,
+          limit,
+          getDocs,
+          onSnapshot,
+          updateDoc,
+        } = await import("firebase/firestore");
+
+        const uid = firebaseUser.uid;
+
+        const attachProfile = (docRef: DocumentReference) => {
+          return onSnapshot(docRef, (snap: DocumentSnapshot) => {
+              if (!snap.exists()) {
+                setProfile(null);
+                setLoading(false);
+                return;
+              }
+              const data = snap.data() as UserProfile;
+              setProfile({ ...data, id: snap.id });
+
+              if (data.status === "Invited") {
+                updateDoc(snap.ref, {
+                  status: "Active",
+                  last_login: new Date().toISOString(),
+                }).catch((err: unknown) => console.error("Failed to auto-activate user:", err));
+              }
+              setLoading(false);
+            },
+            (error) => {
+              console.error("Profile fetch error:", error);
+              setLoading(false);
             }
+          );
+        };
+
+        try {
+          const globalQ = query(collection(db, "global_users"), where("auth_uid", "==", uid));
+          const globalSnap = await getDocs(globalQ);
+          if (!globalSnap.empty) {
+            const first = globalSnap.docs[0];
+            if (first) unsubscribeProfileRef.current = attachProfile(first.ref) as () => void;
           } else {
-            setProfile(null);
+            const tenantQ = query(
+              collectionGroup(db, "users"),
+              where("auth_uid", "==", uid),
+              limit(1)
+            );
+            const tenantSnap = await getDocs(tenantQ);
+            if (!tenantSnap.empty) {
+              const firstT = tenantSnap.docs[0];
+              if (firstT) unsubscribeProfileRef.current = attachProfile(firstT.ref) as () => void;
+            } else {
+              setProfile(null);
+              setLoading(false);
+            }
           }
+        } catch (e) {
+          console.error("Profile resolve error:", e);
+          setProfile(null);
           setLoading(false);
-        }, (error) => {
-          console.error("Profile fetch error:", error);
-          setLoading(false);
-        });
+        }
       } else {
         setProfile(null);
-        if (unsubscribeProfile) unsubscribeProfile();
+        const u = unsubscribeProfileRef.current;
+        if (u) u();
         setLoading(false);
       }
     });
 
     return () => {
       unsubscribeAuth();
-      if (unsubscribeProfile) unsubscribeProfile();
+      const u = unsubscribeProfileRef.current;
+      if (u) u();
     };
   }, []);
 

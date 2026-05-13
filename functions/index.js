@@ -112,21 +112,46 @@ exports.sendVerificationEmail = functions.https.onRequest(async (req, res) => {
  * Ensures the user exists in Firebase Authentication.
  */
 exports.inviteUser = functions.https.onCall(async (data, context) => {
-  const { email, role, tenantId, user_id, first_name, last_name, phone, notes } = data;
+  const {
+    email,
+    role,
+    tenantId,
+    tenant_id,
+    user_id,
+    first_name,
+    last_name,
+    phone,
+    notes,
+    useTenantUserDoc,
+  } = data;
 
   if (!email || !user_id) {
     throw new functions.https.HttpsError("invalid-argument", "Missing required fields: email or user_id");
   }
 
+  const tenantDocId = tenantId || "global";
+  const isTenantScoped =
+    tenantDocId && String(tenantDocId).toLowerCase() !== "global";
+
+  /** Tenant primary owner from Platform Tenant Admin: tenants/{tenantDocId}/users/{user_id}. All other invites stay in global_users. */
+  const useTenantPath = Boolean(useTenantUserDoc) && isTenantScoped;
+
+  const userDocRef = useTenantPath
+    ? db.collection("tenants").doc(tenantDocId).collection("users").doc(user_id)
+    : db.collection("global_users").doc(user_id);
+
+  const tenantSlug = tenant_id || tenantDocId;
+
   try {
     // 1. Pre-create in Firestore to prevent sync race condition
-    await db.collection("global_users").doc(user_id).set({
+    await userDocRef.set({
       user_id,
       email,
       first_name: first_name || "",
       last_name: last_name || "",
       phone: phone || "",
-      tenantId: tenantId || "global",
+      tenantId: tenantDocId,
+      tenant_id: useTenantPath ? tenantSlug : isTenantScoped ? tenantSlug : "Global",
       role,
       notes: notes || "",
       status: "Invited",
@@ -154,10 +179,10 @@ exports.inviteUser = functions.https.onCall(async (data, context) => {
     }
 
     // 3. Set Custom Claims
-    await admin.auth().setCustomUserClaims(uid, { tenantId: tenantId || 'global', role });
+    await admin.auth().setCustomUserClaims(uid, { tenantId: tenantDocId, role });
 
     // 4. Update Firestore with final Auth UID and ensure "Invited" status
-    await db.collection("global_users").doc(user_id).update({
+    await userDocRef.update({
       auth_uid: uid,
       status: "Invited",
       updated_at: admin.firestore.FieldValue.serverTimestamp()
@@ -188,6 +213,17 @@ exports.inviteUser = functions.https.onCall(async (data, context) => {
 exports.syncUserOnCreate = functions.auth.user().onCreate(async (user) => {
   const { uid, email, displayName } = user;
   
+  // Prefer tenant-scoped invite row (tenants/*/users) matched by email
+  const tenantUserSnap = await db.collectionGroup("users").where("email", "==", email).limit(5).get();
+  if (!tenantUserSnap.empty) {
+    const doc = tenantUserSnap.docs[0];
+    await doc.ref.update({
+      auth_uid: uid,
+      updated_at: admin.firestore.FieldValue.serverTimestamp(),
+    });
+    return;
+  }
+
   // Only sync if they don't already exist in global_users (checked by email)
   const userSnapshot = await db.collection("global_users").where("email", "==", email).get();
   
@@ -221,29 +257,42 @@ exports.syncUserOnCreate = functions.auth.user().onCreate(async (user) => {
  */
 exports.syncUserOnDelete = functions.auth.user().onDelete(async (user) => {
   const { uid } = user;
-  const userSnapshot = await db.collection("global_users").where("auth_uid", "==", uid).get();
-  
   const batch = db.batch();
-  userSnapshot.forEach(doc => {
-    batch.delete(doc.ref);
-  });
-  
-  return batch.commit();
+
+  const tenantUserSnap = await db.collectionGroup("users").where("auth_uid", "==", uid).get();
+  tenantUserSnap.forEach((d) => batch.delete(d.ref));
+
+  const globalSnap = await db.collection("global_users").where("auth_uid", "==", uid).get();
+  globalSnap.forEach((d) => batch.delete(d.ref));
+
+  if (!tenantUserSnap.empty || !globalSnap.empty) {
+    return batch.commit();
+  }
+  return null;
 });
 
 /**
  * Deletes a user from both Firestore and Firebase Authentication.
  */
 exports.deleteUserAccount = functions.https.onCall(async (data, context) => {
-  const { user_id, auth_uid } = data;
+  const { user_id, auth_uid, tenant_doc_id } = data;
 
   if (!user_id) {
     throw new functions.https.HttpsError("invalid-argument", "Missing user_id");
   }
 
   try {
-    // 1. Delete from Firestore
-    await db.collection("global_users").doc(user_id).delete();
+    // 1. Delete from Firestore (global_users doc id, or tenants/{tenant}/users/{user_id})
+    const globalRef = db.collection("global_users").doc(user_id);
+    const globalSnap = await globalRef.get();
+    if (globalSnap.exists) {
+      await globalRef.delete();
+    } else if (tenant_doc_id) {
+      await db.collection("tenants").doc(tenant_doc_id).collection("users").doc(user_id).delete();
+    } else if (auth_uid) {
+      const tu = await db.collectionGroup("users").where("auth_uid", "==", auth_uid).limit(1).get();
+      if (!tu.empty) await tu.docs[0].ref.delete();
+    }
 
     // 2. Delete from Auth (if UID is provided)
     if (auth_uid) {

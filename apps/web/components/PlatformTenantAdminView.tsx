@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect, useMemo } from "react";
 import {
   useReactTable,
   getCoreRowModel,
@@ -18,14 +18,11 @@ import {
   doc, 
   setDoc, 
   deleteDoc,
-  getDoc,
-  updateDoc,
   serverTimestamp, 
   query, 
   orderBy 
 } from "firebase/firestore";
 import { httpsCallable } from "firebase/functions";
-import { useEffect } from "react";
 
 interface Tenant {
   id: string;
@@ -44,7 +41,8 @@ interface Tenant {
   address_city?: string;
   address_state?: string;
   address_zip?: string;
-  Notes?: string;
+  notes?: string;
+  Notes?: string; // Support legacy capitalized field
 }
 
 
@@ -73,7 +71,7 @@ export default function PlatformTenantAdminView({ theme = "LIGHT" }: { theme?: "
     owner_phone: "",
     owner_role: "Owner",
     invite_user: true,
-    internal_notes: "",
+    notes: "",
     address_street_1: "",
     address_street_2: "",
     address_city: "",
@@ -95,7 +93,7 @@ export default function PlatformTenantAdminView({ theme = "LIGHT" }: { theme?: "
   const showAppMessage = (message: string, type: "SUCCESS" | "ERROR" | "INFO" = "INFO") => {
     setNotification({ message, type });
   };
-  const [users, setUsers] = useState<any[]>([]);
+  const [tenantUsers, setTenantUsers] = useState<any[]>([]);
   const [showInviteSuccess, setShowInviteSuccess] = useState(false);
   const [invitationLink, setInvitationLink] = useState("");
 
@@ -113,15 +111,28 @@ export default function PlatformTenantAdminView({ theme = "LIGHT" }: { theme?: "
       setLoading(false);
     });
 
-    const unsubscribeUsers = onSnapshot(collection(db, "global_users"), (snapshot) => {
-      setUsers(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
-    });
-
     return () => {
       unsubscribe();
-      unsubscribeUsers();
     };
   }, []);
+
+  const tenantDocIdForModal = editingTenantId || formData.tenant_id;
+
+  useEffect(() => {
+    const tid = tenantDocIdForModal;
+    if (!showNewModal || !tid) {
+      setTenantUsers([]);
+      return;
+    }
+    const unsub = onSnapshot(
+      collection(db, "tenants", tid, "users"),
+      (snapshot) => {
+        setTenantUsers(snapshot.docs.map((d) => ({ id: d.id, ...d.data() })));
+      },
+      (err) => console.error("Error fetching tenant users:", err)
+    );
+    return () => unsub();
+  }, [showNewModal, tenantDocIdForModal]);
 
   const nextTenantId = (() => {
     if (tenants.length === 0) return "T10001";
@@ -132,29 +143,28 @@ export default function PlatformTenantAdminView({ theme = "LIGHT" }: { theme?: "
     return "T" + (maxNum + 1);
   })();
 
-  const nextOwnerId = (() => {
-    const tenantId = formData.tenant_id || nextTenantId;
-    const tenantUsers = users.filter(u => u.tenant_id === tenantId);
+  const nextOwnerId = useMemo(() => {
     if (tenantUsers.length === 0) return "U10001";
-    const ids = tenantUsers.map(u => {
-      const match = u.user_id?.match(/^U(\d+)$/);
-      return (match && match[1]) ? parseInt(match[1]) : 0;
+    const ids = tenantUsers.map((u) => {
+      const match = String(u.user_id || "").match(/^U(\d+)$/);
+      return match?.[1] ? parseInt(match[1], 10) : 0;
     });
-    const max = Math.max(...ids);
-    const nextNum = Math.max(10001, max + 1);
-    return `U${nextNum}`;
-  })();
+    const max = ids.length ? Math.max(...ids) : 0;
+    return `U${Math.max(10001, max + 1)}`;
+  }, [tenantUsers]);
 
   useEffect(() => {
     if (showNewModal) {
-      const existingUser = users.find(u => u.email?.toLowerCase() === formData.owner_email?.toLowerCase());
+      const existingUser = tenantUsers.find(
+        (u) => u.email?.toLowerCase() === formData.owner_email?.toLowerCase()
+      );
       if (existingUser) {
-        setFormData(prev => ({ ...prev, owner_id: existingUser.user_id }));
+        setFormData((prev) => ({ ...prev, owner_id: existingUser.user_id }));
       } else {
-        setFormData(prev => ({ ...prev, owner_id: nextOwnerId }));
+        setFormData((prev) => ({ ...prev, owner_id: nextOwnerId }));
       }
     }
-  }, [formData.owner_email, users, showNewModal, nextOwnerId]);
+  }, [formData.owner_email, tenantUsers, showNewModal, nextOwnerId]);
 
   useEffect(() => {
     if (showNewModal && !editingTenantId) {
@@ -198,7 +208,7 @@ export default function PlatformTenantAdminView({ theme = "LIGHT" }: { theme?: "
       owner_phone: tenant.owner_phone || "",
       owner_role: "Owner",
       invite_user: !tenant.owner_id,
-      internal_notes: tenant.Notes || "",
+      notes: tenant.notes || tenant.Notes || "",
       address_street_1: tenant.address_street_1 || "",
       address_street_2: tenant.address_street_2 || "",
       address_city: tenant.address_city || "",
@@ -220,7 +230,7 @@ export default function PlatformTenantAdminView({ theme = "LIGHT" }: { theme?: "
       
       // 1. Prepare Invitation Logic
       // Logic: Invite if explicitly checked OR if this is a brand new owner record
-      const ownerExists = users.some(u => u.user_id === formData.owner_id && u.tenant_id === formData.tenant_id);
+      const ownerExists = tenantUsers.some((u) => u.user_id === formData.owner_id);
       const shouldInvite = formData.invite_user || !ownerExists;
       
       // 2. Invite Owner FIRST (if needed)
@@ -231,12 +241,14 @@ export default function PlatformTenantAdminView({ theme = "LIGHT" }: { theme?: "
           email: formData.owner_email,
           role: "R10005",
           tenantId: tenantDocId,
+          tenant_id: formData.tenant_id,
           user_id: formData.owner_id,
           first_name: formData.owner_first_name,
           last_name: formData.owner_last_name,
           phone: formData.owner_phone,
-          notes: formData.internal_notes || `Created with New Tenant: ${tenantDocId}`,
-          inviteUser: formData.invite_user
+          notes: formData.notes || `Created with New Tenant: ${tenantDocId}`,
+          inviteUser: formData.invite_user,
+          useTenantUserDoc: true,
         });
 
         if (result.data?.invitationLink) {
@@ -252,7 +264,7 @@ export default function PlatformTenantAdminView({ theme = "LIGHT" }: { theme?: "
         domain: `${formData.tenant_name.toLowerCase().replace(/\s+/g, '-')}.kinetic.com`,
         status: "Active",
         created_at: editingTenantId ? (tenants.find(t => t.id === editingTenantId) as any).created_at : new Date().toISOString().split('T')[0],
-        Notes: formData.internal_notes,
+        notes: formData.notes,
         owner_id: formData.owner_id,
         owner_email: formData.owner_email,
         owner_first_name: formData.owner_first_name,
@@ -272,48 +284,6 @@ export default function PlatformTenantAdminView({ theme = "LIGHT" }: { theme?: "
 
       await setDoc(doc(db, "tenants", tenantDocId), cleanTenantData);
       
-      // 4. Sync Address to Owner in global_users (Tenant-Scoped Record)
-      if (formData.owner_id) {
-        const compositeUserId = `${formData.tenant_id}_${formData.owner_id}`;
-        const ownerRef = doc(db, "global_users", compositeUserId);
-        const ownerData = {
-          user_id: formData.owner_id,
-          tenant_id: formData.tenant_id,
-          first_name: formData.owner_first_name,
-          last_name: formData.owner_last_name,
-          email: formData.owner_email,
-          phone: formData.owner_phone,
-          notes: formData.internal_notes || `Created with Tenant: ${formData.tenant_id}`,
-          role: "R10005",
-          address_street_1: formData.address_street_1,
-          address_street_2: formData.address_street_2,
-          address_city: formData.address_city,
-          address_state: formData.address_state,
-          address_zip: formData.address_zip,
-          status: "Invited",
-          updated_at: serverTimestamp()
-        };
-        await setDoc(ownerRef, ownerData, { merge: true });
-
-        // 5. Cleanup Duplicate Global Record
-        // Ensure the owner exists as a Tenant User, not a Global User.
-        try {
-          const legacyRef = doc(db, "global_users", formData.owner_id);
-          const legacySnap = await getDoc(legacyRef);
-          if (legacySnap.exists()) {
-            const data = legacySnap.data();
-            // If it's a global record (no tenant_id), update status to Invited and then remove 
-            // to ensure it doesn't clutter the global user list as a "Ghost Global"
-            if (!data.tenant_id || data.notes?.includes("Created with Tenant:")) {
-              await updateDoc(legacyRef, { status: "Invited" });
-              await deleteDoc(legacyRef);
-            }
-          }
-        } catch (cleanupErr) {
-          console.error("Cleanup duplicate error:", cleanupErr);
-        }
-      }
-
       setShowNewModal(false);
       setEditingTenantId(null);
       setFormData({
@@ -326,7 +296,7 @@ export default function PlatformTenantAdminView({ theme = "LIGHT" }: { theme?: "
         owner_phone: "",
         owner_role: "Owner",
         invite_user: true,
-        internal_notes: "",
+        notes: "",
         address_street_1: "",
         address_street_2: "",
         address_city: "",
@@ -353,12 +323,14 @@ export default function PlatformTenantAdminView({ theme = "LIGHT" }: { theme?: "
         email: tenant.owner_email,
         role: "R10005",
         tenantId: tenant.id,
+        tenant_id: tenant.tenant_id,
         user_id: tenant.owner_id,
         first_name: tenant.owner_first_name,
         last_name: tenant.owner_last_name,
         phone: tenant.owner_phone,
-        notes: tenant.Notes || `Re-invited from Tenant Admin: ${tenant.tenant_id}`,
-        inviteUser: true
+        notes: tenant.notes || tenant.Notes || `Re-invited from Tenant Admin: ${tenant.tenant_id}`,
+        inviteUser: true,
+        useTenantUserDoc: true,
       });
 
       if (result.data?.invitationLink) {
@@ -448,6 +420,16 @@ export default function PlatformTenantAdminView({ theme = "LIGHT" }: { theme?: "
           </span>
         );
       },
+    }),
+    columnHelper.accessor(row => row.notes || row.Notes, {
+      id: "notes",
+      header: "NOTES",
+      size: 200,
+      cell: info => <span className={`text-xs transition-colors duration-500 truncate max-w-[200px] block ${
+        theme === "DARK" ? "text-stone-400" : 
+        theme === "VINTAGE" ? "text-stone-500" :
+        "text-stone-600"
+      }`}>{info.getValue() || "-"}</span>,
     }),
     columnHelper.accessor("created_at", {
       header: "CREATED AT",
@@ -1096,10 +1078,10 @@ export default function PlatformTenantAdminView({ theme = "LIGHT" }: { theme?: "
             }`}>Invite user (Send verification email)</span>
           </label>
 
-          <FormField label="INTERNAL NOTES" theme={theme}>
+          <FormField label="NOTES" theme={theme}>
             <textarea 
-              value={formData.internal_notes}
-              onChange={e => setFormData({ ...formData, internal_notes: e.target.value })}
+              value={formData.notes}
+              onChange={e => setFormData({ ...formData, notes: e.target.value })}
               placeholder="Private notes about this tenant/owner..."
               rows={4}
               className={inputClasses(theme)}

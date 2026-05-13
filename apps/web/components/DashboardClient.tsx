@@ -45,7 +45,30 @@ export default function DashboardClient({ params }: { params: { tenantId: string
   const { user: authUser, profile, loading: authLoading } = useAuth();
   const [overrideTenantId, setOverrideTenantId] = React.useState<string | null>(null);
   
-  const tenantId = overrideTenantId || params.tenantId || (profile?.tenant_id && profile.tenant_id !== "Global" ? profile.tenant_id : contextTenantId);
+  const isGlobalUser = profile?.tenant_id === "Global" || !profile?.tenant_id;
+  const tenantId = overrideTenantId || (!isGlobalUser ? profile?.tenant_id : params.tenantId || contextTenantId) || "";
+
+  // Redirect to correct tenant if URL mismatch (for non-global users)
+  React.useEffect(() => {
+    if (!authLoading && profile && !isGlobalUser) {
+      if (params.tenantId !== profile.tenant_id) {
+        console.log(`Redirecting from ${params.tenantId} to ${profile.tenant_id}`);
+        router.push(`/${profile.tenant_id}`);
+      }
+    }
+  }, [profile, params.tenantId, router, authLoading, isGlobalUser]);
+
+  if (authLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-stone-950">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-12 h-12 border-4 border-[#ccff00] border-t-transparent rounded-full animate-spin"></div>
+          <p className="text-white/50 font-mono text-[10px] uppercase tracking-[0.2em]">Synchronizing Context...</p>
+        </div>
+      </div>
+    );
+  }
+
   const tenantSelectorRef = React.useRef<HTMLDivElement>(null);
 
   // --- Permission derivation ---
