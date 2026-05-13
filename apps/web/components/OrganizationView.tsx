@@ -29,11 +29,17 @@ export default function OrganizationView({ theme, tenantId: tenantIdProp }: Orga
   const [notification, setNotification] = useState<{ message: string; type: "SUCCESS" | "ERROR" } | null>(null);
 
   useEffect(() => {
-    // Centralized organization settings
-    const unsub = onSnapshot(doc(db, "organization", "settings"), (doc) => {
-      if (doc.exists()) setTenantData(doc.data());
-    });
-    return () => unsub();
+    // Listen to all organization sub-documents to merge them into tenantData
+    const documents = ["information", "branding", "email", "payment"];
+    const unsubs = documents.map(docId => 
+      onSnapshot(doc(db, "organization", docId), (snapshot) => {
+        if (snapshot.exists()) {
+          setTenantData((prev: any) => ({ ...prev, ...snapshot.data() }));
+        }
+      })
+    );
+    
+    return () => unsubs.forEach(unsub => unsub());
   }, []);
 
   useEffect(() => {
@@ -59,7 +65,7 @@ export default function OrganizationView({ theme, tenantId: tenantIdProp }: Orga
     }
   }, [notification]);
 
-  const handleSave = async (data: any) => {
+  const handleSave = async (data: any, docId: string) => {
     setIsSaving(true);
     try {
       // Filter out undefined values to prevent Firestore errors
@@ -67,7 +73,7 @@ export default function OrganizationView({ theme, tenantId: tenantIdProp }: Orga
         Object.entries(data).filter(([_, v]) => v !== undefined)
       );
 
-      await setDoc(doc(db, "organization", "settings"), {
+      await setDoc(doc(db, "organization", docId), {
         ...cleanData,
         updated_at: serverTimestamp()
       }, { merge: true });
@@ -120,15 +126,15 @@ export default function OrganizationView({ theme, tenantId: tenantIdProp }: Orga
       {/* Tab Content */}
       <div className={`p-12 rounded-[40px] border transition-all duration-500 ${isDark ? "bg-stone-950 border-stone-800" : "bg-white border-stone-100 shadow-xl shadow-stone-200/50"
         }`}>
-        {activeTab === "INFO" && <InfoTab data={tenantData} onSave={handleSave} isSaving={isSaving} theme={theme} />}
-        {activeTab === "BRANDING" && <BrandingTab data={tenantData} onSave={handleSave} isSaving={isSaving} theme={theme} tenantId={tenantId} />}
-        {activeTab === "EMAIL" && <EmailTab data={tenantData} onSave={handleSave} isSaving={isSaving} theme={theme} tenantId={tenantId} />}
+        {activeTab === "INFO" && <InfoTab data={tenantData} onSave={(d: any) => handleSave(d, "information")} isSaving={isSaving} theme={theme} />}
+        {activeTab === "BRANDING" && <BrandingTab data={tenantData} onSave={(d: any) => handleSave(d, "branding")} isSaving={isSaving} theme={theme} tenantId={tenantId} />}
+        {activeTab === "EMAIL" && <EmailTab data={tenantData} onSave={(d: any) => handleSave(d, "email")} isSaving={isSaving} theme={theme} tenantId={tenantId} />}
         {activeTab === "COURT" && (
           tenantId === "Global" 
             ? <DefaultCourtsTab theme={theme} setNotification={setNotification} />
-            : <CourtTab data={tenantData} onSave={handleSave} isSaving={isSaving} theme={theme} dimensions={dimensions} tenantId={tenantId} />
+            : <CourtTab data={tenantData} onSave={(d: any) => handleSave(d, "information")} isSaving={isSaving} theme={theme} dimensions={dimensions} tenantId={tenantId} />
         )}
-        {activeTab === "PAYMENT" && <PaymentTab data={tenantData} onSave={handleSave} isSaving={isSaving} theme={theme} />}
+        {activeTab === "PAYMENT" && <PaymentTab data={tenantData} onSave={(d: any) => handleSave(d, "payment")} isSaving={isSaving} theme={theme} />}
         {activeTab === "PHOTOS" && <PhotosTab theme={theme} setNotification={setNotification} />}
       </div>
 
@@ -932,7 +938,7 @@ function CourtTab({ data, onSave, isSaving, theme, dimensions, tenantId }: any) 
 
   useEffect(() => {
     if (tenantId === "Global") return;
-    const q = query(collection(db, "organization", "settings", "default_courts"), orderBy("created_at", "desc"));
+    const q = query(collection(db, "organization", "default_courts"), orderBy("created_at", "desc"));
     const unsub = onSnapshot(q, (snap) => {
       const courts = snap.docs.map(doc => ({
         id: doc.id,
@@ -1418,7 +1424,7 @@ function DefaultCourtsTab({ theme, setNotification }: { theme: string; setNotifi
   const fileInputRef = React.useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    const q = query(collection(db, "organization", "settings", "default_courts"), orderBy("created_at", "desc"));
+    const q = query(collection(db, "organization", "default_courts"), orderBy("created_at", "desc"));
     const unsub = onSnapshot(q, (snap) => {
       setCourts(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
     });
@@ -1525,7 +1531,7 @@ function DefaultCourtsTab({ theme, setNotification }: { theme: string; setNotifi
                       await uploadBytes(storageRef, file);
                       const url = await getDownloadURL(storageRef);
 
-                      await setDoc(doc(db, "organization", "settings", "default_courts", id), {
+                      await setDoc(doc(db, "organization", "default_courts", id), {
                         name: nameEl.value,
                         url: url,
                         created_at: new Date().toISOString()
@@ -1567,7 +1573,7 @@ function DefaultCourtsTab({ theme, setNotification }: { theme: string; setNotifi
                       await uploadBytes(storageRef, file);
                       const url = await getDownloadURL(storageRef);
 
-                      await setDoc(doc(db, "organization", "settings", "default_courts", id), {
+                      await setDoc(doc(db, "organization", "default_courts", id), {
                         name: nameEl.value,
                         url: url,
                         created_at: new Date().toISOString()
@@ -1632,7 +1638,7 @@ function DefaultCourtsTab({ theme, setNotification }: { theme: string; setNotifi
               onClick={async () => {
                 if (!confirmDeleteId) return;
                 try {
-                  await deleteDoc(doc(db, "organization", "settings", "default_courts", confirmDeleteId));
+                  await deleteDoc(doc(db, "organization", "default_courts", confirmDeleteId));
                   showAppMessage("Court removed.", "SUCCESS");
                 } catch (err) {
                   showAppMessage("Failed to remove court.", "ERROR");
@@ -1669,7 +1675,7 @@ function PhotosTab({ theme, setNotification }: { theme: "LIGHT" | "DARK" | "VINT
   const isDark = theme === "DARK";
 
   useEffect(() => {
-    const unsub = onSnapshot(collection(db, "organization", "settings", "default_portraits"), (snapshot) => {
+    const unsub = onSnapshot(collection(db, "organization", "default_portraits"), (snapshot) => {
       const items = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       setDefaultPortraits(items.sort((a: any, b: any) => 
         new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime()
@@ -1768,7 +1774,7 @@ function PhotosTab({ theme, setNotification }: { theme: "LIGHT" | "DARK" | "VINT
                     await uploadBytes(storageRef, file);
                     const url = await getDownloadURL(storageRef);
 
-                    await setDoc(doc(db, "organization", "settings", "default_portraits", id), {
+                    await setDoc(doc(db, "organization", "default_portraits", id), {
                       label: labelEl.value,
                       url: url,
                       created_at: new Date().toISOString()
@@ -1810,7 +1816,7 @@ function PhotosTab({ theme, setNotification }: { theme: "LIGHT" | "DARK" | "VINT
                     await uploadBytes(storageRef, file);
                     const url = await getDownloadURL(storageRef);
 
-                    await setDoc(doc(db, "organization", "settings", "default_portraits", id), {
+                    await setDoc(doc(db, "organization", "default_portraits", id), {
                       label: labelEl.value,
                       url: url,
                       created_at: new Date().toISOString()
@@ -1874,7 +1880,7 @@ function PhotosTab({ theme, setNotification }: { theme: "LIGHT" | "DARK" | "VINT
               onClick={async () => {
                 if (!confirmDeleteId) return;
                 try {
-                  await deleteDoc(doc(db, "organization", "settings", "default_portraits", confirmDeleteId));
+                  await deleteDoc(doc(db, "organization", "default_portraits", confirmDeleteId));
                   showAppMessage("Portrait removed.", "SUCCESS");
                 } catch (err) {
                   showAppMessage("Failed to remove portrait.", "ERROR");

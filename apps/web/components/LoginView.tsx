@@ -105,7 +105,7 @@ export default function LoginView() {
   }, []);
 
   useEffect(() => {
-    const qPortraits = query(collection(db, "organization", "settings", "default_portraits"), orderBy("label", "asc"));
+    const qPortraits = query(collection(db, "organization", "default_portraits"), orderBy("label", "asc"));
     const unsub = onSnapshot(qPortraits, (snap) => {
       const p = snap.docs.map(d => ({
         id: d.id,
@@ -205,10 +205,19 @@ export default function LoginView() {
     }
     setLoading(true);
     try {
-      const q = query(collection(db, "global_users"), where("email", "==", emailLower));
-      const snap = await getDocs(q);
-      const existsHere = emailExistsForTenant(emailLower, regTenantId)(snap.docs);
-      if (existsHere) {
+      const emailLower = regEmail.trim().toLowerCase();
+      
+      // 1. Check global_users
+      const qGlobal = query(collection(db, "global_users"), where("email", "==", emailLower));
+      const snapGlobal = await getDocs(qGlobal);
+      const existsInGlobal = emailExistsForTenant(emailLower, regTenantId)(snapGlobal.docs);
+      
+      // 2. Check tenant-scoped users (e.g. Owners/Admins added via Platform Admin)
+      const tenantUsersRef = collection(db, "tenants", regTenantId, "users");
+      const qTenant = query(tenantUsersRef, where("email", "==", emailLower));
+      const snapTenant = await getDocs(qTenant);
+      
+      if (existsInGlobal || !snapTenant.empty) {
         const selectedTenant = tenants.find((t) => t.id === regTenantId);
         setError(
           `This email is already registered at ${selectedTenant?.name || "this club"}. Please sign in or use a different email.`
@@ -216,7 +225,8 @@ export default function LoginView() {
         return;
       }
       setRegStep("profile");
-    } catch {
+    } catch (err) {
+      console.error("Verification error:", err);
       setError("Could not verify email. Please try again.");
     } finally {
       setLoading(false);
