@@ -22,6 +22,7 @@ interface CompanyViewProps {
 export default function CompanyView({ theme, tenantId: tenantIdProp }: CompanyViewProps) {
   const { tenantId: contextTenantId } = useTenant();
   const tenantId = tenantIdProp !== undefined ? tenantIdProp : contextTenantId;
+  const isGlobalView = !tenantId || tenantId === "Global" || tenantId === "consolidated";
   const [activeTab, setActiveTab] = useState<"INFO" | "BRANDING" | "EMAIL" | "COURT" | "PAYMENT" | "PHOTOS">("INFO");
   const [tenantData, setTenantData] = useState<any>(null);
   const [dimensions, setDimensions] = useState<Record<string, string[]>>({});
@@ -74,7 +75,6 @@ export default function CompanyView({ theme, tenantId: tenantIdProp }: CompanyVi
     }
   }, [notification]);
 
-  const isGlobalView = !tenantId || tenantId === "Global" || tenantId === "consolidated";
 
   const handleSave = async (data: any, docId: string) => {
     setIsSaving(true);
