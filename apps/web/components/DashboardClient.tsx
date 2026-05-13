@@ -363,7 +363,7 @@ export default function DashboardClient({ params }: { params: { tenantId: string
                     theme={theme}
                   />
                   <SubNavItem
-                    label="Company"
+                    label="PLATFORM COMPANY"
                     active={activeView === "PLATFORM_COMPANY"}
                     onClick={() => handleViewChange("PLATFORM_COMPANY")}
                     theme={theme}
@@ -463,8 +463,10 @@ export default function DashboardClient({ params }: { params: { tenantId: string
               {activeView === "TENANT_USER_ADMIN"
                 ? "USER ADMIN"
                 : activeView === "USER_ADMIN"
-                  ? "Tenant User Admin"
-                  : activeView.replace(/_/g, " ")}
+                  ? "PLATFORM USER"
+                  : activeView === "PLATFORM_COMPANY"
+                    ? "PLATFORM COMPANY"
+                    : activeView.replace(/_/g, " ")}
             </span>
           </div>
         </div>
@@ -578,7 +580,7 @@ export default function DashboardClient({ params }: { params: { tenantId: string
           if (activeView === "TENANT_USER_ADMIN") return <UserAdminView theme={theme} tenantId={tenantId} />;
           if (activeView === "MEMBER_ADMIN") return <MemberAdminView theme={theme} tenantId={tenantId} />;
           if (activeView === "PLATFORM_COMPANY") return <CompanyView theme={theme} tenantId={null} />;
-          if (activeView === "USER_ADMIN") return <UserAdminView theme={theme} tenantId={tenantId} />;
+          if (activeView === "USER_ADMIN") return <UserAdminView theme={theme} tenantId={null} />;
           if (activeView === "PLATFORM_TENANT_ADMIN") return <PlatformTenantAdminView theme={theme} />;
           if (activeView === "PLATFORM_ROLE_TYPES") return <RoleTypesView theme={theme} />;
           if (activeView === "COURT BOOKING") return <CourtBookingView theme={theme} isAdmin={hasPermission("ADMINISTRATION_VIEW")} tenantId={tenantId ?? undefined} />;

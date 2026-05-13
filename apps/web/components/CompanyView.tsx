@@ -86,13 +86,15 @@ export default function CompanyView({ theme, tenantId: tenantIdProp }: CompanyVi
     }
   };
 
+  const isGlobalView = !tenantId || tenantId === "Global";
+
   const tabs = [
     { id: "INFO", label: "Information", icon: "info" },
     { id: "BRANDING", label: "Branding", icon: "palette" },
     { id: "EMAIL", label: "Email Settings", icon: "mail" },
-    { id: "COURT", label: !tenantId ? "Manage Default Courts" : "Court", icon: "sports_tennis" },
+    { id: "COURT", label: isGlobalView ? "Default Court" : "Court", icon: "sports_tennis" },
     { id: "PAYMENT", label: "Payment & Billing", icon: "payments" },
-    ...(!tenantId ? [{ id: "PHOTOS", label: "Manage Default Photos", icon: "add_a_photo" }] : [])
+    ...(isGlobalView ? [{ id: "PHOTOS", label: "Default player photo", icon: "add_a_photo" }] : [])
   ];
 
   const isDark = theme === "DARK";
@@ -102,7 +104,7 @@ export default function CompanyView({ theme, tenantId: tenantIdProp }: CompanyVi
     <div className="space-y-8 animate-in fade-in duration-700">
       <div className="flex flex-col gap-2">
         <h3 className={`text-6xl font-black italic tracking-tighter transition-all duration-500 ${isDark ? "text-white" : isVintage ? "text-black" : "text-stone-900"
-          }`}>COMPANY</h3>
+          }`}>{isGlobalView ? "PLATFORM COMPANY" : "COMPANY"}</h3>
         <p className={`text-xs font-bold tracking-[0.2em] uppercase ${isDark ? "text-stone-200" : "text-stone-900"}`}>Manage your brand and business core</p>
       </div>
 
@@ -130,7 +132,7 @@ export default function CompanyView({ theme, tenantId: tenantIdProp }: CompanyVi
         {activeTab === "BRANDING" && <BrandingTab data={tenantData} onSave={(d: any) => handleSave(d, "branding")} isSaving={isSaving} theme={theme} tenantId={tenantId} />}
         {activeTab === "EMAIL" && <EmailTab data={tenantData} onSave={(d: any) => handleSave(d, "email")} isSaving={isSaving} theme={theme} tenantId={tenantId} />}
         {activeTab === "COURT" && (
-          tenantId === "Global" 
+          isGlobalView 
             ? <DefaultCourtsTab theme={theme} setNotification={setNotification} />
             : <CourtTab data={tenantData} onSave={(d: any) => handleSave(d, "information")} isSaving={isSaving} theme={theme} dimensions={dimensions} tenantId={tenantId} />
         )}

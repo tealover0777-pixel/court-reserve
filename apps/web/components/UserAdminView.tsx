@@ -172,21 +172,27 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
     let qTenantScoped: any = null;
 
     if (!tenantId) {
-      // Platform view: ONLY global_users
-      qGlobal = query(collection(db, "global_users"), orderBy("user_id", "asc"));
+      // Platform view: show ALL scoped users (per user request to hide global)
+      qGlobal = null;
+      qTenantScoped = query(collectionGroup(db, "users"), orderBy("user_id", "asc"));
     } else if (tenantId === "consolidated") {
-      // Consolidated view: both
-      qGlobal = query(collection(db, "global_users"), orderBy("user_id", "asc"));
+      // Consolidated view: ONLY scoped users (per user request to hide global)
+      qGlobal = null;
       qTenantScoped = query(collectionGroup(db, "users"), orderBy("user_id", "asc"));
     } else {
-      // Specific tenant view: filtered both
-      qGlobal = query(collection(db, "global_users"), where("tenant_id", "==", tenantId), orderBy("user_id", "asc"));
+      // Specific tenant view: ONLY scoped users
+      qGlobal = null;
       qTenantScoped = query(collectionGroup(db, "users"), where("tenant_id", "==", tenantId), orderBy("user_id", "asc"));
     }
 
-    const unsubGlobal = onSnapshot(qGlobal, (snap: any) => {
-      setGlobalUsers(snap.docs.map((d: any) => ({ id: d.id, ...d.data(), is_global: true } as User)));
-    });
+    let unsubGlobal = () => {};
+    if (qGlobal) {
+      unsubGlobal = onSnapshot(qGlobal, (snap: any) => {
+        setGlobalUsers(snap.docs.map((d: any) => ({ id: d.id, ...d.data(), is_global: true } as User)));
+      });
+    } else {
+      setGlobalUsers([]);
+    }
 
     let unsubTenant = () => {};
     if (qTenantScoped) {
@@ -218,8 +224,8 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
   useEffect(() => {
     // Merge and deduplicate using a globally unique key
     const all = [...globalUsers, ...scopedUsers];
-    const unique = Array.from(new Map(all.map(u => {
-      const key = u.is_global ? `global_${u.id}` : `scoped_${u.tenant_id || (u as any).tenantId}_${u.id}`;
+    const unique = Array.from(new Map(all.map((u: User) => {
+      const key = u.is_global ? `global_${u.id}` : `scoped_${u.tenant_id}_${u.id}`;
       return [key, u];
     })).values());
     setUsers(unique.sort((a, b) => (a.user_id || "").localeCompare(b.user_id || "")));

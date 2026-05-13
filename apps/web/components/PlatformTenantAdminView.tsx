@@ -385,7 +385,7 @@ export default function PlatformTenantAdminView({ theme = "LIGHT" }: { theme?: "
         first_name: tenant.owner_first_name,
         last_name: tenant.owner_last_name,
         phone: tenant.owner_phone,
-        notes: tenant.notes || tenant.Notes || `Re-invited from Tenant Admin: ${tenant.tenant_id}`,
+        notes: tenant.notes || tenant.Notes || "",
         inviteUser: true,
         useTenantUserDoc: true,
       });
