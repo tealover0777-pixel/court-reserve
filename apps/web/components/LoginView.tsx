@@ -205,25 +205,32 @@ export default function LoginView() {
     }
     setLoading(true);
     try {
-      const emailLower = regEmail.trim().toLowerCase();
-      
-      // 1. Check global_users
-      const qGlobal = query(collection(db, "global_users"), where("email", "==", emailLower));
-      const snapGlobal = await getDocs(qGlobal);
-      const existsInGlobal = emailExistsForTenant(emailLower, regTenantId)(snapGlobal.docs);
-      
-      // 2. Check tenant-scoped users (e.g. Owners/Admins added via Platform Admin)
+      // 1. Check if email already exists in this specific tenant
       const tenantUsersRef = collection(db, "tenants", regTenantId, "users");
       const qTenant = query(tenantUsersRef, where("email", "==", emailLower));
       const snapTenant = await getDocs(qTenant);
       
-      if (existsInGlobal || !snapTenant.empty) {
+      if (!snapTenant.empty) {
         const selectedTenant = tenants.find((t) => t.id === regTenantId);
         setError(
           `This email is already registered at ${selectedTenant?.name || "this club"}. Please sign in or use a different email.`
         );
         return;
       }
+
+      // 2. Check global_users (for existing legacy or platform accounts)
+      const qGlobal = query(collection(db, "global_users"), where("email", "==", emailLower));
+      const snapGlobal = await getDocs(qGlobal);
+      const existsInGlobal = emailExistsForTenant(emailLower, regTenantId)(snapGlobal.docs);
+
+      if (existsInGlobal) {
+        const selectedTenant = tenants.find((t) => t.id === regTenantId);
+        setError(
+          `This email is already registered at ${selectedTenant?.name || "this club"}. Please sign in or use a different email.`
+        );
+        return;
+      }
+
       setRegStep("profile");
     } catch (err) {
       console.error("Verification error:", err);
@@ -270,20 +277,28 @@ export default function LoginView() {
     setLoading(true);
     try {
       const emailLower = regEmail.trim().toLowerCase();
-      const preCheck = query(collection(db, "global_users"), where("email", "==", emailLower));
-      const preSnap = await getDocs(preCheck);
-      if (emailExistsForTenant(emailLower, regTenantId)(preSnap.docs)) {
-        setError("This email was just registered at this club. Please sign in.");
-        return;
-      }
+      
+      // Calculate next user ID for this tenant: U10001, U10002...
+      const tenantUsersRef = collection(db, "tenants", regTenantId, "users");
+      const allTenantUsersSnap = await getDocs(tenantUsersRef);
+      const ids = allTenantUsersSnap.docs.map(d => {
+        const uid = d.data().user_id || "";
+        const m = uid.match(/^U(\d+)$/);
+        return m ? parseInt(m[1], 10) : 0;
+      });
+      const maxId = ids.length > 0 ? Math.max(...ids) : 0;
+      const nextUserId = `U${Math.max(10001, maxId + 1)}`;
+
       const cred = await createUserWithEmailAndPassword(auth, regEmail.trim(), regPassword);
       const selectedTenant = tenants.find((t) => t.id === regTenantId);
       const dob =
         profDobYear && profDobMonth && profDobDay
           ? `${profDobYear}-${profDobMonth.padStart(2, "0")}-${profDobDay.padStart(2, "0")}`
           : "";
-      await setDoc(doc(db, "global_users", cred.user.uid), {
-        user_id: cred.user.uid,
+
+      // Create tenant-scoped user record (Strictly within tenants/{tenantId}/users)
+      await setDoc(doc(db, "tenants", regTenantId, "users", nextUserId), {
+        user_id: nextUserId,
         auth_uid: cred.user.uid,
         email: emailLower,
         first_name: profFirstName.trim(),
@@ -295,7 +310,8 @@ export default function LoginView() {
         address_city: profCity.trim(),
         address_state: profState,
         address_zip: profZip.trim(),
-        roles: [],
+        role: "R10001",
+        roles: ["R10001"], // Default to Member
         status: "Active",
         tenant_id: selectedTenant?.tenant_id || regTenantId,
         tenantId: regTenantId,

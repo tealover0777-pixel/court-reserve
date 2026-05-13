@@ -184,13 +184,13 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
     }
 
     const unsubGlobal = onSnapshot(qGlobal, (snap: any) => {
-      setGlobalUsers(snap.docs.map((d: any) => ({ id: d.id, ...d.data() } as User)));
+      setGlobalUsers(snap.docs.map((d: any) => ({ id: d.id, ...d.data(), is_global: true } as User)));
     });
 
     let unsubTenant = () => {};
     if (qTenantScoped) {
       unsubTenant = onSnapshot(qTenantScoped, (snap: any) => {
-        setScopedUsers(snap.docs.map((d: any) => ({ id: d.id, ...d.data() } as User)));
+        setScopedUsers(snap.docs.map((d: any) => ({ id: d.id, ...d.data(), is_global: false } as User)));
       });
     } else {
       setScopedUsers([]);
@@ -422,12 +422,16 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
     if (!editingUser) return;
     setIsSaving(true);
     try {
-      // Use the exact document ID from the editing user
-      const userRef = doc(db, "global_users", editingUser.id);
+      // Use the correct document path based on whether the user is global or tenant-scoped
+      // @ts-ignore
+      const isGlobal = editingUser.is_global;
+      const userRef = isGlobal 
+        ? doc(db, "global_users", editingUser.id)
+        : doc(db, "tenants", (editingUser as any).tenantId || editingUser.tenant_id, "users", editingUser.id);
 
       // Destructure to exclude fields that shouldn't be saved to the database
       // @ts-ignore
-      const { invite_user, ...savableData } = formData;
+      const { invite_user, is_global, ...savableData } = formData;
 
       const updateData = {
         ...savableData,
@@ -485,8 +489,12 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
     setIsSaving(true);
     try {
       const newUserId = nextUserId;
-      const compositeId = `${formData.tenant_id}_${newUserId}`;
-      const userRef = doc(db, "global_users", compositeId);
+      const compositeId = formData.tenant_id ? `${formData.tenant_id}_${newUserId}` : newUserId;
+      
+      // Determine the correct reference: tenants/{id}/users/{uid} or global_users/{uid}
+      const userRef = formData.tenant_id 
+        ? doc(db, "tenants", formData.tenant_id, "users", newUserId)
+        : doc(db, "global_users", newUserId);
 
       const userData = {
         user_id: newUserId,
@@ -558,7 +566,8 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
           address_city: formData.address_city,
           address_state: formData.address_state,
           address_zip: formData.address_zip,
-          inviteUser: true
+          inviteUser: true,
+          useTenantUserDoc: !!formData.tenant_id // Use tenant-scoped document if tenant_id is present
         });
 
         if (result.data?.invitationLink) {

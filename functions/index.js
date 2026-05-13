@@ -213,43 +213,46 @@ exports.inviteUser = functions.https.onCall(async (data, context) => {
 exports.syncUserOnCreate = functions.auth.user().onCreate(async (user) => {
   const { uid, email, displayName } = user;
   
-  // Prefer tenant-scoped invite row (tenants/*/users) matched by email
-  const tenantUserSnap = await db.collectionGroup("users").where("email", "==", email).limit(5).get();
+  // 1. Prefer tenant-scoped user row (tenants/*/users) matched by email
+  const tenantUserSnap = await db.collectionGroup("users").where("email", "==", email).limit(1).get();
   if (!tenantUserSnap.empty) {
-    const doc = tenantUserSnap.docs[0];
-    await doc.ref.update({
+    const userDoc = tenantUserSnap.docs[0];
+    const userData = userDoc.data();
+    
+    await userDoc.ref.update({
       auth_uid: uid,
       updated_at: admin.firestore.FieldValue.serverTimestamp(),
     });
+
+    // Set Custom Claims for security rules
+    await admin.auth().setCustomUserClaims(uid, { 
+      tenantId: userData.tenantId || userData.tenant_id, 
+      role: userData.role || (userData.roles ? userData.roles[0] : "R10001")
+    });
+    console.log(`Synced tenant user ${email} with UID ${uid}`);
     return;
   }
 
-  // Only sync if they don't already exist in global_users (checked by email)
-  const userSnapshot = await db.collection("global_users").where("email", "==", email).get();
-  
-  if (userSnapshot.empty) {
-    const nameParts = (displayName || "").split(" ");
-    const firstName = nameParts[0] || "";
-    const lastName = nameParts.slice(1).join(" ") || "";
-
-    // Generate a temporary user_id if not present
-    const nextId = `U${Math.floor(Math.random() * 100000).toString().padStart(5, '0')}`;
-
-    await db.collection("global_users").doc(nextId).set({
-      user_id: nextId,
+  // 2. Check global_users (e.g. Platform Admins)
+  const globalUserSnap = await db.collection("global_users").where("email", "==", email).limit(1).get();
+  if (!globalUserSnap.empty) {
+    const userDoc = globalUserSnap.docs[0];
+    const userData = userDoc.data();
+    await userDoc.ref.update({ 
       auth_uid: uid,
-      email,
-      first_name: firstName,
-      last_name: lastName,
-      role: "Member", // Default role
-      status: "Active",
-      created_at: admin.firestore.FieldValue.serverTimestamp()
+      updated_at: admin.firestore.FieldValue.serverTimestamp()
     });
-  } else {
-    // If they exist but lack auth_uid, update it (Keep existing status)
-    const doc = userSnapshot.docs[0];
-    await doc.ref.update({ auth_uid: uid });
+    await admin.auth().setCustomUserClaims(uid, { 
+      role: userData.role || "PlatformAdmin",
+      isGlobal: true 
+    });
+    console.log(`Synced global user ${email} with UID ${uid}`);
+    return;
   }
+
+  // 3. If no pre-existing record found, we do NOT create a global user anymore.
+  // This satisfies the requirement to eliminate redundant global user records.
+  console.log(`No pre-existing Firestore record found for ${email}. Waiting for registration flow.`);
 });
 
 /**
