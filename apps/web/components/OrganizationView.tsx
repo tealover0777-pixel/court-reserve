@@ -938,7 +938,7 @@ function CourtTab({ data, onSave, isSaving, theme, dimensions, tenantId }: any) 
 
   useEffect(() => {
     if (tenantId === "Global") return;
-    const q = query(collection(db, "organization", "default_courts"), orderBy("created_at", "desc"));
+    const q = query(collection(db, "organization", "defaults", "courts"), orderBy("created_at", "desc"));
     const unsub = onSnapshot(q, (snap) => {
       const courts = snap.docs.map(doc => ({
         id: doc.id,
@@ -1424,7 +1424,7 @@ function DefaultCourtsTab({ theme, setNotification }: { theme: string; setNotifi
   const fileInputRef = React.useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    const q = query(collection(db, "organization", "default_courts"), orderBy("created_at", "desc"));
+    const q = query(collection(db, "organization", "defaults", "courts"), orderBy("created_at", "desc"));
     const unsub = onSnapshot(q, (snap) => {
       setCourts(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
     });
@@ -1531,7 +1531,7 @@ function DefaultCourtsTab({ theme, setNotification }: { theme: string; setNotifi
                       await uploadBytes(storageRef, file);
                       const url = await getDownloadURL(storageRef);
 
-                      await setDoc(doc(db, "organization", "default_courts", id), {
+                      await setDoc(doc(db, "organization", "defaults", "courts", id), {
                         name: nameEl.value,
                         url: url,
                         created_at: new Date().toISOString()
@@ -1573,7 +1573,7 @@ function DefaultCourtsTab({ theme, setNotification }: { theme: string; setNotifi
                       await uploadBytes(storageRef, file);
                       const url = await getDownloadURL(storageRef);
 
-                      await setDoc(doc(db, "organization", "default_courts", id), {
+                      await setDoc(doc(db, "organization", "defaults", "courts", id), {
                         name: nameEl.value,
                         url: url,
                         created_at: new Date().toISOString()
@@ -1638,7 +1638,7 @@ function DefaultCourtsTab({ theme, setNotification }: { theme: string; setNotifi
               onClick={async () => {
                 if (!confirmDeleteId) return;
                 try {
-                  await deleteDoc(doc(db, "organization", "default_courts", confirmDeleteId));
+                  await deleteDoc(doc(db, "organization", "defaults", "courts", confirmDeleteId));
                   showAppMessage("Court removed.", "SUCCESS");
                 } catch (err) {
                   showAppMessage("Failed to remove court.", "ERROR");
@@ -1675,7 +1675,7 @@ function PhotosTab({ theme, setNotification }: { theme: "LIGHT" | "DARK" | "VINT
   const isDark = theme === "DARK";
 
   useEffect(() => {
-    const unsub = onSnapshot(collection(db, "organization", "default_portraits"), (snapshot) => {
+    const unsub = onSnapshot(collection(db, "organization", "defaults", "portraits"), (snapshot) => {
       const items = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       setDefaultPortraits(items.sort((a: any, b: any) => 
         new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime()
@@ -1774,7 +1774,7 @@ function PhotosTab({ theme, setNotification }: { theme: "LIGHT" | "DARK" | "VINT
                     await uploadBytes(storageRef, file);
                     const url = await getDownloadURL(storageRef);
 
-                    await setDoc(doc(db, "organization", "default_portraits", id), {
+                    await setDoc(doc(db, "organization", "defaults", "portraits", id), {
                       label: labelEl.value,
                       url: url,
                       created_at: new Date().toISOString()
@@ -1816,7 +1816,7 @@ function PhotosTab({ theme, setNotification }: { theme: "LIGHT" | "DARK" | "VINT
                     await uploadBytes(storageRef, file);
                     const url = await getDownloadURL(storageRef);
 
-                    await setDoc(doc(db, "organization", "default_portraits", id), {
+                    await setDoc(doc(db, "organization", "defaults", "portraits", id), {
                       label: labelEl.value,
                       url: url,
                       created_at: new Date().toISOString()
@@ -1880,7 +1880,7 @@ function PhotosTab({ theme, setNotification }: { theme: "LIGHT" | "DARK" | "VINT
               onClick={async () => {
                 if (!confirmDeleteId) return;
                 try {
-                  await deleteDoc(doc(db, "organization", "default_portraits", confirmDeleteId));
+                  await deleteDoc(doc(db, "organization", "defaults", "portraits", confirmDeleteId));
                   showAppMessage("Portrait removed.", "SUCCESS");
                 } catch (err) {
                   showAppMessage("Failed to remove portrait.", "ERROR");

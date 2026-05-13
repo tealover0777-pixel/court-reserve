@@ -105,7 +105,7 @@ export default function LoginView() {
   }, []);
 
   useEffect(() => {
-    const qPortraits = query(collection(db, "organization", "default_portraits"), orderBy("label", "asc"));
+    const qPortraits = query(collection(db, "organization", "defaults", "portraits"), orderBy("label", "asc"));
     const unsub = onSnapshot(qPortraits, (snap) => {
       const p = snap.docs.map(d => ({
         id: d.id,

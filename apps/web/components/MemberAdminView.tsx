@@ -223,7 +223,7 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
       setTenants(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
     });
 
-    const unsubscribeDefaultPortraits = onSnapshot(collection(db, "organization", "default_portraits"), (snapshot) => {
+    const unsubscribeDefaultPortraits = onSnapshot(collection(db, "organization", "defaults", "portraits"), (snapshot) => {
       const data = snapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()

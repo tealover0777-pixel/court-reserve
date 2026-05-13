@@ -222,7 +222,7 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
       setTenants(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
     });
 
-    const unsubscribeDefaultPortraits = onSnapshot(collection(db, "organization", "settings", "default_portraits"), (snapshot) => {
+    const unsubscribeDefaultPortraits = onSnapshot(collection(db, "organization", "defaults", "portraits"), (snapshot) => {
       const data = snapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
@@ -285,7 +285,7 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
   useEffect(() => {
     const seedDefaults = async () => {
       try {
-        const q = query(collection(db, "organization", "settings", "default_portraits"));
+        const q = query(collection(db, "organization", "defaults", "portraits"));
         const snap = await getDocs(q);
         if (snap.empty) {
           const initial = [
@@ -295,7 +295,7 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
             { id: 'DEF_4', label: 'Female Dark', url: '/images/defaults/female_dark.png' },
           ];
           for (const item of initial) {
-            await setDoc(doc(db, "organization", "settings", "default_portraits", item.id), {
+            await setDoc(doc(db, "organization", "defaults", "portraits", item.id), {
               label: item.label,
               url: item.url,
               created_at: new Date().toISOString()
