@@ -283,12 +283,14 @@ export default function DashboardClient({ params }: { params: { tenantId: string
                     onClick={() => handleViewChange("ROLE_TYPES")}
                     theme={theme}
                   />
-                  <SubNavItem
-                    label="Company"
-                    active={activeView === "COMPANY"}
-                    onClick={() => handleViewChange("COMPANY")}
-                    theme={theme}
-                  />
+                  {tenantId !== "consolidated" && (
+                    <SubNavItem
+                      label="Company"
+                      active={activeView === "COMPANY"}
+                      onClick={() => handleViewChange("COMPANY")}
+                      theme={theme}
+                    />
+                  )}
                   <SubNavItem
                     label="User Admin"
                     active={activeView === "TENANT_USER_ADMIN"}
