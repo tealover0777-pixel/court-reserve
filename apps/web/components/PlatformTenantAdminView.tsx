@@ -257,7 +257,7 @@ export default function PlatformTenantAdminView({ theme = "LIGHT" }: { theme?: "
           first_name: formData.owner_first_name,
           last_name: formData.owner_last_name,
           phone: formData.owner_phone,
-          notes: formData.notes || `Created with New Tenant: ${tenantDocId}`,
+          notes: formData.notes,
           inviteUser: formData.invite_user,
           useTenantUserDoc: true,
         });
@@ -306,6 +306,7 @@ export default function PlatformTenantAdminView({ theme = "LIGHT" }: { theme?: "
         role: "R10005", // Owner role ID
         status: "Invited",
         tenant_id: formData.tenant_id,
+        notes: formData.notes,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString()
       };

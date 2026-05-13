@@ -190,7 +190,16 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
     let unsubTenant = () => {};
     if (qTenantScoped) {
       unsubTenant = onSnapshot(qTenantScoped, (snap: any) => {
-        setScopedUsers(snap.docs.map((d: any) => ({ id: d.id, ...d.data(), is_global: false } as User)));
+        setScopedUsers(snap.docs.map((d: any) => {
+          const data = d.data();
+          return { 
+            id: d.id, 
+            ...data, 
+            is_global: false,
+            // Ensure tenant_id is available even if not in document data
+            tenant_id: data.tenant_id || d.ref.parent.parent.id 
+          } as User;
+        }));
       });
     } else {
       setScopedUsers([]);
@@ -206,9 +215,12 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
   const [scopedUsers, setScopedUsers] = useState<User[]>([]);
 
   useEffect(() => {
-    // Merge and deduplicate
+    // Merge and deduplicate using a globally unique key
     const all = [...globalUsers, ...scopedUsers];
-    const unique = Array.from(new Map(all.map(u => [u.id, u])).values());
+    const unique = Array.from(new Map(all.map(u => {
+      const key = u.is_global ? `global_${u.id}` : `scoped_${u.tenant_id || (u as any).tenantId}_${u.id}`;
+      return [key, u];
+    })).values());
     setUsers(unique.sort((a, b) => (a.user_id || "").localeCompare(b.user_id || "")));
     setLoading(false);
   }, [globalUsers, scopedUsers]);
@@ -353,7 +365,7 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
       roles: user.roles || (user.role ? [user.role] : []),
       status: user.status || "Invited",
       phone: user.phone || "",
-      notes: user.notes || "",
+      notes: user.notes || (user as any).Notes || "",
       company_user_id: user.company_user_id || "",
       portrait_url: user.portrait_url || "",
       tenant_id: user.tenant_id || "",
@@ -703,7 +715,7 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
       cell: info => <span className={`font-mono text-xs transition-colors duration-500 ${theme === "DARK" ? "text-stone-200" : "text-stone-700"
         }`}>{info.getValue() || "—"}</span>,
     }),
-    ...(tenantId ? [] : [columnHelper.accessor("tenant_id", {
+    ...(tenantId && tenantId !== "consolidated" ? [] : [columnHelper.accessor("tenant_id", {
       header: "TENANT",
       size: 160,
       cell: info => {

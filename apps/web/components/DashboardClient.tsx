@@ -578,7 +578,7 @@ export default function DashboardClient({ params }: { params: { tenantId: string
           if (activeView === "TENANT_USER_ADMIN") return <UserAdminView theme={theme} tenantId={tenantId} />;
           if (activeView === "MEMBER_ADMIN") return <MemberAdminView theme={theme} tenantId={tenantId} />;
           if (activeView === "PLATFORM_ORGANIZATION") return <OrganizationView theme={theme} tenantId={null} />;
-          if (activeView === "USER_ADMIN") return <UserAdminView theme={theme} />;
+          if (activeView === "USER_ADMIN") return <UserAdminView theme={theme} tenantId={tenantId} />;
           if (activeView === "PLATFORM_TENANT_ADMIN") return <PlatformTenantAdminView theme={theme} />;
           if (activeView === "PLATFORM_ROLE_TYPES") return <RoleTypesView theme={theme} />;
           if (activeView === "COURT BOOKING") return <CourtBookingView theme={theme} isAdmin={hasPermission("ADMINISTRATION_VIEW")} tenantId={tenantId ?? undefined} />;

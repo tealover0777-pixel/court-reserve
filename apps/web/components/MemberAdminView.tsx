@@ -305,7 +305,7 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
       roles: user.roles || (user.role ? [user.role] : []),
       status: user.status || "Invited",
       phone: user.phone || "",
-      notes: user.notes || "",
+      notes: user.notes || (user as any).Notes || "",
       company_user_id: user.company_user_id || "",
       portrait_url: user.portrait_url || "",
       tenant_id: user.tenant_id || "",
