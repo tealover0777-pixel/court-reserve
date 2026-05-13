@@ -40,6 +40,7 @@ interface User {
   availability_from?: string;
   availability_to?: string;
   availability_enabled?: boolean;
+  is_global?: boolean;
 }
 
 const US_STATES = [
