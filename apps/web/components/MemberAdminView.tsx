@@ -232,7 +232,6 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
     });
 
     return () => {
-      unsubscribe();
       unsubscribeStatus();
       unsubscribeRoles();
       unsubscribeTenants();

@@ -235,7 +235,6 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
     });
 
     return () => {
-      unsubscribe();
       unsubscribeStatus();
       unsubscribeRoles();
       unsubscribeTenants();
