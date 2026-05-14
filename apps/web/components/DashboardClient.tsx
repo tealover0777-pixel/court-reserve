@@ -16,8 +16,21 @@ import SchedulesAdminView from "./SchedulesAdminView";
 import MemberAdminView from "./MemberAdminView";
 import { Modal } from "@repo/ui/modal";
 import { useAuth } from "../context/AuthContext";
-import { collection, onSnapshot, query, orderBy, doc, updateDoc, serverTimestamp } from "firebase/firestore";
+import { 
+  collection, 
+  onSnapshot, 
+  query, 
+  orderBy, 
+  doc, 
+  updateDoc, 
+  serverTimestamp,
+  limit,
+  where
+} from "firebase/firestore";
+import { format } from "date-fns";
 import { db, storage } from "../lib/firebase";
+import EventsAdminView from "./EventsAdminView";
+import EventDetailsModal from "./EventDetailsModal";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
 const US_STATES = [
@@ -34,7 +47,7 @@ export default function DashboardClient({ params }: { params: { tenantId: string
   const searchParams = useSearchParams();
   const pathname = usePathname();
 
-  const [activeView, setActiveView] = React.useState<"DASHBOARD" | "COURT BOOKING" | "PROGRAMS" | "MEMBERSHIP" | "SETTINGS" | "PROFILE" | "AI_ADMIN" | "DIMENSIONS" | "ROLE_TYPES" | "USER_ADMIN" | "PLATFORM_TENANT_ADMIN" | "COMPANY" | "PLATFORM_COMPANY" | "TENANT_USER_ADMIN" | "MEMBER_ADMIN" | "PLATFORM_ROLE_TYPES" | "SCHEDULES">("DASHBOARD");
+  const [activeView, setActiveView] = React.useState<"DASHBOARD" | "COURT BOOKING" | "PROGRAMS" | "MEMBERSHIP" | "SETTINGS" | "PROFILE" | "AI_ADMIN" | "DIMENSIONS" | "ROLE_TYPES" | "USER_ADMIN" | "PLATFORM_TENANT_ADMIN" | "COMPANY" | "PLATFORM_COMPANY" | "TENANT_USER_ADMIN" | "MEMBER_ADMIN" | "PLATFORM_ROLE_TYPES" | "SCHEDULES" | "EVENTS_ADMIN">("DASHBOARD");
   const [platformAdminOpen, setPlatformAdminOpen] = React.useState(false);
   const [administrationOpen, setAdministrationOpen] = React.useState(false);
   const [theme, setTheme] = React.useState<"LIGHT" | "DARK" | "VINTAGE">("LIGHT");
@@ -129,6 +142,7 @@ export default function DashboardClient({ params }: { params: { tenantId: string
     "PLATFORM_TENANT_ADMIN": "PLATFORM_VIEW",
     "PLATFORM_COMPANY": "PLATFORM_VIEW",
     "PLATFORM_ROLE_TYPES": "PLATFORM_VIEW",
+    "EVENTS_ADMIN": "ADMINISTRATION_VIEW",
   };
 
   // Sync state with History API for clean URL + Back/Forward support
@@ -179,6 +193,33 @@ export default function DashboardClient({ params }: { params: { tenantId: string
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userPermissions.join(","), activeView]);
+
+  const [unreadNotifications, setUnreadNotifications] = React.useState<any[]>([]);
+  const [showNotificationsModal, setShowNotificationsModal] = React.useState(false);
+
+  React.useEffect(() => {
+    if (!profile?.uid || !tenantId) return;
+    const q = query(
+      collection(db, "tenants", tenantId, "notifications"),
+      where("userId", "==", profile.uid),
+      where("read", "==", false),
+      orderBy("created_at", "desc"),
+      limit(20)
+    );
+    const unsub = onSnapshot(q, (snap) => {
+      setUnreadNotifications(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+    });
+    return () => unsub();
+  }, [profile?.uid, tenantId]);
+
+  const markAllAsRead = async () => {
+    if (!tenantId || unreadNotifications.length === 0) return;
+    const batch: any[] = [];
+    unreadNotifications.forEach(n => {
+      batch.push(updateDoc(doc(db, "tenants", tenantId, "notifications", n.id), { read: true }));
+    });
+    await Promise.all(batch);
+  };
 
   React.useEffect(() => {
     const q = query(collection(db, "role_types"), orderBy("role_id", "asc"));
@@ -306,7 +347,7 @@ export default function DashboardClient({ params }: { params: { tenantId: string
               <NavItem
                 icon="admin_panel_settings"
                 label="Administration"
-                active={["ROLE_TYPES", "COMPANY", "TENANT_USER_ADMIN", "MEMBER_ADMIN", "SCHEDULES"].includes(activeView)}
+                active={["ROLE_TYPES", "COMPANY", "TENANT_USER_ADMIN", "MEMBER_ADMIN", "SCHEDULES", "EVENTS_ADMIN"].includes(activeView)}
                 onClick={() => setAdministrationOpen(!administrationOpen)}
                 theme={theme}
               />
@@ -342,6 +383,12 @@ export default function DashboardClient({ params }: { params: { tenantId: string
                     label="Schedules"
                     active={activeView === "SCHEDULES"}
                     onClick={() => handleViewChange("SCHEDULES")}
+                    theme={theme}
+                  />
+                  <SubNavItem
+                    label="Events"
+                    active={activeView === "EVENTS_ADMIN"}
+                    onClick={() => handleViewChange("EVENTS_ADMIN")}
                     theme={theme}
                   />
                 </div>
@@ -585,7 +632,18 @@ export default function DashboardClient({ params }: { params: { tenantId: string
             <span className={`material-symbols-outlined absolute right-4 top-2 transition-colors text-white`}>search</span>
           </div>
           <div className="flex items-center gap-4 text-primary">
-            <button className="material-symbols-outlined hover:opacity-80 transition-opacity">notifications</button>
+            <button 
+              onClick={() => {
+                setShowNotificationsModal(true);
+                markAllAsRead();
+              }}
+              className="material-symbols-outlined hover:opacity-80 transition-opacity relative"
+            >
+              notifications
+              {unreadNotifications.length > 0 && (
+                <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white dark:border-stone-950"></span>
+              )}
+            </button>
             <button className="material-symbols-outlined hover:opacity-80 transition-opacity">settings</button>
           </div>
         </div>
@@ -633,7 +691,7 @@ export default function DashboardClient({ params }: { params: { tenantId: string
           }
           
           // 3. Render the view
-          if (activeView === "DASHBOARD") return <DashboardHome theme={theme} profile={profile} />;
+          if (activeView === "DASHBOARD") return <DashboardHome theme={theme} profile={profile} tenantId={tenantId} />;
           if (activeView === "AI_ADMIN") return <AIAdminView theme={theme} />;
           if (activeView === "DIMENSIONS") return <DimensionsView theme={theme} />;
           if (activeView === "ROLE_TYPES") return <RoleTypesView theme={theme} userRoleId={profile?.role} readOnly />;
@@ -650,6 +708,7 @@ export default function DashboardClient({ params }: { params: { tenantId: string
           if (activeView === "MEMBERSHIP") return <MembershipView theme={theme} />;
           if (activeView === "SETTINGS") return <SettingsView theme={theme} />;
           if (activeView === "PROFILE") return <ProfileView theme={theme} profile={profile} roles={roles} />;
+          if (activeView === "EVENTS_ADMIN") return <EventsAdminView theme={theme} tenantId={tenantId} />;
           return (
             <div className={`flex flex-col items-center justify-center min-h-[60vh] ${theme === "DARK" ? "text-white" : "text-stone-900"}`}>
               <span className="material-symbols-outlined text-6xl mb-4">construction</span>
@@ -659,11 +718,60 @@ export default function DashboardClient({ params }: { params: { tenantId: string
           );
         })()}
       </main>
+
+      <Modal
+        isOpen={showNotificationsModal}
+        onClose={() => setShowNotificationsModal(false)}
+        title="Notifications"
+        theme={theme}
+        width={400}
+      >
+        <div className="space-y-4">
+          {unreadNotifications.length > 0 ? (
+            unreadNotifications.map(n => (
+              <div key={n.id} className={`p-4 rounded-2xl border transition-colors ${theme === "DARK" ? "bg-stone-900 border-stone-800" : "bg-stone-50 border-stone-100"}`}>
+                <div className="flex justify-between items-start mb-1">
+                  <h5 className="text-[10px] font-black uppercase tracking-widest text-[#ccff00]">{n.title}</h5>
+                  <span className="text-[8px] opacity-40 font-mono">
+                    {n.created_at?.toDate ? format(n.created_at.toDate(), "MMM dd, HH:mm") : "Just now"}
+                  </span>
+                </div>
+                <p className={`text-xs ${theme === "DARK" ? "text-stone-300" : "text-stone-600"}`}>{n.message}</p>
+              </div>
+            ))
+          ) : (
+            <div className="text-center py-12 opacity-40">
+              <span className="material-symbols-outlined text-4xl mb-2">notifications_off</span>
+              <p className="text-[10px] font-black uppercase tracking-widest">No unread notifications</p>
+            </div>
+          )}
+        </div>
+      </Modal>
     </div>
   );
 }
 
-function DashboardHome({ theme, profile }: { theme: "LIGHT" | "DARK" | "VINTAGE", profile: any }) {
+function DashboardHome({ theme, profile, tenantId }: { theme: "LIGHT" | "DARK" | "VINTAGE", profile: any, tenantId: string }) {
+  const [events, setEvents] = useState<any[]>([]);
+
+  useEffect(() => {
+    if (!tenantId) return;
+    const q = query(
+      collection(db, "tenants", tenantId, "events"),
+      orderBy("date", "asc"),
+      limit(4)
+    );
+    const unsub = onSnapshot(q, (snap) => {
+      setEvents(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+    });
+    return () => unsub();
+  }, [tenantId]);
+
+  const [selectedEvent, setSelectedEvent] = useState<any | null>(null);
+
+  const featuredEvent = events[0];
+  const otherEvents = events.slice(1);
+
   return (
     <>
       {/* Welcome Hero */}
@@ -777,35 +885,66 @@ function DashboardHome({ theme, profile }: { theme: "LIGHT" | "DARK" | "VINTAGE"
           <BookingCard theme={theme} court="Court 01" date="OCT 22" time="05:30 PM - 07:00 PM" partner="Emma Watson" avatar="https://lh3.googleusercontent.com/aida-public/AB6AXuBzzuPwdLFtvkWfVtGdUUQWVmIi4KEQypeMrixMSTcgzhQFnc4cwbnSbPlVNw7gv1yXa5tMGjZFa6nOirsGggsolwq7PL0xndKn751oEnA29NzpG0Mx1xNs4wUFiPHlgL46jM66YbdKq6kM8SsbQzqrlSS5dqb_xz1MYIps9CCqjo_yl7HBsMFDtDEcyqWiokD4YmsMYd9rB1FhdBTk01BhklCqlAunBZzrqYxLdFBJYTOrwBYDXiKkyZcQYJ3J2VTtQAUNCgP_cKs" />
         </div>
       </section>
-
-      {/* Club News */}
       <section className="mt-16 mb-24">
-        <h4 className={`text-4xl font-black tracking-tighter uppercase mb-8 transition-colors ${theme === "DARK" ? "text-white" : "text-black"
-          }`}>Club News</h4>
-        <div className="grid grid-cols-12 gap-8">
-          <div className={`col-span-12 md:col-span-7 group cursor-pointer overflow-hidden rounded-2xl relative h-[400px] shadow-lg border transition-colors ${theme === "DARK" ? "border-stone-800" : "border-transparent"
-            }`}>
-            <img
-              src="/images/clay_court.png"
-              alt="New facilities"
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
-            <div className="absolute bottom-0 left-0 p-8">
-              <span className={`px-3 py-1 rounded-full text-[10px] font-black tracking-widest uppercase mb-4 inline-block ${theme === "DARK" ? "bg-[#ccff00] text-stone-950" : "bg-white text-black"
-                }`}>New Facilities</span>
-              <h5 className="text-4xl font-black text-white tracking-tighter">THE CLAY REVOLUTION ARRIVES</h5>
-              <p className="text-white mt-2 max-w-lg">Three new professional-grade clay courts are now open. Experience the authentic European feel.</p>
+        <h4 className={`text-4xl font-black tracking-tighter uppercase mb-8 transition-colors ${theme === "DARK" ? "text-white" : "text-black"}`}>
+          Club Events & News
+        </h4>
+          {featuredEvent ? (
+            <div 
+              onClick={() => setSelectedEvent(featuredEvent)}
+              className={`col-span-12 md:col-span-7 group cursor-pointer overflow-hidden rounded-2xl relative h-[400px] shadow-lg border transition-colors ${theme === "DARK" ? "border-stone-800" : "border-transparent"}`}
+            >
+              <img
+                src={featuredEvent.image_url || "/images/clay_court.png"}
+                alt={featuredEvent.title}
+                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
+              <div className="absolute bottom-0 left-0 p-8">
+                <span className={`px-3 py-1 rounded-full text-[10px] font-black tracking-widest uppercase mb-4 inline-block ${theme === "DARK" ? "bg-[#ccff00] text-stone-950" : "bg-white text-black"}`}>
+                  {featuredEvent.tag || "Club News"}
+                </span>
+                <h5 className="text-4xl font-black text-white tracking-tighter uppercase">{featuredEvent.title}</h5>
+                <p className="text-white mt-2 max-w-lg line-clamp-2">{featuredEvent.description}</p>
+              </div>
             </div>
-          </div>
+          ) : (
+            <div className={`col-span-12 md:col-span-7 rounded-2xl border-2 border-dashed flex items-center justify-center h-[400px] ${theme === "DARK" ? "border-stone-800" : "border-stone-200"}`}>
+              <p className="text-[10px] font-black uppercase tracking-widest opacity-40">No upcoming events</p>
+            </div>
+          )}
 
           <div className="col-span-12 md:col-span-5 flex flex-col gap-8">
-            <NewsItem theme={theme} title="PRO CLINIC WITH COACH MILLER" subtitle="Master the overhead smash this weekend." tag="Training" />
-            <NewsItem theme={theme} title="MIXER NIGHT: DRINKS & DOUBLES" subtitle="Join us for the seasonal social event next Friday." tag="Social" />
-            <NewsItem theme={theme} title="THE FALL COLLECTION HAS LANDED" subtitle="Exclusive Kinetic Court apparel now available." tag="Pro Shop" />
+            {otherEvents.length > 0 ? (
+              otherEvents.map(event => (
+                <NewsItem 
+                  key={event.id} 
+                  theme={theme} 
+                  title={event.title} 
+                  subtitle={event.description} 
+                  tag={event.tag} 
+                  onClick={() => setSelectedEvent(event)}
+                />
+              ))
+            ) : (
+              <>
+                <NewsItem theme={theme} title="PRO CLINIC WITH COACH MILLER" subtitle="Master the overhead smash this weekend." tag="Training" />
+                <NewsItem theme={theme} title="MIXER NIGHT: DRINKS & DOUBLES" subtitle="Join us for the seasonal social event next Friday." tag="Social" />
+              </>
+            )}
           </div>
         </div>
       </section>
+
+      {selectedEvent && (
+        <EventDetailsModal
+          event={selectedEvent}
+          theme={theme}
+          profile={profile}
+          tenantId={tenantId}
+          onClose={() => setSelectedEvent(null)}
+        />
+      )}
     </>
   );
 }
