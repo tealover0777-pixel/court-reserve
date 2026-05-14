@@ -964,7 +964,7 @@ export default function PlatformTenantAdminView({ theme = "LIGHT" }: { theme?: "
               <select
                 value={formData.address_state}
                 onChange={e => setFormData({ ...formData, address_state: e.target.value })}
-                className={`${inputClasses(theme)} ${!formData.address_state ? '!text-stone-400' : ''}`}
+                className={`${inputClasses(theme)} ${!formData.address_state ? '!text-stone-200' : ''}`}
               >
                 <option value="">Select State</option>
                 {US_STATES.map(state => (
@@ -994,7 +994,7 @@ export default function PlatformTenantAdminView({ theme = "LIGHT" }: { theme?: "
               onChange={e => setFormData({ ...formData, owner_id: e.target.value })}
               readOnly={!!editingTenantId}
               placeholder="e.g. U10001"
-              className={`w-full border rounded-2xl px-6 py-4 text-sm font-bold placeholder:text-stone-400 outline-none transition-colors ${theme === "DARK"
+              className={`w-full border rounded-2xl px-6 py-4 text-sm font-bold placeholder:text-stone-200 outline-none transition-colors ${theme === "DARK"
                   ? (editingTenantId ? "bg-stone-900 text-stone-500 border-stone-800" : "bg-stone-950 text-white border-stone-800 focus:border-[#ccff00]")
                   : (editingTenantId ? "bg-stone-50 text-stone-400 border-stone-100" : "bg-white text-stone-900 border-stone-200 focus:border-stone-400")
                 }`}
@@ -1108,7 +1108,7 @@ function FormField({ label, children, theme }: { label: string; children: React.
   );
 }
 
-const inputClasses = (theme: string) => `w-full border-none rounded-2xl px-6 py-4 text-sm font-bold placeholder:text-stone-400 outline-none transition-colors ${theme === "DARK"
+const inputClasses = (theme: string) => `w-full border-none rounded-2xl px-6 py-4 text-sm font-bold placeholder:text-stone-200 outline-none transition-colors ${theme === "DARK"
     ? "bg-stone-900 text-white focus:ring-2 focus:ring-[#ccff00]"
     : theme === "VINTAGE"
       ? "bg-[#f7f9fb] text-black focus:ring-2 focus:ring-black"
