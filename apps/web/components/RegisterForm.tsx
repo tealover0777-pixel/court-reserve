@@ -203,14 +203,14 @@ export default function RegisterForm(p: Props) {
                 First Name <span className="text-red-400">*</span>
               </label>
               <input type="text" value={p.profFirstName} onChange={e=>p.setProfFirstName(e.target.value)}
-                required placeholder="Alex" className={p.inputCls}/>
+                required placeholder="First Name" className={p.inputCls}/>
             </div>
             <div>
               <label className="text-[10px] font-black uppercase tracking-widest text-[#686730] mb-2 block">
                 Last Name <span className="text-red-400">*</span>
               </label>
               <input type="text" value={p.profLastName} onChange={e=>p.setProfLastName(e.target.value)}
-                required placeholder="Sterling" className={p.inputCls}/>
+                required placeholder="Last Name" className={p.inputCls}/>
             </div>
           </div>
 

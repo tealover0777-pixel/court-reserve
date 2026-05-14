@@ -497,7 +497,7 @@ export default function DashboardClient({ params }: { params: { tenantId: string
                 theme === "VINTAGE" ? "group-hover:text-black" :
                   "group-hover:text-[#4f6b28]"
                 }`}>
-                {profile ? `${profile.first_name} ${profile.last_name}` : ""}
+                {profile ? `${profile.first_name} ${profile.last_name}` : (authUser?.displayName || authUser?.email || "User")}
               </p>
               <p className={`text-[10px] font-black uppercase tracking-widest ${theme === "DARK" ? "text-white" : "text-stone-800"}`}>
                 {profile
@@ -795,7 +795,7 @@ function DashboardHome({ theme, profile, tenantId }: { theme: "LIGHT" | "DARK" |
             theme === "VINTAGE" ? "text-stone-800" :
               "text-[#4f6b28]"
             }`}>
-            Welcome Back, {profile?.first_name || "Alex"}
+            Welcome Back, {profile?.first_name || authUser?.displayName?.split(' ')[0] || "User"}
           </span>
           <h3 className={`text-7xl font-black tracking-tighter leading-tight max-w-2xl transition-colors ${theme === "DARK" ? "text-white" : "text-black"
             }`}>READY TO DOMINATE THE COURT?</h3>
@@ -1646,7 +1646,7 @@ function ProfileView({ theme, profile, roles }: { theme: "LIGHT" | "DARK" | "VIN
             }`}>Member Profile</div>
           <h2 className={`text-6xl font-black tracking-tighter uppercase leading-none transition-colors ${isDark ? "text-white" : "text-black"
             }`} style={{ fontFamily: 'Lexend, sans-serif' }}>
-            {profile ? `${profile.first_name} ${profile.last_name}` : "ALEX STERLING"}
+            {profile ? `${profile.first_name} ${profile.last_name}` : "MEMBER"}
           </h2>
           <div className="flex flex-wrap gap-4 mt-6">
             {(() => {
@@ -1682,10 +1682,10 @@ function ProfileView({ theme, profile, roles }: { theme: "LIGHT" | "DARK" | "VIN
             }`}>Account Security</h3>
           <div className="grid grid-cols-2 gap-10">
             {[
-              { label: "REGISTERED EMAIL", value: profile?.email || "alex.sterling@pro.com" },
-              { label: "PHONE VERIFIED", value: profile?.phone || "+1 (555) 042-9901" },
+              { label: "REGISTERED EMAIL", value: profile?.email || "NOT PROVIDED" },
+              { label: "PHONE VERIFIED", value: profile?.phone || "NOT PROVIDED" },
               { label: "MAILING ADDRESS", value: (profile?.address_street_1 || profile?.address_street) ? `${profile?.address_street_1 || profile?.address_street}${profile?.address_street_2 ? `, ${profile.address_street_2}` : ""}, ${profile.address_city}, ${profile.address_state} ${profile.address_zip}` : "NOT PROVIDED" },
-              { label: "INTERNAL ID", value: profile?.user_id || "U00001" },
+              { label: "INTERNAL ID", value: profile?.user_id || "NOT PROVIDED" },
             ].map((item, i) => (
               <div key={i} className={item.label === "MAILING ADDRESS" ? "col-span-2" : ""}>
                 <div className={`text-[10px] font-black mb-1 tracking-widest transition-colors ${isDark ? "text-white" : "text-stone-900"

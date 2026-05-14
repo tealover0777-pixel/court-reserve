@@ -772,6 +772,12 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
             "text-stone-900"
         }`}>{info.getValue() || "-"}</span>,
     }),
+    columnHelper.accessor("phone", {
+      header: "PHONE",
+      size: 150,
+      cell: info => <span className={`text-xs transition-colors duration-500 ${theme === "DARK" ? "text-stone-300" : "text-stone-800"
+        }`}>{info.getValue() || "-"}</span>,
+    }),
     columnHelper.accessor("email", {
       header: "EMAIL",
       size: 250,
@@ -829,12 +835,6 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
           </span>
         );
       },
-    }),
-    columnHelper.accessor("phone", {
-      header: "PHONE",
-      size: 150,
-      cell: info => <span className={`text-xs transition-colors duration-500 ${theme === "DARK" ? "text-stone-300" : "text-stone-800"
-        }`}>{info.getValue() || "-"}</span>,
     }),
     columnHelper.accessor(row => (row as any).notes || (row as any).Notes, {
       id: "notes",

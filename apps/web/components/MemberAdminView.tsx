@@ -701,6 +701,13 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
         theme === "DARK" ? "text-stone-100" : "text-stone-950"
       }`}>{info.getValue() || "-"}</span>,
     }),
+    columnHelper.accessor("phone", {
+      header: "PHONE",
+      size: 150,
+      cell: info => <span className={`text-xs transition-colors duration-500 ${
+        theme === "DARK" ? "text-stone-200" : "text-stone-950"
+      }`}>{info.getValue() || "-"}</span>,
+    }),
     columnHelper.accessor("email", {
       header: "EMAIL",
       size: 250,
@@ -763,13 +770,6 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
           </span>
         );
       },
-    }),
-    columnHelper.accessor("phone", {
-      header: "PHONE",
-      size: 150,
-      cell: info => <span className={`text-xs transition-colors duration-500 ${
-        theme === "DARK" ? "text-stone-200" : "text-stone-950"
-      }`}>{info.getValue() || "-"}</span>,
     }),
     columnHelper.accessor(row => (row as any).notes || (row as any).Notes, {
       id: "notes",

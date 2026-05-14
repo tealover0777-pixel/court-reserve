@@ -6,15 +6,15 @@ import { useTenant } from "../context/TenantContext";
 import { useAuth } from "../context/AuthContext";
 import { Modal } from "@repo/ui/modal";
 
-const DEFAULT_TIMES_30 = Array.from({ length: 33 }, (_, i) => {
-  const mins = (i + 12) * 30; // Starts at 06:00
+const DEFAULT_TIMES_10 = Array.from({ length: (23 - 6) * 6 + 1 }, (_, i) => {
+  const mins = 6 * 60 + (i * 10); // Starts at 06:00
   const h = Math.floor(mins / 60);
   const m = mins % 60;
   return `${h.toString().padStart(2, "0")}:${m.toString().padStart(2, "0")}`;
 });
 
 const buildTimes = (courts: any[]): string[] => {
-  if (!courts.length) return DEFAULT_TIMES_30;
+  if (!courts.length) return DEFAULT_TIMES_10;
   let minMinutes = 23 * 60;
   let maxMinutes = 6 * 60;
   courts.forEach((court) => {
@@ -27,14 +27,14 @@ const buildTimes = (courts: any[]): string[] => {
   });
 
   const slots: string[] = [];
-  let current = Math.floor(minMinutes / 30) * 30;
+  let current = Math.floor(minMinutes / 10) * 10;
   while (current <= maxMinutes) {
     const h = Math.floor(current / 60);
     const m = current % 60;
     slots.push(`${h.toString().padStart(2, "0")}:${m.toString().padStart(2, "0")}`);
-    current += 30;
+    current += 10;
   }
-  return slots.length ? slots : DEFAULT_TIMES_30;
+  return slots.length ? slots : DEFAULT_TIMES_10;
 };
 
 const MONTHS = [
@@ -120,7 +120,7 @@ export default function CourtBookingView({ theme, isAdmin, tenantId: tenantIdPro
 }) {
   const { tenantId: contextTenantId } = useTenant();
   const tenantId = tenantIdProp ?? contextTenantId;
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const [baseDate, setBaseDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [courts, setCourts] = useState<any[]>([]);
@@ -332,7 +332,7 @@ export default function CourtBookingView({ theme, isAdmin, tenantId: tenantIdPro
         endTime: addMinutesToTime(bookingModal.time, bookingModal.duration * 60),
         duration: bookingModal.duration,
         userId: user.uid,
-        userName: user.displayName || user.email,
+        userName: profile ? `${profile.first_name} ${profile.last_name}` : (user.displayName || user.email),
         userEmail: user.email,
         playerCount: bookingModal.playerCount,
         notes: bookingModal.notes.trim(),
@@ -490,9 +490,11 @@ export default function CourtBookingView({ theme, isAdmin, tenantId: tenantIdPro
             onChange={setBookingModal}
             selectedDate={selectedDate}
             user={user}
+            profile={profile}
             theme={theme}
             isSubmitting={isSubmitting}
             onConfirm={handleCreateBooking}
+            times={times}
           />
         )}
       </Modal>
@@ -525,15 +527,17 @@ export default function CourtBookingView({ theme, isAdmin, tenantId: tenantIdPro
 // ─── Booking Form ────────────────────────────────────────────────────────────
 
 function BookingForm({
-  modal, onChange, selectedDate, user, theme, isSubmitting, onConfirm,
+  modal, onChange, selectedDate, user, profile, theme, isSubmitting, onConfirm, times,
 }: {
   modal: BookingModal;
   onChange: (m: BookingModal) => void;
   selectedDate: Date;
   user: any;
+  profile: any;
   theme: string;
   isSubmitting: boolean;
   onConfirm: () => void;
+  times: string[];
 }) {
   const isDark = theme === "DARK";
   const endTime = addMinutesToTime(modal.time, modal.duration * 60);
@@ -592,7 +596,16 @@ function BookingForm({
         </div>
         <div>
           <label className={labelCls}>Time</label>
-          <div className={readonlyCls}>{modal.time} – {endTime}</div>
+          <select
+            value={modal.time}
+            onChange={(e) => onChange({ ...modal, time: e.target.value })}
+            className={inputCls}
+          >
+            {times.map(t => <option key={t} value={t}>{t}</option>)}
+          </select>
+          <p className={`text-[8px] font-bold mt-1 opacity-50 ${isDark ? "text-white" : "text-stone-900"}`}>
+            Ends at {endTime}
+          </p>
         </div>
       </div>
 
@@ -618,7 +631,9 @@ function BookingForm({
         <div className={`${readonlyCls} flex items-center gap-3`}>
           <span className={`material-symbols-outlined text-base opacity-30 ${isDark ? "text-white" : "text-stone-900"}`}>person</span>
           <div className="min-w-0">
-            <p className="text-sm font-bold truncate">{user?.displayName || user?.email}</p>
+            <p className="text-sm font-bold truncate">
+              {profile ? `${profile.first_name} ${profile.last_name}` : (user?.displayName || user?.email)}
+            </p>
             {user?.displayName && (
               <p className={`text-[10px] font-bold truncate ${isDark ? "text-white" : "text-stone-900"}`}>{user.email}</p>
             )}
@@ -1381,8 +1396,8 @@ function ScheduleGrid({ courts, bookings, selectedDate, theme, onSlotClick, onDr
             <span className={`text-[9px] font-black uppercase tracking-[0.2em] ${timeLabelColor}`}>Time</span>
           </div>
           {times.map((t: string) => (
-            <div key={t} className={`h-12 flex items-center border-b ${rowBorder}`}>
-              <span className={`text-[10px] font-black tabular-nums ${timeLabelColor}`}>{t}</span>
+            <div key={t} className={`h-8 flex items-center border-b ${rowBorder}`}>
+              <span className={`text-[10px] font-black tabular-nums ${timeLabelColor}`}>{t.endsWith(":00") ? t : t.split(":")[1]}</span>
             </div>
           ))}
         </div>
@@ -1421,42 +1436,42 @@ function ScheduleGrid({ courts, bookings, selectedDate, theme, onSlotClick, onDr
                 }
 
                 return (
-                  <div
-                    key={t}
-                    onClick={() => onSlotClick(court, t)}
-                    onDragOver={(e) => {
-                      if (status === "AVAILABLE") {
-                        e.preventDefault();
-                        e.currentTarget.classList.add(theme === "DARK" ? "bg-white/5" : "bg-black/5");
-                      }
-                    }}
-                    onDragLeave={(e) => {
-                      e.currentTarget.classList.remove(theme === "DARK" ? "bg-white/5" : "bg-black/5");
-                    }}
-                    onDrop={(e) => {
-                      e.preventDefault();
-                      e.currentTarget.classList.remove(theme === "DARK" ? "bg-white/5" : "bg-black/5");
-                      if (status === "AVAILABLE") {
-                        const bookingId = e.dataTransfer.getData("bookingId");
-                        onDrop(bookingId, court, t);
-                      }
-                    }}
-                    className={`h-12 border-b ${rowBorder} group relative transition-colors ${status === "AVAILABLE" ? "cursor-pointer" : "cursor-default"}`}
-                  >
-                    <SlotCell 
-                      status={status} 
-                      theme={theme} 
-                      booking={booking} 
-                      user={user}
-                      onDragStart={(e: any) => {
-                        if (booking) {
-                          e.dataTransfer.setData("bookingId", booking.id);
-                          // Ensure drag preview looks good
-                          e.dataTransfer.effectAllowed = "move";
+                    <div
+                      key={t}
+                      onClick={() => onSlotClick(court, t)}
+                      onDragOver={(e) => {
+                        if (status === "AVAILABLE") {
+                          e.preventDefault();
+                          e.currentTarget.classList.add(theme === "DARK" ? "bg-white/5" : "bg-black/5");
                         }
                       }}
-                    />
-                  </div>
+                      onDragLeave={(e) => {
+                        e.currentTarget.classList.remove(theme === "DARK" ? "bg-white/5" : "bg-black/5");
+                      }}
+                      onDrop={(e) => {
+                        e.preventDefault();
+                        e.currentTarget.classList.remove(theme === "DARK" ? "bg-white/5" : "bg-black/5");
+                        if (status === "AVAILABLE") {
+                          const bookingId = e.dataTransfer.getData("bookingId");
+                          onDrop(bookingId, court, t);
+                        }
+                      }}
+                      className={`h-8 border-b ${rowBorder} group relative transition-colors ${status === "AVAILABLE" ? "cursor-pointer" : "cursor-default"}`}
+                    >
+                      <SlotCell 
+                        status={status} 
+                        theme={theme} 
+                        booking={booking} 
+                        user={user}
+                        onDragStart={(e: any) => {
+                          if (booking) {
+                            e.dataTransfer.setData("bookingId", booking.id);
+                            // Ensure drag preview looks good
+                            e.dataTransfer.effectAllowed = "move";
+                          }
+                        }}
+                      />
+                    </div>
                 );
               })}
             </div>
