@@ -67,11 +67,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           getDocs,
           onSnapshot,
           updateDoc,
+          doc,
         } = await import("firebase/firestore");
 
         const uid = firebaseUser.uid;
 
-        const attachProfile = (docRef: DocumentReference) => {
+        const attachProfile = (docRef: DocumentReference, extraData: Partial<UserProfile> = {}) => {
           return onSnapshot(docRef, (snap: DocumentSnapshot) => {
               if (!snap.exists()) {
                 setProfile(null);
@@ -79,7 +80,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
                 return;
               }
               const data = snap.data() as UserProfile;
-              setProfile({ ...data, id: snap.id });
+              // Clean extraData of undefined values to avoid overwriting valid fields
+              const cleanExtra = Object.fromEntries(
+                Object.entries(extraData).filter(([_, v]) => v !== undefined)
+              );
+              
+              console.log("[AuthContext] Setting profile:", data.email, "from path:", snap.ref.path, "extra:", cleanExtra);
+              setProfile({ ...data, ...cleanExtra, id: snap.id });
 
               if (data.status === "Invited") {
                 updateDoc(snap.ref, {
@@ -101,8 +108,29 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           const globalSnap = await getDocs(globalQ);
           if (!globalSnap.empty) {
             const first = globalSnap.docs[0];
+            console.log("[AuthContext] Found global user:", first.id);
             if (first) unsubscribeProfileRef.current = attachProfile(first.ref) as () => void;
           } else {
+            // Fallback: Check custom claims if collectionGroup query might fail or return empty
+            const tokenResult = await firebaseUser.getIdTokenResult();
+            const claimTenantId = tokenResult.claims.tenantId as string;
+            
+            if (claimTenantId) {
+              // Search within the specific tenant's users
+              const tenantSpecificQ = query(
+                collection(db, "tenants", claimTenantId, "users"),
+                where("auth_uid", "==", uid),
+                limit(1)
+              );
+              const tsSnap = await getDocs(tenantSpecificQ);
+              if (!tsSnap.empty) {
+                // Ensure tenant_id is set in profile even if missing in document
+                unsubscribeProfileRef.current = attachProfile(tsSnap.docs[0].ref, { tenant_id: claimTenantId }) as () => void;
+                return;
+              }
+            }
+
+            // Original collectionGroup fallback
             const tenantQ = query(
               collectionGroup(db, "users"),
               where("auth_uid", "==", uid),
@@ -111,7 +139,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             const tenantSnap = await getDocs(tenantQ);
             if (!tenantSnap.empty) {
               const firstT = tenantSnap.docs[0];
-              if (firstT) unsubscribeProfileRef.current = attachProfile(firstT.ref) as () => void;
+              // Try to extract tenant_id from path if missing
+              const pathParts = firstT.ref.path.split("/");
+              let detectedTenantId = "";
+              if (pathParts[0] === "tenants" && pathParts[1]) {
+                detectedTenantId = pathParts[1];
+              }
+              console.log("[AuthContext] Found tenant user via collectionGroup:", firstT.ref.path, "Detected Tenant:", detectedTenantId);
+              if (firstT) unsubscribeProfileRef.current = attachProfile(firstT.ref, detectedTenantId ? { tenant_id: detectedTenantId } : {}) as () => void;
             } else {
               setProfile(null);
               setLoading(false);

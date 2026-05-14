@@ -177,7 +177,7 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
     } else if (tenantId === "" || tenantId === "consolidated" || tenantId === "Global") {
       // Global User Admin View: show all tenant-scoped users across the platform
       qTenantScoped = query(collectionGroup(db, "users"), orderBy("user_id", "asc"));
-    } else if (tenantId) {
+    } else if (typeof tenantId === "string" && tenantId) {
       // Tenant-specific view: show only this tenant's users
       qTenantScoped = query(collection(db, "tenants", tenantId, "users"), orderBy("user_id", "asc"));
     }

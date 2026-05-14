@@ -45,8 +45,20 @@ export default function DashboardClient({ params }: { params: { tenantId: string
   const { user: authUser, profile, loading: authLoading } = useAuth();
   const [overrideTenantId, setOverrideTenantId] = React.useState<string | null>(null);
 
-  const isGlobalUser = !profile?.tenant_id;
+  const isGlobalUser = React.useMemo(() => {
+    if (!profile) return false;
+    // A user is global only if they have no tenant_id OR if their role is marked as global
+    return !profile.tenant_id || profile.tenant_id === "";
+  }, [profile]);
+
   const tenantId = overrideTenantId || (!isGlobalUser ? profile?.tenant_id : params.tenantId || contextTenantId) || "";
+
+  // Debugging permissions
+  React.useEffect(() => {
+    if (profile) {
+      console.log("[Dashboard] Profile:", profile.email, "Tenant:", profile.tenant_id, "isGlobal:", isGlobalUser);
+    }
+  }, [profile, isGlobalUser]);
 
   // Redirect to correct tenant if URL mismatch (for non-global users)
   React.useEffect(() => {
@@ -74,7 +86,16 @@ export default function DashboardClient({ params }: { params: { tenantId: string
   // --- Permission derivation ---
   const userRoles = React.useMemo(() => {
     const roleIds = profile?.roles || (profile?.role ? [profile.role] : []);
-    return roles.filter(r => roleIds.includes(r.role_id) || roleIds.includes(r.id));
+    const filtered = roles.filter(r => {
+      const match = roleIds.includes(r.role_id) || roleIds.includes(r.id);
+      return match;
+    });
+    console.log("[Dashboard] userRoles debug:", { 
+      roleIds, 
+      rolesAvailable: roles.map(r => ({ id: r.id, role_id: r.role_id })),
+      filteredCount: filtered.length 
+    });
+    return filtered;
   }, [roles, profile]);
 
   const userPermissions = React.useMemo(() => {
@@ -82,11 +103,18 @@ export default function DashboardClient({ params }: { params: { tenantId: string
     userRoles.forEach(r => {
       (r.permissions || []).forEach((p: string) => perms.add(p));
     });
-    return Array.from(perms);
+    const permsArray = Array.from(perms);
+    console.log("[Dashboard] User Permissions:", permsArray);
+    return permsArray;
   }, [userRoles]);
 
-  const isSuperAdmin = userRoles.some(r => (r.is_global ?? false) && (!r.permissions || r.permissions.length === 0));
-  const hasPermission = (perm: string) => isSuperAdmin || userPermissions.includes(perm);
+  const isSuperAdmin = React.useMemo(() => 
+    userRoles.some(r => (r.IsGlobal === true || r.is_global === true)), [userRoles]);
+
+  const hasPermission = (perm: string) => {
+    if (isSuperAdmin) return true;
+    return userPermissions.includes(perm);
+  };
 
   // View → required permission mapping
   const VIEW_PERMISSIONS: Partial<Record<typeof activeView, string>> = {
@@ -138,6 +166,18 @@ export default function DashboardClient({ params }: { params: { tenantId: string
   // Redirect away from forbidden view when permissions resolve
   React.useEffect(() => {
     if (!profile || roles.length === 0) return;
+
+    // If current view is not allowed, switch to a safe default
+    const requiredPermission = VIEW_PERMISSIONS[activeView as any];
+    if (requiredPermission && !hasPermission(requiredPermission)) {
+      if (hasPermission("DASHBOARD_VIEW")) {
+        setActiveView("DASHBOARD");
+      } else if (hasPermission("MY_SCHEDULE_VIEW")) {
+        setActiveView("COURT BOOKING");
+      } else {
+        setActiveView("PROFILE");
+      }
+    }
     const requiredPerm = VIEW_PERMISSIONS[activeView];
     if (requiredPerm && !hasPermission(requiredPerm)) {
       setActiveView("DASHBOARD");
@@ -329,7 +369,7 @@ export default function DashboardClient({ params }: { params: { tenantId: string
             onClick={() => handleViewChange("PROFILE")}
             theme={theme}
           />
-          {hasPermission("PLATFORM_VIEW") && (
+          {isGlobalUser && hasPermission("PLATFORM_VIEW") && (
             <>
               <NavItem
                 icon="hub"
@@ -473,8 +513,8 @@ export default function DashboardClient({ params }: { params: { tenantId: string
           </div>
         </div>
 
-        {/* Tenant Selector - Only visible to Global users */}
-        {(!profile?.tenant_id || profile?.tenant_id === "Global") && (
+        {/* Tenant Selector - Only visible for platform admins */}
+        {isGlobalUser && hasPermission("PLATFORM_VIEW") && (
           <div className="relative flex items-center gap-3 ml-6 pl-6 border-l border-stone-200 dark:border-stone-800" ref={tenantSelectorRef}>
             <button
               onClick={() => setIsTenantSelectorOpen(!isTenantSelectorOpen)}
@@ -565,15 +605,41 @@ export default function DashboardClient({ params }: { params: { tenantId: string
         }`}>
         {(() => {
           const requiredPerm = VIEW_PERMISSIONS[activeView];
-          if (requiredPerm && !hasPermission(requiredPerm)) {
+          
+          // 1. Still loading profile or roles
+          if (authLoading || (profile && roles.length === 0)) {
+            return (
+              <div className="flex flex-col items-center justify-center min-h-[60vh]">
+                <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
+                <p className="mt-4 text-[10px] font-black uppercase tracking-widest opacity-50">Checking Permissions...</p>
+              </div>
+            );
+          }
+
+          // 2. Profile loaded, but no permission
+          if (profile && requiredPerm && !hasPermission(requiredPerm)) {
             return (
               <div className={`flex flex-col items-center justify-center min-h-[60vh] ${theme === "DARK" ? "text-white" : "text-stone-900"}`}>
                 <span className="material-symbols-outlined text-6xl mb-4">lock</span>
                 <h3 className="text-2xl font-black uppercase tracking-widest">Access Denied</h3>
-                <p className="mt-2 text-sm">You don't have permission to view this page.</p>
+                <p className="mt-2 text-sm text-center max-w-md opacity-70">
+                  You are logged in as <span className="font-bold">{profile.email}</span>. 
+                  Your current role (<span className="font-bold">{profile.role}</span>) does not have permission to view the <span className="font-bold">{activeView}</span>.
+                </p>
+                {profile.tenant_id && (
+                  <p className="mt-1 text-[10px] opacity-50">Tenant ID: {profile.tenant_id}</p>
+                )}
+                <button
+                  onClick={() => signOut(auth)}
+                  className="mt-8 px-6 py-2 bg-red-500/10 text-red-500 rounded-full text-xs font-bold uppercase tracking-widest hover:bg-red-500/20 transition-all"
+                >
+                  Logout
+                </button>
               </div>
             );
           }
+          
+          // 3. Render the view
           if (activeView === "DASHBOARD") return <DashboardHome theme={theme} profile={profile} />;
           if (activeView === "AI_ADMIN") return <AIAdminView theme={theme} />;
           if (activeView === "DIMENSIONS") return <DimensionsView theme={theme} />;
