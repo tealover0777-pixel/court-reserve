@@ -257,7 +257,7 @@ export default function DashboardClient({ params }: { params: { tenantId: string
                 theme === "VINTAGE" ? "text-black" :
                   "text-[#4f6b28]"
                 }`}>
-                {tenantId === "consolidated" ? "CONSOLIDATED" : (tenantId ? tenantId.toUpperCase() : "PLATFORM")}
+                {tenantId === "consolidated" ? "CONSOLIDATED" : (currentTenant?.name || (tenantId ? tenantId.toUpperCase() : "PLATFORM"))}
               </h1>
             );
           })()}
