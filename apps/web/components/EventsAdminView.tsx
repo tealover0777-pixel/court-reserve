@@ -84,9 +84,10 @@ export default function EventsAdminView({ theme = "LIGHT", tenantId }: { theme?:
     cancellation_policy: "24-hour notice required for full refund.",
     cancellation_deadline: "",
     image_url: "",
-    tag: "Social",
+    tag: "",
     event_leaders: [] as string[]
   });
+  const [categories, setCategories] = useState<string[]>([]);
 
   // Common UI classes
   const inputCls = `w-full border rounded-2xl px-5 py-3.5 text-sm font-bold outline-none transition-all ${
@@ -119,6 +120,23 @@ export default function EventsAdminView({ theme = "LIGHT", tenantId }: { theme?:
       setTenantUsers(userData);
     };
     fetchUsers();
+
+    // Fetch event categories from global dimensions
+    const fetchCategories = async () => {
+      const q = query(collection(db, "dimensions"), where("category", "==", "EventCategory"));
+      const snap = await getDocs(q);
+      if (!snap.empty) {
+        const data = snap.docs[0].data();
+        setCategories(data.items || []);
+        if (data.items?.length > 0 && !formData.tag) {
+          setFormData(prev => ({ ...prev, tag: data.items[0] }));
+        }
+      } else {
+        // Fallback if not found
+        setCategories(["Social", "Training", "Tournament", "Youth", "Clinic"]);
+      }
+    };
+    fetchCategories();
 
     return () => unsubscribe();
   }, [tenantId]);
@@ -513,11 +531,10 @@ export default function EventsAdminView({ theme = "LIGHT", tenantId }: { theme?:
               onChange={e => setFormData({ ...formData, tag: e.target.value })}
               className={inputCls}
             >
-              <option value="Social">Social</option>
-              <option value="Training">Training</option>
-              <option value="Tournament">Tournament</option>
-              <option value="Youth">Youth</option>
-              <option value="Clinic">Clinic</option>
+              <option value="" disabled>Select Category</option>
+              {categories.map(cat => (
+                <option key={cat} value={cat}>{cat}</option>
+              ))}
             </select>
           </div>
 
