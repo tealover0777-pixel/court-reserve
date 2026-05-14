@@ -9,8 +9,6 @@ import { usePathname } from "next/navigation";
 export default function Home() {
   const { loading: tenantLoading } = useTenant();
   const { user, loading: authLoading } = useAuth();
-  const pathname = usePathname();
-  const urlTenantId = pathname?.split("/")[1] || "";
 
   if (tenantLoading || authLoading) {
     return (
@@ -24,5 +22,5 @@ export default function Home() {
     return <LoginView />;
   }
 
-  return <DashboardClient params={{ tenantId: urlTenantId }} />;
+  return <DashboardClient params={{ tenantId: "" }} />;
 }

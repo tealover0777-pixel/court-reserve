@@ -60,15 +60,10 @@ export default function DashboardClient({ params }: { params: { tenantId: string
     }
   }, [profile, isGlobalUser]);
 
-  // Redirect to correct tenant if URL mismatch (for non-global users)
+  // URL enforcement disabled for clean address support
   React.useEffect(() => {
-    if (!authLoading && profile && !isGlobalUser) {
-      if (params.tenantId !== profile.tenant_id) {
-        console.log(`Redirecting from ${params.tenantId} to ${profile.tenant_id}`);
-        router.push(`/${profile.tenant_id}`);
-      }
-    }
-  }, [profile, params.tenantId, router, authLoading, isGlobalUser]);
+    // Non-global users stay on the root path; their tenant is resolved via profile
+  }, [profile, isGlobalUser]);
 
   if (authLoading) {
     return (
@@ -539,7 +534,6 @@ export default function DashboardClient({ params }: { params: { tenantId: string
                     onClick={() => {
                       setOverrideTenantId("consolidated");
                       setTenantId("consolidated");
-                      window.history.pushState(null, "", `/consolidated`);
                       setIsTenantSelectorOpen(false);
                     }}
                     className={`w-full flex flex-col gap-0.5 items-start px-4 py-3 rounded-2xl transition-all ${tenantId === "consolidated"
@@ -561,7 +555,6 @@ export default function DashboardClient({ params }: { params: { tenantId: string
                         onClick={() => {
                           setOverrideTenantId(t.tenant_id);
                           setTenantId(t.tenant_id);
-                          window.history.pushState(null, "", `/${t.tenant_id}`);
                           setIsTenantSelectorOpen(false);
                         }}
                         className={`w-full flex flex-col gap-0.5 items-start px-4 py-3 rounded-2xl transition-all ${t.tenant_id === tenantId
