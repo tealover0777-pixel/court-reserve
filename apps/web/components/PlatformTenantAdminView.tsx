@@ -28,7 +28,6 @@ interface Tenant {
   id: string;
   tenant_id: string;
   name: string;
-  domain: string;
   status: "Active" | "Suspended" | "Pending";
   created_at: string;
   owner_id?: string;
@@ -279,7 +278,6 @@ export default function PlatformTenantAdminView({ theme = "LIGHT" }: { theme?: "
       const tenantUpdateData = {
         tenant_id: formData.tenant_id,
         name: formData.tenant_name,
-        domain: `${formData.tenant_name.toLowerCase().replace(/\s+/g, '-')}.kinetic.com`,
         status: "Active",
         created_at: editingTenantId ? (tenants.find(t => t.id === editingTenantId) as any).created_at : new Date().toISOString().split('T')[0],
         notes: formData.notes,
@@ -429,14 +427,7 @@ export default function PlatformTenantAdminView({ theme = "LIGHT" }: { theme?: "
             "text-stone-900"
         }`}>{info.getValue()}</span>,
     }),
-    columnHelper.accessor("domain", {
-      header: "DOMAIN",
-      size: 250,
-      cell: info => <span className={`text-sm transition-colors duration-500 ${theme === "DARK" ? "text-stone-400" :
-          theme === "VINTAGE" ? "text-stone-600 font-medium" :
-            "text-stone-600"
-        }`}>{info.getValue()}</span>,
-    }),
+
     columnHelper.accessor("owner_email", {
       header: "OWNER EMAIL",
       size: 200,
@@ -455,6 +446,14 @@ export default function PlatformTenantAdminView({ theme = "LIGHT" }: { theme?: "
     }),
     columnHelper.accessor("owner_last_name", {
       header: "LAST NAME",
+      size: 150,
+      cell: info => <span className={`text-xs font-bold transition-colors duration-500 ${theme === "DARK" ? "text-stone-400" :
+          theme === "VINTAGE" ? "text-stone-500" :
+            "text-stone-700"
+        }`}>{info.getValue() || "-"}</span>,
+    }),
+    columnHelper.accessor("owner_phone", {
+      header: "PHONE",
       size: 150,
       cell: info => <span className={`text-xs font-bold transition-colors duration-500 ${theme === "DARK" ? "text-stone-400" :
           theme === "VINTAGE" ? "text-stone-500" :
