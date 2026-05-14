@@ -147,27 +147,44 @@ export default function PlatformTenantAdminView({ theme = "LIGHT" }: { theme?: "
   })();
 
   const nextOwnerId = useMemo(() => {
-    if (tenantUsers.length === 0) return "U10001";
-    const ids = tenantUsers.map((u) => {
-      const match = String(u.user_id || "").match(/^U(\d+)$/);
+    // Collect all owner IDs from all tenants to ensure platform-wide uniqueness
+    const allOwnerIds = tenants.map(t => t.owner_id).filter(Boolean);
+    // Also include any users fetched for the current tenant's context
+    const userIds = tenantUsers.map((u) => u.user_id).filter(Boolean);
+    
+    const combinedIds = Array.from(new Set([...allOwnerIds, ...userIds]));
+    
+    if (combinedIds.length === 0) return "U10001";
+    const ids = combinedIds.map((id) => {
+      const match = String(id || "").match(/^U(\d+)$/);
       return match?.[1] ? parseInt(match[1], 10) : 0;
     });
     const max = ids.length ? Math.max(...ids) : 0;
     return `U${Math.max(10001, max + 1)}`;
-  }, [tenantUsers]);
+  }, [tenants, tenantUsers]);
 
   useEffect(() => {
     if (showNewModal) {
+      // If we are editing an existing tenant, do NOT auto-change the owner_id 
+      // unless the email address has changed and matches an existing user.
+      if (editingTenantId && formData.owner_id && !tenantUsers.some(u => u.email?.toLowerCase() === formData.owner_email?.toLowerCase())) {
+        // Keep the existing owner_id if we are editing and no email match is found
+        return;
+      }
+
       const existingUser = tenantUsers.find(
         (u) => u.email?.toLowerCase() === formData.owner_email?.toLowerCase()
       );
+
       if (existingUser) {
-        setFormData((prev) => ({ ...prev, owner_id: existingUser.user_id }));
-      } else {
-        setFormData((prev) => ({ ...prev, owner_id: nextOwnerId }));
+        // If the email matches an existing user in this tenant, use their ID
+        setFormData((prev) => (prev.owner_id !== existingUser.user_id ? { ...prev, owner_id: existingUser.user_id } : prev));
+      } else if (!formData.owner_id || !editingTenantId) {
+        // Only auto-generate if it's a new tenant or the field is empty
+        setFormData((prev) => (prev.owner_id !== nextOwnerId ? { ...prev, owner_id: nextOwnerId } : prev));
       }
     }
-  }, [formData.owner_email, tenantUsers, showNewModal, nextOwnerId]);
+  }, [formData.owner_email, tenantUsers, showNewModal, nextOwnerId, editingTenantId]);
 
   useEffect(() => {
     if (showNewModal && !editingTenantId) {
