@@ -77,7 +77,7 @@ export default function EventsAdminView({ theme = "LIGHT", tenantId }: { theme?:
   const [formData, setFormData] = useState({
     title: "",
     description: "",
-    date: format(new Date(), "yyyy-MM-dd'T'HH:mm"),
+    date: format(new Date(new Date().setMinutes(0, 0, 0)), "yyyy-MM-dd'T'HH:mm"),
     end_date: "",
     type: "one-time" as "one-time" | "regular",
     max_participants: 20,
@@ -261,14 +261,14 @@ export default function EventsAdminView({ theme = "LIGHT", tenantId }: { theme?:
     setFormData({
       title: "",
       description: "",
-      date: format(new Date(), "yyyy-MM-dd'T'HH:mm"),
+      date: format(new Date(new Date().setMinutes(0, 0, 0)), "yyyy-MM-dd'T'HH:mm"),
       end_date: "",
       type: "one-time",
       max_participants: 20,
       cancellation_policy: "24-hour notice required for full refund.",
       cancellation_deadline: "",
       image_url: "",
-      tag: "Social",
+      tag: categories[0] || "",
       event_leaders: []
     });
   };
@@ -501,6 +501,7 @@ export default function EventsAdminView({ theme = "LIGHT", tenantId }: { theme?:
             <label className={labelCls}>Start Date & Time</label>
             <input
               type="datetime-local"
+              step="600"
               value={formData.date}
               onChange={e => setFormData({ ...formData, date: e.target.value })}
               className={inputCls}
@@ -511,6 +512,7 @@ export default function EventsAdminView({ theme = "LIGHT", tenantId }: { theme?:
             <label className={labelCls}>End Date & Time (Optional)</label>
             <input
               type="datetime-local"
+              step="600"
               value={formData.end_date}
               onChange={e => setFormData({ ...formData, end_date: e.target.value })}
               className={inputCls}
@@ -598,6 +600,7 @@ export default function EventsAdminView({ theme = "LIGHT", tenantId }: { theme?:
               <label className={labelCls}>Cancellation Deadline</label>
               <input
                 type="datetime-local"
+                step="600"
                 value={formData.cancellation_deadline}
                 onChange={e => setFormData({ ...formData, cancellation_deadline: e.target.value })}
                 className={inputCls}
