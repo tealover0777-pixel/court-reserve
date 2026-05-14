@@ -126,10 +126,13 @@ export default function EventsAdminView({ theme = "LIGHT", tenantId }: { theme?:
       const q = query(collection(db, "dimensions"), where("category", "==", "EventCategory"));
       const snap = await getDocs(q);
       if (!snap.empty) {
-        const data = snap.docs[0].data();
-        setCategories(data.items || []);
-        if (data.items?.length > 0 && !formData.tag) {
-          setFormData(prev => ({ ...prev, tag: data.items[0] }));
+        const firstDoc = snap.docs[0];
+        if (firstDoc) {
+          const data = firstDoc.data();
+          setCategories(data.items || []);
+          if (data.items?.length > 0 && !formData.tag) {
+            setFormData(prev => ({ ...prev, tag: data.items[0] }));
+          }
         }
       } else {
         // Fallback if not found
