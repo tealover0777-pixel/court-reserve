@@ -6,20 +6,25 @@
 [1m[38;2;173;127;168m▲ Next.js 16.2.0[39m[22m (Turbopack)
 
 [37m[1m [22m[39m Creating an optimized production build ...
-[32m[1m✓[22m[39m Compiled successfully in 3.6s
-[?25l[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[?25h[?25l[37m[1m [22m[39m Finished TypeScript in 3.9s  [36m.[39m[2K[1G[?25h[37m[1m [22m[39m Finished TypeScript in 3.9s    [32m[1m✓[22m[39m Finished TypeScript in 3.9s 
-[?25l[37m[1m [22m[39m Collecting page data using 7 workers  [36m.[39m[2K[1G[37m[1m [22m[39m Collecting page data using 7 workers  [36m..[39m[2K[1G[?25h[37m[1m [22m[39m Collecting page data using 7 workers in 297ms    [32m[1m✓[22m[39m Collecting page data using 7 workers in 297ms 
-[?25l[37m[1m [22m[39m Generating static pages using 7 workers (0/6)  [36m[    ][39m[2K[1G[37m[1m [22m[39m Generating static pages using 7 workers (0/6)  [36m[=   ][39m[2K[1G[37m[1m [22m[39m Generating static pages using 7 workers (1/6)  [36m[==  ][39m[2K[1G[?25h[32m[1m✓[22m[39m Generating static pages using 7 workers (6/6) in 439ms
-[?25l[37m[1m [22m[39m Finalizing page optimization  [36m.[39m[2K[1G[37m[1m [22m[39m Finalizing page optimization  [36m..[39m[2K[1G[37m[1m [22m[39m Finalizing page optimization  [36m...[39m[2K[1G[?25h[37m[1m [22m[39m Finalizing page optimization in 524ms    [32m[1m✓[22m[39m Finalizing page optimization in 524ms 
+[32m[1m✓[22m[39m Compiled successfully in 3.4s
+[?25l[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[31mFailed to type check.
+[39m
+[36m./components/DashboardClient.tsx[39m:[33m798[39m:[33m51[39m
+[31m[1mType error[22m[39m: Cannot find name 'authUser'.
 
-[4mRoute (app)[24m
-┌ ○ /
-├ ○ /_not-found
-├ ƒ /api/send-verification-email
-└ ○ /reset-password
-
-
-○  (Static)   prerendered as static content
-ƒ  (Dynamic)  server-rendered on demand
-
-[?25h⠙[1G[0K
+  [90m796 |[0m ...       [32m"text-[#4f6b28]"[0m
+  [90m797 |[0m ...     [32m}`[0m}>
+[31m[1m>[0m [90m798 |[0m ...     [33mWelcome[0m [33mBack[0m, {profile?.first_name || authUser?.displayName?.split([32m' '[0m)[[35m0[0m] || [32m"Us...[0m
+  [90m    |[0m                                               [31m[1m^[0m
+  [90m799 |[0m ...   </span>
+  [90m800 |[0m ...   <h3 className={[32m`text-7xl font-black tracking-tighter leading-tight max-w-2xl transi...[0m
+  [90m801 |[0m ...     [32m}`[0m}>[33mREADY[0m [33mTO[0m [33mDOMINATE[0m [33mTHE[0m [33mCOURT[0m?</h3>
+[2K[1G[?25hNext.js build worker exited with code: 1 and signal: null
+[?25l [36m.[39m [?25h⠙[1G[0K[1mnpm[22m [31merror[39m Lifecycle script `build` failed with error:
+⠙[1G[0K[1mnpm[22m [31merror[39m [94mcode[39m [33m1[39m
+⠙[1G[0K[1mnpm[22m [31merror[39m [94mpath[39m /Users/kyuahn/Documents/AVG/court-reserve/apps/web
+⠙[1G[0K[1mnpm[22m [31merror[39m [94mworkspace[39m web@0.1.0
+⠙[1G[0K[1mnpm[22m [31merror[39m [94mlocation[39m /Users/kyuahn/Documents/AVG/court-reserve/apps/web
+⠙[1G[0K[1mnpm[22m [31merror[39m command failed
+⠙[1G[0K[1mnpm[22m [31merror[39m [94mcommand[39m sh -c next build
+⠙[1G[0K

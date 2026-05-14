@@ -691,7 +691,7 @@ export default function DashboardClient({ params }: { params: { tenantId: string
           }
           
           // 3. Render the view
-          if (activeView === "DASHBOARD") return <DashboardHome theme={theme} profile={profile} tenantId={tenantId} />;
+          if (activeView === "DASHBOARD") return <DashboardHome theme={theme} profile={profile} tenantId={tenantId} authUser={authUser} />;
           if (activeView === "AI_ADMIN") return <AIAdminView theme={theme} />;
           if (activeView === "DIMENSIONS") return <DimensionsView theme={theme} />;
           if (activeView === "ROLE_TYPES") return <RoleTypesView theme={theme} userRoleId={profile?.role} readOnly />;
@@ -751,7 +751,7 @@ export default function DashboardClient({ params }: { params: { tenantId: string
   );
 }
 
-function DashboardHome({ theme, profile, tenantId }: { theme: "LIGHT" | "DARK" | "VINTAGE", profile: any, tenantId: string }) {
+function DashboardHome({ theme, profile, tenantId, authUser }: { theme: "LIGHT" | "DARK" | "VINTAGE", profile: any, tenantId: string, authUser: any }) {
   const [events, setEvents] = useState<any[]>([]);
 
   useEffect(() => {
