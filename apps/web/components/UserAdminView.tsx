@@ -111,7 +111,7 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
   const [notification, setNotification] = useState<{ message: string; type: "SUCCESS" | "ERROR" | "INFO" } | null>(null);
 
   // Common UI classes
-  const inputCls = `w-full border rounded-2xl px-5 py-3.5 text-sm font-bold outline-none transition-all ${theme === "DARK" ? "bg-stone-950 text-white border-stone-800 focus:border-[#ccff00]" : "bg-white text-stone-900 border-stone-200 focus:border-stone-400 shadow-sm"
+  const inputCls = `w-full border rounded-2xl px-5 py-3.5 text-sm font-bold outline-none transition-all placeholder:text-stone-200 ${theme === "DARK" ? "bg-stone-950 text-white border-stone-800 focus:border-[#ccff00]" : "bg-white text-stone-900 border-stone-200 focus:border-stone-400 shadow-sm"
     }`;
   const readonlyCls = `w-full border rounded-2xl px-5 py-3.5 text-sm font-bold transition-colors ${theme === "DARK" ? "bg-stone-900 text-stone-400 border-stone-800" : "bg-stone-50 text-stone-500 border-stone-100"
     }`;
@@ -171,14 +171,15 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
     let qGlobal: any;
     let qTenantScoped: any = null;
 
-    if (!tenantId || tenantId === "" || tenantId === "consolidated" || tenantId === "Global") {
-      // Platform/Consolidated view: show ALL scoped users + Global users
+    if (tenantId === null) {
+      // Platform User View: show only global platform users
       qGlobal = query(collection(db, "global_users"), orderBy("user_id", "asc"));
+    } else if (tenantId === "" || tenantId === "consolidated" || tenantId === "Global") {
+      // Global User Admin View: show all tenant-scoped users across the platform
       qTenantScoped = query(collectionGroup(db, "users"), orderBy("user_id", "asc"));
     } else {
-      // Specific tenant view: ONLY scoped users
-      qGlobal = null;
-      qTenantScoped = query(collectionGroup(db, "users"), where("tenant_id", "==", tenantId), orderBy("user_id", "asc"));
+      // Tenant-specific view: show only this tenant's users
+      qTenantScoped = query(collection(db, "tenants", tenantId, "users"), orderBy("user_id", "asc"));
     }
 
     let unsubGlobal = () => {};
@@ -954,7 +955,7 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
               theme === "VINTAGE" ? "text-black" :
                 "text-[#4f6b28]"
             }`} style={{ fontFamily: 'Lexend, sans-serif' }}>
-            {(!tenantId || tenantId === "Global" || tenantId === "consolidated") ? "Platform User Admin" : "User Admin"}
+            USER ADMIN
           </h2>
           <p className={`font-bold uppercase tracking-widest text-xs mt-2 transition-colors duration-500 ${theme === "DARK" ? "text-stone-300" :
               theme === "VINTAGE" ? "text-stone-800" :
@@ -977,8 +978,8 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
               className={`w-full border rounded-full pl-12 pr-6 py-3 text-sm font-medium outline-none transition-all shadow-sm ${theme === "DARK"
                   ? "bg-stone-900 border-stone-800 text-white focus:border-[#ccff00]"
                   : theme === "VINTAGE"
-                    ? "bg-white border-stone-100 text-black focus:border-black shadow-md"
-                    : "bg-white border-stone-200 text-stone-900 focus:border-[#4f6b28]"
+                    ? "bg-white border-stone-100 text-black focus:border-black shadow-md placeholder:text-stone-200"
+                    : "bg-white border-stone-200 text-stone-900 focus:border-[#4f6b28] placeholder:text-stone-200"
                 }`}
               onChange={(e) => table.setGlobalFilter(e.target.value)}
             />
@@ -1419,7 +1420,7 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
                 </div>
                 <div>
                   <label className={labelCls}>Status</label>
-                  <select value={formData.status} onChange={e => setFormData({ ...formData, status: e.target.value })} className={`${inputCls} appearance-none cursor-pointer`}>
+                  <select value={formData.status} onChange={e => setFormData({ ...formData, status: e.target.value })} className={`${inputCls} appearance-none cursor-pointer ${!formData.status ? '!text-stone-200' : ''}`}>
                     {userStatuses.length === 0 ? (
                       <option value="" disabled>Error: USERSTATUS missing</option>
                     ) : (
@@ -1449,7 +1450,7 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className={labelCls}>State</label>
-                    <select value={formData.address_state} onChange={e => setFormData({ ...formData, address_state: e.target.value })} className={`${inputCls} appearance-none cursor-pointer`}>
+                    <select value={formData.address_state} onChange={e => setFormData({ ...formData, address_state: e.target.value })} className={`${inputCls} appearance-none cursor-pointer ${!formData.address_state ? '!text-stone-200' : ''}`}>
                       <option value="">State...</option>
                       {US_STATES.map(s => <option key={s} value={s}>{s}</option>)}
                     </select>
@@ -1510,7 +1511,7 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
                     </div>
                     <div>
                       <label className={labelCls}>Gender</label>
-                      <select value={formData.sex} onChange={e => setFormData({ ...formData, sex: e.target.value })} className={`${inputCls} appearance-none cursor-pointer`}>
+                      <select value={formData.sex} onChange={e => setFormData({ ...formData, sex: e.target.value })} className={`${inputCls} appearance-none cursor-pointer ${!formData.sex ? '!text-stone-200' : ''}`}>
                         <option value="">Select...</option>
                         <option value="Male">Male</option>
                         <option value="Female">Female</option>
@@ -1919,7 +1920,7 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label className={labelCls}>State</label>
-                      <select value={formData.address_state} onChange={e => setFormData({ ...formData, address_state: e.target.value })} className={`${inputCls} appearance-none cursor-pointer`}>
+                      <select value={formData.address_state} onChange={e => setFormData({ ...formData, address_state: e.target.value })} className={`${inputCls} appearance-none cursor-pointer ${!formData.address_state ? '!text-stone-200' : ''}`}>
                         <option value="">State...</option>
                         {US_STATES.map(s => <option key={s} value={s}>{s}</option>)}
                       </select>
@@ -1980,7 +1981,7 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
                       </div>
                       <div>
                         <label className={labelCls}>Gender</label>
-                        <select value={formData.sex} onChange={e => setFormData({ ...formData, sex: e.target.value })} className={`${inputCls} appearance-none cursor-pointer`}>
+                        <select value={formData.sex} onChange={e => setFormData({ ...formData, sex: e.target.value })} className={`${inputCls} appearance-none cursor-pointer ${!formData.sex ? '!text-stone-200' : ''}`}>
                           <option value="">Select...</option>
                           <option value="Male">Male</option>
                           <option value="Female">Female</option>

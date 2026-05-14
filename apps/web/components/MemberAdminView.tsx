@@ -1392,7 +1392,7 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
                 </div>
                 <div>
                   <label className={labelCls}>Status</label>
-                  <select value={formData.status} onChange={e => setFormData({ ...formData, status: e.target.value })} className={`${inputCls} appearance-none cursor-pointer`}>
+                  <select value={formData.status} onChange={e => setFormData({ ...formData, status: e.target.value })} className={`${inputCls} appearance-none cursor-pointer ${!formData.status ? '!text-stone-200' : ''}`}>
                     {userStatuses.length === 0 ? (
                       <option value="" disabled>Error: USERSTATUS missing</option>
                     ) : (
@@ -1422,7 +1422,7 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className={labelCls}>State</label>
-                    <select value={formData.address_state} onChange={e => setFormData({ ...formData, address_state: e.target.value })} className={`${inputCls} appearance-none cursor-pointer`}>
+                    <select value={formData.address_state} onChange={e => setFormData({ ...formData, address_state: e.target.value })} className={`${inputCls} appearance-none cursor-pointer ${!formData.address_state ? '!text-stone-200' : ''}`}>
                       <option value="">State...</option>
                       {US_STATES.map(s => <option key={s} value={s}>{s}</option>)}
                     </select>
@@ -1484,7 +1484,7 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
                     </div>
                     <div>
                       <label className={labelCls}>Gender</label>
-                      <select value={formData.sex} onChange={e => setFormData({ ...formData, sex: e.target.value })} className={`${inputCls} appearance-none cursor-pointer`}>
+                      <select value={formData.sex} onChange={e => setFormData({ ...formData, sex: e.target.value })} className={`${inputCls} appearance-none cursor-pointer ${!formData.sex ? '!text-stone-200' : ''}`}>
                         <option value="">Select...</option>
                         <option value="Male">Male</option>
                         <option value="Female">Female</option>
@@ -1905,7 +1905,7 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label className={labelCls}>State</label>
-                      <select value={formData.address_state} onChange={e => setFormData({ ...formData, address_state: e.target.value })} className={`${inputCls} appearance-none cursor-pointer`}>
+                      <select value={formData.address_state} onChange={e => setFormData({ ...formData, address_state: e.target.value })} className={`${inputCls} appearance-none cursor-pointer ${!formData.address_state ? '!text-stone-200' : ''}`}>
                         <option value="">State...</option>
                         {US_STATES.map(s => <option key={s} value={s}>{s}</option>)}
                       </select>
@@ -1967,7 +1967,7 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
                       </div>
                       <div>
                         <label className={labelCls}>Gender</label>
-                        <select value={formData.sex} onChange={e => setFormData({ ...formData, sex: e.target.value })} className={`${inputCls} appearance-none cursor-pointer`}>
+                        <select value={formData.sex} onChange={e => setFormData({ ...formData, sex: e.target.value })} className={`${inputCls} appearance-none cursor-pointer ${!formData.sex ? '!text-stone-200' : ''}`}>
                           <option value="">Select...</option>
                           <option value="Male">Male</option>
                           <option value="Female">Female</option>

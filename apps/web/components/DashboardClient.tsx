@@ -353,7 +353,7 @@ export default function DashboardClient({ params }: { params: { tenantId: string
                     theme={theme}
                   />
                   <SubNavItem
-                    label="PLATFORM USER"
+                    label="USER ADMIN"
                     active={activeView === "USER_ADMIN"}
                     onClick={() => handleViewChange("USER_ADMIN")}
                     theme={theme}
@@ -465,7 +465,7 @@ export default function DashboardClient({ params }: { params: { tenantId: string
               {activeView === "TENANT_USER_ADMIN"
                 ? "USER ADMIN"
                 : activeView === "USER_ADMIN"
-                  ? "PLATFORM USER"
+                  ? "USER ADMIN"
                   : activeView === "PLATFORM_COMPANY"
                     ? "PLATFORM COMPANY"
                     : activeView.replace(/_/g, " ")}
@@ -1548,7 +1548,7 @@ function ProfileView({ theme, profile, roles }: { theme: "LIGHT" | "DARK" | "VIN
                 <input
                   value={formData.first_name}
                   onChange={e => setFormData({ ...formData, first_name: e.target.value })}
-                  className={`w-full bg-transparent border-b-2 py-4 text-lg font-bold outline-none transition-colors ${isDark ? "border-stone-800 focus:border-[#ccff00] text-white" : "border-stone-100 focus:border-[#4f6b28] text-stone-900"}`}
+                  className={`w-full bg-transparent border-b-2 py-4 text-lg font-bold outline-none transition-colors placeholder:text-stone-200 ${isDark ? "border-stone-800 focus:border-[#ccff00] text-white" : "border-stone-100 focus:border-[#4f6b28] text-stone-900"}`}
                 />
               </div>
               <div>
@@ -1556,7 +1556,7 @@ function ProfileView({ theme, profile, roles }: { theme: "LIGHT" | "DARK" | "VIN
                 <input
                   value={formData.last_name}
                   onChange={e => setFormData({ ...formData, last_name: e.target.value })}
-                  className={`w-full bg-transparent border-b-2 py-4 text-lg font-bold outline-none transition-colors ${isDark ? "border-stone-800 focus:border-[#ccff00] text-white" : "border-stone-100 focus:border-[#4f6b28] text-stone-900"}`}
+                  className={`w-full bg-transparent border-b-2 py-4 text-lg font-bold outline-none transition-colors placeholder:text-stone-200 ${isDark ? "border-stone-800 focus:border-[#ccff00] text-white" : "border-stone-100 focus:border-[#4f6b28] text-stone-900"}`}
                 />
               </div>
             </div>
@@ -1567,7 +1567,7 @@ function ProfileView({ theme, profile, roles }: { theme: "LIGHT" | "DARK" | "VIN
                   value={formData.address_street_1}
                   onChange={e => setFormData({ ...formData, address_street_1: e.target.value })}
                   placeholder="123 Tennis Court Lane"
-                  className={`w-full bg-transparent border-b-2 py-4 text-lg font-bold outline-none transition-colors ${isDark ? "border-stone-800 focus:border-[#ccff00] text-white" : "border-stone-100 focus:border-[#4f6b28] text-stone-900"}`}
+                  className={`w-full bg-transparent border-b-2 py-4 text-lg font-bold outline-none transition-colors placeholder:text-stone-200 ${isDark ? "border-stone-800 focus:border-[#ccff00] text-white" : "border-stone-100 focus:border-[#4f6b28] text-stone-900"}`}
                 />
               </div>
               <div>
@@ -1576,7 +1576,7 @@ function ProfileView({ theme, profile, roles }: { theme: "LIGHT" | "DARK" | "VIN
                   value={formData.address_street_2}
                   onChange={e => setFormData({ ...formData, address_street_2: e.target.value })}
                   placeholder="Apt 4B"
-                  className={`w-full bg-transparent border-b-2 py-4 text-lg font-bold outline-none transition-colors ${isDark ? "border-stone-800 focus:border-[#ccff00] text-white" : "border-stone-100 focus:border-[#4f6b28] text-stone-900"}`}
+                  className={`w-full bg-transparent border-b-2 py-4 text-lg font-bold outline-none transition-colors placeholder:text-stone-200 ${isDark ? "border-stone-800 focus:border-[#ccff00] text-white" : "border-stone-100 focus:border-[#4f6b28] text-stone-900"}`}
                 />
               </div>
             </div>
@@ -1586,7 +1586,7 @@ function ProfileView({ theme, profile, roles }: { theme: "LIGHT" | "DARK" | "VIN
                 value={formData.phone}
                 onChange={e => setFormData({ ...formData, phone: e.target.value })}
                 placeholder="+1 (555) 000-0000"
-                className={`w-full bg-transparent border-b-2 py-4 text-lg font-bold outline-none transition-colors ${isDark ? "border-stone-800 focus:border-[#ccff00] text-white" : "border-stone-100 focus:border-[#4f6b28] text-stone-900"}`}
+                className={`w-full bg-transparent border-b-2 py-4 text-lg font-bold outline-none transition-colors placeholder:text-stone-200 ${isDark ? "border-stone-800 focus:border-[#ccff00] text-white" : "border-stone-100 focus:border-[#4f6b28] text-stone-900"}`}
               />
             </div>
             <div className="grid grid-cols-3 gap-8">
@@ -1596,7 +1596,7 @@ function ProfileView({ theme, profile, roles }: { theme: "LIGHT" | "DARK" | "VIN
                   value={formData.address_city}
                   onChange={e => setFormData({ ...formData, address_city: e.target.value })}
                   placeholder="Wimbledon"
-                  className={`w-full bg-transparent border-b-2 py-4 text-lg font-bold outline-none transition-colors ${isDark ? "border-stone-800 focus:border-[#ccff00] text-white" : "border-stone-100 focus:border-[#4f6b28] text-stone-900"}`}
+                  className={`w-full bg-transparent border-b-2 py-4 text-lg font-bold outline-none transition-colors placeholder:text-stone-200 ${isDark ? "border-stone-800 focus:border-[#ccff00] text-white" : "border-stone-100 focus:border-[#4f6b28] text-stone-900"}`}
                 />
               </div>
               <div className="col-span-1">
@@ -1604,7 +1604,7 @@ function ProfileView({ theme, profile, roles }: { theme: "LIGHT" | "DARK" | "VIN
                 <select
                   value={formData.address_state}
                   onChange={e => setFormData({ ...formData, address_state: e.target.value })}
-                  className={`w-full bg-transparent border-b-2 py-4 text-lg font-bold outline-none transition-colors appearance-none ${isDark ? "border-stone-800 focus:border-[#ccff00] text-white" : "border-stone-100 focus:border-[#4f6b28] text-stone-900"}`}
+                  className={`w-full bg-transparent border-b-2 py-4 text-lg font-bold outline-none transition-colors appearance-none ${!formData.address_state ? '!text-stone-200' : ''} ${isDark ? "border-stone-800 focus:border-[#ccff00] text-white" : "border-stone-100 focus:border-[#4f6b28] text-stone-900"}`}
                 >
                   <option value="" className={isDark ? "bg-stone-900" : "bg-white"}>Select State</option>
                   {US_STATES.map(state => (
@@ -1618,7 +1618,7 @@ function ProfileView({ theme, profile, roles }: { theme: "LIGHT" | "DARK" | "VIN
                   value={formData.address_zip}
                   onChange={e => setFormData({ ...formData, address_zip: e.target.value })}
                   placeholder="SW19"
-                  className={`w-full bg-transparent border-b-2 py-4 text-lg font-bold outline-none transition-colors ${isDark ? "border-stone-800 focus:border-[#ccff00] text-white" : "border-stone-100 focus:border-[#4f6b28] text-stone-900"}`}
+                  className={`w-full bg-transparent border-b-2 py-4 text-lg font-bold outline-none transition-colors placeholder:text-stone-200 ${isDark ? "border-stone-800 focus:border-[#ccff00] text-white" : "border-stone-100 focus:border-[#4f6b28] text-stone-900"}`}
                 />
               </div>
             </div>
