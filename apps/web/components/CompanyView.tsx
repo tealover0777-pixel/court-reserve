@@ -1131,8 +1131,20 @@ function CourtTab({ data, onSave, isSaving, theme, dimensions, tenantId }: any) 
                       key={dc.id}
                       type="button"
                       onClick={() => {
-                        setCourtName(dc.name || dc.label || "");
+                        const name = dc.name || dc.label || "";
+                        setCourtName(name);
                         setCourtImageUrl(dc.url || dc.image_url || "");
+
+                        // Auto-select condition or status if it matches template name
+                        const conditionMatch = conditionOptions.find((opt: string) =>
+                          name.toLowerCase().includes(opt.toLowerCase()) || opt.toLowerCase().includes(name.toLowerCase())
+                        );
+                        if (conditionMatch) setCourtCondition(conditionMatch);
+
+                        const statusMatch = statusOptions.find((opt: string) =>
+                          name.toLowerCase().includes(opt.toLowerCase()) || opt.toLowerCase().includes(name.toLowerCase())
+                        );
+                        if (statusMatch) setCourtStatus(statusMatch);
                       }}
                       className={`flex items-center gap-3 p-3 rounded-2xl border transition-all text-left group ${isDark ? "bg-stone-800/40 border-stone-800 hover:border-[#ccff00]/50" : "bg-white border-stone-100 hover:border-stone-400 shadow-sm"
                         }`}
@@ -1277,9 +1289,22 @@ function CourtTab({ data, onSave, isSaving, theme, dimensions, tenantId }: any) 
                   <button
                     key={dc.id}
                     onClick={() => {
+                      const name = dc.name || dc.label || "";
                       setCourtImageUrl(dc.url || dc.image_url);
                       // If name is empty, suggest the template name
-                      if (!courtName.trim()) setCourtName(dc.name || dc.label);
+                      if (!courtName.trim()) setCourtName(name);
+
+                      // Auto-select condition or status if it matches template name
+                      const conditionMatch = conditionOptions.find((opt: string) =>
+                        name.toLowerCase().includes(opt.toLowerCase()) || opt.toLowerCase().includes(name.toLowerCase())
+                      );
+                      if (conditionMatch) setCourtCondition(conditionMatch);
+
+                      const statusMatch = statusOptions.find((opt: string) =>
+                        name.toLowerCase().includes(opt.toLowerCase()) || opt.toLowerCase().includes(name.toLowerCase())
+                      );
+                      if (statusMatch) setCourtStatus(statusMatch);
+
                       setShowLibraryModal(false);
                     }}
                     className="group relative aspect-[4/3] rounded-2xl overflow-hidden border-2 border-transparent hover:border-stone-900 transition-all text-left"
