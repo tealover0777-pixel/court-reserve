@@ -108,8 +108,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           const globalSnap = await getDocs(globalQ);
           if (!globalSnap.empty) {
             const first = globalSnap.docs[0];
-            console.log("[AuthContext] Found global user:", first.id);
-            if (first) unsubscribeProfileRef.current = attachProfile(first.ref) as () => void;
+            if (first) {
+              console.log("[AuthContext] Found global user:", first.id);
+              unsubscribeProfileRef.current = attachProfile(first.ref) as () => void;
+            }
           } else {
             // Fallback: Check custom claims if collectionGroup query might fail or return empty
             const tokenResult = await firebaseUser.getIdTokenResult();
@@ -123,7 +125,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
                 limit(1)
               );
               const tsSnap = await getDocs(tenantSpecificQ);
-              if (!tsSnap.empty) {
+              if (!tsSnap.empty && tsSnap.docs[0]) {
                 // Ensure tenant_id is set in profile even if missing in document
                 unsubscribeProfileRef.current = attachProfile(tsSnap.docs[0].ref, { tenant_id: claimTenantId }) as () => void;
                 return;
@@ -139,14 +141,19 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             const tenantSnap = await getDocs(tenantQ);
             if (!tenantSnap.empty) {
               const firstT = tenantSnap.docs[0];
-              // Try to extract tenant_id from path if missing
-              const pathParts = firstT.ref.path.split("/");
-              let detectedTenantId = "";
-              if (pathParts[0] === "tenants" && pathParts[1]) {
-                detectedTenantId = pathParts[1];
+              if (firstT) {
+                // Try to extract tenant_id from path if missing
+                const pathParts = firstT.ref.path.split("/");
+                let detectedTenantId = "";
+                if (pathParts[0] === "tenants" && pathParts[1]) {
+                  detectedTenantId = pathParts[1];
+                }
+                console.log("[AuthContext] Found tenant user via collectionGroup:", firstT.ref.path, "Detected Tenant:", detectedTenantId);
+                unsubscribeProfileRef.current = attachProfile(firstT.ref, detectedTenantId ? { tenant_id: detectedTenantId } : {}) as () => void;
+              } else {
+                setProfile(null);
+                setLoading(false);
               }
-              console.log("[AuthContext] Found tenant user via collectionGroup:", firstT.ref.path, "Detected Tenant:", detectedTenantId);
-              if (firstT) unsubscribeProfileRef.current = attachProfile(firstT.ref, detectedTenantId ? { tenant_id: detectedTenantId } : {}) as () => void;
             } else {
               setProfile(null);
               setLoading(false);

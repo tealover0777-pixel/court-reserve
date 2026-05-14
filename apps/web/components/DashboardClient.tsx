@@ -168,7 +168,7 @@ export default function DashboardClient({ params }: { params: { tenantId: string
     if (!profile || roles.length === 0) return;
 
     // If current view is not allowed, switch to a safe default
-    const requiredPermission = VIEW_PERMISSIONS[activeView as any];
+    const requiredPermission = VIEW_PERMISSIONS[activeView];
     if (requiredPermission && !hasPermission(requiredPermission)) {
       if (hasPermission("DASHBOARD_VIEW")) {
         setActiveView("DASHBOARD");
