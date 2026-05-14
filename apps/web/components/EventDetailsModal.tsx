@@ -17,8 +17,8 @@ interface EventDetailsModalProps {
 export default function EventDetailsModal({ event, theme, profile, tenantId, onClose }: EventDetailsModalProps) {
   const [loading, setLoading] = useState(false);
   const [leaders, setLeaders] = useState<any[]>([]);
-  const isSignedUp = event.signups?.includes(profile.uid);
-  const isWaitlisted = event.waiting_list?.includes(profile.uid);
+  const isSignedUp = event.signups?.includes(profile.id);
+  const isWaitlisted = event.waiting_list?.includes(profile.id);
   const isFull = (event.signups?.length || 0) >= event.max_participants;
   const deadline = event.cancellation_deadline?.toDate ? event.cancellation_deadline.toDate() : (event.cancellation_deadline ? new Date(event.cancellation_deadline) : null);
   const isPastDeadline = deadline ? new Date() > deadline : false;
@@ -37,7 +37,7 @@ export default function EventDetailsModal({ event, theme, profile, tenantId, onC
   }, [event.event_leaders, tenantId]);
 
   const handleJoin = async () => {
-    if (!profile.uid) return;
+    if (!profile.id) return;
     setLoading(true);
     try {
       const eventRef = doc(db, "tenants", tenantId, "events", event.id);
@@ -50,17 +50,17 @@ export default function EventDetailsModal({ event, theme, profile, tenantId, onC
         const currentSignups = data.signups || [];
         const currentWaitlist = data.waiting_list || [];
         
-        if (currentSignups.includes(profile.uid) || currentWaitlist.includes(profile.uid)) {
+        if (currentSignups.includes(profile.id) || currentWaitlist.includes(profile.id)) {
           return; // Already in
         }
 
         if (currentSignups.length < data.max_participants) {
           transaction.update(eventRef, {
-            signups: arrayUnion(profile.uid)
+            signups: arrayUnion(profile.id)
           });
         } else {
           transaction.update(eventRef, {
-            waiting_list: arrayUnion(profile.uid)
+            waiting_list: arrayUnion(profile.id)
           });
         }
       });
@@ -72,7 +72,7 @@ export default function EventDetailsModal({ event, theme, profile, tenantId, onC
   };
 
   const handleLeave = async () => {
-    if (!profile.uid) return;
+    if (!profile.id) return;
     setLoading(true);
     try {
       const eventRef = doc(db, "tenants", tenantId, "events", event.id);
@@ -85,21 +85,19 @@ export default function EventDetailsModal({ event, theme, profile, tenantId, onC
         let signups = data.signups || [];
         let waitlist = data.waiting_list || [];
         
-        if (signups.includes(profile.uid)) {
+        if (signups.includes(profile.id)) {
           // Remove from signups
-          signups = signups.filter(id => id !== profile.uid);
+          signups = signups.filter(id => id !== profile.id);
           
-          // Promote from waitlist if any
           if (waitlist.length > 0) {
-            const nextInLine = waitlist[0];
-            signups.push(nextInLine);
-            waitlist = waitlist.slice(1);
+            const nextInLine = waitlist.shift();
+            if (nextInLine) signups.push(nextInLine);
           }
           
           transaction.update(eventRef, { signups, waiting_list: waitlist });
-        } else if (waitlist.includes(profile.uid)) {
+        } else if (waitlist.includes(profile.id)) {
           // Remove from waitlist
-          waitlist = waitlist.filter(id => id !== profile.uid);
+          waitlist = waitlist.filter(id => id !== profile.id);
           transaction.update(eventRef, { waiting_list: waitlist });
         }
       });
@@ -113,7 +111,7 @@ export default function EventDetailsModal({ event, theme, profile, tenantId, onC
   const eventDate = event.date?.toDate ? event.date.toDate() : new Date(event.date);
 
   return (
-    <Modal isOpen={true} onClose={onClose} theme={theme} maxWidth="2xl">
+    <Modal isOpen={true} onClose={onClose} theme={theme} width={800} title="Event Details">
       <div className={`p-8 ${theme === "DARK" ? "text-white" : "text-stone-900"}`}>
         {/* Header with Image */}
         <div className="relative h-64 rounded-2xl overflow-hidden mb-8 group">
@@ -217,7 +215,7 @@ export default function EventDetailsModal({ event, theme, profile, tenantId, onC
                     <span className="material-symbols-outlined">hourglass_top</span>
                   </div>
                   <p className="text-sm font-bold uppercase tracking-tight mb-2">On Waitlist</p>
-                  <p className="text-[10px] opacity-60 uppercase mb-8">Position: #{event.waiting_list.indexOf(profile.uid) + 1}</p>
+                  <p className="text-[10px] opacity-60 uppercase mb-8">Position: #{event.waiting_list.indexOf(profile.id) + 1}</p>
                   <button 
                     onClick={handleLeave}
                     disabled={loading}

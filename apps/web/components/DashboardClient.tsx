@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import Image from "next/image";
 import { useTenant } from "../context/TenantContext";
@@ -198,10 +198,10 @@ export default function DashboardClient({ params }: { params: { tenantId: string
   const [showNotificationsModal, setShowNotificationsModal] = React.useState(false);
 
   React.useEffect(() => {
-    if (!profile?.uid || !tenantId) return;
+    if (!profile?.id || !tenantId) return;
     const q = query(
       collection(db, "tenants", tenantId, "notifications"),
-      where("userId", "==", profile.uid),
+      where("userId", "==", profile.id),
       where("read", "==", false),
       orderBy("created_at", "desc"),
       limit(20)
@@ -210,7 +210,7 @@ export default function DashboardClient({ params }: { params: { tenantId: string
       setUnreadNotifications(snap.docs.map(d => ({ id: d.id, ...d.data() })));
     });
     return () => unsub();
-  }, [profile?.uid, tenantId]);
+  }, [profile?.id, tenantId]);
 
   const markAllAsRead = async () => {
     if (!tenantId || unreadNotifications.length === 0) return;
@@ -889,6 +889,7 @@ function DashboardHome({ theme, profile, tenantId }: { theme: "LIGHT" | "DARK" |
         <h4 className={`text-4xl font-black tracking-tighter uppercase mb-8 transition-colors ${theme === "DARK" ? "text-white" : "text-black"}`}>
           Club Events & News
         </h4>
+        <div className="grid grid-cols-12 gap-8">
           {featuredEvent ? (
             <div 
               onClick={() => setSelectedEvent(featuredEvent)}
@@ -1159,12 +1160,12 @@ function BookingCard({ court, date, time, partner, avatar, isOpen = false, highl
   );
 }
 
-function NewsItem({ title, subtitle, tag, theme }: { title: string; subtitle: string; tag: string; theme: "LIGHT" | "DARK" | "VINTAGE" }) {
+function NewsItem({ title, subtitle, tag, theme, onClick }: { title: string; subtitle: string; tag: string; theme: "LIGHT" | "DARK" | "VINTAGE"; onClick?: () => void }) {
   const isDark = theme === "DARK";
   const isVintage = theme === "VINTAGE";
 
   return (
-    <div className="group cursor-pointer flex gap-6 hover:translate-x-1 transition-all duration-300">
+    <div onClick={onClick} className="group cursor-pointer flex gap-6 hover:translate-x-1 transition-all duration-300">
       <div className={`w-24 h-24 flex-shrink-0 overflow-hidden rounded-xl relative transition-colors ${isDark ? "bg-stone-900" : isVintage ? "bg-[#f7f9fb]" : "bg-stone-100"
         }`}>
         <div className={`absolute inset-0 flex items-center justify-center opacity-20 ${isDark ? "text-[#ccff00]" : isVintage ? "text-black" : "text-[#4f6b28]"}`}>
