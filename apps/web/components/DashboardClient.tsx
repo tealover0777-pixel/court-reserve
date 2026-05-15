@@ -588,7 +588,7 @@ function Sidebar({ activeView, setActiveView, platformAdminOpen, setPlatformAdmi
           </div>
           <div>
             <h1 className="text-2xl font-black italic tracking-tighter leading-none transition-colors text-primary font-headline">
-              KINETIC COURT
+              LINWOOD COURT
             </h1>
             <p className="text-[10px] font-black uppercase tracking-[0.3em] mt-1 transition-colors text-on-surface/40 font-body">
               {tenantId === "consolidated" ? "CONSOLIDATED" : 
@@ -631,7 +631,7 @@ function Sidebar({ activeView, setActiveView, platformAdminOpen, setPlatformAdmi
         />
 
         {/* Administration Section */}
-        {(hasPermission('TENANT_ADMIN') || hasPermission('DIMENSIONS_VIEW') || hasPermission('ROLE_TYPES_VIEW') || hasPermission('USER_ADMIN_VIEW') || isGlobalUser) && (
+        {(hasPermission('TENANT_ADMIN') || hasPermission('ADMINISTRATION_VIEW') || hasPermission('DIMENSIONS_VIEW') || hasPermission('ROLE_TYPES_VIEW') || hasPermission('USER_ADMIN_VIEW') || isGlobalUser || profile?.role === 'R10005') && (
           <div className="mt-10 pt-10 relative">
             {/* Tonal Divider */}
             <div className="absolute top-0 left-4 right-4 h-[1px] bg-outline/10"></div>
@@ -651,22 +651,22 @@ function Sidebar({ activeView, setActiveView, platformAdminOpen, setPlatformAdmi
 
             {administrationOpen && (
               <div className="mt-2 space-y-1 animate-in fade-in slide-in-from-top-2 duration-300">
-                {(hasPermission('TENANT_ADMIN') || isGlobalUser) && (
+                {(hasPermission('TENANT_ADMIN') || isGlobalUser || profile?.role === 'R10005') && (
                   <SubNavItem label="Company" active={activeView === "COMPANY"} onClick={() => setActiveView("COMPANY")} theme={theme} />
                 )}
-                {hasPermission('SCHEDULES_VIEW') && (
+                {(hasPermission('SCHEDULES_VIEW') || profile?.role === 'R10005') && (
                   <SubNavItem label="Schedules" active={activeView === "SCHEDULES"} onClick={() => setActiveView("SCHEDULES")} theme={theme} />
                 )}
-                {hasPermission('EVENTS_VIEW') && (
+                {(hasPermission('EVENTS_VIEW') || profile?.role === 'R10005') && (
                   <SubNavItem label="Events" active={activeView === "EVENTS_ADMIN"} onClick={() => setActiveView("EVENTS_ADMIN")} theme={theme} />
                 )}
-                {hasPermission('USER_ADMIN_VIEW') && (
+                {(hasPermission('USER_ADMIN_VIEW') || profile?.role === 'R10005') && (
                   <SubNavItem label="Staff" active={activeView === "USER_ADMIN"} onClick={() => setActiveView("USER_ADMIN")} theme={theme} />
                 )}
-                {hasPermission('MEMBER_ADMIN_VIEW') && (
+                {(hasPermission('MEMBER_ADMIN_VIEW') || profile?.role === 'R10005') && (
                   <SubNavItem label="Members" active={activeView === "MEMBER_ADMIN"} onClick={() => setActiveView("MEMBER_ADMIN")} theme={theme} />
                 )}
-                {hasPermission('ROLE_TYPES_VIEW') && (
+                {(hasPermission('ROLE_TYPES_VIEW') || profile?.role === 'R10005') && (
                   <SubNavItem label="Roles" active={activeView === "ROLE_TYPES"} onClick={() => setActiveView("ROLE_TYPES")} theme={theme} />
                 )}
               </div>
@@ -677,7 +677,10 @@ function Sidebar({ activeView, setActiveView, platformAdminOpen, setPlatformAdmi
 
       {/* User Profile Section */}
       <div className="p-6">
-        <div className="p-6 rounded-[2rem] transition-all duration-500 relative overflow-hidden group bg-surface-container-low">
+        <div 
+          onClick={() => setActiveView("PROFILE")}
+          className="p-6 rounded-[2rem] transition-all duration-500 relative overflow-hidden group bg-surface-container-low cursor-pointer hover:shadow-lg hover:scale-[1.02]"
+        >
           <div className="flex items-center gap-4 relative z-10">
             <div className="relative">
               <img
@@ -692,7 +695,10 @@ function Sidebar({ activeView, setActiveView, platformAdminOpen, setPlatformAdmi
               <p className="text-[9px] font-black uppercase tracking-widest transition-colors text-primary">{profile?.role || 'Member'}</p>
             </div>
             <button
-              onClick={onLogout}
+              onClick={(e) => {
+                e.stopPropagation();
+                onLogout();
+              }}
               className="w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-300 bg-surface text-on-surface-variant hover:bg-red-500 hover:text-white shadow-sm"
             >
               <span className="material-symbols-outlined text-lg">logout</span>
@@ -748,10 +754,27 @@ function DashboardHome({ theme, profile, tenantId, authUser, userSchedule, onRem
 
       <div className="grid grid-cols-12 gap-10">
         {/* Performance Stats Bento */}
-        <div className="col-span-12 lg:col-span-8 grid grid-cols-3 gap-8">
-          <StatCard label="Win Rate" value="68%" trend="+4.2%" icon="trending_up" theme={theme} active />
-          <StatCard label="Matches" value="124" trend="Total" icon="sports_tennis" theme={theme} />
-          <StatCard label="Loyalty Points" value="2,450" trend="Active" icon="workspace_premium" theme={theme} />
+        <div className="col-span-12 lg:col-span-8 space-y-8">
+          <div className="grid grid-cols-3 gap-8">
+            <StatCard label="Win Rate" value="68%" trend="+4.2%" icon="trending_up" theme={theme} />
+            <StatCard label="Matches" value="124" trend="Total" icon="sports_tennis" theme={theme} />
+            <StatCard label="Loyalty Points" value="2,450" trend="Active" icon="workspace_premium" theme={theme} variant="yellow" />
+          </div>
+          
+          {/* Featured Match Card */}
+          <div className="rounded-[2.5rem] p-12 relative overflow-hidden group cursor-pointer shadow-xl transition-all hover:scale-[1.01] bg-primary">
+            <div className="absolute inset-0 opacity-10 bg-[url('/images/clay_court.png')] bg-cover bg-center mix-blend-overlay"></div>
+            <div className="relative z-10 flex justify-between items-center">
+              <div>
+                <span className="px-4 py-1 rounded-full text-[9px] font-black tracking-widest uppercase bg-white/20 text-white mb-4 inline-block">Scheduled: Tomorrow</span>
+                <h4 className="text-4xl font-black text-white tracking-tighter uppercase" style={{ fontFamily: 'Lexend, sans-serif' }}>QUARTER FINAL MATCH</h4>
+                <p className="text-white/70 text-xs font-black uppercase tracking-widest mt-2">Center Court • 10:00 AM vs. Marcus V.</p>
+              </div>
+              <button className="px-8 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all bg-white text-primary hover:bg-stone-100 shadow-lg">
+                Match Preview
+              </button>
+            </div>
+          </div>
         </div>
 
         {/* Recent Activity Section */}
@@ -947,12 +970,15 @@ function NavItem({ icon, label, active = false, onClick, theme }: { icon: string
   );
 }
 
-function StatCard({ label, value, trend, icon, theme, active = false }: { label: string; value: string; trend: string; icon: string; theme: "LIGHT" | "DARK" | "VINTAGE"; active?: boolean }) {
+function StatCard({ label, value, trend, icon, theme, active = false, variant }: { label: string; value: string; trend: string; icon: string; theme: "LIGHT" | "DARK" | "VINTAGE"; active?: boolean; variant?: "yellow" | "primary" }) {
+
 
   return (
-    <div className={`p-10 rounded-[2.5rem] transition-all duration-700 ease-in-out group relative overflow-hidden flex flex-col h-full ${active
+    <div className={`p-10 rounded-[2.5rem] transition-all duration-700 ease-in-out group relative overflow-hidden flex flex-col h-full ${active || variant === 'primary'
       ? "bg-primary shadow-2xl scale-[1.02] z-10"
-      : "bg-surface-container-low hover:bg-surface-container-high"
+      : variant === 'yellow'
+        ? "bg-tertiary-container shadow-lg"
+        : "bg-surface-container-low hover:bg-surface-container-high"
       }`}>
       <div className="flex justify-between items-start mb-10 relative z-10">
         <div className={`w-16 h-16 rounded-[1.5rem] flex items-center justify-center transition-all duration-500 ${active
@@ -961,16 +987,18 @@ function StatCard({ label, value, trend, icon, theme, active = false }: { label:
           }`}>
           <span className="material-symbols-outlined text-3xl">{icon}</span>
         </div>
-        <div className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest ${active
+        <div className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest ${active || variant === 'primary'
           ? "bg-on-primary/20 text-on-primary"
-          : (trend.startsWith('+') ? "bg-green-500/10 text-green-500" : "bg-red-500/10 text-red-500")
+          : variant === 'yellow'
+            ? "bg-on-tertiary-container/10 text-on-tertiary-container"
+            : (trend.startsWith('+') ? "bg-green-500/10 text-green-500" : "bg-red-500/10 text-red-500")
           }`}>
           {trend}
         </div>
       </div>
       <div className="mt-auto relative z-10">
-        <p className={`text-[11px] font-black uppercase tracking-[0.2em] mb-3 transition-colors ${active ? "text-on-primary/70" : "text-on-surface-variant"}`}>{label}</p>
-        <h3 className={`text-6xl font-black tracking-tighter transition-colors ${active ? "text-on-primary" : "text-on-surface"}`} style={{ fontFamily: 'Lexend, sans-serif' }}>{value}</h3>
+        <p className={`text-[11px] font-black uppercase tracking-[0.2em] mb-3 transition-colors ${active || variant === 'primary' ? "text-on-primary/70" : variant === 'yellow' ? "text-on-tertiary-container/60" : "text-on-surface-variant"}`}>{label}</p>
+        <h3 className={`text-6xl font-black tracking-tighter transition-colors ${active || variant === 'primary' ? "text-on-primary" : variant === 'yellow' ? "text-on-tertiary-container" : "text-on-surface"}`} style={{ fontFamily: 'Lexend, sans-serif' }}>{value}</h3>
       </div>
       {/* Background Micro-animation */}
       <div className={`absolute top-0 right-0 w-48 h-48 rounded-full blur-[80px] -mr-24 -mt-24 transition-opacity duration-1000 ${active ? "bg-on-primary/20 opacity-100" : "bg-primary/5 opacity-0 group-hover:opacity-100"}`}></div>
