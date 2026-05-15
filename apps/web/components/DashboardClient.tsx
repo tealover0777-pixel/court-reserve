@@ -629,38 +629,6 @@ function Sidebar({ activeView, setActiveView, platformAdminOpen, setPlatformAdmi
           onClick={() => setActiveView("MEMBERSHIP")}
           theme={theme}
         />
-
-        {/* Platform Admin Section */}
-        {(isGlobalUser && hasPermission('PLATFORM_VIEW') || profile?.role?.includes('R1010')) && (
-          <div className="mt-8 pt-8 relative">
-            {/* Tonal Divider */}
-            <div className="absolute top-0 left-4 right-4 h-[1px] bg-outline/10"></div>
-
-            <button
-              onClick={() => setPlatformAdminOpen(!platformAdminOpen)}
-              className={`w-full flex items-center justify-between px-8 py-4 transition-all duration-300 group ${platformAdminOpen ? "bg-primary-container/10" : "hover:bg-surface-container-high"
-                }`}
-            >
-              <div className="flex items-center gap-5">
-                <span className={`material-symbols-outlined text-2xl transition-colors ${platformAdminOpen ? "text-primary" : "text-on-surface-variant/60 group-hover:text-primary"}`}>hub</span>
-                <span className={`text-base font-black uppercase tracking-[0.2em] transition-colors ${platformAdminOpen ? "text-on-surface" : "text-on-surface-variant/70 group-hover:text-primary"} font-headline`}>Platform</span>
-              </div>
-              <span className={`material-symbols-outlined text-sm transition-transform duration-300 ${platformAdminOpen ? "rotate-180 text-primary" : "text-on-surface-variant"}`}>expand_more</span>
-            </button>
-
-            {platformAdminOpen && (
-              <div className="mt-2 space-y-1 animate-in fade-in slide-in-from-top-2 duration-300">
-                <SubNavItem label="Tenants" active={activeView === "PLATFORM_TENANT_ADMIN"} onClick={() => setActiveView("PLATFORM_TENANT_ADMIN")} theme={theme} />
-                <SubNavItem label="Global Users" active={activeView === "USER_ADMIN"} onClick={() => setActiveView("USER_ADMIN")} theme={theme} />
-                <SubNavItem label="Global Roles" active={activeView === "PLATFORM_ROLE_TYPES"} onClick={() => setActiveView("PLATFORM_ROLE_TYPES")} theme={theme} />
-                <SubNavItem label="Global Company" active={activeView === "PLATFORM_COMPANY"} onClick={() => setActiveView("PLATFORM_COMPANY")} theme={theme} />
-                <SubNavItem label="Dimensions" active={activeView === "DIMENSIONS"} onClick={() => setActiveView("DIMENSIONS")} theme={theme} />
-                <SubNavItem label="AI Settings" active={activeView === "AI_ADMIN"} onClick={() => setActiveView("AI_ADMIN")} theme={theme} />
-              </div>
-            )}
-          </div>
-        )}
-
         {/* Administration Section */}
         {(hasPermission('TENANT_ADMIN') || hasPermission('ADMINISTRATION_VIEW') || hasPermission('DIMENSIONS_VIEW') || hasPermission('ROLE_TYPES_VIEW') || hasPermission('USER_ADMIN_VIEW') || isGlobalUser || profile?.role?.includes('R10005')) && (
           <div className="mt-8 pt-8 relative">
@@ -713,6 +681,36 @@ function Sidebar({ activeView, setActiveView, platformAdminOpen, setPlatformAdmi
           theme={theme}
         />
       </div>
+      {/* Platform Admin Section */}
+      {(isGlobalUser && hasPermission('PLATFORM_VIEW') || profile?.role?.includes('R1010')) && (
+        <div className="mt-8 pt-8 relative">
+          {/* Tonal Divider */}
+          <div className="absolute top-0 left-4 right-4 h-[1px] bg-outline/10"></div>
+
+          <button
+            onClick={() => setPlatformAdminOpen(!platformAdminOpen)}
+            className={`w-full flex items-center justify-between px-8 py-4 transition-all duration-300 group ${platformAdminOpen ? "bg-primary-container/10" : "hover:bg-surface-container-high"
+              }`}
+          >
+            <div className="flex items-center gap-5">
+              <span className={`material-symbols-outlined text-2xl transition-colors ${platformAdminOpen ? "text-primary" : "text-on-surface-variant/60 group-hover:text-primary"}`}>hub</span>
+              <span className={`text-base font-black uppercase tracking-[0.2em] transition-colors ${platformAdminOpen ? "text-on-surface" : "text-on-surface-variant/70 group-hover:text-primary"} font-headline`}>Platform</span>
+            </div>
+            <span className={`material-symbols-outlined text-sm transition-transform duration-300 ${platformAdminOpen ? "rotate-180 text-primary" : "text-on-surface-variant"}`}>expand_more</span>
+          </button>
+
+          {platformAdminOpen && (
+            <div className="mt-2 space-y-1 animate-in fade-in slide-in-from-top-2 duration-300">
+              <SubNavItem label="Tenants" active={activeView === "PLATFORM_TENANT_ADMIN"} onClick={() => setActiveView("PLATFORM_TENANT_ADMIN")} theme={theme} />
+              <SubNavItem label="Global Users" active={activeView === "USER_ADMIN"} onClick={() => setActiveView("USER_ADMIN")} theme={theme} />
+              <SubNavItem label="Global Roles" active={activeView === "PLATFORM_ROLE_TYPES"} onClick={() => setActiveView("PLATFORM_ROLE_TYPES")} theme={theme} />
+              <SubNavItem label="Global Company" active={activeView === "PLATFORM_COMPANY"} onClick={() => setActiveView("PLATFORM_COMPANY")} theme={theme} />
+              <SubNavItem label="Dimensions" active={activeView === "DIMENSIONS"} onClick={() => setActiveView("DIMENSIONS")} theme={theme} />
+              <SubNavItem label="AI Settings" active={activeView === "AI_ADMIN"} onClick={() => setActiveView("AI_ADMIN")} theme={theme} />
+            </div>
+          )}
+        </div>
+      )}
 
       {/* User Profile Section */}
       <div className="p-4 mt-auto">
@@ -1828,13 +1826,13 @@ function SettingsView({ theme }: { theme: "LIGHT" | "DARK" | "VINTAGE" }) {
           { icon: "mail", title: "NEWSLETTER", desc: "Weekly club updates and clinic openings", active: true }
         ].map((opt, i) => (
           <div key={i} className={`flex items-center justify-between p-10 rounded-[2.5rem] border transition-all duration-300 hover:shadow-xl hover:scale-[1.01] ${theme === "DARK" ? "bg-stone-900 border-stone-800" :
-              theme === "VINTAGE" ? "bg-white border-stone-50" :
-                "bg-white border-outline/5 shadow-sm"
+            theme === "VINTAGE" ? "bg-white border-stone-50" :
+              "bg-white border-outline/5 shadow-sm"
             }`}>
             <div className="flex items-center gap-8">
               <div className={`w-16 h-16 rounded-3xl flex items-center justify-center transition-all ${theme === "DARK" ? "bg-stone-800 text-primary" :
-                  theme === "LIGHT" ? "bg-surface-container text-primary" :
-                    "bg-stone-50 text-stone-900"
+                theme === "LIGHT" ? "bg-surface-container text-primary" :
+                  "bg-stone-50 text-stone-900"
                 }`}>
                 <span className="material-symbols-outlined text-3xl opacity-80">{opt.icon}</span>
               </div>
@@ -1847,8 +1845,8 @@ function SettingsView({ theme }: { theme: "LIGHT" | "DARK" | "VINTAGE" }) {
             </div>
 
             <button className={`w-16 h-9 rounded-full relative transition-all duration-500 ease-in-out ${opt.active
-                ? (theme === "LIGHT" ? "bg-primary shadow-lg shadow-primary/20" : "bg-primary")
-                : (theme === "DARK" ? "bg-stone-800" : "bg-stone-100")
+              ? (theme === "LIGHT" ? "bg-primary shadow-lg shadow-primary/20" : "bg-primary")
+              : (theme === "DARK" ? "bg-stone-800" : "bg-stone-100")
               }`}>
               <div className={`absolute top-1.5 w-6 h-6 bg-white rounded-full shadow-md transition-all duration-500 ease-in-out ${opt.active ? "translate-x-8" : "translate-x-2"
                 }`}></div>
