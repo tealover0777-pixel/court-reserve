@@ -26,7 +26,7 @@ import {
   where
 } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { format } from "date-fns";
+import { format, addDays, addWeeks, addMonths } from "date-fns";
 
 import { Event } from "../lib/types";
 
@@ -39,6 +39,34 @@ interface User {
   email: string;
   portrait_url?: string;
 }
+
+const getOccurrences = (
+  start: Date,
+  type: "none" | "daily" | "weekly" | "monthly",
+  until: "date" | "occurrences",
+  count: number,
+  endDateStr: string
+): Date[] => {
+  if (type === "none") return [start];
+  
+  const occurrences: Date[] = [];
+  let current = new Date(start);
+  const max = 30;
+  const limitDate = until === "date" && endDateStr ? new Date(`${endDateStr}T23:59:59`) : null;
+
+  while (occurrences.length < max) {
+    if (until === "date" && limitDate && current > limitDate) break;
+    if (until === "occurrences" && occurrences.length >= count) break;
+    
+    occurrences.push(new Date(current));
+    
+    if (type === "daily") current = addDays(current, 1);
+    else if (type === "weekly") current = addWeeks(current, 1);
+    else if (type === "monthly") current = addMonths(current, 1);
+  }
+  
+  return occurrences;
+};
 
 const timeToMinutes = (timeStr: string): number => {
   if (!timeStr) return 0;
@@ -74,11 +102,13 @@ export default function EventsAdminView({ theme = "LIGHT", tenantId }: { theme?:
   const [tenantUsers, setTenantUsers] = useState<User[]>([]);
   const [conflicts, setConflicts] = useState<any[]>([]);
   const [showConflictModal, setShowConflictModal] = useState(false);
-  const [formData, setFormData] = useState({
+  const initialFormState = {
     title: "",
     description: "",
-    date: format(new Date(new Date().setMinutes(0, 0, 0)), "yyyy-MM-dd'T'HH:mm"),
-    end_date: "",
+    start_date: format(new Date(), "yyyy-MM-dd"),
+    start_time: "09:00",
+    end_date: format(new Date(), "yyyy-MM-dd"),
+    end_time: "11:00",
     type: "one-time" as "one-time" | "regular",
     max_participants: 20,
     cancellation_policy: "24-hour notice required for full refund.",
@@ -88,8 +118,22 @@ export default function EventsAdminView({ theme = "LIGHT", tenantId }: { theme?:
     event_leaders: [] as string[],
     use_end_date: true,
     save_to_schedules: false,
-    court_id: ""
-  });
+    court_id: "",
+    repeat_type: "none" as "none" | "daily" | "weekly" | "monthly",
+    repeat_until: "occurrences" as "date" | "occurrences",
+    repeat_end_date: "",
+    repeat_count: 1
+  };
+
+  const [formData, setFormData] = useState(initialFormState);
+
+  const resetForm = () => {
+    setFormData(initialFormState);
+  };
+
+  const [sorting, setSorting] = useState([]);
+  const [globalFilter, setGlobalFilter] = useState("");
+
   const [courts, setCourts] = useState<any[]>([]);
   const [categories, setCategories] = useState<string[]>([]);
 
@@ -158,28 +202,46 @@ export default function EventsAdminView({ theme = "LIGHT", tenantId }: { theme?:
   }, [tenantId]);
 
   const handleSaveEvent = async (force = false) => {
-    if (!formData.title || !formData.date || !tenantId) return;
+    if (!formData.title || !formData.start_date || !tenantId) return;
 
-    // Check for conflicts if not forcing
-    if (!force) {
-      const eventStart = new Date(formData.date);
-      const eventEnd = formData.end_date ? new Date(formData.end_date) : new Date(eventStart.getTime() + 2 * 60 * 60 * 1000); // Default 2h
+    const startDateTime = new Date(`${formData.start_date}T${formData.start_time}`);
+    // If NO END DATE is selected, default to 1 hour after start time for the schedule block
+    const endDateTime = formData.use_end_date 
+      ? new Date(`${formData.end_date}T${formData.end_time}`)
+      : new Date(startDateTime.getTime() + 60 * 60 * 1000);
 
+    const durationHours = (endDateTime.getTime() - startDateTime.getTime()) / (60 * 60 * 1000);
+
+    const occurrenceDates = getOccurrences(
+      startDateTime,
+      formData.repeat_type,
+      formData.repeat_until,
+      formData.repeat_count,
+      formData.repeat_end_date
+    );
+
+    // Check for conflicts if saving to schedules and not forcing
+    if (formData.save_to_schedules && formData.court_id && !force) {
       const bookingsSnap = await getDocs(collection(db, "tenants", tenantId, "bookings"));
-      const overlapping = bookingsSnap.docs.filter(doc => {
-        const b = doc.data();
-        const bDate = b.date; // Assuming yyyy-MM-dd
-        const bTime = b.time; // Assuming HH:mm
-        const bDuration = Number(b.duration) || 1;
+      const allBookings = bookingsSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      
+      const overlapping = allBookings.filter((b: any) => {
+        if (editingEvent && b.eventId === editingEvent.id) return false;
+        if (b.courtId !== formData.court_id) return false;
+        
+        const bStart = new Date(`${b.date}T${b.time}`);
+        const bEnd = b.endTime 
+          ? new Date(`${b.date}T${b.endTime}`)
+          : new Date(bStart.getTime() + (Number(b.duration) || 1) * 60 * 60 * 1000);
 
-        // Construct booking start/end
-        const [year, month, day] = bDate.split("-");
-        const [hour, min] = bTime.split(":");
-        const bStart = new Date(Number(year), Number(month) - 1, Number(day), Number(hour), Number(min));
-        const bEnd = new Date(bStart.getTime() + bDuration * 60 * 60 * 1000);
-
-        return (bStart < eventEnd && bEnd > eventStart);
-      }).map(doc => ({ id: doc.id, ...doc.data() }));
+        return occurrenceDates.some(occStart => {
+          const occEnd = new Date(occStart.getTime() + durationHours * 60 * 60 * 1000);
+          
+          // Since occurrenceDates are generated from startDateTime (which has the date), 
+          // they already represent the specific date of each occurrence.
+          return (occStart < bEnd && occEnd > bStart);
+        });
+      });
 
       if (overlapping.length > 0) {
         setConflicts(overlapping);
@@ -192,16 +254,16 @@ export default function EventsAdminView({ theme = "LIGHT", tenantId }: { theme?:
     try {
       const payload = {
         ...formData,
-        date: new Date(formData.date),
-        end_date: formData.end_date ? new Date(formData.end_date) : null,
+        date: startDateTime, // Legacy field for some views
+        start_date: formData.start_date,
+        end_date: formData.end_date,
+        start_time: formData.start_time,
+        end_time: formData.end_time,
         cancellation_deadline: formData.cancellation_deadline ? new Date(formData.cancellation_deadline) : null,
         max_participants: Number(formData.max_participants),
         updated_at: serverTimestamp(),
         tenant_id: tenantId,
-        use_end_date: formData.use_end_date,
-        save_to_schedules: formData.save_to_schedules,
-        court_id: formData.court_id,
-        court_name: courts.find(c => (c.id || c.name) === formData.court_id)?.name || ""
+        court_name: courts.find(c => (c.id || c.name) === formData.court_id)?.name || "",
       };
  
       let eventId = editingEvent?.id;
@@ -220,46 +282,40 @@ export default function EventsAdminView({ theme = "LIGHT", tenantId }: { theme?:
       // Handle Scheduling Sync
       if (formData.save_to_schedules && formData.court_id) {
         const selectedCourt = courts.find(c => (c.id || c.name) === formData.court_id);
-        const eventStart = new Date(formData.date);
-        const eventEnd = formData.use_end_date && formData.end_date 
-          ? new Date(formData.end_date) 
-          : new Date(eventStart.getTime() + 2 * 60 * 60 * 1000);
         
-        const duration = (eventEnd.getTime() - eventStart.getTime()) / (60 * 60 * 1000);
-        
-        const bookingData = {
-          date: eventStart.toDateString(),
-          time: format(eventStart, "HH:mm"),
-          endTime: format(eventEnd, "HH:mm"),
-          duration: duration,
-          courtId: formData.court_id,
-          courtName: selectedCourt?.name || "Unknown Court",
-          userId: "CLUB_EVENT", // Special marker
-          userName: `Event: ${formData.title}`,
-          userEmail: "club@event.com",
-          eventId: eventId,
-          type: "event",
-          updatedAt: serverTimestamp()
-        };
-
-        // Find existing booking for this event
+        // Delete ALL existing bookings for this event first to sync correctly
         const bQuery = query(collection(db, "tenants", tenantId, "bookings"), where("eventId", "==", eventId));
         const bSnap = await getDocs(bQuery);
-        
-        if (!bSnap.empty && bSnap.docs[0]) {
-          await updateDoc(doc(db, "tenants", tenantId, "bookings", bSnap.docs[0].id), bookingData);
-        } else {
-          await addDoc(collection(db, "tenants", tenantId, "bookings"), {
-            ...bookingData,
+        for (const bDoc of bSnap.docs) {
+          await deleteDoc(doc(db, "tenants", tenantId, "bookings", bDoc.id));
+        }
+
+        // Create new bookings for each occurrence
+        for (const occDate of occurrenceDates) {
+          const occEnd = new Date(occDate.getTime() + durationHours * 60 * 60 * 1000);
+          const bookingData = {
+            date: format(occDate, "yyyy-MM-dd"), // Standard format
+            time: format(occDate, "HH:mm"),
+            endTime: format(occEnd, "HH:mm"),
+            duration: durationHours,
+            courtId: formData.court_id,
+            courtName: selectedCourt?.name || "Unknown Court",
+            userId: "CLUB_EVENT",
+            userName: `Event: ${formData.title}`,
+            userEmail: "club@event.com",
+            eventId: eventId,
+            type: "event",
+            updatedAt: serverTimestamp(),
             createdAt: serverTimestamp()
-          });
+          };
+          await addDoc(collection(db, "tenants", tenantId, "bookings"), bookingData);
         }
       } else {
-        // If not saving to schedules, delete any existing booking for this event
+        // If not saving to schedules, delete all existing bookings for this event
         const bQuery = query(collection(db, "tenants", tenantId, "bookings"), where("eventId", "==", eventId));
         const bSnap = await getDocs(bQuery);
-        if (!bSnap.empty && bSnap.docs[0]) {
-          await deleteDoc(doc(db, "tenants", tenantId, "bookings", bSnap.docs[0].id));
+        for (const bDoc of bSnap.docs) {
+          await deleteDoc(doc(db, "tenants", tenantId, "bookings", bDoc.id));
         }
       }
 
@@ -296,11 +352,11 @@ export default function EventsAdminView({ theme = "LIGHT", tenantId }: { theme?:
   const handleDeleteEvent = async () => {
     if (!confirmDelete || !tenantId) return;
     try {
-      // Also delete any linked booking
+      // Also delete ALL linked bookings
       const bQuery = query(collection(db, "tenants", tenantId, "bookings"), where("eventId", "==", confirmDelete));
       const bSnap = await getDocs(bQuery);
-      if (!bSnap.empty && bSnap.docs[0]) {
-        await deleteDoc(doc(db, "tenants", tenantId, "bookings", bSnap.docs[0].id));
+      for (const bDoc of bSnap.docs) {
+        await deleteDoc(doc(db, "tenants", tenantId, "bookings", bDoc.id));
       }
 
       await deleteDoc(doc(db, "tenants", tenantId, "events", confirmDelete));
@@ -329,206 +385,217 @@ export default function EventsAdminView({ theme = "LIGHT", tenantId }: { theme?:
     }
   };
 
-  const resetForm = () => {
-    setFormData({
-      title: "",
-      description: "",
-      date: format(new Date(new Date().setMinutes(0, 0, 0)), "yyyy-MM-dd'T'HH:mm"),
-      end_date: "",
-      type: "one-time",
-      max_participants: 20,
-      cancellation_policy: "24-hour notice required for full refund.",
-      cancellation_deadline: "",
-      image_url: "",
-      tag: categories[0] || "",
-      event_leaders: [],
-      use_end_date: true,
-      save_to_schedules: false,
-      court_id: ""
-    });
-  };
-
   const columnHelper = createColumnHelper<Event>();
   const columns = [
-    columnHelper.accessor("image_url", {
-      header: "IMAGE",
-      cell: info => (
-        <div className="w-12 h-12 rounded-lg overflow-hidden bg-stone-100 flex items-center justify-center">
-          {info.getValue() ? (
-            <img src={info.getValue()} className="w-full h-full object-cover" alt="Event" />
-          ) : (
-            <span className="material-symbols-outlined text-stone-400">image</span>
-          )}
+    {
+      accessorKey: "title",
+      header: "EVENT",
+      cell: (info: any) => (
+        <div className="flex flex-col">
+          <span className="font-black uppercase tracking-tight">{info.getValue()}</span>
+          <span className="text-[10px] opacity-40 uppercase font-bold">{info.row.original.tag}</span>
         </div>
-      )
-    }),
-    columnHelper.accessor("title", {
-      header: "TITLE",
-      cell: info => <span className="font-black uppercase tracking-tight">{info.getValue()}</span>
-    }),
-    columnHelper.accessor("tag", {
-      header: "TAG",
-      cell: info => (
-        <span className={`px-3 py-1 rounded-full text-[8px] font-black tracking-widest uppercase ${theme === "DARK" ? "bg-stone-800 text-[#ccff00]" : "bg-stone-100 text-stone-600"
-          }`}>
+      ),
+    },
+    {
+      accessorKey: "start_date",
+      header: "DATE & TIME",
+      cell: (info: any) => {
+        const start = info.row.original.start_date;
+        const startTime = info.row.original.start_time;
+        const endTime = info.row.original.end_time;
+        return (
+          <div className="flex flex-col">
+            <span className="font-bold">{start}</span>
+            <span className="text-[10px] opacity-50 font-medium">
+              {startTime} - {info.row.original.use_end_date ? endTime : "No End"}
+            </span>
+          </div>
+        );
+      },
+    },
+    {
+      accessorKey: "type",
+      header: "TYPE",
+      cell: (info: any) => (
+        <span className={`px-2 py-1 rounded text-[10px] font-black uppercase ${
+          info.getValue() === "regular" ? "bg-[#ccff00] text-stone-900" : "bg-stone-100 text-stone-600 dark:bg-stone-800 dark:text-stone-400"
+        }`}>
           {info.getValue()}
         </span>
-      )
-    }),
-    columnHelper.accessor("date", {
-      header: "SCHEDULE",
-      cell: info => {
-        const ev = info.row.original;
-        const start = ev.date?.toDate ? ev.date.toDate() : new Date(ev.date);
-        const end = ev.end_date?.toDate ? ev.end_date.toDate() : (ev.end_date ? new Date(ev.end_date) : null);
-        
-        return (
-          <div className="flex flex-col gap-1">
-            <div className="flex items-center gap-2">
-              <div className={`w-1 h-1 rounded-full ${theme === "DARK" ? "bg-[#ccff00]" : "bg-stone-900"}`} />
-              <span className="text-[9px] font-black opacity-40 uppercase tracking-widest w-8">Start</span>
-              <span className="font-mono text-[10px] font-bold">{format(start, "MMM dd, HH:mm")}</span>
-            </div>
-            {ev.use_end_date && end && (
-              <div className="flex items-center gap-2">
-                <div className="w-1 h-1 rounded-full bg-stone-300" />
-                <span className="text-[9px] font-black opacity-40 uppercase tracking-widest w-8">End</span>
-                <span className="font-mono text-[10px] font-bold">{format(end, "MMM dd, HH:mm")}</span>
-              </div>
-            )}
+      ),
+    },
+    {
+      accessorKey: "signups",
+      header: "SIGNUPS",
+      cell: (info: any) => (
+        <div className="flex items-center gap-2">
+          <div className="w-16 h-1.5 bg-stone-100 dark:bg-stone-800 rounded-full overflow-hidden">
+            <div 
+              className="h-full bg-[#ccff00]" 
+              style={{ width: `${Math.min(100, (info.getValue()?.length || 0) / (info.row.original.max_participants || 1) * 100)}%` }}
+            />
           </div>
-        );
-      }
-    }),
-    columnHelper.accessor("signups", {
-      header: "PARTICIPANTS",
-      cell: info => {
-        const count = info.getValue()?.length || 0;
-        const max = info.row.original.max_participants;
-        return (
-          <div className="flex flex-col gap-1">
-            <div className="flex justify-between items-center text-[10px] font-black">
-              <span>{count}/{max}</span>
-              <span className="opacity-40">{Math.round((count / max) * 100)}%</span>
-            </div>
-            <div className={`w-24 h-1 rounded-full overflow-hidden ${theme === "DARK" ? "bg-stone-800" : "bg-stone-100"}`}>
-              <div
-                className={`h-full transition-all ${theme === "DARK" ? "bg-[#ccff00]" : "bg-stone-900"}`}
-                style={{ width: `${Math.min((count / max) * 100, 100)}%` }}
-              />
-            </div>
-          </div>
-        );
-      }
-    }),
-    columnHelper.display({
+          <span className="text-[10px] font-bold">
+            {info.getValue()?.length || 0}/{info.row.original.max_participants}
+          </span>
+        </div>
+      ),
+    },
+    {
       id: "actions",
-      cell: info => (
+      header: "",
+      cell: (info: any) => (
         <div className="flex justify-end gap-2">
           <button
             onClick={() => {
-              const ev = info.row.original;
-              setEditingEvent(ev);
+              setEditingEvent(info.row.original);
               setFormData({
-                title: ev.title,
-                description: ev.description,
-                date: ev.date?.toDate ? format(ev.date.toDate(), "yyyy-MM-dd'T'HH:mm") : format(new Date(ev.date), "yyyy-MM-dd'T'HH:mm"),
-                end_date: ev.end_date?.toDate ? format(ev.end_date.toDate(), "yyyy-MM-dd'T'HH:mm") : (ev.end_date ? format(new Date(ev.end_date), "yyyy-MM-dd'T'HH:mm") : ""),
-                type: ev.type,
-                max_participants: ev.max_participants,
-                cancellation_policy: ev.cancellation_policy,
-                cancellation_deadline: ev.cancellation_deadline?.toDate ? format(ev.cancellation_deadline.toDate(), "yyyy-MM-dd'T'HH:mm") : (ev.cancellation_deadline ? format(new Date(ev.cancellation_deadline), "yyyy-MM-dd'T'HH:mm") : ""),
-                image_url: ev.image_url || "",
-                tag: ev.tag || "Social",
-                event_leaders: ev.event_leaders || [],
-                use_end_date: ev.use_end_date !== undefined ? ev.use_end_date : true,
-                save_to_schedules: ev.save_to_schedules || false,
-                court_id: ev.court_id || ""
+                ...info.row.original,
+                start_date: info.row.original.start_date || format(new Date(), "yyyy-MM-dd"),
+                end_date: info.row.original.end_date || info.row.original.start_date || format(new Date(), "yyyy-MM-dd"),
               });
               setShowEditModal(true);
             }}
-            className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${theme === "DARK" ? "hover:bg-stone-800 text-stone-400" : "hover:bg-stone-50 text-stone-400"
-              }`}
+            className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors"
           >
             <span className="material-symbols-outlined text-sm">edit</span>
           </button>
           <button
             onClick={() => setConfirmDelete(info.row.original.id)}
-            className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${theme === "DARK" ? "hover:bg-red-500/20 text-red-500/50 hover:text-red-500" : "hover:bg-red-50 text-red-400 hover:text-red-600"
-              }`}
+            className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-red-50 text-red-500 transition-colors"
           >
             <span className="material-symbols-outlined text-sm">delete</span>
           </button>
         </div>
-      )
-    })
+      ),
+    },
   ];
 
   const table = useReactTable({
     data: events,
     columns,
-    state: { columnFilters },
-    onColumnFiltersChange: setColumnFilters,
+    state: {
+      sorting,
+      globalFilter,
+    },
+    onSortingChange: setSorting as any,
+    onGlobalFilterChange: setGlobalFilter,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getSortedRowModel: getSortedRowModel(),
   });
 
   return (
-    <div className="flex flex-col h-full animate-in fade-in duration-700">
-      <div className="flex justify-between items-center mb-12">
-        <div>
-          <h1 className={`text-6xl font-black tracking-tighter uppercase ${theme === "DARK" ? "text-white" : "text-black"}`}>
-            Events <span className="opacity-20">&</span> Programs
-          </h1>
-          <p className={`mt-2 font-medium ${theme === "DARK" ? "text-stone-400" : "text-stone-500"}`}>
-            Plan and manage club tournaments, clinics, and social events.
-          </p>
-        </div>
-        <button
-          onClick={() => {
-            resetForm();
-            setShowCreateModal(true);
-          }}
-          className={`px-8 py-4 rounded-2xl text-[10px] font-black tracking-widest uppercase transition-all shadow-xl flex items-center gap-3 ${theme === "DARK" ? "bg-[#ccff00] text-stone-950 shadow-[#ccff00]/20" : "bg-stone-900 text-white shadow-black/20"
-            }`}
-        >
-          <span className="material-symbols-outlined">add</span>
-          NEW EVENT
-        </button>
-      </div>
+    <div className={`min-h-screen ${theme === "DARK" ? "bg-black text-white" : "bg-stone-50 text-stone-900"}`}>
+      <div className="max-w-[1600px] mx-auto p-12 space-y-12">
+        {/* Header Section */}
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-8">
+          <div className="space-y-4">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-1.5 bg-[#ccff00] rounded-full" />
+              <span className="text-[10px] font-black tracking-[0.2em] uppercase opacity-40">Admin Control</span>
+            </div>
+            <h1 className="text-7xl md:text-8xl font-black tracking-tighter uppercase leading-[0.85]">
+              EVENTS<br />
+              <span className="text-stone-300 dark:text-stone-800">MANAGEMENT</span>
+            </h1>
+            <p className={`text-sm font-medium max-w-md ${theme === "DARK" ? "text-stone-400" : "text-stone-500"}`}>
+              Design, schedule, and oversee club activities. All events synced to court bookings automatically.
+            </p>
+          </div>
 
-      <div className={`rounded-3xl border overflow-hidden ${theme === "DARK" ? "bg-stone-950 border-stone-800" : "bg-white border-stone-200 shadow-sm"
+          <div className="flex flex-col sm:flex-row items-center gap-4 w-full md:w-auto">
+            {/* Search Bar */}
+            <div className={`relative flex-1 sm:w-80 group ${theme === "DARK" ? "text-white" : "text-stone-900"}`}>
+              <span className="material-symbols-outlined absolute left-5 top-1/2 -translate-y-1/2 opacity-20 group-focus-within:opacity-100 transition-opacity">search</span>
+              <input
+                value={globalFilter ?? ""}
+                onChange={e => setGlobalFilter(e.target.value)}
+                placeholder="SEARCH EVENTS..."
+                className={`w-full pl-14 pr-6 py-4 rounded-2xl text-[10px] font-black tracking-widest uppercase outline-none transition-all border ${
+                  theme === "DARK" 
+                    ? "bg-stone-950 border-stone-800 focus:border-[#ccff00] focus:ring-4 focus:ring-[#ccff00]/10" 
+                    : "bg-white border-stone-200 focus:border-stone-400 focus:ring-4 focus:ring-stone-100 shadow-sm"
+                }`}
+              />
+            </div>
+            
+            <button
+              onClick={() => {
+                resetForm();
+                setShowCreateModal(true);
+              }}
+              className={`w-full sm:w-auto px-8 py-4 rounded-2xl text-[10px] font-black tracking-widest uppercase transition-all shadow-2xl flex items-center justify-center gap-3 ${
+                theme === "DARK" 
+                  ? "bg-[#ccff00] text-stone-950 hover:scale-[1.02] active:scale-[0.98] shadow-[#ccff00]/20" 
+                  : "bg-stone-900 text-white hover:bg-stone-800 shadow-black/20"
+              }`}
+            >
+              <span className="material-symbols-outlined text-lg">add_circle</span>
+              CREATE NEW EVENT
+            </button>
+          </div>
+        </div>
+
+        {/* Data Table */}
+        <div className={`rounded-[2.5rem] border overflow-hidden transition-all duration-500 ${
+          theme === "DARK" ? "bg-stone-950 border-stone-800 shadow-2xl" : "bg-white border-stone-200 shadow-xl"
         }`}>
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
-            <thead>
-              {table.getHeaderGroups().map(headerGroup => (
-                <tr key={headerGroup.id} className={theme === "DARK" ? "border-b border-stone-800" : "border-b border-stone-50"}>
-                  {headerGroup.headers.map(header => (
-                    <th key={header.id} className="px-8 py-6 text-[10px] font-black uppercase tracking-[0.2em] opacity-40">
-                      {flexRender(header.column.columnDef.header, header.getContext())}
-                    </th>
-                  ))}
-                </tr>
-              ))}
-            </thead>
-            <tbody>
-              {table.getRowModel().rows.map(row => (
-                <tr key={row.id} className={`group transition-colors ${theme === "DARK" ? "hover:bg-stone-800/50 border-b border-stone-800/50" : "hover:bg-stone-50 border-b border-stone-50"
-                  }`}>
-                  {row.getVisibleCells().map(cell => (
-                    <td key={cell.id} className="px-8 py-6">
-                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                    </td>
-                  ))}
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                {table.getHeaderGroups().map(headerGroup => (
+                  <tr key={headerGroup.id} className={`${theme === "DARK" ? "bg-stone-900/30" : "bg-stone-50/50"}`}>
+                    {headerGroup.headers.map(header => (
+                      <th 
+                        key={header.id} 
+                        className="px-10 py-8 text-[10px] font-black uppercase tracking-[0.2em] text-stone-400 border-b border-stone-100 dark:border-stone-800"
+                        onClick={header.column.getToggleSortingHandler()}
+                        style={{ cursor: header.column.getCanSort() ? 'pointer' : 'default' }}
+                      >
+                        <div className="flex items-center gap-2">
+                          {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
+                          {{
+                            asc: <span className="material-symbols-outlined text-xs">arrow_upward</span>,
+                            desc: <span className="material-symbols-outlined text-xs">arrow_downward</span>,
+                          }[header.column.getIsSorted() as string] ?? null}
+                        </div>
+                      </th>
+                    ))}
+                  </tr>
+                ))}
+              </thead>
+              <tbody className="divide-y divide-stone-50 dark:divide-stone-900">
+                {table.getRowModel().rows.map(row => (
+                  <tr 
+                    key={row.id} 
+                    className="group hover:bg-stone-50/50 dark:hover:bg-stone-900/50 transition-all duration-300"
+                  >
+                    {row.getVisibleCells().map(cell => (
+                      <td key={cell.id} className="px-10 py-7">
+                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {events.length === 0 && (
+            <div className="py-32 flex flex-col items-center justify-center gap-6">
+              <div className={`w-24 h-24 rounded-full flex items-center justify-center ${theme === "DARK" ? "bg-stone-900" : "bg-stone-50"}`}>
+                <span className="material-symbols-outlined text-4xl opacity-20">event_busy</span>
+              </div>
+              <div className="text-center space-y-2">
+                <p className="text-[10px] font-black uppercase tracking-widest opacity-40">No records found</p>
+                <p className="text-xs text-stone-400 font-medium italic">Start by creating your first club event.</p>
+              </div>
+            </div>
+          )}
         </div>
       </div>
-
       {/* Create/Edit Modal */}
       <Modal
         isOpen={showCreateModal || showEditModal}
@@ -565,6 +632,169 @@ export default function EventsAdminView({ theme = "LIGHT", tenantId }: { theme?:
         }
       >
         <div className="grid grid-cols-2 gap-8">
+          {/* Scheduling Block at the Top */}
+          <div className="col-span-2 p-6 rounded-3xl bg-stone-50 dark:bg-stone-900/50 border border-stone-200 dark:border-stone-800 space-y-8">
+            <div className="flex items-center gap-2">
+              <span className="material-symbols-outlined text-stone-400">calendar_month</span>
+              <h3 className="text-xs font-black uppercase tracking-widest">Date & Time Settings</h3>
+            </div>
+
+            <div className="grid grid-cols-2 gap-8">
+              {/* Start Date & Time */}
+              <div className="space-y-4">
+                <h4 className="text-[10px] font-black uppercase text-stone-400 tracking-tighter">Start Schedule</h4>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className={labelCls}>Start Date</label>
+                    <input
+                      type="date"
+                      value={formData.start_date}
+                      onChange={e => setFormData({ ...formData, start_date: e.target.value })}
+                      className={inputCls}
+                    />
+                  </div>
+                  <div>
+                    <label className={labelCls}>Start Time</label>
+                    <input
+                      type="time"
+                      value={formData.start_time}
+                      onChange={e => setFormData({ ...formData, start_time: e.target.value })}
+                      className={inputCls}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* End Date & Time */}
+              <div className={`space-y-4 transition-all ${formData.use_end_date ? "opacity-100" : "opacity-30 pointer-events-none grayscale"}`}>
+                <h4 className="text-[10px] font-black uppercase text-stone-400 tracking-tighter">
+                  End Schedule {formData.use_end_date ? "" : "(Disabled)"}
+                </h4>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className={labelCls}>End Date</label>
+                    <input
+                      type="date"
+                      value={formData.end_date}
+                      onChange={e => setFormData({ ...formData, end_date: e.target.value })}
+                      className={inputCls}
+                    />
+                  </div>
+                  <div>
+                    <label className={labelCls}>End Time</label>
+                    <input
+                      type="time"
+                      value={formData.end_time}
+                      onChange={e => setFormData({ ...formData, end_time: e.target.value })}
+                      className={inputCls}
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Toggles on the same line */}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="flex items-center justify-between p-4 rounded-2xl border border-dashed border-stone-200 dark:border-stone-800">
+                <div className="space-y-1">
+                  <h4 className={`text-xs font-black uppercase tracking-tight ${theme === "DARK" ? "text-white" : "text-stone-900"}`}>
+                    {formData.use_end_date ? "USE END DATE" : "NO END DATE"}
+                  </h4>
+                  <p className="text-[10px] text-stone-400 font-medium italic">Enable specific end time</p>
+                </div>
+                <label className="relative inline-flex items-center cursor-pointer">
+                  <input 
+                    type="checkbox" 
+                    className="sr-only peer" 
+                    checked={formData.use_end_date}
+                    onChange={(e) => setFormData({ ...formData, use_end_date: e.target.checked })}
+                  />
+                  <div className="w-11 h-6 bg-stone-200 peer-focus:outline-none rounded-full peer dark:bg-stone-800 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-[#ccff00]"></div>
+                </label>
+              </div>
+
+              <div className="flex items-center justify-between p-4 rounded-2xl border border-dashed border-stone-200 dark:border-stone-800">
+                <div className="space-y-1">
+                  <h4 className={`text-xs font-black uppercase tracking-tight ${theme === "DARK" ? "text-white" : "text-stone-900"}`}>
+                    {formData.save_to_schedules ? "SAVE ON SCHEDULES" : "NO SAVE ON SCHEDULES"}
+                  </h4>
+                  <p className="text-[10px] text-stone-400 font-medium italic">Blocks court for this event</p>
+                </div>
+                <label className="relative inline-flex items-center cursor-pointer">
+                  <input 
+                    type="checkbox" 
+                    className="sr-only peer" 
+                    checked={formData.save_to_schedules}
+                    onChange={(e) => setFormData({ ...formData, save_to_schedules: e.target.checked })}
+                  />
+                  <div className="w-11 h-6 bg-stone-200 peer-focus:outline-none rounded-full peer dark:bg-stone-800 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-[#ccff00]"></div>
+                </label>
+              </div>
+            </div>
+
+            {/* Recurrence Settings inside the block */}
+            <div className="pt-4 border-t border-stone-200 dark:border-stone-800 grid grid-cols-2 gap-8">
+              <div className="col-span-2 flex items-center gap-2 mb-2">
+                <span className="material-symbols-outlined text-stone-400">repeat</span>
+                <h3 className="text-xs font-black uppercase tracking-widest">Recurrence Settings</h3>
+              </div>
+              
+              <div>
+                <label className={labelCls}>Repeat Type</label>
+                <select
+                  value={formData.repeat_type}
+                  onChange={e => setFormData({ ...formData, repeat_type: e.target.value as any })}
+                  className={inputCls}
+                >
+                  <option value="none">DO NOT REPEAT</option>
+                  <option value="daily">DAILY</option>
+                  <option value="weekly">WEEKLY</option>
+                  <option value="monthly">MONTHLY</option>
+                </select>
+              </div>
+
+              {formData.repeat_type !== "none" && (
+                <>
+                  <div>
+                    <label className={labelCls}>End Recurrence By</label>
+                    <select
+                      value={formData.repeat_until}
+                      onChange={e => setFormData({ ...formData, repeat_until: e.target.value as any })}
+                      className={inputCls}
+                    >
+                      <option value="occurrences">NUMBER OF EVENTS</option>
+                      <option value="date">SPECIFIC DATE</option>
+                    </select>
+                  </div>
+
+                  {formData.repeat_until === "occurrences" ? (
+                    <div>
+                      <label className={labelCls}>Number of Events (Max 30)</label>
+                      <input
+                        type="number"
+                        min={1}
+                        max={30}
+                        value={formData.repeat_count}
+                        onChange={e => setFormData({ ...formData, repeat_count: Math.min(30, parseInt(e.target.value) || 1) })}
+                        className={inputCls}
+                      />
+                    </div>
+                  ) : (
+                    <div>
+                      <label className={labelCls}>Repeat End Date</label>
+                      <input
+                        type="date"
+                        value={formData.repeat_end_date}
+                        onChange={e => setFormData({ ...formData, repeat_end_date: e.target.value })}
+                        className={inputCls}
+                      />
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
+          </div>
+
           <div className="col-span-2">
             <label className={labelCls}>Event Title</label>
             <input
@@ -584,83 +814,6 @@ export default function EventsAdminView({ theme = "LIGHT", tenantId }: { theme?:
               placeholder="Describe the event details, activities, and requirements..."
             />
           </div>
-
-          <div className="col-span-2 grid grid-cols-2 gap-8">
-            <div>
-              <label className={labelCls}>Start Date & Time</label>
-              <PremiumDateTimePicker
-                value={formData.date}
-                onChange={val => setFormData({ ...formData, date: val })}
-                theme={theme}
-              />
-            </div>
-
-            <div className={formData.use_end_date ? "opacity-100" : "opacity-30 pointer-events-none grayscale"}>
-              <label className={labelCls}>End Date & Time {!formData.use_end_date && "(Disabled)"}</label>
-              <PremiumDateTimePicker
-                value={formData.end_date}
-                onChange={val => setFormData({ ...formData, end_date: val })}
-                theme={theme}
-                placeholder="Set end time..."
-              />
-            </div>
-          </div>
-
-          <div className="col-span-2 grid grid-cols-2 gap-8">
-            <div className="flex items-center justify-between p-4 rounded-2xl border border-dashed border-stone-200 dark:border-stone-800">
-              <div className="space-y-1">
-                <h4 className={`text-xs font-black uppercase tracking-tight ${theme === "DARK" ? "text-white" : "text-stone-900"}`}>
-                  {formData.use_end_date ? "USE END DATE" : "NO END DATE"}
-                </h4>
-                <p className="text-[10px] text-stone-400 font-medium italic">Uncheck for open-ended events</p>
-              </div>
-              <label className="relative inline-flex items-center cursor-pointer">
-                <input 
-                  type="checkbox" 
-                  className="sr-only peer" 
-                  checked={formData.use_end_date}
-                  onChange={(e) => setFormData({ ...formData, use_end_date: e.target.checked })}
-                />
-                <div className="w-11 h-6 bg-stone-200 peer-focus:outline-none rounded-full peer dark:bg-stone-800 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-[#ccff00]"></div>
-              </label>
-            </div>
-
-            <div className="flex items-center justify-between p-4 rounded-2xl border border-dashed border-stone-200 dark:border-stone-800">
-              <div className="space-y-1">
-                <h4 className={`text-xs font-black uppercase tracking-tight ${theme === "DARK" ? "text-white" : "text-stone-900"}`}>
-                  {formData.save_to_schedules ? "SAVE ON SCHEDULES" : "NO SAVE ON SCHEDULES"}
-                </h4>
-                <p className="text-[10px] text-stone-400 font-medium italic">Blocks court for this event</p>
-              </div>
-              <label className="relative inline-flex items-center cursor-pointer">
-                <input 
-                  type="checkbox" 
-                  className="sr-only peer" 
-                  checked={formData.save_to_schedules}
-                  onChange={(e) => setFormData({ ...formData, save_to_schedules: e.target.checked })}
-                />
-                <div className="w-11 h-6 bg-stone-200 peer-focus:outline-none rounded-full peer dark:bg-stone-800 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-[#ccff00]"></div>
-              </label>
-            </div>
-          </div>
-
-          {formData.save_to_schedules && (
-            <div className="col-span-2 animate-in slide-in-from-top-2 duration-300">
-              <label className={labelCls}>Select Court for Schedule</label>
-              <select
-                value={formData.court_id}
-                onChange={e => setFormData({ ...formData, court_id: e.target.value })}
-                className={inputCls}
-              >
-                <option value="" disabled>Select a court</option>
-                {courts.map(court => (
-                  <option key={court.id || court.name} value={court.id || court.name}>
-                    {court.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-          )}
 
           <div>
             <label className={labelCls}>Max Participants</label>
