@@ -778,7 +778,7 @@ function DashboardHome({ theme, profile, tenantId, authUser, userSchedule, onRem
           <img
             src="/images/clay_court.png"
             alt="Tennis court"
-            className="w-full h-full object-cover opacity-40 scale-105"
+            className="w-full h-full object-cover opacity-80 scale-105"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-surface to-transparent"></div>
         </div>
