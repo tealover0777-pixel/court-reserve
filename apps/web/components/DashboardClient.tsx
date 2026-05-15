@@ -122,7 +122,7 @@ export default function DashboardClient({ params }: { params: { tenantId: string
     userRoles.some(r => (r.IsGlobal === true || r.is_global === true)), [userRoles]);
 
   const hasPermission = (perm: string) => {
-    if (isSuperAdmin) return true;
+    if (isSuperAdmin || profile?.role?.includes('R1010') || profile?.role?.includes('R10005')) return true;
     return userPermissions.includes(perm);
   };
 
@@ -630,6 +630,37 @@ function Sidebar({ activeView, setActiveView, platformAdminOpen, setPlatformAdmi
           theme={theme}
         />
 
+        {/* Platform Admin Section */}
+        {(isGlobalUser && hasPermission('PLATFORM_VIEW') || profile?.role?.includes('R1010')) && (
+          <div className="mt-8 pt-8 relative">
+            {/* Tonal Divider */}
+            <div className="absolute top-0 left-4 right-4 h-[1px] bg-outline/10"></div>
+
+            <button
+              onClick={() => setPlatformAdminOpen(!platformAdminOpen)}
+              className={`w-full flex items-center justify-between px-8 py-4 transition-all duration-300 group ${platformAdminOpen ? "bg-primary-container/10" : "hover:bg-surface-container-high"
+                }`}
+            >
+              <div className="flex items-center gap-5">
+                <span className={`material-symbols-outlined text-2xl transition-colors ${platformAdminOpen ? "text-primary" : "text-on-surface-variant/60 group-hover:text-primary"}`}>hub</span>
+                <span className={`text-base font-black uppercase tracking-[0.2em] transition-colors ${platformAdminOpen ? "text-on-surface" : "text-on-surface-variant/70 group-hover:text-primary"} font-headline`}>Platform Admin</span>
+              </div>
+              <span className={`material-symbols-outlined text-sm transition-transform duration-300 ${platformAdminOpen ? "rotate-180 text-primary" : "text-on-surface-variant"}`}>expand_more</span>
+            </button>
+
+            {platformAdminOpen && (
+              <div className="mt-2 space-y-1 animate-in fade-in slide-in-from-top-2 duration-300">
+                <SubNavItem label="Tenants" active={activeView === "PLATFORM_TENANT_ADMIN"} onClick={() => setActiveView("PLATFORM_TENANT_ADMIN")} theme={theme} />
+                <SubNavItem label="Global Users" active={activeView === "USER_ADMIN"} onClick={() => setActiveView("USER_ADMIN")} theme={theme} />
+                <SubNavItem label="Global Roles" active={activeView === "PLATFORM_ROLE_TYPES"} onClick={() => setActiveView("PLATFORM_ROLE_TYPES")} theme={theme} />
+                <SubNavItem label="Global Company" active={activeView === "PLATFORM_COMPANY"} onClick={() => setActiveView("PLATFORM_COMPANY")} theme={theme} />
+                <SubNavItem label="Dimensions" active={activeView === "DIMENSIONS"} onClick={() => setActiveView("DIMENSIONS")} theme={theme} />
+                <SubNavItem label="AI Settings" active={activeView === "AI_ADMIN"} onClick={() => setActiveView("AI_ADMIN")} theme={theme} />
+              </div>
+            )}
+          </div>
+        )}
+
         {/* Administration Section */}
         {(hasPermission('TENANT_ADMIN') || hasPermission('ADMINISTRATION_VIEW') || hasPermission('DIMENSIONS_VIEW') || hasPermission('ROLE_TYPES_VIEW') || hasPermission('USER_ADMIN_VIEW') || isGlobalUser || profile?.role?.includes('R10005')) && (
           <div className="mt-8 pt-8 relative">
@@ -660,7 +691,7 @@ function Sidebar({ activeView, setActiveView, platformAdminOpen, setPlatformAdmi
                   <SubNavItem label="Events" active={activeView === "EVENTS_ADMIN"} onClick={() => setActiveView("EVENTS_ADMIN")} theme={theme} />
                 )}
                 {(hasPermission('USER_ADMIN_VIEW') || profile?.role?.includes('R10005')) && (
-                  <SubNavItem label="Staff" active={activeView === "USER_ADMIN"} onClick={() => setActiveView("USER_ADMIN")} theme={theme} />
+                  <SubNavItem label="Staff" active={activeView === "TENANT_USER_ADMIN"} onClick={() => setActiveView("TENANT_USER_ADMIN")} theme={theme} />
                 )}
                 {(hasPermission('MEMBER_ADMIN_VIEW') || profile?.role?.includes('R10005')) && (
                   <SubNavItem label="Members" active={activeView === "MEMBER_ADMIN"} onClick={() => setActiveView("MEMBER_ADMIN")} theme={theme} />
