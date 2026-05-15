@@ -349,7 +349,7 @@ export default function DashboardClient({ params }: { params: { tenantId: string
       } selection:bg-primary/30`}>
       {/* SideNavBar Component */}
       <aside className={`fixed left-0 top-0 h-full w-72 border-r transition-colors duration-500 ${theme === "DARK" ? "bg-stone-950 border-stone-800" :
-        theme === "VINTAGE" ? "bg-white border-transparent" :
+        theme === "VINTAGE" ? "bg-white border-stone-200" :
           "bg-white border-stone-200"
         } flex flex-col z-50`}>
         <div className="py-6 px-4">
@@ -372,7 +372,7 @@ export default function DashboardClient({ params }: { params: { tenantId: string
             return (
               <h1 className={`text-3xl font-black italic tracking-tighter ${theme === "DARK" ? "text-[#ccff00]" :
                 theme === "VINTAGE" ? "text-black" :
-                  "text-stone-950"
+                  theme === "LIGHT" ? "text-[#4f6b28]" : "text-stone-950"
                 }`}>
                 {tenantId === "consolidated" ? "CONSOLIDATED" : (currentTenant?.name || (tenantId ? tenantId.toUpperCase() : "PLATFORM"))}
               </h1>
@@ -548,7 +548,11 @@ export default function DashboardClient({ params }: { params: { tenantId: string
         <div className="mt-auto p-8 border-t border-stone-200">
           <button
             onClick={() => handleViewChange("COURT BOOKING")}
-            className="w-full py-4 bg-stone-900 text-white font-black rounded-lg text-xs tracking-widest hover:bg-black transition-all uppercase shadow-lg shadow-stone-900/10"
+            className={`w-full py-4 font-black rounded-lg text-xs tracking-widest transition-all uppercase shadow-lg ${
+              theme === "DARK" ? "bg-stone-900 text-white hover:bg-black shadow-stone-900/10" :
+              theme === "VINTAGE" ? "bg-stone-900 text-white hover:bg-black shadow-stone-900/10" :
+              "bg-[#cfff00] text-[#4f6b28] hover:bg-white shadow-[#cfff00]/10"
+            }`}
           >
             BOOK A COURT
           </button>
@@ -559,7 +563,7 @@ export default function DashboardClient({ params }: { params: { tenantId: string
           >
             <div className={`w-10 h-10 rounded-full overflow-hidden border-2 border-transparent transition-all flex items-center justify-center ${theme === "DARK" ? "bg-stone-800 group-hover:border-[#ccff00]" :
               theme === "VINTAGE" ? "bg-stone-100 group-hover:border-black" :
-                "bg-stone-100 group-hover:border-stone-900"
+                "bg-[#fdfbe6] group-hover:border-[#4f6b28]"
               }`}>
               {profile?.portrait_url || authUser?.photoURL ? (
                 <img
@@ -568,7 +572,7 @@ export default function DashboardClient({ params }: { params: { tenantId: string
                   className="w-full h-full object-cover"
                 />
               ) : (
-                <span className={`text-xs font-black uppercase ${theme === "DARK" ? "text-white" : "text-stone-800"}`}>
+                <span className={`text-xs font-black uppercase ${theme === "DARK" ? "text-white" : theme === "LIGHT" ? "text-[#4f6b28]" : "text-stone-800"}`}>
                   {profile ? `${profile.first_name?.[0] || ""}${profile.last_name?.[0] || ""}` : "?"}
                 </span>
               )}
@@ -576,7 +580,7 @@ export default function DashboardClient({ params }: { params: { tenantId: string
             <div>
               <p className={`text-xs font-black transition-colors uppercase ${theme === "DARK" ? "group-hover:text-[#ccff00]" :
                 theme === "VINTAGE" ? "group-hover:text-black" :
-                  "group-hover:text-stone-950"
+                  "group-hover:text-[#4f6b28]"
                 }`}>
                 {profile ? `${profile.first_name} ${profile.last_name}` : (authUser?.displayName || authUser?.email || "User")}
               </p>
@@ -593,7 +597,7 @@ export default function DashboardClient({ params }: { params: { tenantId: string
             onClick={() => signOut(auth)}
             className={`mt-6 flex items-center gap-3 transition-colors px-1 ${theme === "DARK" ? "text-white hover:text-red-400" :
               theme === "VINTAGE" ? "text-stone-700 hover:text-black" :
-                "text-stone-950 hover:text-red-500"
+                "text-[#4f6b28] hover:text-red-500"
               }`}
           >
             <span className="material-symbols-outlined text-sm">logout</span>
@@ -610,7 +614,7 @@ export default function DashboardClient({ params }: { params: { tenantId: string
         <div className="flex items-center gap-3">
           <div className={`w-8 h-8 rounded-xl flex items-center justify-center transition-all ${theme === "DARK" ? "bg-stone-900 text-[#ccff00]" :
             theme === "VINTAGE" ? "bg-black text-white" :
-              "bg-stone-100 text-stone-900"
+              "bg-[#cfff00] text-[#4f6b28]"
             }`}>
             <span className="material-symbols-outlined text-sm">
               {activeView === "DASHBOARD" ? "dashboard" :
@@ -619,12 +623,12 @@ export default function DashboardClient({ params }: { params: { tenantId: string
             </span>
           </div>
           <div className="flex items-center gap-2">
-            <span className={`text-[10px] font-black tracking-widest uppercase opacity-70 ${theme === "DARK" ? "text-white" : "text-stone-900"}`}>
+            <span className={`text-[10px] font-black tracking-widest uppercase opacity-70 ${theme === "DARK" ? "text-white" : theme === "LIGHT" ? "text-[#4f6b28]" : "text-stone-900"}`}>
               {activeView === "DASHBOARD" || activeView === "PROGRAMS" || activeView === "MEMBERSHIP" || activeView.includes("PLATFORM") || activeView === "USER_ADMIN" || activeView === "AI_ADMIN" || activeView === "DIMENSIONS" ? "PLATFORM" :
                 activeView === "ROLE_TYPES" || activeView === "COMPANY" || activeView === "TENANT_USER_ADMIN" || activeView === "SCHEDULES" ? "ADMINISTRATION" : "MANAGEMENT"}
             </span>
             <span className="text-stone-800">/</span>
-            <span className={`text-xs font-black tracking-widest uppercase ${theme === "DARK" ? "text-white" : "text-stone-900"}`}>
+            <span className={`text-xs font-black tracking-widest uppercase ${theme === "DARK" ? "text-white" : theme === "LIGHT" ? "text-[#4f6b28]" : "text-stone-900"}`}>
               {activeView === "TENANT_USER_ADMIN"
                 ? "USER ADMIN"
                 : activeView === "USER_ADMIN"
@@ -707,12 +711,14 @@ export default function DashboardClient({ params }: { params: { tenantId: string
               placeholder="Search platform..."
               className={`rounded-full px-6 py-2 w-64 text-sm outline-none transition-all ${theme === "DARK"
                 ? "bg-stone-900 text-white focus:ring-2 focus:ring-[#ccff00] placeholder:text-stone-200"
-                : "bg-stone-100 text-stone-900 focus:ring-2 focus:ring-stone-900 placeholder:text-stone-800"
+                : theme === "VINTAGE"
+                  ? "bg-white border border-stone-200 text-black focus:ring-2 focus:ring-black placeholder:text-stone-300"
+                  : "bg-white border border-[#4f6b28]/10 text-[#4f6b28] focus:ring-2 focus:ring-[#4f6b28] placeholder:text-stone-400"
                 }`}
             />
-            <span className={`material-symbols-outlined absolute right-4 top-2 transition-colors text-white`}>search</span>
+            <span className={`material-symbols-outlined absolute right-4 top-2 transition-colors ${theme === "DARK" ? "text-white" : theme === "VINTAGE" ? "text-stone-400" : "text-[#4f6b28]/40"}`}>search</span>
           </div>
-          <div className="flex items-center gap-4 text-primary">
+          <div className={`flex items-center gap-4 ${theme === "DARK" ? "text-[#ccff00]" : theme === "VINTAGE" ? "text-black" : "text-[#4f6b28]"}`}>
             <button 
               onClick={() => {
                 setShowNotificationsModal(true);
@@ -731,9 +737,9 @@ export default function DashboardClient({ params }: { params: { tenantId: string
       </header>
 
       {/* Main Content Area */}
-      <main className={`ml-72 p-12 min-h-screen transition-colors duration-500 ${theme === "DARK" ? "bg-stone-900" :
-        theme === "VINTAGE" ? "bg-[#f7f9fb]" :
-          "bg-stone-50"
+      <main className={`ml-72 min-h-screen p-12 transition-colors duration-500 ${theme === "DARK" ? "bg-stone-950" :
+          theme === "VINTAGE" ? "bg-[#f7f9fb]" :
+          "bg-[#fdfbe6]"
         }`}>
         {(() => {
           const requiredPerm = VIEW_PERMISSIONS[activeView];
@@ -791,7 +797,7 @@ export default function DashboardClient({ params }: { params: { tenantId: string
           if (activeView === "PROFILE") return <ProfileView theme={theme} profile={profile} roles={roles} />;
           if (activeView === "EVENTS_ADMIN") return <EventsAdminView theme={theme} tenantId={tenantId} />;
           return (
-            <div className={`flex flex-col items-center justify-center min-h-[60vh] ${theme === "DARK" ? "text-white" : "text-stone-900"}`}>
+            <div className={`flex flex-col items-center justify-center min-h-[60vh] ${theme === "DARK" ? "text-white" : theme === "LIGHT" ? "text-[#4f6b28]" : "text-stone-900"}`}>
               <span className="material-symbols-outlined text-6xl mb-4">construction</span>
               <h3 className="text-2xl font-black uppercase tracking-widest">{activeView} UNDER CONSTRUCTION</h3>
               <p className="mt-2">We're building something elite for you.</p>
@@ -810,14 +816,14 @@ export default function DashboardClient({ params }: { params: { tenantId: string
         <div className="space-y-4">
           {unreadNotifications.length > 0 ? (
             unreadNotifications.map(n => (
-              <div key={n.id} className={`p-4 rounded-2xl border transition-colors ${theme === "DARK" ? "bg-stone-900 border-stone-800" : "bg-stone-50 border-stone-100"}`}>
+              <div key={n.id} className={`p-4 rounded-2xl border transition-colors ${theme === "DARK" ? "bg-stone-900 border-stone-800" : theme === "LIGHT" ? "bg-white border-[#4f6b28]/10 shadow-sm" : "bg-stone-50 border-stone-100"}`}>
                 <div className="flex justify-between items-start mb-1">
-                  <h5 className="text-[10px] font-black uppercase tracking-widest text-[#ccff00]">{n.title}</h5>
+                  <h5 className={`text-[10px] font-black uppercase tracking-widest ${theme === "DARK" ? "text-[#ccff00]" : theme === "LIGHT" ? "text-[#4f6b28]" : "text-black"}`}>{n.title}</h5>
                   <span className="text-[8px] opacity-40 font-mono">
                     {n.created_at?.toDate ? format(n.created_at.toDate(), "MMM dd, HH:mm") : "Just now"}
                   </span>
                 </div>
-                <p className={`text-xs ${theme === "DARK" ? "text-stone-300" : "text-stone-600"}`}>{n.message}</p>
+                <p className={`text-xs ${theme === "DARK" ? "text-stone-300" : theme === "LIGHT" ? "text-[#4f6b28]/70" : "text-stone-600"}`}>{n.message}</p>
               </div>
             ))
           ) : (
@@ -858,7 +864,7 @@ function DashboardHome({ theme, profile, tenantId, authUser, userSchedule, onRem
       {/* Welcome Hero */}
       <section className={`mb-12 relative overflow-hidden rounded-2xl p-12 flex items-end min-h-[320px] shadow-sm transition-colors duration-500 ${theme === "DARK" ? "bg-stone-900" :
         theme === "VINTAGE" ? "bg-white" :
-          "bg-white"
+          "bg-[#fdfbe6] border border-[#4f6b28]/10"
         }`}>
         <div className="absolute inset-0 z-0">
           <img
@@ -868,17 +874,17 @@ function DashboardHome({ theme, profile, tenantId, authUser, userSchedule, onRem
           />
           <div className={`absolute inset-0 ${theme === "DARK" ? "bg-gradient-to-t from-stone-900 via-stone-900/40 to-transparent" :
             theme === "VINTAGE" ? "bg-gradient-to-t from-white via-white/20 to-transparent" :
-              "bg-gradient-to-t from-white via-white/40 to-transparent"
+              "bg-gradient-to-t from-[#fdfbe6] via-[#fdfbe6]/40 to-transparent"
             }`}></div>
         </div>
         <div className="relative z-10 w-full">
           <span className={`font-black tracking-widest text-sm uppercase mb-4 block transition-colors ${theme === "DARK" ? "text-[#ccff00]" :
             theme === "VINTAGE" ? "text-stone-800" :
-              "text-stone-900"
+              "text-[#4f6b28]"
             }`}>
             Welcome Back, {profile?.first_name || authUser?.displayName?.split(' ')[0] || "User"}
           </span>
-          <h3 className={`text-7xl font-black tracking-tighter leading-tight max-w-2xl transition-colors ${theme === "DARK" ? "text-white" : "text-black"
+          <h3 className={`text-7xl font-black tracking-tighter leading-tight max-w-2xl transition-colors ${theme === "DARK" ? "text-white" : theme === "LIGHT" ? "text-[#4f6b28]" : "text-black"
             }`}>READY TO DOMINATE THE COURT?</h3>
         </div>
       </section>
@@ -893,22 +899,22 @@ function DashboardHome({ theme, profile, tenantId, authUser, userSchedule, onRem
           {/* Next Match Card */}
           <div className={`col-span-3 rounded-2xl p-8 relative overflow-hidden shadow-xl transition-colors duration-500 ${theme === "DARK" ? "bg-stone-800 text-white" :
             theme === "VINTAGE" ? "bg-black text-white" :
-              "bg-stone-900 text-white"
+              "bg-[#4f6b28] text-white"
             }`}>
-            <div className={`absolute right-0 top-0 h-full w-1/3 opacity-10 skew-x-12 translate-x-12 ${theme === "DARK" ? "bg-[#ccff00]" : "bg-white"
+            <div className={`absolute right-0 top-0 h-full w-1/3 opacity-10 skew-x-12 translate-x-12 ${theme === "DARK" ? "bg-[#ccff00]" : theme === "LIGHT" ? "bg-[#cfff00]" : "bg-white"
               }`}></div>
             <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-8">
               <div>
                 <span className={`inline-block px-3 py-1 rounded-full text-[10px] font-black tracking-widest uppercase mb-4 ${theme === "DARK" ? "bg-[#ccff00] text-stone-950" :
                   theme === "VINTAGE" ? "bg-white text-black" :
-                    "bg-white text-stone-900"
+                    "bg-[#cfff00] text-[#4f6b28]"
                   }`}>Upcoming: Tomorrow</span>
                 <h4 className="text-3xl font-black tracking-tighter">QUARTER FINAL MATCH</h4>
                 <p className="opacity-60 font-medium mt-2">Center Court • 10:00 AM vs. Marcus V.</p>
               </div>
               <button className={`px-8 py-4 rounded-full font-black text-xs tracking-widest transition-all uppercase shadow-lg ${theme === "DARK" ? "bg-[#ccff00] text-stone-950" :
                 theme === "VINTAGE" ? "bg-white text-black" :
-                  "bg-white text-stone-900"
+                  "bg-[#cfff00] text-[#4f6b28] hover:bg-white"
                 }`}>
                 MATCH PREVIEW
               </button>
@@ -920,20 +926,20 @@ function DashboardHome({ theme, profile, tenantId, authUser, userSchedule, onRem
         <div className="col-span-12 lg:col-span-4">
           <div className={`rounded-2xl p-8 h-full shadow-sm border transition-colors duration-500 ${theme === "DARK" ? "bg-stone-950 border-stone-800" :
             theme === "VINTAGE" ? "bg-white border-transparent" :
-              "bg-white border-stone-100"
+              "bg-white border-[#4f6b28]/10"
             }`}>
             <div className="flex justify-between items-center mb-6">
-              <h4 className={`font-headline font-black text-xl tracking-tighter uppercase transition-colors ${theme === "DARK" ? "text-white" : "text-black"
+              <h4 className={`font-headline font-black text-xl tracking-tighter uppercase transition-colors ${theme === "DARK" ? "text-white" : theme === "LIGHT" ? "text-[#4f6b28]" : "text-black"
                 }`}>Recent Activity</h4>
               <button className={`font-black text-[10px] tracking-widest uppercase hover:underline ${theme === "DARK" ? "text-[#ccff00]" :
                 theme === "VINTAGE" ? "text-black" :
-                  "text-stone-950"
+                  "text-[#4f6b28]"
                 }`}>View All</button>
             </div>
             <div className="space-y-6">
-              <ActivityItem icon="check_circle" title="Booking Confirmed" subtitle="Court 4 • Wed, 14 Oct" color={theme === "DARK" ? "bg-stone-800 text-[#ccff00]" : "bg-stone-50 text-black"} fill theme={theme} />
-              <ActivityItem icon="trophy" title="Tournament Registration" subtitle="Autumn Open Elite Tier" color={theme === "DARK" ? "bg-stone-800 text-[#ccff00]" : "bg-stone-50 text-black"} theme={theme} />
-              <ActivityItem icon="payments" title="Membership Renewal" subtitle="Processed successfully" color={theme === "DARK" ? "bg-stone-800 text-[#ccff00]" : "bg-stone-50 text-black"} theme={theme} />
+              <ActivityItem icon="check_circle" title="Booking Confirmed" subtitle="Court 4 • Wed, 14 Oct" color={theme === "DARK" ? "bg-stone-800 text-[#ccff00]" : theme === "LIGHT" ? "bg-[#cfff00] text-[#4f6b28]" : "bg-stone-50 text-black"} fill theme={theme} />
+              <ActivityItem icon="trophy" title="Tournament Registration" subtitle="Autumn Open Elite Tier" color={theme === "DARK" ? "bg-stone-800 text-[#ccff00]" : theme === "LIGHT" ? "bg-[#cfff00] text-[#4f6b28]" : "bg-stone-50 text-black"} theme={theme} />
+              <ActivityItem icon="payments" title="Membership Renewal" subtitle="Processed successfully" color={theme === "DARK" ? "bg-stone-800 text-[#ccff00]" : theme === "LIGHT" ? "bg-[#cfff00] text-[#4f6b28]" : "bg-stone-50 text-black"} theme={theme} />
             </div>
           </div>
         </div>
@@ -943,16 +949,16 @@ function DashboardHome({ theme, profile, tenantId, authUser, userSchedule, onRem
       <section className="mt-16">
         <div className="flex justify-between items-end mb-8">
           <div>
-            <h4 className={`text-4xl font-black tracking-tighter uppercase transition-colors ${theme === "DARK" ? "text-white" : "text-black"
+            <h4 className={`text-4xl font-black tracking-tighter uppercase transition-colors ${theme === "DARK" ? "text-white" : theme === "LIGHT" ? "text-[#4f6b28]" : "text-black"
               }`}>Upcoming Bookings</h4>
-            <p className={`${theme === "DARK" ? "text-white" : "text-stone-900"} font-medium mt-1`}>Your scheduled time on the court.</p>
+            <p className={`${theme === "DARK" ? "text-white" : theme === "LIGHT" ? "text-[#4f6b28]" : "text-stone-900"} font-medium mt-1`}>Your scheduled time on the court.</p>
           </div>
           <div className="flex gap-2">
-            <button className={`w-10 h-10 rounded-full border flex items-center justify-center transition-all ${theme === "DARK" ? "border-stone-800 text-[#ccff00] hover:bg-stone-800" : "border-stone-200 text-black hover:bg-stone-50"
+            <button className={`w-10 h-10 rounded-full border flex items-center justify-center transition-all ${theme === "DARK" ? "border-stone-800 text-[#ccff00] hover:bg-stone-800" : theme === "LIGHT" ? "border-[#4f6b28]/20 text-[#4f6b28] hover:bg-[#cfff00]/20" : "border-stone-200 text-black hover:bg-stone-50"
               }`}>
               <span className="material-symbols-outlined">chevron_left</span>
             </button>
-            <button className={`w-10 h-10 rounded-full border flex items-center justify-center transition-all ${theme === "DARK" ? "border-stone-800 text-[#ccff00] hover:bg-stone-800" : "border-stone-200 text-black hover:bg-stone-50"
+            <button className={`w-10 h-10 rounded-full border flex items-center justify-center transition-all ${theme === "DARK" ? "border-stone-800 text-[#ccff00] hover:bg-stone-800" : theme === "LIGHT" ? "border-[#4f6b28]/20 text-[#4f6b28] hover:bg-[#cfff00]/20" : "border-stone-200 text-black hover:bg-stone-50"
               }`}>
               <span className="material-symbols-outlined">chevron_right</span>
             </button>
@@ -976,7 +982,7 @@ function DashboardHome({ theme, profile, tenantId, authUser, userSchedule, onRem
               />
             ))
           ) : (
-            <div className={`p-12 rounded-2xl border-2 border-dashed flex flex-col items-center justify-center min-w-[300px] ${theme === "DARK" ? "border-stone-800" : "border-stone-200"}`}>
+            <div className={`p-12 rounded-2xl border-2 border-dashed flex flex-col items-center justify-center min-w-[300px] ${theme === "DARK" ? "border-stone-800" : theme === "LIGHT" ? "border-[#4f6b28]/20" : "border-stone-200"}`}>
               <span className="material-symbols-outlined text-4xl mb-4 opacity-20">calendar_today</span>
               <p className="text-[10px] font-black uppercase tracking-widest opacity-40">No upcoming bookings</p>
             </div>
@@ -984,7 +990,7 @@ function DashboardHome({ theme, profile, tenantId, authUser, userSchedule, onRem
         </div>
       </section>
       <section className="mt-16 mb-24">
-        <h4 className={`text-4xl font-black tracking-tighter uppercase mb-8 transition-colors ${theme === "DARK" ? "text-white" : "text-black"}`}>
+        <h4 className={`text-4xl font-black tracking-tighter uppercase mb-8 transition-colors ${theme === "DARK" ? "text-white" : theme === "LIGHT" ? "text-[#4f6b28]" : "text-black"}`}>
           Club Events & News
         </h4>
         <div className="grid grid-cols-12 gap-8">
@@ -1000,7 +1006,7 @@ function DashboardHome({ theme, profile, tenantId, authUser, userSchedule, onRem
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
               <div className="absolute bottom-0 left-0 p-8">
-                <span className={`px-3 py-1 rounded-full text-[10px] font-black tracking-widest uppercase mb-4 inline-block ${theme === "DARK" ? "bg-[#ccff00] text-stone-950" : "bg-white text-black"}`}>
+                <span className={`px-3 py-1 rounded-full text-[10px] font-black tracking-widest uppercase mb-4 inline-block ${theme === "DARK" ? "bg-[#ccff00] text-stone-950" : theme === "LIGHT" ? "bg-[#cfff00] text-[#4f6b28]" : "bg-white text-black"}`}>
                   {featuredEvent.tag || "Club News"}
                 </span>
                 <h5 className="text-4xl font-black text-white tracking-tighter uppercase">{featuredEvent.title}</h5>
@@ -1008,7 +1014,7 @@ function DashboardHome({ theme, profile, tenantId, authUser, userSchedule, onRem
               </div>
             </div>
           ) : (
-            <div className={`col-span-12 md:col-span-7 rounded-2xl border-2 border-dashed flex items-center justify-center h-[400px] ${theme === "DARK" ? "border-stone-800" : "border-stone-200"}`}>
+            <div className={`col-span-12 md:col-span-7 rounded-2xl border-2 border-dashed flex items-center justify-center h-[400px] ${theme === "DARK" ? "border-stone-800" : theme === "LIGHT" ? "border-[#4f6b28]/20" : "border-stone-200"}`}>
               <p className="text-[10px] font-black uppercase tracking-widest opacity-40">No upcoming events</p>
             </div>
           )}
@@ -1062,10 +1068,10 @@ function ThemeSelector({ theme, setTheme }: { theme: "LIGHT" | "DARK" | "VINTAGE
       </div>
       <button
         onClick={() => setTheme("LIGHT")}
-        className={`p-1.5 rounded-full transition-all flex items-center justify-center ${theme === "LIGHT" ? "bg-white shadow-sm ring-1 ring-stone-200" : "text-stone-800 hover:text-stone-900"}`}
+        className={`p-1.5 rounded-full transition-all flex items-center justify-center ${theme === "LIGHT" ? "bg-white shadow-sm ring-1 ring-[#4f6b28]/10" : "text-stone-500 hover:text-stone-400"}`}
         title="Light Mode"
       >
-        <span className={`material-symbols-outlined text-sm ${theme === "LIGHT" ? "text-stone-900" : ""}`}>sports_tennis</span>
+        <span className={`material-symbols-outlined text-sm ${theme === "LIGHT" ? "text-[#4f6b28]" : ""}`}>sports_tennis</span>
       </button>
       <button
         onClick={() => setTheme("DARK")}
@@ -1090,8 +1096,8 @@ function SubNavItem({ label, active = false, onClick, theme }: { label: string; 
     <button
       onClick={onClick}
       className={`w-full flex items-center gap-5 py-3 transition-all duration-300 ease-in-out pl-20 relative group ${active
-        ? (theme === "DARK" ? "text-[#ccff00]" : theme === "VINTAGE" ? "text-black" : "text-stone-900")
-        : (theme === "DARK" ? "text-white hover:text-[#ccff00]" : theme === "VINTAGE" ? "text-stone-700 hover:text-black" : "text-black hover:bg-stone-50")
+        ? (theme === "DARK" ? "text-[#ccff00]" : theme === "VINTAGE" ? "text-black" : "text-[#4f6b28]")
+        : (theme === "DARK" ? "text-white hover:text-[#ccff00]" : theme === "VINTAGE" ? "text-stone-700 hover:text-black" : "text-[#4f6b28]/70 hover:text-[#4f6b28] hover:bg-[#cfff00]/10")
         }`}
     >
       <span className={`text-sm font-black uppercase tracking-[0.2em] transition-all ${active ? "translate-x-1" : "group-hover:translate-x-1"}`} style={{ fontFamily: 'Lexend, sans-serif' }}>
@@ -1106,14 +1112,14 @@ function NavItem({ icon, label, active = false, onClick, theme }: { icon: string
     <button
       onClick={onClick}
       className={`w-full flex items-center gap-5 py-4 transition-all duration-300 ease-in-out px-8 relative group ${active
-        ? (theme === "DARK" ? "text-[#ccff00] bg-stone-900" : theme === "VINTAGE" ? "text-black bg-[#f7f9fb]" : "text-stone-900 bg-stone-100")
-        : (theme === "DARK" ? "text-white hover:text-[#ccff00]" : theme === "VINTAGE" ? "text-stone-700 hover:text-black" : "text-black hover:bg-stone-50")
+        ? (theme === "DARK" ? "text-[#ccff00] bg-stone-900" : theme === "VINTAGE" ? "text-black bg-[#f7f9fb]" : "text-[#4f6b28] bg-[#fdfbe6]")
+        : (theme === "DARK" ? "text-white hover:text-[#ccff00]" : theme === "VINTAGE" ? "text-stone-700 hover:text-black" : "text-[#4f6b28]/70 hover:text-[#4f6b28] hover:bg-[#cfff00]/10")
         }`}
     >
       {active && (
         <div className={`absolute left-0 top-0 bottom-0 w-2 rounded-r-full ${theme === "DARK" ? "bg-[#ccff00]" :
           theme === "VINTAGE" ? "bg-black" :
-            "bg-stone-900"
+            "bg-[#4f6b28]"
           }`} />
       )}
       <span className={`material-symbols-outlined text-2xl transition-all ${active ? "opacity-100 scale-110" : "opacity-60 group-hover:opacity-100"}`} style={active ? { fontVariationSettings: "'FILL' 1" } : {}}>
@@ -1126,10 +1132,10 @@ function NavItem({ icon, label, active = false, onClick, theme }: { icon: string
   );
 }
 
-function PlaceholderView({ title, icon }: { title: string; icon: string }) {
+function PlaceholderView({ title, icon, theme }: { title: string; icon: string; theme: "LIGHT" | "DARK" | "VINTAGE" }) {
   return (
     <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
-      <div className="w-24 h-24 bg-stone-50 rounded-[32px] flex items-center justify-center text-stone-950">
+      <div className={`w-24 h-24 rounded-[32px] flex items-center justify-center transition-colors ${theme === "DARK" ? "bg-stone-900 text-[#ccff00]" : theme === "LIGHT" ? "bg-[#cfff00]/20 text-[#4f6b28]" : "bg-stone-50 text-stone-950"}`}>
         <span className="material-symbols-outlined text-5xl">{icon}</span>
       </div>
       <div className="text-center">
@@ -1150,34 +1156,34 @@ function StatCard({ label, value, trend, color, theme }: { label: string; value:
     ? "bg-stone-900 border-stone-800"
     : isVintage
       ? "bg-white border-transparent"
-      : (color === "primary" ? "bg-stone-100" : color === "tertiary" ? "bg-tertiary-container" : "bg-stone-100");
+      : (color === "primary" ? "bg-white border-[#4f6b28]/10" : color === "tertiary" ? "bg-[#cfff00]" : "bg-white border-[#4f6b28]/10");
 
   const textColor = isDark
     ? "text-white"
     : isVintage
       ? "text-black"
-      : (color === "tertiary" ? "text-on-tertiary-container" : color === "primary" ? "text-primary" : "text-black");
+      : (color === "tertiary" ? "text-[#4f6b28]" : color === "primary" ? "text-[#4f6b28]" : "text-[#4f6b28]");
 
   const labelColor = isDark
     ? "text-white"
     : isVintage
       ? "text-stone-800"
-      : (color === "tertiary" ? "text-on-tertiary-container/80" : "text-stone-900");
+      : (color === "tertiary" ? "text-[#4f6b28]/80" : "text-[#4f6b28]/60");
 
   const trendColor = isDark
     ? (color === "primary" ? "text-[#ccff00]" : "text-white")
     : isVintage
       ? "text-stone-700"
-      : (color === "tertiary" ? "text-on-tertiary-container/80" : color === "primary" ? "text-primary" : "text-stone-900");
+      : (color === "tertiary" ? "text-[#4f6b28]" : color === "primary" ? "text-[#4f6b28]" : "text-[#4f6b28]/80");
 
   return (
     <div className={`col-span-1 ${bgColor} p-8 rounded-2xl flex flex-col justify-between shadow-sm border transition-colors duration-500`}>
-      <span className={`font-label text-xs uppercase font-black tracking-widest ${isDark ? "text-white" : "text-stone-900"}`}>
+      <span className={`font-label text-xs uppercase font-black tracking-widest ${labelColor}`}>
         {label}
       </span>
       <div className="mt-4">
         <div className={`text-5xl font-black tracking-tighter ${textColor}`}>{value}</div>
-        <div className={`flex items-center text-[10px] font-black uppercase tracking-widest mt-2 ${isDark ? "text-white" : "text-stone-900"}`}>
+        <div className={`flex items-center text-[10px] font-black uppercase tracking-widest mt-2 ${isDark ? "text-white" : trendColor}`}>
           {color === "primary" && <span className="material-symbols-outlined text-sm mr-1">trending_up</span>}
           <span>{trend}</span>
         </div>
@@ -1199,8 +1205,8 @@ function ActivityItem({ icon, title, subtitle, color, fill = false, theme }: { i
         <span className="material-symbols-outlined text-xl" style={fill ? { fontVariationSettings: "'FILL' 1" } : {}}>{icon}</span>
       </div>
       <div>
-        <p className={`text-sm font-black uppercase tracking-tight ${isDark ? "text-white" : "text-black"}`}>{title}</p>
-        <p className={`text-[10px] font-black uppercase tracking-widest ${isDark ? "text-white" : "text-stone-900"}`}>{subtitle}</p>
+        <p className={`text-sm font-black uppercase tracking-tight ${isDark ? "text-white" : theme === "LIGHT" ? "text-[#4f6b28]" : "text-black"}`}>{title}</p>
+        <p className={`text-[10px] font-black uppercase tracking-widest ${isDark ? "text-white" : theme === "LIGHT" ? "text-[#4f6b28]/60" : "text-stone-900"}`}>{subtitle}</p>
       </div>
     </div>
   );
@@ -1226,7 +1232,7 @@ function BookingCard({ court, date, time, partner, avatar, isOpen = false, highl
     ? (highlight ? 'bg-[#ccff00] text-stone-950' : 'bg-stone-800 text-white')
     : isVintage
       ? (highlight ? 'bg-black text-white' : 'bg-[#f7f9fb] text-stone-700')
-      : (highlight ? 'bg-stone-900 text-white' : 'bg-stone-100 text-black');
+      : (highlight ? 'bg-[#4f6b28] text-white' : 'bg-[#cfff00] text-[#4f6b28]');
 
   return (
     <div className={`min-w-[300px] ${cardBg} border p-8 rounded-2xl shadow-sm hover:shadow-md transition-all duration-500 group`}>
@@ -1235,7 +1241,7 @@ function BookingCard({ court, date, time, partner, avatar, isOpen = false, highl
           {court}
         </div>
         <div className="relative group/menu">
-          <button className={`material-symbols-outlined ${isDark ? "text-white hover:text-[#ccff00]" : "text-stone-600 hover:text-black"} transition-colors`}>more_vert</button>
+          <button className={`material-symbols-outlined ${isDark ? "text-white hover:text-[#ccff00]" : theme === "LIGHT" ? "text-[#4f6b28]" : "text-stone-600 hover:text-black"} transition-colors`}>more_vert</button>
           <div className={`absolute right-0 top-full mt-2 w-48 rounded-xl border shadow-xl opacity-0 translate-y-2 pointer-events-none group-hover/menu:opacity-100 group-hover/menu:translate-y-0 group-hover/menu:pointer-events-auto transition-all z-20 ${
             isDark ? "bg-stone-900 border-stone-800" : "bg-white border-stone-100"
           }`}>
@@ -1250,21 +1256,21 @@ function BookingCard({ court, date, time, partner, avatar, isOpen = false, highl
         </div>
       </div>
       <div className="mb-8">
-        <h5 className={`text-3xl font-black tracking-tighter ${isDark ? "text-white" : "text-black"}`}>{date}</h5>
-        <p className={`text-xs font-black uppercase tracking-widest mt-1 ${isDark ? "text-[#ccff00]" : isVintage ? "text-stone-700" : "text-stone-900"}`}>{time}</p>
+        <h5 className={`text-3xl font-black tracking-tighter ${isDark ? "text-white" : theme === "LIGHT" ? "text-[#4f6b28]" : "text-black"}`}>{date}</h5>
+        <p className={`text-xs font-black uppercase tracking-widest mt-1 ${isDark ? "text-[#ccff00]" : isVintage ? "text-stone-700" : "text-[#4f6b28]"}`}>{time}</p>
       </div>
       <div className={`flex items-center gap-3 pt-6 border-t ${isDark ? "border-stone-800" : "border-stone-50"}`}>
         {isOpen ? (
           <>
-            <div className={`w-8 h-8 rounded-full flex items-center justify-center ${isDark ? "bg-stone-800 text-[#ccff00]" : "bg-stone-50 text-black"}`}>
+            <div className={`w-8 h-8 rounded-full flex items-center justify-center ${isDark ? "bg-stone-800 text-[#ccff00]" : theme === "LIGHT" ? "bg-[#cfff00] text-[#4f6b28]" : "bg-stone-50 text-black"}`}>
               <span className="material-symbols-outlined text-sm">person_add</span>
             </div>
-            <span className={`text-[10px] font-black uppercase tracking-widest ${isDark ? "text-white" : "text-stone-900"}`}>Open Slot</span>
+            <span className={`text-[10px] font-black uppercase tracking-widest ${isDark ? "text-white" : theme === "LIGHT" ? "text-[#4f6b28]" : "text-stone-900"}`}>Open Slot</span>
           </>
         ) : (
           <>
             <img src={avatar} alt={partner} className={`w-8 h-8 rounded-full object-cover border ${isDark ? "border-stone-700" : "border-stone-100"}`} />
-            <span className={`text-[10px] font-black uppercase tracking-widest ${isDark ? "text-white" : "text-stone-900"}`}>With {partner}</span>
+            <span className={`text-[10px] font-black uppercase tracking-widest ${isDark ? "text-white" : theme === "LIGHT" ? "text-[#4f6b28]" : "text-stone-900"}`}>With {partner}</span>
           </>
         )}
       </div>
@@ -1278,16 +1284,16 @@ function NewsItem({ title, subtitle, tag, theme, onClick }: { title: string; sub
 
   return (
     <div onClick={onClick} className="group cursor-pointer flex gap-6 hover:translate-x-1 transition-all duration-300">
-      <div className={`w-24 h-24 flex-shrink-0 overflow-hidden rounded-xl relative transition-colors ${isDark ? "bg-stone-900" : isVintage ? "bg-[#f7f9fb]" : "bg-stone-100"
+      <div className={`w-24 h-24 flex-shrink-0 overflow-hidden rounded-xl relative transition-colors ${isDark ? "bg-stone-900" : isVintage ? "bg-[#f7f9fb]" : "bg-[#fdfbe6]"
         }`}>
-        <div className={`absolute inset-0 flex items-center justify-center opacity-20 ${isDark ? "text-[#ccff00]" : isVintage ? "text-black" : "text-stone-900"}`}>
+        <div className={`absolute inset-0 flex items-center justify-center opacity-20 ${isDark ? "text-[#ccff00]" : isVintage ? "text-black" : "text-[#4f6b28]"}`}>
           <span className="material-symbols-outlined text-4xl">image</span>
         </div>
       </div>
       <div className="py-2">
-        <span className={`font-black text-[10px] tracking-widest uppercase transition-colors ${isDark ? "text-[#ccff00]" : isVintage ? "text-stone-700" : "text-stone-900"
+        <span className={`font-black text-[10px] tracking-widest uppercase transition-colors ${isDark ? "text-[#ccff00]" : isVintage ? "text-stone-700" : "text-[#4f6b28]"
           }`}>{tag}</span>
-        <h6 className={`text-lg font-black tracking-tight mt-1 group-hover:translate-x-1 transition-all ${isDark ? "text-white group-hover:text-[#ccff00]" : "text-black"
+        <h6 className={`text-lg font-black tracking-tight mt-1 group-hover:translate-x-1 transition-all ${isDark ? "text-white group-hover:text-[#ccff00]" : theme === "LIGHT" ? "text-[#4f6b28]" : "text-black"
           }`}>{title}</h6>
         <p className={`text-[10px] font-black uppercase tracking-widest mt-1 ${isDark ? "text-white" : "text-stone-900"}`}>{subtitle}</p>
       </div>
@@ -1304,7 +1310,7 @@ function ProgramsView({ theme }: { theme: "LIGHT" | "DARK" | "VINTAGE" }) {
     <div className="space-y-16 animate-in fade-in slide-in-from-bottom-4 duration-700">
       {/* Header Section */}
       <div className="flex justify-between items-center">
-        <h2 className={`text-5xl font-black tracking-tighter uppercase transition-colors ${isDark ? "text-white" : "text-black"
+        <h2 className={`text-5xl font-black tracking-tighter uppercase transition-colors ${isDark ? "text-white" : theme === "LIGHT" ? "text-[#4f6b28]" : "text-black"
           }`} style={{ fontFamily: 'Lexend, sans-serif' }}>
           CLUB PROGRAMS
         </h2>
@@ -1314,7 +1320,7 @@ function ProgramsView({ theme }: { theme: "LIGHT" | "DARK" | "VINTAGE" }) {
             placeholder="Search training..."
             className={`border-none rounded-full px-8 py-3 w-80 focus:ring-2 text-sm font-black uppercase tracking-widest transition-colors ${isDark ? "bg-stone-900 text-white focus:ring-yellow-400 placeholder-stone-600" :
               isVintage ? "bg-white text-black focus:ring-black placeholder-stone-300" :
-                "bg-stone-100 text-stone-950 focus:ring-stone-900 placeholder-stone-400"
+                "bg-white text-[#4f6b28] focus:ring-[#4f6b28] placeholder-stone-400"
               }`}
           />
           <span className={`material-symbols-outlined absolute right-4 top-3 ${isDark ? "text-stone-700" : "text-stone-300"
@@ -1344,25 +1350,25 @@ function ProgramsView({ theme }: { theme: "LIGHT" | "DARK" | "VINTAGE" }) {
 
         <div className={`col-span-12 lg:col-span-4 rounded-[40px] p-10 flex flex-col justify-between shadow-xl transition-colors ${isDark ? "bg-stone-900" :
           isVintage ? "bg-white border border-stone-50" :
-            "bg-stone-50"
+            "bg-[#4f6b28]"
           }`}>
           <div>
             <h4 className={`text-3xl font-black leading-tight mb-4 uppercase transition-colors ${isDark ? "text-[#ccff00]" :
               isVintage ? "text-black" :
-                "text-stone-900"
+                "text-[#cfff00]"
               }`}>
               PRO-FOCUS WEEKEND
             </h4>
             <p className={`font-medium leading-relaxed transition-colors ${isDark ? "text-white" :
               isVintage ? "text-stone-800" :
-                "text-stone-900/70"
+                "text-white/80"
               }`}>
               Join Coach Marcus for a 48-hour immersion into strategy and bio-mechanics. Limited to 8 participants.
             </p>
           </div>
           <button className={`w-full py-4 border-2 rounded-full text-[10px] font-black tracking-[0.2em] transition-all uppercase ${isDark ? "border-[#ccff00] text-[#ccff00] hover:bg-[#ccff00] hover:text-stone-950" :
             isVintage ? "border-black text-black hover:bg-black hover:text-white" :
-              "border-stone-900 text-stone-900 hover:bg-stone-900 hover:text-white"
+              "border-[#cfff00] text-[#cfff00] hover:bg-[#cfff00] hover:text-[#4f6b28]"
             }`}>
             VIEW COACH BIO
           </button>
@@ -1372,19 +1378,19 @@ function ProgramsView({ theme }: { theme: "LIGHT" | "DARK" | "VINTAGE" }) {
       {/* Training Tracks Section */}
       <section>
         <div className="flex justify-between items-end mb-12">
-          <h3 className={`text-5xl font-black tracking-tighter uppercase transition-colors ${isDark ? "text-white" : "text-black"
+          <h3 className={`text-5xl font-black tracking-tighter uppercase transition-colors ${isDark ? "text-white" : theme === "LIGHT" ? "text-[#4f6b28]" : "text-black"
             }`}>
             TRAINING TRACKS
           </h3>
-          <div className={`flex gap-8 text-[10px] font-black tracking-widest uppercase ${isDark ? "text-white" : "text-stone-900"}`}>
+          <div className={`flex gap-8 text-[10px] font-black tracking-widest uppercase ${isDark ? "text-white" : theme === "LIGHT" ? "text-[#4f6b28]/60" : "text-stone-900"}`}>
             <span>FILTER BY:</span>
             <button className={`pb-1 transition-colors ${isDark ? "text-[#ccff00] border-b-2 border-[#ccff00]" :
               isVintage ? "text-black border-b-2 border-black" :
-                "text-stone-950 border-b-2 border-stone-950"
+                "text-[#4f6b28] border-b-2 border-[#4f6b28]"
               }`}>ALL</button>
-            <button className={`hover:opacity-70 transition-colors ${isDark ? "text-white" : "text-stone-900"}`}>YOUTH</button>
-            <button className={`hover:opacity-70 transition-colors ${isDark ? "text-white" : "text-stone-900"}`}>ADULT</button>
-            <button className={`hover:opacity-70 transition-colors ${isDark ? "text-white" : "text-stone-900"}`}>PRO</button>
+            <button className={`hover:opacity-70 transition-colors ${isDark ? "text-white" : theme === "LIGHT" ? "text-[#4f6b28]" : "text-stone-900"}`}>YOUTH</button>
+            <button className={`hover:opacity-70 transition-colors ${isDark ? "text-white" : theme === "LIGHT" ? "text-[#4f6b28]" : "text-stone-900"}`}>ADULT</button>
+            <button className={`hover:opacity-70 transition-colors ${isDark ? "text-white" : theme === "LIGHT" ? "text-[#4f6b28]" : "text-stone-900"}`}>PRO</button>
           </div>
         </div>
 
@@ -1392,28 +1398,28 @@ function ProgramsView({ theme }: { theme: "LIGHT" | "DARK" | "VINTAGE" }) {
           {/* Active Clinics */}
           <div className={`rounded-[40px] overflow-hidden flex flex-col group shadow-lg transition-colors border ${isDark ? "bg-stone-900 border-stone-800" :
             isVintage ? "bg-white border-stone-50" :
-              "bg-stone-50 border-stone-100"
+              "bg-white border-[#4f6b28]/10"
             }`}>
             <div className="h-64 overflow-hidden">
               <img src="/images/active_clinics.png" alt="Active Clinics" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
             </div>
             <div className="p-10 flex-1 relative">
-              <div className={`absolute right-10 top-10 w-12 h-12 rounded-full flex items-center justify-center shadow-md transition-colors ${isDark ? "bg-stone-800 text-[#ccff00]" : "bg-white text-black"
+              <div className={`absolute right-10 top-10 w-12 h-12 rounded-full flex items-center justify-center shadow-md transition-colors ${isDark ? "bg-stone-800 text-[#ccff00]" : theme === "LIGHT" ? "bg-[#cfff00] text-[#4f6b28]" : "bg-white text-black"
                 }`}>
                 <span className="material-symbols-outlined">bolt</span>
               </div>
-              <h4 className={`text-3xl font-black mb-4 uppercase transition-colors ${isDark ? "text-white" : isVintage ? "text-black" : "text-stone-950"
+              <h4 className={`text-3xl font-black mb-4 uppercase transition-colors ${isDark ? "text-white" : isVintage ? "text-black" : "text-[#4f6b28]"
                 }`}>ACTIVE CLINICS</h4>
-              <p className={`text-sm font-medium leading-relaxed mb-8 transition-colors ${isDark ? "text-white" : isVintage ? "text-stone-800" : "text-stone-900/60"
+              <p className={`text-sm font-medium leading-relaxed mb-8 transition-colors ${isDark ? "text-white" : isVintage ? "text-stone-800" : "text-[#4f6b28]/60"
                 }`}>
                 High-energy drills focused on footwork, stamina, and consistent point construction.
               </p>
               <div className="flex justify-between items-center mt-auto">
                 <div>
-                  <div className={`text-[10px] font-black uppercase tracking-widest ${isDark ? "text-white" : "text-stone-900"}`}>STARTS AT</div>
-                  <div className={`text-2xl font-black ${isDark ? "text-[#ccff00]" : "text-black"}`}>$45/HR</div>
+                  <div className={`text-[10px] font-black uppercase tracking-widest ${isDark ? "text-white" : theme === "LIGHT" ? "text-[#4f6b28]/60" : "text-stone-900"}`}>STARTS AT</div>
+                  <div className={`text-2xl font-black ${isDark ? "text-[#ccff00]" : theme === "LIGHT" ? "text-[#4f6b28]" : "text-black"}`}>$45/HR</div>
                 </div>
-                <button className={`w-14 h-14 rounded-full flex items-center justify-center hover:scale-110 transition-transform shadow-lg ${isDark ? "bg-[#ccff00] text-stone-950" : isVintage ? "bg-black text-white" : "bg-stone-900 text-white"
+                <button className={`w-14 h-14 rounded-full flex items-center justify-center hover:scale-110 transition-transform shadow-lg ${isDark ? "bg-[#ccff00] text-stone-950" : isVintage ? "bg-black text-white" : "bg-[#4f6b28] text-[#cfff00]"
                   }`}>
                   <span className="material-symbols-outlined">arrow_forward</span>
                 </button>
@@ -1424,7 +1430,7 @@ function ProgramsView({ theme }: { theme: "LIGHT" | "DARK" | "VINTAGE" }) {
           {/* Junior Academy */}
           <div className={`rounded-[40px] overflow-hidden flex flex-col group shadow-lg transition-colors ${isDark ? "bg-stone-900 border border-stone-800" :
             isVintage ? "bg-white border border-stone-50" :
-              "bg-stone-50"
+              "bg-white border border-[#4f6b28]/10"
             }`}>
             <div className="h-64 overflow-hidden relative">
               <img src="/images/junior_academy.png" alt="Junior Academy" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
@@ -1434,13 +1440,13 @@ function ProgramsView({ theme }: { theme: "LIGHT" | "DARK" | "VINTAGE" }) {
               </div>
             </div>
             <div className="p-10 flex-1">
-              <h4 className={`text-3xl font-black mb-4 uppercase leading-none transition-colors ${isDark ? "text-white" : "text-[#1a1a1a]"
+              <h4 className={`text-3xl font-black mb-4 uppercase leading-none transition-colors ${isDark ? "text-white" : isVintage ? "text-black" : "text-[#4f6b28]"
                 }`}>JUNIOR<br />ACADEMY</h4>
-              <p className={`text-sm font-medium leading-relaxed mb-8 transition-colors ${isDark ? "text-white" : "text-black/60"
+              <p className={`text-sm font-medium leading-relaxed mb-8 transition-colors ${isDark ? "text-white" : theme === "LIGHT" ? "text-[#4f6b28]/60" : "text-black/60"
                 }`}>
                 Developing the next generation of competitors. Age groups 8-16.
               </p>
-              <button className={`w-full py-4 rounded-2xl text-[10px] font-black tracking-widest transition-all uppercase ${isDark ? "bg-[#ccff00] text-stone-950" : "bg-black text-white"
+              <button className={`w-full py-4 rounded-2xl text-[10px] font-black tracking-widest transition-all uppercase ${isDark ? "bg-[#ccff00] text-stone-950" : theme === "LIGHT" ? "bg-[#4f6b28] text-[#cfff00]" : "bg-black text-white"
                 }`}>
                 EXPLORE PATHWAY
               </button>
@@ -1454,7 +1460,7 @@ function ProgramsView({ theme }: { theme: "LIGHT" | "DARK" | "VINTAGE" }) {
             }`}>
             <div className="p-10 pb-0">
               <div className="flex justify-between items-start mb-4">
-                <h4 className={`text-3xl font-black uppercase leading-none transition-colors ${isDark ? "text-white" : isVintage ? "text-black" : "text-stone-950"
+                <h4 className={`text-3xl font-black uppercase leading-none transition-colors ${isDark ? "text-white" : isVintage ? "text-black" : "text-[#4f6b28]"
                   }`}>SOCIAL<br />MIXERS</h4>
                 <span className={`material-symbols-outlined transition-colors ${isDark ? "text-[#ccff00] opacity-40" : "text-stone-900 opacity-40"}`}>groups</span>
               </div>
@@ -1476,7 +1482,7 @@ function ProgramsView({ theme }: { theme: "LIGHT" | "DARK" | "VINTAGE" }) {
             </div>
             <div className="h-48 overflow-hidden relative mt-auto">
               <img src="/images/social_mixers.png" alt="Social Mixers" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
-              <div className={`absolute right-6 bottom-6 w-12 h-12 rounded-2xl flex items-center justify-center shadow-xl transition-colors ${isDark ? "bg-[#ccff00] text-stone-950" : "bg-black text-white"
+              <div className={`absolute right-6 bottom-6 w-12 h-12 rounded-2xl flex items-center justify-center shadow-xl transition-colors ${isDark ? "bg-[#ccff00] text-stone-950" : theme === "LIGHT" ? "bg-[#cfff00] text-[#4f6b28]" : "bg-black text-white"
                 }`}>
                 <span className="material-symbols-outlined">calendar_today</span>
               </div>
@@ -1488,32 +1494,32 @@ function ProgramsView({ theme }: { theme: "LIGHT" | "DARK" | "VINTAGE" }) {
       {/* Spring Session Section */}
       <section className={`rounded-[40px] p-16 grid grid-cols-12 gap-12 transition-colors border ${isDark ? "bg-stone-950 border-stone-800" :
         isVintage ? "bg-white border-stone-50 shadow-sm" :
-          "bg-stone-50 border-transparent"
+          "bg-[#4f6b28] border-transparent"
         }`}>
         <div className="col-span-12 lg:col-span-5 space-y-8">
           <div className="space-y-4">
-            <h3 className={`text-6xl font-black tracking-tighter uppercase leading-none transition-colors ${isDark ? "text-white" : "text-black"
+            <h3 className={`text-6xl font-black tracking-tighter uppercase leading-none transition-colors ${isDark ? "text-white" : theme === "LIGHT" ? "text-white" : "text-black"
               }`}>
               SPRING<br />SESSION '24
             </h3>
-            <p className={`font-medium leading-relaxed max-w-sm transition-colors ${isDark ? "text-white" : "text-stone-900"
+            <p className={`font-medium leading-relaxed max-w-sm transition-colors ${isDark ? "text-white" : theme === "LIGHT" ? "text-white/80" : "text-stone-900"
               }`}>
               Registration is now open for all technical workshops and weekly ladders. Secure your spot before March 15th.
             </p>
           </div>
 
           <div className="space-y-4 pt-4">
-            <div className={`flex items-center gap-4 transition-colors ${isDark ? "text-[#ccff00]" : isVintage ? "text-black" : "text-stone-900"
+            <div className={`flex items-center gap-4 transition-colors ${isDark ? "text-[#ccff00]" : isVintage ? "text-black" : "text-white"
               }`}>
-              <div className={`w-6 h-6 rounded-md flex items-center justify-center transition-colors ${isDark ? "bg-[#ccff00] text-stone-950" : isVintage ? "bg-black text-white" : "bg-stone-900 text-white"
+              <div className={`w-6 h-6 rounded-md flex items-center justify-center transition-colors ${isDark ? "bg-[#ccff00] text-stone-950" : isVintage ? "bg-black text-white" : "bg-[#cfff00] text-[#4f6b28]"
                 }`}>
                 <span className="material-symbols-outlined text-sm">check</span>
               </div>
               <span className="text-[10px] font-black tracking-widest uppercase">ITF GOLD STANDARDS</span>
             </div>
-            <div className={`flex items-center gap-4 transition-colors ${isDark ? "text-[#ccff00]" : isVintage ? "text-black" : "text-stone-900"
+            <div className={`flex items-center gap-4 transition-colors ${isDark ? "text-[#ccff00]" : isVintage ? "text-black" : "text-white"
               }`}>
-              <div className={`w-6 h-6 rounded-md flex items-center justify-center transition-colors ${isDark ? "bg-[#ccff00] text-stone-950" : isVintage ? "bg-black text-white" : "bg-stone-900 text-white"
+              <div className={`w-6 h-6 rounded-md flex items-center justify-center transition-colors ${isDark ? "bg-[#ccff00] text-stone-950" : isVintage ? "bg-black text-white" : "bg-[#cfff00] text-[#4f6b28]"
                 }`}>
                 <span className="material-symbols-outlined text-sm">bar_chart</span>
               </div>
@@ -1524,21 +1530,21 @@ function ProgramsView({ theme }: { theme: "LIGHT" | "DARK" | "VINTAGE" }) {
 
         <div className="col-span-12 lg:col-span-7 grid grid-cols-1 md:grid-cols-2 gap-6">
           {[
-            { date: "MARCH 12-14", title: "SERVE VELOCITY CLINIC", badge: "2 SLOTS LEFT", badgeColor: isDark ? "bg-stone-900 text-[#ccff00]" : "bg-yellow-100 text-yellow-700" },
-            { date: "APRIL 05", title: "DOUBLES MASTERCLASS", badge: "OPENING SOON", badgeColor: isDark ? "bg-stone-900 text-white" : "bg-blue-100 text-blue-700" },
-            { date: "WEEKLY SAT", title: "CARDIO TENNIS LADDER", badge: "RECURRING", badgeColor: isDark ? "bg-stone-900 text-[#ccff00]" : "bg-green-100 text-green-700" },
-            { date: "MONTHLY", title: "VIDEO ANALYSIS LAB", badge: "MEMBER EXCLUSIVE", badgeColor: isDark ? "bg-stone-900 text-white" : "bg-stone-200 text-stone-800" }
+            { date: "MARCH 12-14", title: "SERVE VELOCITY CLINIC", badge: "2 SLOTS LEFT", badgeColor: isDark ? "bg-stone-900 text-[#ccff00]" : theme === "LIGHT" ? "bg-[#cfff00] text-[#4f6b28]" : "bg-yellow-100 text-yellow-700" },
+            { date: "APRIL 05", title: "DOUBLES MASTERCLASS", badge: "OPENING SOON", badgeColor: isDark ? "bg-stone-900 text-white" : theme === "LIGHT" ? "bg-[#cfff00] text-[#4f6b28]" : "bg-blue-100 text-blue-700" },
+            { date: "WEEKLY SAT", title: "CARDIO TENNIS LADDER", badge: "RECURRING", badgeColor: isDark ? "bg-stone-900 text-[#ccff00]" : theme === "LIGHT" ? "bg-[#cfff00] text-[#4f6b28]" : "bg-green-100 text-green-700" },
+            { date: "MONTHLY", title: "VIDEO ANALYSIS LAB", badge: "MEMBER EXCLUSIVE", badgeColor: isDark ? "bg-stone-900 text-white" : theme === "LIGHT" ? "bg-[#cfff00] text-[#4f6b28]" : "bg-stone-200 text-stone-800" }
           ].map((item, i) => (
-            <div key={i} className={`p-8 rounded-3xl group cursor-pointer hover:shadow-xl transition-all border ${isDark ? "bg-stone-900 border-stone-800" : "bg-white border-stone-100"
+            <div key={i} className={`p-8 rounded-3xl group cursor-pointer hover:shadow-xl transition-all border ${isDark ? "bg-stone-900 border-stone-800" : theme === "LIGHT" ? "bg-white border-[#cfff00]/20" : "bg-white border-stone-100"
               }`}>
               <div className={`text-[10px] font-black tracking-widest uppercase mb-2 ${isDark ? "text-white" : "text-stone-600"}`}>{item.date}</div>
-              <h5 className={`text-lg font-black tracking-tighter mb-6 group-hover:translate-x-1 transition-all uppercase leading-tight ${isDark ? "text-white group-hover:text-[#ccff00]" : "text-stone-900 group-hover:text-black"
+              <h5 className={`text-lg font-black tracking-tighter mb-6 group-hover:translate-x-1 transition-all uppercase leading-tight ${isDark ? "text-white group-hover:text-[#ccff00]" : theme === "LIGHT" ? "text-[#4f6b28] group-hover:text-[#3a4f1d]" : "text-stone-900 group-hover:text-black"
                 }`}>{item.title}</h5>
               <div className="flex justify-between items-center">
                 <span className={`px-3 py-1 rounded-full text-[8px] font-black tracking-widest uppercase ${item.badgeColor}`}>
                   {item.badge}
                 </span>
-                <span className={`material-symbols-outlined text-white group-hover:translate-x-1 transition-all ${isDark ? "group-hover:text-[#ccff00]" : "group-hover:text-black"
+                <span className={`material-symbols-outlined group-hover:translate-x-1 transition-all ${isDark ? "text-white group-hover:text-[#ccff00]" : theme === "LIGHT" ? "text-[#4f6b28] group-hover:text-[#3a4f1d]" : "text-stone-900 group-hover:text-black"
                   }`}>chevron_right</span>
               </div>
             </div>
@@ -1810,13 +1816,13 @@ function ProfileView({ theme, profile, roles }: { theme: "LIGHT" | "DARK" | "VIN
           <div className="pt-8 flex gap-4">
             <button
               onClick={() => setShowEditModal(true)}
-              className={`flex-1 py-4 rounded-2xl text-[10px] font-black tracking-widest uppercase transition-colors ${isDark ? "bg-stone-800 text-[#ccff00]" : isVintage ? "bg-black text-white" : "bg-stone-900 text-white"
+              className={`flex-1 py-4 rounded-2xl text-[10px] font-black tracking-widest uppercase transition-colors ${isDark ? "bg-stone-800 text-[#ccff00]" : isVintage ? "bg-black text-white" : "bg-[#4f6b28] text-white"
                 }`}>
               EDIT INFORMATION
             </button>
             <button
               onClick={handleChangePassword}
-              className={`flex-1 py-4 border-2 rounded-2xl text-[10px] font-black tracking-widest uppercase transition-colors ${isDark ? "border-stone-800 text-white hover:bg-stone-800" : isVintage ? "border-black text-black hover:bg-black hover:text-white" : "border-stone-900 text-stone-900 hover:bg-stone-900 hover:text-white"
+              className={`flex-1 py-4 border-2 rounded-2xl text-[10px] font-black tracking-widest uppercase transition-colors ${isDark ? "border-stone-800 text-white hover:bg-stone-800" : isVintage ? "border-black text-black hover:bg-black hover:text-white" : "border-[#4f6b28] text-[#4f6b28] hover:bg-[#4f6b28] hover:text-white"
                 }`}>
               CHANGE PASSWORD
             </button>
@@ -1840,7 +1846,7 @@ function ProfileView({ theme, profile, roles }: { theme: "LIGHT" | "DARK" | "VIN
               <button
                 onClick={handleSaveProfile}
                 disabled={isSaving}
-                className={`flex-1 py-5 rounded-2xl text-[10px] font-black tracking-widest uppercase transition-all shadow-xl flex items-center justify-center gap-3 ${isDark ? "bg-[#ccff00] text-stone-950 shadow-[#ccff00]/20" : "bg-stone-900 text-white shadow-stone-900/20"}`}
+                className={`flex-1 py-5 rounded-2xl text-[10px] font-black tracking-widest uppercase transition-all shadow-xl flex items-center justify-center gap-3 ${isDark ? "bg-[#ccff00] text-stone-950 shadow-[#ccff00]/20" : theme === "LIGHT" ? "bg-[#4f6b28] text-white shadow-[#4f6b28]/20" : "bg-stone-900 text-white shadow-stone-900/20"}`}
               >
                 {isSaving ? (
                   <>
@@ -1855,67 +1861,67 @@ function ProfileView({ theme, profile, roles }: { theme: "LIGHT" | "DARK" | "VIN
           <div className="space-y-8">
             <div className="grid grid-cols-2 gap-8">
               <div>
-                <label className={`text-[10px] font-black uppercase tracking-widest mb-3 block ${isDark ? "text-white" : "text-stone-600"}`}>First Name</label>
+                <label className={`text-[10px] font-black uppercase tracking-widest mb-3 block ${isDark ? "text-white" : theme === "LIGHT" ? "text-[#4f6b28]/60" : "text-stone-600"}`}>First Name</label>
                 <input
                   value={formData.first_name}
                   onChange={e => setFormData({ ...formData, first_name: e.target.value })}
-                  className={`w-full bg-transparent border-b-2 py-4 text-lg font-bold outline-none transition-colors placeholder:text-stone-200 ${isDark ? "border-stone-800 focus:border-[#ccff00] text-white" : "border-stone-100 focus:border-stone-900 text-stone-900"}`}
+                  className={`w-full bg-transparent border-b-2 py-4 text-lg font-bold outline-none transition-colors placeholder:text-stone-200 ${isDark ? "border-stone-800 focus:border-[#ccff00] text-white" : theme === "LIGHT" ? "border-stone-200 focus:border-[#4f6b28] text-[#4f6b28]" : "border-stone-100 focus:border-stone-900 text-stone-900"}`}
                 />
               </div>
               <div>
-                <label className={`text-[10px] font-black uppercase tracking-widest mb-3 block ${isDark ? "text-white" : "text-stone-600"}`}>Last Name</label>
+                <label className={`text-[10px] font-black uppercase tracking-widest mb-3 block ${isDark ? "text-white" : theme === "LIGHT" ? "text-[#4f6b28]/60" : "text-stone-600"}`}>Last Name</label>
                 <input
                   value={formData.last_name}
                   onChange={e => setFormData({ ...formData, last_name: e.target.value })}
-                  className={`w-full bg-transparent border-b-2 py-4 text-lg font-bold outline-none transition-colors placeholder:text-stone-200 ${isDark ? "border-stone-800 focus:border-[#ccff00] text-white" : "border-stone-100 focus:border-stone-900 text-stone-900"}`}
+                  className={`w-full bg-transparent border-b-2 py-4 text-lg font-bold outline-none transition-colors placeholder:text-stone-200 ${isDark ? "border-stone-800 focus:border-[#ccff00] text-white" : theme === "LIGHT" ? "border-stone-200 focus:border-[#4f6b28] text-[#4f6b28]" : "border-stone-100 focus:border-stone-900 text-stone-900"}`}
                 />
               </div>
             </div>
             <div className="grid grid-cols-2 gap-8">
               <div>
-                <label className={`text-[10px] font-black uppercase tracking-widest mb-3 block ${isDark ? "text-white" : "text-stone-600"}`}>Street Address 1</label>
+                <label className={`text-[10px] font-black uppercase tracking-widest mb-3 block ${isDark ? "text-white" : theme === "LIGHT" ? "text-[#4f6b28]/60" : "text-stone-600"}`}>Street Address 1</label>
                 <input
                   value={formData.address_street_1}
                   onChange={e => setFormData({ ...formData, address_street_1: e.target.value })}
                   placeholder="123 Tennis Court Lane"
-                  className={`w-full bg-transparent border-b-2 py-4 text-lg font-bold outline-none transition-colors placeholder:text-stone-200 ${isDark ? "border-stone-800 focus:border-[#ccff00] text-white" : "border-stone-100 focus:border-stone-900 text-stone-900"}`}
+                  className={`w-full bg-transparent border-b-2 py-4 text-lg font-bold outline-none transition-colors placeholder:text-stone-200 ${isDark ? "border-stone-800 focus:border-[#ccff00] text-white" : theme === "LIGHT" ? "border-stone-200 focus:border-[#4f6b28] text-[#4f6b28]" : "border-stone-100 focus:border-stone-900 text-stone-900"}`}
                 />
               </div>
               <div>
-                <label className={`text-[10px] font-black uppercase tracking-widest mb-3 block ${isDark ? "text-white" : "text-stone-600"}`}>Street Address 2</label>
+                <label className={`text-[10px] font-black uppercase tracking-widest mb-3 block ${isDark ? "text-white" : theme === "LIGHT" ? "text-[#4f6b28]/60" : "text-stone-600"}`}>Street Address 2</label>
                 <input
                   value={formData.address_street_2}
                   onChange={e => setFormData({ ...formData, address_street_2: e.target.value })}
                   placeholder="Apt 4B"
-                  className={`w-full bg-transparent border-b-2 py-4 text-lg font-bold outline-none transition-colors placeholder:text-stone-200 ${isDark ? "border-stone-800 focus:border-[#ccff00] text-white" : "border-stone-100 focus:border-stone-900 text-stone-900"}`}
+                  className={`w-full bg-transparent border-b-2 py-4 text-lg font-bold outline-none transition-colors placeholder:text-stone-200 ${isDark ? "border-stone-800 focus:border-[#ccff00] text-white" : theme === "LIGHT" ? "border-stone-200 focus:border-[#4f6b28] text-[#4f6b28]" : "border-stone-100 focus:border-stone-900 text-stone-900"}`}
                 />
               </div>
             </div>
             <div>
-              <label className={`text-[10px] font-black uppercase tracking-widest mb-3 block ${isDark ? "text-white" : "text-stone-600"}`}>Phone Number</label>
+              <label className={`text-[10px] font-black uppercase tracking-widest mb-3 block ${isDark ? "text-white" : theme === "LIGHT" ? "text-[#4f6b28]/60" : "text-stone-600"}`}>Phone Number</label>
               <input
                 value={formData.phone}
                 onChange={e => setFormData({ ...formData, phone: e.target.value })}
                 placeholder="+1 (555) 000-0000"
-                className={`w-full bg-transparent border-b-2 py-4 text-lg font-bold outline-none transition-colors placeholder:text-stone-200 ${isDark ? "border-stone-800 focus:border-[#ccff00] text-white" : "border-stone-100 focus:border-stone-900 text-stone-900"}`}
+                className={`w-full bg-transparent border-b-2 py-4 text-lg font-bold outline-none transition-colors placeholder:text-stone-200 ${isDark ? "border-stone-800 focus:border-[#ccff00] text-white" : theme === "LIGHT" ? "border-stone-200 focus:border-[#4f6b28] text-[#4f6b28]" : "border-stone-100 focus:border-stone-900 text-stone-900"}`}
               />
             </div>
             <div className="grid grid-cols-3 gap-8">
               <div className="col-span-1">
-                <label className={`text-[10px] font-black uppercase tracking-widest mb-3 block ${isDark ? "text-white" : "text-stone-600"}`}>City</label>
+                <label className={`text-[10px] font-black uppercase tracking-widest mb-3 block ${isDark ? "text-white" : theme === "LIGHT" ? "text-[#4f6b28]/60" : "text-stone-600"}`}>City</label>
                 <input
                   value={formData.address_city}
                   onChange={e => setFormData({ ...formData, address_city: e.target.value })}
                   placeholder="Wimbledon"
-                  className={`w-full bg-transparent border-b-2 py-4 text-lg font-bold outline-none transition-colors placeholder:text-stone-200 ${isDark ? "border-stone-800 focus:border-[#ccff00] text-white" : "border-stone-100 focus:border-stone-900 text-stone-900"}`}
+                  className={`w-full bg-transparent border-b-2 py-4 text-lg font-bold outline-none transition-colors placeholder:text-stone-200 ${isDark ? "border-stone-800 focus:border-[#ccff00] text-white" : theme === "LIGHT" ? "border-stone-200 focus:border-[#4f6b28] text-[#4f6b28]" : "border-stone-100 focus:border-stone-900 text-stone-900"}`}
                 />
               </div>
               <div className="col-span-1">
-                <label className={`text-[10px] font-black uppercase tracking-widest mb-3 block ${isDark ? "text-white" : "text-stone-600"}`}>State</label>
+                <label className={`text-[10px] font-black uppercase tracking-widest mb-3 block ${isDark ? "text-white" : theme === "LIGHT" ? "text-[#4f6b28]/60" : "text-stone-600"}`}>State</label>
                 <select
                   value={formData.address_state}
                   onChange={e => setFormData({ ...formData, address_state: e.target.value })}
-                  className={`w-full bg-transparent border-b-2 py-4 text-lg font-bold outline-none transition-colors appearance-none ${!formData.address_state ? '!text-stone-200' : ''} ${isDark ? "border-stone-800 focus:border-[#ccff00] text-white" : "border-stone-100 focus:border-stone-900 text-stone-900"}`}
+                  className={`w-full bg-transparent border-b-2 py-4 text-lg font-bold outline-none transition-colors appearance-none ${!formData.address_state ? '!text-stone-200' : ''} ${isDark ? "border-stone-800 focus:border-[#ccff00] text-white" : theme === "LIGHT" ? "border-stone-200 focus:border-[#4f6b28] text-[#4f6b28]" : "border-stone-100 focus:border-stone-900 text-stone-900"}`}
                 >
                   <option value="" className={isDark ? "bg-stone-900" : "bg-white"}>Select State</option>
                   {US_STATES.map(state => (
@@ -1924,12 +1930,12 @@ function ProfileView({ theme, profile, roles }: { theme: "LIGHT" | "DARK" | "VIN
                 </select>
               </div>
               <div className="col-span-1">
-                <label className={`text-[10px] font-black uppercase tracking-widest mb-3 block ${isDark ? "text-white" : "text-stone-600"}`}>Zip Code</label>
+                <label className={`text-[10px] font-black uppercase tracking-widest mb-3 block ${isDark ? "text-white" : theme === "LIGHT" ? "text-[#4f6b28]/60" : "text-stone-600"}`}>Zip Code</label>
                 <input
                   value={formData.address_zip}
                   onChange={e => setFormData({ ...formData, address_zip: e.target.value })}
                   placeholder="SW19"
-                  className={`w-full bg-transparent border-b-2 py-4 text-lg font-bold outline-none transition-colors placeholder:text-stone-200 ${isDark ? "border-stone-800 focus:border-[#ccff00] text-white" : "border-stone-100 focus:border-stone-900 text-stone-900"}`}
+                  className={`w-full bg-transparent border-b-2 py-4 text-lg font-bold outline-none transition-colors placeholder:text-stone-200 ${isDark ? "border-stone-800 focus:border-[#ccff00] text-white" : theme === "LIGHT" ? "border-stone-200 focus:border-[#4f6b28] text-[#4f6b28]" : "border-stone-100 focus:border-stone-900 text-stone-900"}`}
                 />
               </div>
             </div>
@@ -1950,7 +1956,7 @@ function ProfileView({ theme, profile, roles }: { theme: "LIGHT" | "DARK" | "VIN
                 <button
                   key={portrait.id}
                   onClick={() => handlePortraitSelect(portrait.url)}
-                  className={`group relative aspect-square rounded-3xl overflow-hidden border-2 transition-all hover:scale-105 ${isDark ? "border-stone-800 hover:border-[#ccff00]" : "border-stone-100 hover:border-stone-900"
+                  className={`group relative aspect-square rounded-3xl overflow-hidden border-2 transition-all hover:scale-105 ${isDark ? "border-stone-800 hover:border-[#ccff00]" : theme === "LIGHT" ? "border-stone-100 hover:border-[#4f6b28]" : "border-stone-100 hover:border-stone-900"
                     }`}
                 >
                   <img
@@ -1983,20 +1989,20 @@ function MembershipView({ theme }: { theme: "LIGHT" | "DARK" | "VINTAGE" }) {
 
   return (
     <div className="space-y-16 animate-in fade-in slide-in-from-bottom-4 duration-700">
-      <h2 className={`text-5xl font-black tracking-tighter uppercase transition-colors ${isDark ? "text-white" : "text-black"
+      <h2 className={`text-5xl font-black tracking-tighter uppercase transition-colors ${isDark ? "text-white" : theme === "LIGHT" ? "text-[#4f6b28]" : "text-black"
         }`} style={{ fontFamily: 'Lexend, sans-serif' }}>
         MEMBERSHIP PLANS
       </h2>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         {[
-          { name: "SILVER", price: "99", color: isDark ? "bg-stone-900 text-white" : isVintage ? "bg-white text-black border border-stone-50" : "bg-stone-50 text-stone-900", features: ["2 Bookings/Week", "Standard Access", "Social Mixers"] },
-          { name: "GOLD", price: "199", color: isDark ? "bg-[#ccff00] text-stone-950" : isVintage ? "bg-black text-white" : "bg-stone-900 text-white", features: ["Unlimited Bookings", "Priority Courts", "Guest Passes (4)", "Pro Discounts"], popular: true },
-          { name: "PLATINUM", price: "299", color: isDark ? "bg-stone-950 text-white border border-stone-800" : isVintage ? "bg-white text-black border-2 border-black" : "bg-stone-900 text-white", features: ["24/7 Access", "Personal Locker", "Free Stringing", "Pro Clinic Access"] }
+          { name: "SILVER", price: "99", color: isDark ? "bg-stone-900 text-white" : isVintage ? "bg-white text-black border border-stone-50" : theme === "LIGHT" ? "bg-white text-[#4f6b28] border-2 border-[#4f6b28]/10" : "bg-stone-50 text-stone-900", features: ["2 Bookings/Week", "Standard Access", "Social Mixers"] },
+          { name: "GOLD", price: "199", popular: true, color: isDark ? "bg-[#ccff00] text-stone-950" : isVintage ? "bg-black text-white" : theme === "LIGHT" ? "bg-[#4f6b28] text-white shadow-[#4f6b28]/20" : "bg-stone-900 text-white", features: ["Unlimited Bookings", "Priority Courts", "Guest Passes (4)", "Pro Discounts"] },
+          { name: "PLATINUM", price: "299", color: isDark ? "bg-stone-950 text-white border border-stone-800" : isVintage ? "bg-white text-black border-2 border-black" : theme === "LIGHT" ? "bg-[#4f6b28] text-white" : "bg-stone-900 text-white", features: ["24/7 Access", "Personal Locker", "Free Stringing", "Pro Clinic Access"] }
         ].map((plan, i) => (
           <div key={i} className={`${plan.color} rounded-[40px] p-12 shadow-2xl relative flex flex-col transition-all hover:scale-105`}>
             {plan.popular && (
-              <div className={`absolute -top-4 left-12 px-6 py-2 text-[10px] font-black tracking-[0.2em] rounded-full shadow-lg transition-colors ${isDark ? "bg-white text-black" : "bg-stone-900 text-white"
+              <div className={`absolute -top-4 left-12 px-6 py-2 text-[10px] font-black tracking-[0.2em] rounded-full shadow-lg transition-colors ${isDark ? "bg-white text-black" : theme === "LIGHT" ? "bg-[#ccff00] text-[#4f6b28]" : "bg-stone-900 text-white"
                 }`}>
                 MOST POPULAR
               </div>
@@ -2016,7 +2022,7 @@ function MembershipView({ theme }: { theme: "LIGHT" | "DARK" | "VINTAGE" }) {
                 </li>
               ))}
             </ul>
-            <button className={`mt-12 w-full py-5 rounded-2xl text-[10px] font-black tracking-widest transition-all uppercase ${plan.popular ? (isDark ? "bg-stone-900 text-white" : isVintage ? "bg-white text-black" : "bg-white text-stone-900") :
+            <button className={`mt-12 w-full py-5 rounded-2xl text-[10px] font-black tracking-widest transition-all uppercase ${plan.popular ? (isDark ? "bg-stone-900 text-white" : isVintage ? "bg-white text-black" : theme === "LIGHT" ? "bg-[#ccff00] text-[#4f6b28]" : "bg-white text-stone-900") :
               "border-2 border-current hover:bg-current hover:text-white"
               }`}>
               {plan.popular ? "CURRENT PLAN" : "UPGRADE NOW"}
@@ -2034,7 +2040,7 @@ function SettingsView({ theme }: { theme: "LIGHT" | "DARK" | "VINTAGE" }) {
 
   return (
     <div className="max-w-2xl space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-700">
-      <h2 className={`text-5xl font-black tracking-tighter uppercase transition-colors ${isDark ? "text-white" : "text-black"
+      <h2 className={`text-5xl font-black tracking-tighter uppercase transition-colors ${isDark ? "text-white" : theme === "LIGHT" ? "text-[#4f6b28]" : "text-black"
         }`} style={{ fontFamily: 'Lexend, sans-serif' }}>
         PREFERENCES
       </h2>
@@ -2046,22 +2052,22 @@ function SettingsView({ theme }: { theme: "LIGHT" | "DARK" | "VINTAGE" }) {
           { icon: "history", title: "Activity History", desc: "Log match results and training progress", active: false },
           { icon: "mail", title: "Newsletter", desc: "Weekly club updates and clinic openings", active: true }
         ].map((opt, i) => (
-          <div key={i} className={`flex items-center justify-between p-8 rounded-3xl border shadow-sm transition-all border ${isDark ? "bg-stone-900 border-stone-800" :
+          <div key={i} className={`flex items-center justify-between p-8 rounded-3xl border shadow-sm transition-all ${isDark ? "bg-stone-900 border-stone-800" :
             isVintage ? "bg-white border-stone-50" :
-              "bg-white border-stone-100"
+              "bg-white border-[#4f6b28]/10"
             }`}>
             <div className="flex items-center gap-6">
-              <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-colors ${isDark ? "bg-stone-800 text-[#ccff00]" : "bg-stone-50 text-stone-900"
+              <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-colors ${isDark ? "bg-stone-800 text-[#ccff00]" : theme === "LIGHT" ? "bg-[#cfff00] text-[#4f6b28]" : "bg-stone-50 text-stone-900"
                 }`}>
                 <span className="material-symbols-outlined">{opt.icon}</span>
               </div>
               <div>
-                <h4 className={`font-black text-lg uppercase transition-colors ${isDark ? "text-white" : "text-stone-900"
+                <h4 className={`font-black text-lg uppercase transition-colors ${isDark ? "text-white" : theme === "LIGHT" ? "text-[#4f6b28]" : "text-stone-900"
                   }`}>{opt.title}</h4>
-                <p className={`${isDark ? "text-white" : "text-stone-700"} text-sm font-medium`}>{opt.desc}</p>
+                <p className={`${isDark ? "text-white" : theme === "LIGHT" ? "text-[#4f6b28]/60" : "text-stone-700"} text-sm font-medium`}>{opt.desc}</p>
               </div>
             </div>
-            <button className={`w-14 h-8 rounded-full relative transition-colors ${opt.active ? (isDark ? "bg-[#ccff00]" : isVintage ? "bg-black" : "bg-stone-900") : "bg-stone-200"
+            <button className={`w-14 h-8 rounded-full relative transition-colors ${opt.active ? (isDark ? "bg-[#ccff00]" : isVintage ? "bg-black" : theme === "LIGHT" ? "bg-[#4f6b28]" : "bg-stone-900") : "bg-stone-200"
               }`}>
               <div className={`absolute top-1 w-6 h-6 bg-white rounded-full transition-transform ${opt.active ? "right-1" : "left-1"}`}></div>
             </button>
