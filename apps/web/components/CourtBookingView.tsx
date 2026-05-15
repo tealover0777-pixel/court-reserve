@@ -6,15 +6,15 @@ import { useTenant } from "../context/TenantContext";
 import { useAuth } from "../context/AuthContext";
 import { Modal } from "@repo/ui/modal";
 
-const DEFAULT_TIMES_10 = Array.from({ length: (23 - 6) * 6 + 1 }, (_, i) => {
-  const mins = 6 * 60 + (i * 10); // Starts at 06:00
+const DEFAULT_TIMES_30 = Array.from({ length: (23 - 6) * 2 + 1 }, (_, i) => {
+  const mins = 6 * 60 + (i * 30); // Starts at 06:00
   const h = Math.floor(mins / 60);
   const m = mins % 60;
   return `${h.toString().padStart(2, "0")}:${m.toString().padStart(2, "0")}`;
 });
 
 const buildTimes = (courts: any[]): string[] => {
-  if (!courts.length) return DEFAULT_TIMES_10;
+  if (!courts.length) return DEFAULT_TIMES_30;
   let minMinutes = 23 * 60;
   let maxMinutes = 6 * 60;
   courts.forEach((court) => {
@@ -27,14 +27,14 @@ const buildTimes = (courts: any[]): string[] => {
   });
 
   const slots: string[] = [];
-  let current = Math.floor(minMinutes / 10) * 10;
+  let current = Math.floor(minMinutes / 30) * 30;
   while (current <= maxMinutes) {
     const h = Math.floor(current / 60);
     const m = current % 60;
     slots.push(`${h.toString().padStart(2, "0")}:${m.toString().padStart(2, "0")}`);
-    current += 10;
+    current += 30;
   }
-  return slots.length ? slots : DEFAULT_TIMES_10;
+  return slots.length ? slots : DEFAULT_TIMES_30;
 };
 
 const MONTHS = [
@@ -1143,7 +1143,7 @@ function ScheduleNavigation({
               <button
                 key={date.toISOString()}
                 onClick={() => onDateSelect(date)}
-                className={`w-14 h-16 rounded-2xl flex flex-col items-center justify-center transition-all relative ${
+                className={`w-28 h-16 rounded-2xl flex flex-col items-center justify-center transition-all relative ${
                   isSelected
                     ? theme === "LIGHT"
                       ? "bg-[#4f6b28] text-white scale-110 shadow-xl"
@@ -1397,7 +1397,7 @@ function ScheduleGrid({ courts, bookings, selectedDate, theme, onSlotClick, onDr
           </div>
           {times.map((t: string) => (
             <div key={t} className={`h-8 flex items-center border-b ${rowBorder}`}>
-              <span className={`text-[10px] font-black tabular-nums ${timeLabelColor}`}>{t.endsWith(":00") ? t : t.split(":")[1]}</span>
+              <span className={`text-[10px] font-black tabular-nums ${timeLabelColor}`}>{t}</span>
             </div>
           ))}
         </div>
