@@ -246,7 +246,7 @@ export default function EventsAdminView({ theme = "LIGHT", tenantId }: { theme?:
         const bQuery = query(collection(db, "tenants", tenantId, "bookings"), where("eventId", "==", eventId));
         const bSnap = await getDocs(bQuery);
         
-        if (!bSnap.empty) {
+        if (!bSnap.empty && bSnap.docs[0]) {
           await updateDoc(doc(db, "tenants", tenantId, "bookings", bSnap.docs[0].id), bookingData);
         } else {
           await addDoc(collection(db, "tenants", tenantId, "bookings"), {
@@ -258,7 +258,7 @@ export default function EventsAdminView({ theme = "LIGHT", tenantId }: { theme?:
         // If not saving to schedules, delete any existing booking for this event
         const bQuery = query(collection(db, "tenants", tenantId, "bookings"), where("eventId", "==", eventId));
         const bSnap = await getDocs(bQuery);
-        if (!bSnap.empty) {
+        if (!bSnap.empty && bSnap.docs[0]) {
           await deleteDoc(doc(db, "tenants", tenantId, "bookings", bSnap.docs[0].id));
         }
       }
@@ -299,7 +299,7 @@ export default function EventsAdminView({ theme = "LIGHT", tenantId }: { theme?:
       // Also delete any linked booking
       const bQuery = query(collection(db, "tenants", tenantId, "bookings"), where("eventId", "==", confirmDelete));
       const bSnap = await getDocs(bQuery);
-      if (!bSnap.empty) {
+      if (!bSnap.empty && bSnap.docs[0]) {
         await deleteDoc(doc(db, "tenants", tenantId, "bookings", bSnap.docs[0].id));
       }
 
