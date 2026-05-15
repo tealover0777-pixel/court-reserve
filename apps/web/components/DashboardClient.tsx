@@ -16,13 +16,13 @@ import SchedulesAdminView from "./SchedulesAdminView";
 import MemberAdminView from "./MemberAdminView";
 import { Modal } from "@repo/ui/modal";
 import { useAuth } from "../context/AuthContext";
-import { 
-  collection, 
-  onSnapshot, 
-  query, 
-  orderBy, 
-  doc, 
-  updateDoc, 
+import {
+  collection,
+  onSnapshot,
+  query,
+  orderBy,
+  doc,
+  updateDoc,
   deleteDoc,
   arrayRemove,
   serverTimestamp,
@@ -100,10 +100,10 @@ export default function DashboardClient({ params }: { params: { tenantId: string
       const match = roleIds.includes(r.role_id) || roleIds.includes(r.id);
       return match;
     });
-    console.log("[Dashboard] userRoles debug:", { 
-      roleIds, 
+    console.log("[Dashboard] userRoles debug:", {
+      roleIds,
       rolesAvailable: roles.map(r => ({ id: r.id, role_id: r.role_id })),
-      filteredCount: filtered.length 
+      filteredCount: filtered.length
     });
     return filtered;
   }, [roles, profile]);
@@ -118,7 +118,7 @@ export default function DashboardClient({ params }: { params: { tenantId: string
     return permsArray;
   }, [userRoles]);
 
-  const isSuperAdmin = React.useMemo(() => 
+  const isSuperAdmin = React.useMemo(() =>
     userRoles.some(r => (r.IsGlobal === true || r.is_global === true)), [userRoles]);
 
   const hasPermission = (perm: string) => {
@@ -265,7 +265,7 @@ export default function DashboardClient({ params }: { params: { tenantId: string
       setUserSchedule(combined.filter(item => {
         const itemDate = item.type === "EVENT" ? (item.date?.toDate ? item.date.toDate() : new Date(item.date)) : new Date(item.date);
         const now = new Date();
-        now.setHours(0,0,0,0);
+        now.setHours(0, 0, 0, 0);
         return itemDate >= now;
       }));
     };
@@ -344,8 +344,8 @@ export default function DashboardClient({ params }: { params: { tenantId: string
 
   return (
     <div className={`min-h-screen transition-colors duration-500 theme-${theme.toLowerCase()} bg-background text-on-background selection:bg-primary/30 font-body`}>
-      <Sidebar 
-        activeView={activeView} 
+      <Sidebar
+        activeView={activeView}
         setActiveView={handleViewChange}
         platformAdminOpen={platformAdminOpen}
         setPlatformAdminOpen={setPlatformAdminOpen}
@@ -461,7 +461,7 @@ export default function DashboardClient({ params }: { params: { tenantId: string
             <span className="material-symbols-outlined absolute right-4 top-2 transition-colors text-on-surface/40">search</span>
           </div>
           <div className="flex items-center gap-4 text-primary">
-            <button 
+            <button
               onClick={() => {
                 setShowNotificationsModal(true);
                 markAllAsRead();
@@ -482,7 +482,7 @@ export default function DashboardClient({ params }: { params: { tenantId: string
       <main className="ml-[320px] min-h-screen p-12 transition-colors duration-500 bg-background">
         {(() => {
           const requiredPerm = VIEW_PERMISSIONS[activeView];
-          
+
           // 1. Still loading profile or roles
           if (authLoading || (profile && roles.length === 0)) {
             return (
@@ -500,7 +500,7 @@ export default function DashboardClient({ params }: { params: { tenantId: string
                 <span className="material-symbols-outlined text-6xl mb-4">lock</span>
                 <h3 className="text-2xl font-black uppercase tracking-widest">Access Denied</h3>
                 <p className="mt-2 text-sm text-center max-w-md opacity-70">
-                  You are logged in as <span className="font-bold">{profile.email}</span>. 
+                  You are logged in as <span className="font-bold">{profile.email}</span>.
                   Your current role (<span className="font-bold">{profile.role}</span>) does not have permission to view the <span className="font-bold">{activeView}</span>.
                 </p>
                 {profile.tenant_id && (
@@ -515,7 +515,7 @@ export default function DashboardClient({ params }: { params: { tenantId: string
               </div>
             );
           }
-          
+
           // 3. Render the view
           if (activeView === "DASHBOARD") return <DashboardHome theme={theme} profile={profile} tenantId={tenantId} authUser={authUser} userSchedule={userSchedule} onRemoveFromSchedule={handleRemoveFromSchedule} />;
           if (activeView === "AI_ADMIN") return <AIAdminView theme={theme} />;
@@ -591,9 +591,9 @@ function Sidebar({ activeView, setActiveView, platformAdminOpen, setPlatformAdmi
               LINWOOD COURT
             </h1>
             <p className="text-[8px] font-black uppercase tracking-[0.3em] mt-1 transition-colors text-on-surface/40 font-body">
-              {tenantId === "consolidated" ? "CONSOLIDATED" : 
-               (allTenants?.find((t:any) => t.tenant_id === tenantId || t.id === tenantId)?.name || 
-                (tenantId ? tenantId.toUpperCase() : "PLATFORM"))}
+              {tenantId === "consolidated" ? "CONSOLIDATED" :
+                (allTenants?.find((t: any) => t.tenant_id === tenantId || t.id === tenantId)?.name ||
+                  (tenantId ? tenantId.toUpperCase() : "PLATFORM"))}
             </p>
           </div>
         </div>
@@ -643,7 +643,7 @@ function Sidebar({ activeView, setActiveView, platformAdminOpen, setPlatformAdmi
             >
               <div className="flex items-center gap-5">
                 <span className={`material-symbols-outlined text-2xl transition-colors ${platformAdminOpen ? "text-primary" : "text-on-surface-variant/60 group-hover:text-primary"}`}>hub</span>
-                <span className={`text-base font-black uppercase tracking-[0.2em] transition-colors ${platformAdminOpen ? "text-on-surface" : "text-on-surface-variant/70 group-hover:text-primary"} font-headline`}>Platform Admin</span>
+                <span className={`text-base font-black uppercase tracking-[0.2em] transition-colors ${platformAdminOpen ? "text-on-surface" : "text-on-surface-variant/70 group-hover:text-primary"} font-headline`}>Platform</span>
               </div>
               <span className={`material-symbols-outlined text-sm transition-transform duration-300 ${platformAdminOpen ? "rotate-180 text-primary" : "text-on-surface-variant"}`}>expand_more</span>
             </button>
@@ -716,7 +716,7 @@ function Sidebar({ activeView, setActiveView, platformAdminOpen, setPlatformAdmi
 
       {/* User Profile Section */}
       <div className="p-4 mt-auto">
-        <div 
+        <div
           onClick={() => setActiveView("PROFILE")}
           className={`flex items-center gap-3 p-4 rounded-3xl transition-all duration-500 relative overflow-hidden group cursor-pointer hover:shadow-xl hover:scale-[1.02] border border-outline/5 ${activeView === "PROFILE" ? "bg-primary-container shadow-inner" : "bg-surface-container-low hover:bg-surface-container"}`}
         >
@@ -801,7 +801,7 @@ function DashboardHome({ theme, profile, tenantId, authUser, userSchedule, onRem
             <StatCard label="Matches" value="124" trend="Total" icon="sports_tennis" theme={theme} />
             <StatCard label="Loyalty Points" value="2,450" trend="Active" icon="workspace_premium" theme={theme} variant="yellow" />
           </div>
-          
+
           {/* Featured Match Card */}
           <div className="rounded-[2.5rem] p-12 relative overflow-hidden group cursor-pointer shadow-xl transition-all hover:scale-[1.01] bg-primary">
             <div className="absolute inset-0 opacity-10 bg-[url('/images/clay_court.png')] bg-cover bg-center mix-blend-overlay"></div>
@@ -880,7 +880,7 @@ function DashboardHome({ theme, profile, tenantId, authUser, userSchedule, onRem
         </h4>
         <div className="grid grid-cols-12 gap-10">
           {featuredEvent ? (
-            <div 
+            <div
               onClick={() => setSelectedEvent(featuredEvent)}
               className={`col-span-12 md:col-span-7 group cursor-pointer overflow-hidden rounded-[2.5rem] relative h-[500px] shadow-2xl transition-all duration-700 hover:scale-[1.01]`}
             >
@@ -907,12 +907,12 @@ function DashboardHome({ theme, profile, tenantId, authUser, userSchedule, onRem
           <div className="col-span-12 md:col-span-5 flex flex-col gap-4">
             {otherEvents.length > 0 ? (
               otherEvents.map(event => (
-                <NewsItem 
-                  key={event.id} 
-                  theme={theme} 
-                  title={event.title} 
-                  subtitle={event.description} 
-                  tag={event.tag} 
+                <NewsItem
+                  key={event.id}
+                  theme={theme}
+                  title={event.title}
+                  subtitle={event.description}
+                  tag={event.tag}
                   onClick={() => setSelectedEvent(event)}
                 />
               ))
@@ -1084,15 +1084,15 @@ function BookingCard({ court, date, time, partner, avatar, highlight = false, th
   return (
     <div className={`min-w-[320px] p-10 rounded-[2.5rem] transition-all duration-500 group relative overflow-hidden bg-surface-container-low`}>
       <div className="flex justify-between items-start mb-10 relative z-10">
-        <div className={`px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest ${highlight 
-          ? "bg-primary text-on-primary" 
+        <div className={`px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest ${highlight
+          ? "bg-primary text-on-primary"
           : "bg-surface-container-high text-on-surface"}`}>
           {court}
         </div>
         <div className="relative group/menu">
           <button className={`material-symbols-outlined w-8 h-8 rounded-lg flex items-center justify-center transition-colors text-on-surface-variant hover:text-primary hover:bg-surface-container-highest`}>more_vert</button>
           <div className={`absolute right-0 top-full mt-2 w-48 rounded-2xl shadow-2xl opacity-0 translate-y-2 pointer-events-none group-hover/menu:opacity-100 group-hover/menu:translate-y-0 group-hover/menu:pointer-events-auto transition-all z-20 overflow-hidden bg-surface-container-high border border-outline/10`}>
-            <button 
+            <button
               onClick={onRemove}
               className="w-full px-5 py-4 text-left text-[10px] font-black uppercase tracking-widest text-red-500 hover:bg-red-500/10 transition-colors flex items-center gap-3"
             >
@@ -1814,9 +1814,8 @@ function SettingsView({ theme }: { theme: "LIGHT" | "DARK" | "VINTAGE" }) {
   return (
     <div className="max-w-4xl space-y-16 animate-in fade-in slide-in-from-bottom-4 duration-700">
       <div className="flex flex-col gap-4">
-        <h2 className={`text-6xl font-black tracking-tighter uppercase transition-colors ${
-          theme === "DARK" ? "text-white" : theme === "LIGHT" ? "text-on-surface" : "text-black"
-        }`} style={{ fontFamily: 'Lexend, sans-serif' }}>
+        <h2 className={`text-6xl font-black tracking-tighter uppercase transition-colors ${theme === "DARK" ? "text-white" : theme === "LIGHT" ? "text-on-surface" : "text-black"
+          }`} style={{ fontFamily: 'Lexend, sans-serif' }}>
           PREFERENCES
         </h2>
       </div>
@@ -1828,37 +1827,31 @@ function SettingsView({ theme }: { theme: "LIGHT" | "DARK" | "VINTAGE" }) {
           { icon: "history", title: "ACTIVITY HISTORY", desc: "Log match results and training progress", active: false },
           { icon: "mail", title: "NEWSLETTER", desc: "Weekly club updates and clinic openings", active: true }
         ].map((opt, i) => (
-          <div key={i} className={`flex items-center justify-between p-10 rounded-[2.5rem] border transition-all duration-300 hover:shadow-xl hover:scale-[1.01] ${
-            theme === "DARK" ? "bg-stone-900 border-stone-800" :
-            theme === "VINTAGE" ? "bg-white border-stone-50" :
-            "bg-white border-outline/5 shadow-sm"
-          }`}>
+          <div key={i} className={`flex items-center justify-between p-10 rounded-[2.5rem] border transition-all duration-300 hover:shadow-xl hover:scale-[1.01] ${theme === "DARK" ? "bg-stone-900 border-stone-800" :
+              theme === "VINTAGE" ? "bg-white border-stone-50" :
+                "bg-white border-outline/5 shadow-sm"
+            }`}>
             <div className="flex items-center gap-8">
-              <div className={`w-16 h-16 rounded-3xl flex items-center justify-center transition-all ${
-                theme === "DARK" ? "bg-stone-800 text-primary" : 
-                theme === "LIGHT" ? "bg-surface-container text-primary" : 
-                "bg-stone-50 text-stone-900"
-              }`}>
+              <div className={`w-16 h-16 rounded-3xl flex items-center justify-center transition-all ${theme === "DARK" ? "bg-stone-800 text-primary" :
+                  theme === "LIGHT" ? "bg-surface-container text-primary" :
+                    "bg-stone-50 text-stone-900"
+                }`}>
                 <span className="material-symbols-outlined text-3xl opacity-80">{opt.icon}</span>
               </div>
               <div>
-                <h4 className={`font-black text-xl tracking-tight transition-colors ${
-                  theme === "DARK" ? "text-white" : "text-on-surface"
-                }`} style={{ fontFamily: 'Lexend, sans-serif' }}>{opt.title}</h4>
-                <p className={`${
-                  theme === "DARK" ? "text-stone-400" : "text-on-surface-variant/70"
-                } text-sm font-medium mt-1`}>{opt.desc}</p>
+                <h4 className={`font-black text-xl tracking-tight transition-colors ${theme === "DARK" ? "text-white" : "text-on-surface"
+                  }`} style={{ fontFamily: 'Lexend, sans-serif' }}>{opt.title}</h4>
+                <p className={`${theme === "DARK" ? "text-stone-400" : "text-on-surface-variant/70"
+                  } text-sm font-medium mt-1`}>{opt.desc}</p>
               </div>
             </div>
-            
-            <button className={`w-16 h-9 rounded-full relative transition-all duration-500 ease-in-out ${
-              opt.active 
-                ? (theme === "LIGHT" ? "bg-primary shadow-lg shadow-primary/20" : "bg-primary") 
+
+            <button className={`w-16 h-9 rounded-full relative transition-all duration-500 ease-in-out ${opt.active
+                ? (theme === "LIGHT" ? "bg-primary shadow-lg shadow-primary/20" : "bg-primary")
                 : (theme === "DARK" ? "bg-stone-800" : "bg-stone-100")
-            }`}>
-              <div className={`absolute top-1.5 w-6 h-6 bg-white rounded-full shadow-md transition-all duration-500 ease-in-out ${
-                opt.active ? "translate-x-8" : "translate-x-2"
-              }`}></div>
+              }`}>
+              <div className={`absolute top-1.5 w-6 h-6 bg-white rounded-full shadow-md transition-all duration-500 ease-in-out ${opt.active ? "translate-x-8" : "translate-x-2"
+                }`}></div>
             </button>
           </div>
         ))}
