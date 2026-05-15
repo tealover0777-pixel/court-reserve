@@ -210,8 +210,16 @@ export default function EventsAdminView({ theme = "LIGHT", tenantId }: { theme?:
   }, [tenantId]);
 
   const handleSaveEvent = async (force = false) => {
-    if (!formData.title || !formData.start_date || !tenantId) {
-      console.warn("[handleSaveEvent] Missing required fields:", { title: !!formData.title, start_date: !!formData.start_date, tenantId: !!tenantId });
+    if (!formData.title) {
+      setError("Please enter an event title.");
+      return;
+    }
+    if (!formData.start_date) {
+      setError("Please select a start date.");
+      return;
+    }
+    if (!tenantId) {
+      setError("Tenant information is missing.");
       return;
     }
 
@@ -219,8 +227,15 @@ export default function EventsAdminView({ theme = "LIGHT", tenantId }: { theme?:
     const endDateTime = new Date(`${formData.end_date}T${formData.end_time}`);
 
     if (isNaN(startDateTime.getTime()) || isNaN(endDateTime.getTime())) {
-      console.error("[handleSaveEvent] Invalid Date:", { startDateTime, endDateTime, start_date: formData.start_date, start_time: formData.start_time, end_date: formData.end_date, end_time: formData.end_time });
-      setError("Invalid date or time selected.");
+      console.error("[handleSaveEvent] Invalid Date parsing:", { 
+        startDateTime, 
+        endDateTime, 
+        start_date: formData.start_date, 
+        start_time: formData.start_time, 
+        end_date: formData.end_date, 
+        end_time: formData.end_time 
+      });
+      setError("Invalid date or time selected. Please check your inputs.");
       return;
     }
 
@@ -545,7 +560,9 @@ export default function EventsAdminView({ theme = "LIGHT", tenantId }: { theme?:
               className={`w-full sm:w-auto px-8 py-4 rounded-2xl text-[10px] font-black tracking-widest uppercase transition-all shadow-2xl flex items-center justify-center gap-3 ${
                 theme === "DARK" 
                   ? "bg-[#ccff00] text-stone-950 hover:scale-[1.02] active:scale-[0.98] shadow-[#ccff00]/20" 
-                  : "bg-stone-900 text-white hover:bg-stone-800 shadow-black/20"
+                  : theme === "VINTAGE"
+                    ? "bg-black text-white hover:bg-stone-800 shadow-black/20"
+                    : "bg-[#ccff00] text-[#4f6b28] hover:brightness-105 active:scale-95 shadow-[#ccff00]/10"
               }`}
             >
               <span className="material-symbols-outlined text-lg">add_circle</span>
@@ -640,7 +657,12 @@ export default function EventsAdminView({ theme = "LIGHT", tenantId }: { theme?:
             <button
               onClick={() => handleSaveEvent(false)}
               disabled={isSaving}
-              className={`flex-1 py-4 rounded-2xl text-[10px] font-black tracking-widest uppercase transition-all shadow-xl flex items-center justify-center gap-3 ${theme === "DARK" ? "bg-[#ccff00] text-stone-950 shadow-[#ccff00]/20" : "bg-stone-900 text-white shadow-black/20"
+              className={`flex-1 py-4 rounded-2xl text-[10px] font-black tracking-widest uppercase transition-all shadow-xl flex items-center justify-center gap-3 ${
+                theme === "DARK" 
+                  ? "bg-[#ccff00] text-stone-950 shadow-[#ccff00]/20" 
+                  : theme === "VINTAGE" 
+                    ? "bg-black text-white shadow-black/20"
+                    : "bg-[#ccff00] text-[#4f6b28] shadow-[#ccff00]/10 hover:brightness-105 active:scale-95"
                 }`}
             >
               {isSaving ? "SAVING..." : "SAVE EVENT"}

@@ -1057,32 +1057,31 @@ function DashboardHome({ theme, profile, tenantId, authUser, userSchedule, onRem
 function ThemeSelector({ theme, setTheme }: { theme: "LIGHT" | "DARK" | "VINTAGE", setTheme: (t: "LIGHT" | "DARK" | "VINTAGE") => void }) {
   return (
     <div className={`flex items-center gap-1 p-1 rounded-full border transition-colors duration-500 ${theme === "DARK" ? "bg-stone-900 border-stone-800" :
-      theme === "VINTAGE" ? "bg-stone-900 border-stone-800" :
-        "bg-stone-900 border-stone-800"
+      "bg-stone-50 border-stone-200"
       }`}>
-      <div className={`px-4 py-1.5 flex items-center gap-2 border-r mr-1 transition-colors ${theme === "DARK" ? "border-stone-800" : "border-stone-800"
+      <div className={`px-4 py-1.5 flex items-center gap-2 border-r mr-1 transition-colors ${theme === "DARK" ? "border-stone-800" : "border-stone-200"
         }`}>
-        <span className="text-[10px] font-black uppercase tracking-widest text-white">
+        <span className={`text-[10px] font-black uppercase tracking-widest ${theme === "DARK" ? "text-white" : "text-stone-900"}`}>
           {theme === "VINTAGE" ? "light mode" : theme === "DARK" ? "Dark mode" : "Kinetic Lemon"}
         </span>
       </div>
       <button
         onClick={() => setTheme("LIGHT")}
-        className={`p-1.5 rounded-full transition-all flex items-center justify-center ${theme === "LIGHT" ? "bg-white shadow-sm ring-1 ring-[#4f6b28]/10" : "text-stone-500 hover:text-stone-400"}`}
+        className={`p-1.5 rounded-full transition-all flex items-center justify-center ${theme === "LIGHT" ? "bg-white shadow-sm ring-1 ring-[#4f6b28]/10" : "text-stone-500 hover:bg-stone-900 hover:text-white"}`}
         title="Light Mode"
       >
         <span className={`material-symbols-outlined text-sm ${theme === "LIGHT" ? "text-[#4f6b28]" : ""}`}>sports_tennis</span>
       </button>
       <button
         onClick={() => setTheme("DARK")}
-        className={`p-1.5 rounded-full transition-all flex items-center justify-center ${theme === "DARK" ? "bg-stone-800 shadow-sm" : "text-stone-200 hover:text-stone-100"}`}
+        className={`p-1.5 rounded-full transition-all flex items-center justify-center ${theme === "DARK" ? "bg-stone-800 shadow-sm" : "text-stone-500 hover:bg-stone-900 hover:text-white"}`}
         title="Dark Mode"
       >
         <span className={`material-symbols-outlined text-sm ${theme === "DARK" ? "text-[#ccff00]" : ""}`}>dark_mode</span>
       </button>
       <button
         onClick={() => setTheme("VINTAGE")}
-        className={`p-1.5 rounded-full transition-all flex items-center justify-center ${theme === "VINTAGE" ? "bg-black shadow-sm text-white" : "text-stone-800 hover:text-stone-900"}`}
+        className={`p-1.5 rounded-full transition-all flex items-center justify-center ${theme === "VINTAGE" ? "bg-black shadow-sm text-white" : "text-stone-500 hover:bg-stone-900 hover:text-white"}`}
         title="Vintage Mode"
       >
         <span className="material-symbols-outlined text-sm">light_mode</span>
