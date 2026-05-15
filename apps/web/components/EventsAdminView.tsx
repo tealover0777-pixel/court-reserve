@@ -1027,9 +1027,11 @@ function TimePicker({ value, onChange, theme }: { value: string; onChange: (val:
     isDark ? "bg-stone-950 border-stone-800 text-white" : "bg-white border-stone-200 text-stone-900 shadow-sm"
   }`;
   const selectCls = `bg-transparent outline-none font-bold text-sm cursor-pointer appearance-none w-full transition-colors ${
-    isDark 
-      ? "hover:bg-stone-800 hover:text-white focus:bg-stone-800 focus:text-white" 
-      : "hover:bg-stone-950 hover:text-white focus:bg-stone-950 focus:text-white"
+    theme === "DARK" 
+      ? "hover:bg-stone-800 hover:text-white focus:bg-stone-800 focus:text-white text-white" 
+      : theme === "VINTAGE"
+        ? "hover:bg-stone-100 focus:bg-stone-100 text-stone-900"
+        : "hover:bg-stone-100 focus:bg-stone-100 text-[#4f6b28]" // Kinetic Lemon
   }`;
 
   const times = Array.from({ length: 48 }).map((_, i) => {
@@ -1046,7 +1048,15 @@ function TimePicker({ value, onChange, theme }: { value: string; onChange: (val:
         className={selectCls}
       >
         {times.map(t => (
-          <option key={t} value={t} className={isDark ? "bg-stone-900 text-white" : "bg-white text-stone-900"}>
+          <option 
+            key={t} 
+            value={t} 
+            className={
+              theme === "DARK" ? "bg-stone-900 text-white" : 
+              theme === "LIGHT" ? "bg-white text-[#4f6b28]" : 
+              "bg-white text-stone-900"
+            }
+          >
             {t}
           </option>
         ))}
@@ -1080,9 +1090,11 @@ function PremiumDateTimePicker({ value, onChange, theme, placeholder }: {
   }`;
 
   const selectCls = `bg-transparent outline-none font-bold text-sm cursor-pointer appearance-none px-2 py-1 rounded-lg transition-colors ${
-    isDark 
-      ? "hover:bg-stone-800 hover:text-white focus:bg-stone-800 focus:text-white" 
-      : "hover:bg-stone-950 hover:text-white focus:bg-stone-950 focus:text-white"
+    theme === "DARK" 
+      ? "hover:bg-stone-800 hover:text-white focus:bg-stone-800 focus:text-white text-white" 
+      : theme === "VINTAGE"
+        ? "hover:bg-stone-100 focus:bg-stone-100 text-stone-900"
+        : "hover:bg-stone-100 focus:bg-stone-100 text-[#4f6b28]" // Kinetic Lemon
   }`;
 
   return (
@@ -1107,7 +1119,19 @@ function PremiumDateTimePicker({ value, onChange, theme, placeholder }: {
             const h = Math.floor(i / 2).toString().padStart(2, "0");
             const m = (i % 2 === 0 ? "00" : "30");
             const t = `${h}:${m}`;
-            return <option key={t} value={t} className={isDark ? "bg-stone-900 text-white" : "bg-white text-stone-900"}>{t}</option>;
+            return (
+              <option 
+                key={t} 
+                value={t} 
+                className={
+                  theme === "DARK" ? "bg-stone-900 text-white" : 
+                  theme === "LIGHT" ? "bg-white text-[#4f6b28]" : 
+                  "bg-white text-stone-900"
+                }
+              >
+                {t}
+              </option>
+            );
           })}
         </select>
       </div>
