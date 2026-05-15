@@ -567,10 +567,31 @@ export default function EventsAdminView({ theme = "LIGHT", tenantId }: { theme?:
             />
           </div>
 
-          <div className="flex flex-col gap-6">
+          <div className="col-span-2 grid grid-cols-2 gap-8">
+            <div>
+              <label className={labelCls}>Start Date & Time</label>
+              <PremiumDateTimePicker
+                value={formData.date}
+                onChange={val => setFormData({ ...formData, date: val })}
+                theme={theme}
+              />
+            </div>
+
+            <div className={formData.use_end_date ? "opacity-100" : "opacity-30 pointer-events-none grayscale"}>
+              <label className={labelCls}>End Date & Time {!formData.use_end_date && "(Disabled)"}</label>
+              <PremiumDateTimePicker
+                value={formData.end_date}
+                onChange={val => setFormData({ ...formData, end_date: val })}
+                theme={theme}
+                placeholder="Set end time..."
+              />
+            </div>
+          </div>
+
+          <div className="col-span-2 grid grid-cols-2 gap-8">
             <div className="flex items-center justify-between p-4 rounded-2xl border border-dashed border-stone-200 dark:border-stone-800">
               <div className="space-y-1">
-                <h4 className={`text-xs font-black uppercase tracking-tight ${theme === "DARK" ? "text-white" : "text-stone-900"}`}>Use End Date & Time</h4>
+                <h4 className={`text-xs font-black uppercase tracking-tight ${theme === "DARK" ? "text-white" : "text-stone-900"}`}>Use End Date</h4>
                 <p className="text-[10px] text-stone-400 font-medium italic">Uncheck for open-ended events</p>
               </div>
               <label className="relative inline-flex items-center cursor-pointer">
@@ -584,33 +605,10 @@ export default function EventsAdminView({ theme = "LIGHT", tenantId }: { theme?:
               </label>
             </div>
 
-            <div className="grid grid-cols-2 gap-8">
-              <div>
-                <label className={labelCls}>Start Date & Time</label>
-                <PremiumDateTimePicker
-                  value={formData.date}
-                  onChange={val => setFormData({ ...formData, date: val })}
-                  theme={theme}
-                />
-              </div>
-
-              <div className={formData.use_end_date ? "opacity-100" : "opacity-30 pointer-events-none grayscale"}>
-                <label className={labelCls}>End Date & Time</label>
-                <PremiumDateTimePicker
-                  value={formData.end_date}
-                  onChange={val => setFormData({ ...formData, end_date: val })}
-                  theme={theme}
-                  placeholder="Set end time..."
-                />
-              </div>
-            </div>
-          </div>
-
-          <div className="col-span-2 space-y-6">
             <div className="flex items-center justify-between p-4 rounded-2xl border border-dashed border-stone-200 dark:border-stone-800">
               <div className="space-y-1">
                 <h4 className={`text-xs font-black uppercase tracking-tight ${theme === "DARK" ? "text-white" : "text-stone-900"}`}>Save on SCHEDULES</h4>
-                <p className="text-[10px] text-stone-400 font-medium italic">Blocks the selected court for this event</p>
+                <p className="text-[10px] text-stone-400 font-medium italic">Blocks court for this event</p>
               </div>
               <label className="relative inline-flex items-center cursor-pointer">
                 <input 
@@ -622,25 +620,25 @@ export default function EventsAdminView({ theme = "LIGHT", tenantId }: { theme?:
                 <div className="w-11 h-6 bg-stone-200 peer-focus:outline-none rounded-full peer dark:bg-stone-800 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-[#ccff00]"></div>
               </label>
             </div>
-
-            {formData.save_to_schedules && (
-              <div className="animate-in slide-in-from-top-2 duration-300">
-                <label className={labelCls}>Select Court for Schedule</label>
-                <select
-                  value={formData.court_id}
-                  onChange={e => setFormData({ ...formData, court_id: e.target.value })}
-                  className={inputCls}
-                >
-                  <option value="" disabled>Select a court</option>
-                  {courts.map(court => (
-                    <option key={court.id || court.name} value={court.id || court.name}>
-                      {court.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            )}
           </div>
+
+          {formData.save_to_schedules && (
+            <div className="col-span-2 animate-in slide-in-from-top-2 duration-300">
+              <label className={labelCls}>Select Court for Schedule</label>
+              <select
+                value={formData.court_id}
+                onChange={e => setFormData({ ...formData, court_id: e.target.value })}
+                className={inputCls}
+              >
+                <option value="" disabled>Select a court</option>
+                {courts.map(court => (
+                  <option key={court.id || court.name} value={court.id || court.name}>
+                    {court.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
 
           <div>
             <label className={labelCls}>Max Participants</label>
