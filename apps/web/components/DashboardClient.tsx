@@ -778,7 +778,7 @@ function DashboardHome({ theme, profile, tenantId, authUser, userSchedule, onRem
           <img
             src="/images/clay_court.png"
             alt="Tennis court"
-            className="w-full h-full object-cover opacity-20 scale-105"
+            className="w-full h-full object-cover opacity-40 scale-105"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-surface to-transparent"></div>
         </div>
@@ -802,7 +802,7 @@ function DashboardHome({ theme, profile, tenantId, authUser, userSchedule, onRem
 
           {/* Featured Match Card */}
           <div className="rounded-[2.5rem] p-12 relative overflow-hidden group cursor-pointer shadow-xl transition-all hover:scale-[1.01] bg-primary">
-            <div className="absolute inset-0 opacity-10 bg-[url('/images/clay_court.png')] bg-cover bg-center mix-blend-overlay"></div>
+            <div className="absolute inset-0 opacity-30 bg-[url('/images/clay_court.png')] bg-cover bg-center mix-blend-overlay"></div>
             <div className="relative z-10 flex justify-between items-center">
               <div>
                 <span className="px-4 py-1 rounded-full text-[9px] font-black tracking-widest uppercase bg-white/20 text-white mb-4 inline-block">Scheduled: Tomorrow</span>
