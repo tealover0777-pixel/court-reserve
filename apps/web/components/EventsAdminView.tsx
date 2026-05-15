@@ -48,11 +48,17 @@ const getOccurrences = (
   endDateStr: string
 ): Date[] => {
   if (type === "none") return [start];
+  if (isNaN(start.getTime())) return [];
   
   const occurrences: Date[] = [];
   let current = new Date(start);
   const max = 30;
-  const limitDate = until === "date" && endDateStr ? new Date(`${endDateStr}T23:59:59`) : null;
+  
+  let limitDate: Date | null = null;
+  if (until === "date" && endDateStr) {
+    limitDate = new Date(`${endDateStr}T23:59:59`);
+    if (isNaN(limitDate.getTime())) limitDate = null;
+  }
 
   while (occurrences.length < max) {
     if (until === "date" && limitDate && current > limitDate) break;
@@ -63,6 +69,8 @@ const getOccurrences = (
     if (type === "daily") current = addDays(current, 1);
     else if (type === "weekly") current = addWeeks(current, 1);
     else if (type === "monthly") current = addMonths(current, 1);
+    
+    if (isNaN(current.getTime())) break;
   }
   
   return occurrences;
@@ -201,10 +209,19 @@ export default function EventsAdminView({ theme = "LIGHT", tenantId }: { theme?:
   }, [tenantId]);
 
   const handleSaveEvent = async (force = false) => {
-    if (!formData.title || !formData.start_date || !tenantId) return;
+    if (!formData.title || !formData.start_date || !tenantId) {
+      console.warn("[handleSaveEvent] Missing required fields:", { title: !!formData.title, start_date: !!formData.start_date, tenantId: !!tenantId });
+      return;
+    }
 
     const startDateTime = new Date(`${formData.start_date}T${formData.start_time}`);
     const endDateTime = new Date(`${formData.end_date}T${formData.end_time}`);
+
+    if (isNaN(startDateTime.getTime()) || isNaN(endDateTime.getTime())) {
+      console.error("[handleSaveEvent] Invalid Date:", { startDateTime, endDateTime, start_date: formData.start_date, start_time: formData.start_time, end_date: formData.end_date, end_time: formData.end_time });
+      alert("Invalid date or time selected.");
+      return;
+    }
 
     const durationHours = (endDateTime.getTime() - startDateTime.getTime()) / (60 * 60 * 1000);
 
