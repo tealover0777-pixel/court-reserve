@@ -18,4 +18,8 @@ export interface Event {
   created_at: Timestamp | any;
   updated_at: Timestamp | any;
   tenant_id: string;
+  use_end_date?: boolean;
+  save_to_schedules?: boolean;
+  court_id?: string;
+  court_name?: string;
 }

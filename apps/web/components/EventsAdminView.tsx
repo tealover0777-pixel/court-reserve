@@ -85,8 +85,12 @@ export default function EventsAdminView({ theme = "LIGHT", tenantId }: { theme?:
     cancellation_deadline: "",
     image_url: "",
     tag: "",
-    event_leaders: [] as string[]
+    event_leaders: [] as string[],
+    use_end_date: true,
+    save_to_schedules: false,
+    court_id: ""
   });
+  const [courts, setCourts] = useState<any[]>([]);
   const [categories, setCategories] = useState<string[]>([]);
 
   // Common UI classes
@@ -139,7 +143,18 @@ export default function EventsAdminView({ theme = "LIGHT", tenantId }: { theme?:
     };
     fetchCategories();
 
-    return () => unsubscribe();
+    // Fetch tenant configuration (including courts)
+    const unsubTenant = onSnapshot(doc(db, "tenants", tenantId), (snap) => {
+      if (snap.exists()) {
+        const data = snap.data();
+        setCourts(data.courts || []);
+      }
+    });
+ 
+    return () => {
+      unsubscribe();
+      unsubTenant();
+    };
   }, [tenantId]);
 
   const handleSaveEvent = async (force = false) => {
@@ -182,18 +197,70 @@ export default function EventsAdminView({ theme = "LIGHT", tenantId }: { theme?:
         cancellation_deadline: formData.cancellation_deadline ? new Date(formData.cancellation_deadline) : null,
         max_participants: Number(formData.max_participants),
         updated_at: serverTimestamp(),
-        tenant_id: tenantId
+        tenant_id: tenantId,
+        use_end_date: formData.use_end_date,
+        save_to_schedules: formData.save_to_schedules,
+        court_id: formData.court_id,
+        court_name: courts.find(c => (c.id || c.name) === formData.court_id)?.name || ""
       };
-
+ 
+      let eventId = editingEvent?.id;
       if (editingEvent) {
         await updateDoc(doc(db, "tenants", tenantId, "events", editingEvent.id), payload);
       } else {
-        await addDoc(collection(db, "tenants", tenantId, "events"), {
+        const docRef = await addDoc(collection(db, "tenants", tenantId, "events"), {
           ...payload,
           signups: [],
           waiting_list: [],
           created_at: serverTimestamp()
         });
+        eventId = docRef.id;
+      }
+
+      // Handle Scheduling Sync
+      if (formData.save_to_schedules && formData.court_id) {
+        const selectedCourt = courts.find(c => (c.id || c.name) === formData.court_id);
+        const eventStart = new Date(formData.date);
+        const eventEnd = formData.use_end_date && formData.end_date 
+          ? new Date(formData.end_date) 
+          : new Date(eventStart.getTime() + 2 * 60 * 60 * 1000);
+        
+        const duration = (eventEnd.getTime() - eventStart.getTime()) / (60 * 60 * 1000);
+        
+        const bookingData = {
+          date: eventStart.toDateString(),
+          time: format(eventStart, "HH:mm"),
+          endTime: format(eventEnd, "HH:mm"),
+          duration: duration,
+          courtId: formData.court_id,
+          courtName: selectedCourt?.name || "Unknown Court",
+          userId: "CLUB_EVENT", // Special marker
+          userName: `Event: ${formData.title}`,
+          userEmail: "club@event.com",
+          eventId: eventId,
+          type: "event",
+          updatedAt: serverTimestamp()
+        };
+
+        // Find existing booking for this event
+        const bQuery = query(collection(db, "tenants", tenantId, "bookings"), where("eventId", "==", eventId));
+        const bSnap = await getDocs(bQuery);
+        
+        if (!bSnap.empty) {
+          await updateDoc(doc(db, "tenants", tenantId, "bookings", bSnap.docs[0].id), bookingData);
+        } else {
+          await addDoc(collection(db, "tenants", tenantId, "bookings"), {
+            ...bookingData,
+            createdAt: serverTimestamp()
+          });
+        }
+      } else {
+        // If not saving to schedules, delete any existing booking for this event
+        const bQuery = query(collection(db, "tenants", tenantId, "bookings"), where("eventId", "==", eventId));
+        const bSnap = await getDocs(bQuery);
+        if (!bSnap.empty) {
+          await deleteDoc(doc(db, "tenants", tenantId, "bookings", bSnap.docs[0].id));
+        }
       }
 
       // If we forced save, cancel the conflicts
@@ -229,6 +296,13 @@ export default function EventsAdminView({ theme = "LIGHT", tenantId }: { theme?:
   const handleDeleteEvent = async () => {
     if (!confirmDelete || !tenantId) return;
     try {
+      // Also delete any linked booking
+      const bQuery = query(collection(db, "tenants", tenantId, "bookings"), where("eventId", "==", confirmDelete));
+      const bSnap = await getDocs(bQuery);
+      if (!bSnap.empty) {
+        await deleteDoc(doc(db, "tenants", tenantId, "bookings", bSnap.docs[0].id));
+      }
+
       await deleteDoc(doc(db, "tenants", tenantId, "events", confirmDelete));
       setConfirmDelete(null);
     } catch (err) {
@@ -267,7 +341,10 @@ export default function EventsAdminView({ theme = "LIGHT", tenantId }: { theme?:
       cancellation_deadline: "",
       image_url: "",
       tag: categories[0] || "",
-      event_leaders: []
+      event_leaders: [],
+      use_end_date: true,
+      save_to_schedules: false,
+      court_id: ""
     });
   };
 
@@ -345,7 +422,10 @@ export default function EventsAdminView({ theme = "LIGHT", tenantId }: { theme?:
                 cancellation_deadline: ev.cancellation_deadline?.toDate ? format(ev.cancellation_deadline.toDate(), "yyyy-MM-dd'T'HH:mm") : (ev.cancellation_deadline ? format(new Date(ev.cancellation_deadline), "yyyy-MM-dd'T'HH:mm") : ""),
                 image_url: ev.image_url || "",
                 tag: ev.tag || "Social",
-                event_leaders: ev.event_leaders || []
+                event_leaders: ev.event_leaders || [],
+                use_end_date: ev.use_end_date !== undefined ? ev.use_end_date : true,
+                save_to_schedules: ev.save_to_schedules || false,
+                court_id: ev.court_id || ""
               });
               setShowEditModal(true);
             }}
@@ -487,23 +567,79 @@ export default function EventsAdminView({ theme = "LIGHT", tenantId }: { theme?:
             />
           </div>
 
-          <div>
-            <label className={labelCls}>Start Date & Time</label>
-            <PremiumDateTimePicker
-              value={formData.date}
-              onChange={val => setFormData({ ...formData, date: val })}
-              theme={theme}
-            />
+          <div className="flex flex-col gap-6">
+            <div className="flex items-center justify-between p-4 rounded-2xl border border-dashed border-stone-200 dark:border-stone-800">
+              <div className="space-y-1">
+                <h4 className={`text-xs font-black uppercase tracking-tight ${theme === "DARK" ? "text-white" : "text-stone-900"}`}>Use End Date & Time</h4>
+                <p className="text-[10px] text-stone-400 font-medium italic">Uncheck for open-ended events</p>
+              </div>
+              <label className="relative inline-flex items-center cursor-pointer">
+                <input 
+                  type="checkbox" 
+                  className="sr-only peer" 
+                  checked={formData.use_end_date}
+                  onChange={(e) => setFormData({ ...formData, use_end_date: e.target.checked })}
+                />
+                <div className="w-11 h-6 bg-stone-200 peer-focus:outline-none rounded-full peer dark:bg-stone-800 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-[#ccff00]"></div>
+              </label>
+            </div>
+
+            <div className="grid grid-cols-2 gap-8">
+              <div>
+                <label className={labelCls}>Start Date & Time</label>
+                <PremiumDateTimePicker
+                  value={formData.date}
+                  onChange={val => setFormData({ ...formData, date: val })}
+                  theme={theme}
+                />
+              </div>
+
+              <div className={formData.use_end_date ? "opacity-100" : "opacity-30 pointer-events-none grayscale"}>
+                <label className={labelCls}>End Date & Time</label>
+                <PremiumDateTimePicker
+                  value={formData.end_date}
+                  onChange={val => setFormData({ ...formData, end_date: val })}
+                  theme={theme}
+                  placeholder="Set end time..."
+                />
+              </div>
+            </div>
           </div>
 
-          <div>
-            <label className={labelCls}>End Date & Time (Optional)</label>
-            <PremiumDateTimePicker
-              value={formData.end_date}
-              onChange={val => setFormData({ ...formData, end_date: val })}
-              theme={theme}
-              placeholder="Set end time..."
-            />
+          <div className="col-span-2 space-y-6">
+            <div className="flex items-center justify-between p-4 rounded-2xl border border-dashed border-stone-200 dark:border-stone-800">
+              <div className="space-y-1">
+                <h4 className={`text-xs font-black uppercase tracking-tight ${theme === "DARK" ? "text-white" : "text-stone-900"}`}>Save on SCHEDULES</h4>
+                <p className="text-[10px] text-stone-400 font-medium italic">Blocks the selected court for this event</p>
+              </div>
+              <label className="relative inline-flex items-center cursor-pointer">
+                <input 
+                  type="checkbox" 
+                  className="sr-only peer" 
+                  checked={formData.save_to_schedules}
+                  onChange={(e) => setFormData({ ...formData, save_to_schedules: e.target.checked })}
+                />
+                <div className="w-11 h-6 bg-stone-200 peer-focus:outline-none rounded-full peer dark:bg-stone-800 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-[#ccff00]"></div>
+              </label>
+            </div>
+
+            {formData.save_to_schedules && (
+              <div className="animate-in slide-in-from-top-2 duration-300">
+                <label className={labelCls}>Select Court for Schedule</label>
+                <select
+                  value={formData.court_id}
+                  onChange={e => setFormData({ ...formData, court_id: e.target.value })}
+                  className={inputCls}
+                >
+                  <option value="" disabled>Select a court</option>
+                  {courts.map(court => (
+                    <option key={court.id || court.name} value={court.id || court.name}>
+                      {court.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
           </div>
 
           <div>
