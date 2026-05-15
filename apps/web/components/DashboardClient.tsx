@@ -581,16 +581,16 @@ function Sidebar({ activeView, setActiveView, platformAdminOpen, setPlatformAdmi
   return (
     <aside className="w-[320px] h-screen flex flex-col transition-all duration-700 ease-in-out z-30 fixed left-0 top-0 bg-surface">
       {/* Brand Header */}
-      <div className="p-10 mb-6">
-        <div className="flex items-center gap-4 group cursor-pointer">
-          <div className="w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-500 group-hover:rotate-[15deg] shadow-lg bg-primary text-on-primary">
-            <span className="material-symbols-outlined text-2xl font-black">sports_tennis</span>
+      <div className="px-8 pt-10 pb-6 mb-4">
+        <div className="flex items-center gap-4 group cursor-pointer" onClick={() => setActiveView("DASHBOARD")}>
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-500 group-hover:rotate-[15deg] shadow-lg bg-primary text-on-primary">
+            <span className="material-symbols-outlined text-xl font-black">sports_tennis</span>
           </div>
           <div>
-            <h1 className="text-2xl font-black italic tracking-tighter leading-none transition-colors text-primary font-headline">
+            <h1 className="text-xl font-black italic tracking-tighter leading-none transition-colors text-primary font-headline">
               LINWOOD COURT
             </h1>
-            <p className="text-[10px] font-black uppercase tracking-[0.3em] mt-1 transition-colors text-on-surface/40 font-body">
+            <p className="text-[8px] font-black uppercase tracking-[0.3em] mt-1 transition-colors text-on-surface/40 font-body">
               {tenantId === "consolidated" ? "CONSOLIDATED" : 
                (allTenants?.find((t:any) => t.tenant_id === tenantId || t.id === tenantId)?.name || 
                 (tenantId ? tenantId.toUpperCase() : "PLATFORM"))}
@@ -600,7 +600,7 @@ function Sidebar({ activeView, setActiveView, platformAdminOpen, setPlatformAdmi
       </div>
 
       {/* Navigation */}
-      <div className="flex-1 px-6 space-y-2 overflow-y-auto hide-scrollbar">
+      <div className="flex-1 space-y-1 overflow-y-auto hide-scrollbar">
         <NavItem
           label="DASHBOARD"
           icon="grid_view"
@@ -631,42 +631,42 @@ function Sidebar({ activeView, setActiveView, platformAdminOpen, setPlatformAdmi
         />
 
         {/* Administration Section */}
-        {(hasPermission('TENANT_ADMIN') || hasPermission('ADMINISTRATION_VIEW') || hasPermission('DIMENSIONS_VIEW') || hasPermission('ROLE_TYPES_VIEW') || hasPermission('USER_ADMIN_VIEW') || isGlobalUser || profile?.role === 'R10005') && (
+        {(hasPermission('TENANT_ADMIN') || hasPermission('ADMINISTRATION_VIEW') || hasPermission('DIMENSIONS_VIEW') || hasPermission('ROLE_TYPES_VIEW') || hasPermission('USER_ADMIN_VIEW') || isGlobalUser || profile?.role?.includes('R10005')) && (
           <div className="mt-10 pt-10 relative">
             {/* Tonal Divider */}
             <div className="absolute top-0 left-4 right-4 h-[1px] bg-outline/10"></div>
-            <p className="px-6 text-[10px] font-black uppercase tracking-[0.2em] mb-4 text-on-surface-variant/50">Administration</p>
+            <p className="px-8 text-[10px] font-black uppercase tracking-[0.2em] mb-4 text-on-surface-variant/50">Administration</p>
 
             <button
               onClick={() => setAdministrationOpen(!administrationOpen)}
-              className={`w-full flex items-center justify-between px-6 py-4 rounded-2xl transition-all duration-300 group ${administrationOpen ? "bg-surface-container-low" : "hover:bg-surface-container-low/50"
+              className={`w-full flex items-center justify-between px-8 py-4 transition-all duration-300 group ${administrationOpen ? "bg-primary-container/10" : "hover:bg-surface-container-high"
                 }`}
             >
               <div className="flex items-center gap-5">
-                <span className={`material-symbols-outlined text-xl transition-colors ${administrationOpen ? "text-primary" : "text-on-surface-variant"}`}>settings</span>
-                <span className={`text-[11px] font-black uppercase tracking-widest transition-colors ${administrationOpen ? "text-on-surface" : "text-on-surface-variant"}`}>Club Settings</span>
+                <span className={`material-symbols-outlined text-2xl transition-colors ${administrationOpen ? "text-primary" : "text-on-surface-variant/60 group-hover:text-primary"}`}>settings</span>
+                <span className={`text-base font-black uppercase tracking-[0.2em] transition-colors ${administrationOpen ? "text-on-surface" : "text-on-surface-variant/70 group-hover:text-primary"} font-headline`}>Club Settings</span>
               </div>
               <span className={`material-symbols-outlined text-sm transition-transform duration-300 ${administrationOpen ? "rotate-180 text-primary" : "text-on-surface-variant"}`}>expand_more</span>
             </button>
 
             {administrationOpen && (
               <div className="mt-2 space-y-1 animate-in fade-in slide-in-from-top-2 duration-300">
-                {(hasPermission('TENANT_ADMIN') || isGlobalUser || profile?.role === 'R10005') && (
+                {(hasPermission('TENANT_ADMIN') || isGlobalUser || profile?.role?.includes('R10005')) && (
                   <SubNavItem label="Company" active={activeView === "COMPANY"} onClick={() => setActiveView("COMPANY")} theme={theme} />
                 )}
-                {(hasPermission('SCHEDULES_VIEW') || profile?.role === 'R10005') && (
+                {(hasPermission('SCHEDULES_VIEW') || profile?.role?.includes('R10005')) && (
                   <SubNavItem label="Schedules" active={activeView === "SCHEDULES"} onClick={() => setActiveView("SCHEDULES")} theme={theme} />
                 )}
-                {(hasPermission('EVENTS_VIEW') || profile?.role === 'R10005') && (
+                {(hasPermission('EVENTS_VIEW') || profile?.role?.includes('R10005')) && (
                   <SubNavItem label="Events" active={activeView === "EVENTS_ADMIN"} onClick={() => setActiveView("EVENTS_ADMIN")} theme={theme} />
                 )}
-                {(hasPermission('USER_ADMIN_VIEW') || profile?.role === 'R10005') && (
+                {(hasPermission('USER_ADMIN_VIEW') || profile?.role?.includes('R10005')) && (
                   <SubNavItem label="Staff" active={activeView === "USER_ADMIN"} onClick={() => setActiveView("USER_ADMIN")} theme={theme} />
                 )}
-                {(hasPermission('MEMBER_ADMIN_VIEW') || profile?.role === 'R10005') && (
+                {(hasPermission('MEMBER_ADMIN_VIEW') || profile?.role?.includes('R10005')) && (
                   <SubNavItem label="Members" active={activeView === "MEMBER_ADMIN"} onClick={() => setActiveView("MEMBER_ADMIN")} theme={theme} />
                 )}
-                {(hasPermission('ROLE_TYPES_VIEW') || profile?.role === 'R10005') && (
+                {(hasPermission('ROLE_TYPES_VIEW') || profile?.role?.includes('R10005')) && (
                   <SubNavItem label="Roles" active={activeView === "ROLE_TYPES"} onClick={() => setActiveView("ROLE_TYPES")} theme={theme} />
                 )}
               </div>
@@ -676,34 +676,36 @@ function Sidebar({ activeView, setActiveView, platformAdminOpen, setPlatformAdmi
       </div>
 
       {/* User Profile Section */}
-      <div className="p-6">
+      <div className="p-4 mt-auto">
         <div 
           onClick={() => setActiveView("PROFILE")}
-          className="p-6 rounded-[2rem] transition-all duration-500 relative overflow-hidden group bg-surface-container-low cursor-pointer hover:shadow-lg hover:scale-[1.02]"
+          className={`flex items-center gap-3 p-4 rounded-3xl transition-all duration-500 relative overflow-hidden group cursor-pointer hover:shadow-xl hover:scale-[1.02] border border-outline/5 ${activeView === "PROFILE" ? "bg-primary-container shadow-inner" : "bg-surface-container-low hover:bg-surface-container"}`}
         >
-          <div className="flex items-center gap-4 relative z-10">
-            <div className="relative">
-              <img
-                src={profile?.portrait_url || profile?.photoURL || "/images/clay_court.png"}
-                alt="Profile"
-                className="w-12 h-12 rounded-2xl object-cover ring-2 ring-offset-2 transition-all duration-500 group-hover:scale-110 ring-primary ring-offset-surface"
-              />
-              <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 border-2 border-surface rounded-full"></div>
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-[11px] font-black uppercase tracking-widest truncate text-on-surface">{profile?.first_name || 'Player'} {profile?.last_name || ''}</p>
-              <p className="text-[9px] font-black uppercase tracking-widest transition-colors text-primary">{profile?.role || 'Member'}</p>
-            </div>
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                onLogout();
-              }}
-              className="w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-300 bg-surface text-on-surface-variant hover:bg-red-500 hover:text-white shadow-sm"
-            >
-              <span className="material-symbols-outlined text-lg">logout</span>
-            </button>
+          <div className="relative">
+            <img
+              src={profile?.portrait_url || profile?.photoURL || "/images/clay_court.png"}
+              alt="Profile"
+              className="w-10 h-10 rounded-xl object-cover ring-2 ring-offset-2 transition-all duration-500 group-hover:scale-110 ring-primary/20 ring-offset-surface group-hover:ring-primary/50"
+            />
+            <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-500 border-2 border-surface rounded-full"></div>
           </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-[10px] font-black uppercase tracking-widest truncate text-on-surface">
+              {profile?.first_name || 'Player'} {profile?.last_name || ''}
+            </p>
+            <p className="text-[8px] font-black uppercase tracking-widest transition-colors text-primary truncate opacity-70">
+              {profile?.role || 'Member'}
+            </p>
+          </div>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onLogout();
+            }}
+            className="w-8 h-8 rounded-lg flex items-center justify-center transition-all duration-300 bg-surface/50 text-on-surface-variant hover:bg-red-500 hover:text-white shadow-sm"
+          >
+            <span className="material-symbols-outlined text-base">logout</span>
+          </button>
         </div>
       </div>
     </aside>
@@ -935,11 +937,18 @@ function SubNavItem({ label, active = false, onClick, theme }: { label: string; 
   return (
     <button
       onClick={onClick}
-      className={`w-full flex items-center gap-5 py-3 transition-all duration-300 ease-in-out px-12 relative group ${active
-        ? "text-primary"
-        : "text-on-surface-variant hover:text-primary"
+      className={`w-full flex items-center gap-5 py-4 transition-all duration-300 ease-in-out px-8 relative group ${active
+        ? "text-primary bg-primary-container/5"
+        : "text-on-surface-variant hover:text-primary hover:bg-surface-container-high/50"
         }`}
     >
+      {active && (
+        <div className="absolute left-0 top-1 bottom-1 w-1 rounded-r-full bg-primary/40" />
+      )}
+      {/* Alignment Spacer to match NavItem icon width (24px) + gap (20px) */}
+      <div className="w-6 flex-shrink-0 flex justify-center">
+        <div className={`w-1 h-1 rounded-full bg-current transition-all ${active ? "scale-150" : "opacity-20 group-hover:opacity-100"}`} />
+      </div>
       <span className={`text-sm font-black uppercase tracking-[0.2em] transition-all font-headline ${active ? "translate-x-1" : "group-hover:translate-x-1"}`}>
         {label}
       </span>
@@ -954,13 +963,13 @@ function NavItem({ icon, label, active = false, onClick, theme }: { icon: string
       onClick={onClick}
       className={`w-full flex items-center gap-5 py-4 transition-all duration-300 ease-in-out px-8 relative group ${active
         ? "text-primary bg-primary-container/10"
-        : "text-on-surface-variant hover:text-primary hover:bg-surface-container-high"
+        : "text-on-surface-variant/70 hover:text-primary hover:bg-surface-container-high"
         }`}
     >
       {active && (
-        <div className="absolute left-0 top-0 bottom-0 w-2 rounded-r-full bg-primary" />
+        <div className="absolute left-0 top-0 bottom-0 w-1.5 rounded-r-full bg-primary" />
       )}
-      <span className={`material-symbols-outlined text-2xl transition-all ${active ? "opacity-100 scale-110" : "opacity-60 group-hover:opacity-100"}`} style={active ? { fontVariationSettings: "'FILL' 1" } : {}}>
+      <span className={`material-symbols-outlined text-2xl transition-all ${active ? "opacity-100 scale-110" : "opacity-40 group-hover:opacity-100"}`} style={active ? { fontVariationSettings: "'FILL' 1" } : {}}>
         {icon}
       </span>
       <span className={`text-base font-black uppercase tracking-[0.2em] transition-all font-headline ${active ? "translate-x-1" : "group-hover:translate-x-1"}`}>
