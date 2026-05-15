@@ -609,7 +609,9 @@ export default function EventsAdminView({ theme = "LIGHT", tenantId }: { theme?:
           <div className="col-span-2 grid grid-cols-2 gap-8">
             <div className="flex items-center justify-between p-4 rounded-2xl border border-dashed border-stone-200 dark:border-stone-800">
               <div className="space-y-1">
-                <h4 className={`text-xs font-black uppercase tracking-tight ${theme === "DARK" ? "text-white" : "text-stone-900"}`}>Use End Date</h4>
+                <h4 className={`text-xs font-black uppercase tracking-tight ${theme === "DARK" ? "text-white" : "text-stone-900"}`}>
+                  {formData.use_end_date ? "USE END DATE" : "NO END DATE"}
+                </h4>
                 <p className="text-[10px] text-stone-400 font-medium italic">Uncheck for open-ended events</p>
               </div>
               <label className="relative inline-flex items-center cursor-pointer">
@@ -625,7 +627,9 @@ export default function EventsAdminView({ theme = "LIGHT", tenantId }: { theme?:
 
             <div className="flex items-center justify-between p-4 rounded-2xl border border-dashed border-stone-200 dark:border-stone-800">
               <div className="space-y-1">
-                <h4 className={`text-xs font-black uppercase tracking-tight ${theme === "DARK" ? "text-white" : "text-stone-900"}`}>Save on SCHEDULES</h4>
+                <h4 className={`text-xs font-black uppercase tracking-tight ${theme === "DARK" ? "text-white" : "text-stone-900"}`}>
+                  {formData.save_to_schedules ? "SAVE ON SCHEDULES" : "NO SAVE ON SCHEDULES"}
+                </h4>
                 <p className="text-[10px] text-stone-400 font-medium italic">Blocks court for this event</p>
               </div>
               <label className="relative inline-flex items-center cursor-pointer">
