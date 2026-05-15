@@ -632,10 +632,9 @@ function Sidebar({ activeView, setActiveView, platformAdminOpen, setPlatformAdmi
 
         {/* Administration Section */}
         {(hasPermission('TENANT_ADMIN') || hasPermission('ADMINISTRATION_VIEW') || hasPermission('DIMENSIONS_VIEW') || hasPermission('ROLE_TYPES_VIEW') || hasPermission('USER_ADMIN_VIEW') || isGlobalUser || profile?.role?.includes('R10005')) && (
-          <div className="mt-10 pt-10 relative">
+          <div className="mt-8 pt-8 relative">
             {/* Tonal Divider */}
             <div className="absolute top-0 left-4 right-4 h-[1px] bg-outline/10"></div>
-            <p className="px-8 text-[10px] font-black uppercase tracking-[0.2em] mb-4 text-on-surface-variant/50">Administration</p>
 
             <button
               onClick={() => setAdministrationOpen(!administrationOpen)}
@@ -643,8 +642,8 @@ function Sidebar({ activeView, setActiveView, platformAdminOpen, setPlatformAdmi
                 }`}
             >
               <div className="flex items-center gap-5">
-                <span className={`material-symbols-outlined text-2xl transition-colors ${administrationOpen ? "text-primary" : "text-on-surface-variant/60 group-hover:text-primary"}`}>settings</span>
-                <span className={`text-base font-black uppercase tracking-[0.2em] transition-colors ${administrationOpen ? "text-on-surface" : "text-on-surface-variant/70 group-hover:text-primary"} font-headline`}>Club Settings</span>
+                <span className={`material-symbols-outlined text-2xl transition-colors ${administrationOpen ? "text-primary" : "text-on-surface-variant/60 group-hover:text-primary"}`}>admin_panel_settings</span>
+                <span className={`text-base font-black uppercase tracking-[0.2em] transition-colors ${administrationOpen ? "text-on-surface" : "text-on-surface-variant/70 group-hover:text-primary"} font-headline`}>Administration</span>
               </div>
               <span className={`material-symbols-outlined text-sm transition-transform duration-300 ${administrationOpen ? "rotate-180 text-primary" : "text-on-surface-variant"}`}>expand_more</span>
             </button>
@@ -673,6 +672,15 @@ function Sidebar({ activeView, setActiveView, platformAdminOpen, setPlatformAdmi
             )}
           </div>
         )}
+
+        {/* Settings Navigation */}
+        <NavItem
+          label="SETTINGS"
+          icon="settings"
+          active={activeView === "SETTINGS"}
+          onClick={() => setActiveView("SETTINGS")}
+          theme={theme}
+        />
       </div>
 
       {/* User Profile Section */}
@@ -1772,39 +1780,54 @@ function MembershipView({ theme }: { theme: "LIGHT" | "DARK" | "VINTAGE" }) {
 }
 
 function SettingsView({ theme }: { theme: "LIGHT" | "DARK" | "VINTAGE" }) {
-
   return (
-    <div className="max-w-2xl space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-700">
-      <h2 className={`text-5xl font-black tracking-tighter uppercase transition-colors ${theme === "DARK" ? "text-white" : theme === "LIGHT" ? "text-[#4f6b28]" : "text-black"
+    <div className="max-w-4xl space-y-16 animate-in fade-in slide-in-from-bottom-4 duration-700">
+      <div className="flex flex-col gap-4">
+        <h2 className={`text-6xl font-black tracking-tighter uppercase transition-colors ${
+          theme === "DARK" ? "text-white" : theme === "LIGHT" ? "text-on-surface" : "text-black"
         }`} style={{ fontFamily: 'Lexend, sans-serif' }}>
-        PREFERENCES
-      </h2>
+          PREFERENCES
+        </h2>
+      </div>
 
-      <div className="space-y-8">
+      <div className="space-y-6">
         {[
-          { icon: "notifications", title: "Push Notifications", desc: "Get alerts for bookings and match invites", active: true },
-          { icon: "visibility", title: "Profile Visibility", desc: "Allow other members to find you", active: true },
-          { icon: "history", title: "Activity History", desc: "Log match results and training progress", active: false },
-          { icon: "mail", title: "Newsletter", desc: "Weekly club updates and clinic openings", active: true }
+          { icon: "notifications", title: "PUSH NOTIFICATIONS", desc: "Get alerts for bookings and match invites", active: true },
+          { icon: "visibility", title: "PROFILE VISIBILITY", desc: "Allow other members to find you", active: true },
+          { icon: "history", title: "ACTIVITY HISTORY", desc: "Log match results and training progress", active: false },
+          { icon: "mail", title: "NEWSLETTER", desc: "Weekly club updates and clinic openings", active: true }
         ].map((opt, i) => (
-          <div key={i} className={`flex items-center justify-between p-8 rounded-3xl border shadow-sm transition-all ${theme === "DARK" ? "bg-stone-900 border-stone-800" :
+          <div key={i} className={`flex items-center justify-between p-10 rounded-[2.5rem] border transition-all duration-300 hover:shadow-xl hover:scale-[1.01] ${
+            theme === "DARK" ? "bg-stone-900 border-stone-800" :
             theme === "VINTAGE" ? "bg-white border-stone-50" :
-              "bg-white border-[#4f6b28]/10"
-            }`}>
-            <div className="flex items-center gap-6">
-              <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-colors ${theme === "DARK" ? "bg-stone-800 text-[#ccff00]" : theme === "LIGHT" ? "bg-[#cfff00] text-[#4f6b28]" : "bg-stone-50 text-stone-900"
-                }`}>
-                <span className="material-symbols-outlined">{opt.icon}</span>
+            "bg-white border-outline/5 shadow-sm"
+          }`}>
+            <div className="flex items-center gap-8">
+              <div className={`w-16 h-16 rounded-3xl flex items-center justify-center transition-all ${
+                theme === "DARK" ? "bg-stone-800 text-primary" : 
+                theme === "LIGHT" ? "bg-surface-container text-primary" : 
+                "bg-stone-50 text-stone-900"
+              }`}>
+                <span className="material-symbols-outlined text-3xl opacity-80">{opt.icon}</span>
               </div>
               <div>
-                <h4 className={`font-black text-lg uppercase transition-colors ${theme === "DARK" ? "text-white" : theme === "LIGHT" ? "text-[#4f6b28]" : "text-stone-900"
-                  }`}>{opt.title}</h4>
-                <p className={`${theme === "DARK" ? "text-white" : theme === "LIGHT" ? "text-[#4f6b28]/60" : "text-stone-700"} text-sm font-medium`}>{opt.desc}</p>
+                <h4 className={`font-black text-xl tracking-tight transition-colors ${
+                  theme === "DARK" ? "text-white" : "text-on-surface"
+                }`} style={{ fontFamily: 'Lexend, sans-serif' }}>{opt.title}</h4>
+                <p className={`${
+                  theme === "DARK" ? "text-stone-400" : "text-on-surface-variant/70"
+                } text-sm font-medium mt-1`}>{opt.desc}</p>
               </div>
             </div>
-            <button className={`w-14 h-8 rounded-full relative transition-colors ${opt.active ? (theme === "DARK" ? "bg-[#ccff00]" : theme === "VINTAGE" ? "bg-black" : theme === "LIGHT" ? "bg-[#4f6b28]" : "bg-stone-900") : "bg-stone-200"
-              }`}>
-              <div className={`absolute top-1 w-6 h-6 bg-white rounded-full transition-transform ${opt.active ? "right-1" : "left-1"}`}></div>
+            
+            <button className={`w-16 h-9 rounded-full relative transition-all duration-500 ease-in-out ${
+              opt.active 
+                ? (theme === "LIGHT" ? "bg-primary shadow-lg shadow-primary/20" : "bg-primary") 
+                : (theme === "DARK" ? "bg-stone-800" : "bg-stone-100")
+            }`}>
+              <div className={`absolute top-1.5 w-6 h-6 bg-white rounded-full shadow-md transition-all duration-500 ease-in-out ${
+                opt.active ? "translate-x-8" : "translate-x-2"
+              }`}></div>
             </button>
           </div>
         ))}
