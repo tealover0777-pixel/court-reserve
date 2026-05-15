@@ -11,15 +11,15 @@ import {
 } from "@tanstack/react-table";
 import { Modal } from "@repo/ui/modal";
 import { db, storage } from "../lib/firebase";
-import { 
-  collection, 
-  onSnapshot, 
-  query, 
-  orderBy, 
-  doc, 
-  setDoc, 
-  updateDoc, 
-  deleteDoc, 
+import {
+  collection,
+  onSnapshot,
+  query,
+  orderBy,
+  doc,
+  setDoc,
+  updateDoc,
+  deleteDoc,
   serverTimestamp,
   addDoc,
   getDocs,
@@ -90,12 +90,10 @@ export default function EventsAdminView({ theme = "LIGHT", tenantId }: { theme?:
   const [categories, setCategories] = useState<string[]>([]);
 
   // Common UI classes
-  const inputCls = `w-full border rounded-2xl px-5 py-3.5 text-sm font-bold outline-none transition-all ${
-    theme === "DARK" ? "bg-stone-950 text-white border-stone-800 focus:border-[#ccff00]" : "bg-white text-stone-900 border-stone-200 focus:border-stone-400 shadow-sm"
-  }`;
-  const labelCls = `text-[10px] font-black tracking-widest uppercase mb-2 block ${
-    theme === "DARK" ? "text-stone-200" : "text-stone-950"
-  }`;
+  const inputCls = `w-full border rounded-2xl px-5 py-3.5 text-sm font-bold outline-none transition-all ${theme === "DARK" ? "bg-stone-950 text-white border-stone-800 focus:border-[#ccff00]" : "bg-white text-stone-900 border-stone-200 focus:border-stone-400 shadow-sm"
+    }`;
+  const labelCls = `text-[10px] font-black tracking-widest uppercase mb-2 block ${theme === "DARK" ? "text-stone-200" : "text-stone-950"
+    }`;
 
   useEffect(() => {
     if (!tenantId) return;
@@ -151,20 +149,20 @@ export default function EventsAdminView({ theme = "LIGHT", tenantId }: { theme?:
     if (!force) {
       const eventStart = new Date(formData.date);
       const eventEnd = formData.end_date ? new Date(formData.end_date) : new Date(eventStart.getTime() + 2 * 60 * 60 * 1000); // Default 2h
-      
+
       const bookingsSnap = await getDocs(collection(db, "tenants", tenantId, "bookings"));
       const overlapping = bookingsSnap.docs.filter(doc => {
         const b = doc.data();
         const bDate = b.date; // Assuming yyyy-MM-dd
         const bTime = b.time; // Assuming HH:mm
         const bDuration = Number(b.duration) || 1;
-        
+
         // Construct booking start/end
         const [year, month, day] = bDate.split("-");
         const [hour, min] = bTime.split(":");
         const bStart = new Date(Number(year), Number(month) - 1, Number(day), Number(hour), Number(min));
         const bEnd = new Date(bStart.getTime() + bDuration * 60 * 60 * 1000);
-        
+
         return (bStart < eventEnd && bEnd > eventStart);
       }).map(doc => ({ id: doc.id, ...doc.data() }));
 
@@ -294,9 +292,8 @@ export default function EventsAdminView({ theme = "LIGHT", tenantId }: { theme?:
     columnHelper.accessor("tag", {
       header: "TAG",
       cell: info => (
-        <span className={`px-3 py-1 rounded-full text-[8px] font-black tracking-widest uppercase ${
-          theme === "DARK" ? "bg-stone-800 text-[#ccff00]" : "bg-stone-100 text-stone-600"
-        }`}>
+        <span className={`px-3 py-1 rounded-full text-[8px] font-black tracking-widest uppercase ${theme === "DARK" ? "bg-stone-800 text-[#ccff00]" : "bg-stone-100 text-stone-600"
+          }`}>
           {info.getValue()}
         </span>
       )
@@ -320,7 +317,7 @@ export default function EventsAdminView({ theme = "LIGHT", tenantId }: { theme?:
               <span className="opacity-40">{Math.round((count / max) * 100)}%</span>
             </div>
             <div className={`w-24 h-1 rounded-full overflow-hidden ${theme === "DARK" ? "bg-stone-800" : "bg-stone-100"}`}>
-              <div 
+              <div
                 className={`h-full transition-all ${theme === "DARK" ? "bg-[#ccff00]" : "bg-stone-900"}`}
                 style={{ width: `${Math.min((count / max) * 100, 100)}%` }}
               />
@@ -352,17 +349,15 @@ export default function EventsAdminView({ theme = "LIGHT", tenantId }: { theme?:
               });
               setShowEditModal(true);
             }}
-            className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${
-              theme === "DARK" ? "hover:bg-stone-800 text-stone-400" : "hover:bg-stone-50 text-stone-400"
-            }`}
+            className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${theme === "DARK" ? "hover:bg-stone-800 text-stone-400" : "hover:bg-stone-50 text-stone-400"
+              }`}
           >
             <span className="material-symbols-outlined text-sm">edit</span>
           </button>
           <button
             onClick={() => setConfirmDelete(info.row.original.id)}
-            className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${
-              theme === "DARK" ? "hover:bg-red-500/20 text-red-500/50 hover:text-red-500" : "hover:bg-red-50 text-red-400 hover:text-red-600"
-            }`}
+            className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${theme === "DARK" ? "hover:bg-red-500/20 text-red-500/50 hover:text-red-500" : "hover:bg-red-50 text-red-400 hover:text-red-600"
+              }`}
           >
             <span className="material-symbols-outlined text-sm">delete</span>
           </button>
@@ -397,18 +392,16 @@ export default function EventsAdminView({ theme = "LIGHT", tenantId }: { theme?:
             resetForm();
             setShowCreateModal(true);
           }}
-          className={`px-8 py-4 rounded-2xl text-[10px] font-black tracking-widest uppercase transition-all shadow-xl flex items-center gap-3 ${
-            theme === "DARK" ? "bg-[#ccff00] text-stone-950 shadow-[#ccff00]/20" : "bg-stone-900 text-white shadow-black/20"
-          }`}
+          className={`px-8 py-4 rounded-2xl text-[10px] font-black tracking-widest uppercase transition-all shadow-xl flex items-center gap-3 ${theme === "DARK" ? "bg-[#ccff00] text-stone-950 shadow-[#ccff00]/20" : "bg-stone-900 text-white shadow-black/20"
+            }`}
         >
           <span className="material-symbols-outlined">add</span>
           NEW EVENT
         </button>
       </div>
 
-      <div className={`rounded-3xl border overflow-hidden ${
-        theme === "DARK" ? "bg-stone-950 border-stone-800" : "bg-white border-stone-200 shadow-sm"
-      }`}>
+      <div className={`rounded-3xl border overflow-hidden ${theme === "DARK" ? "bg-stone-950 border-stone-800" : "bg-white border-stone-200 shadow-sm"
+        }`}>
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
@@ -424,9 +417,8 @@ export default function EventsAdminView({ theme = "LIGHT", tenantId }: { theme?:
             </thead>
             <tbody>
               {table.getRowModel().rows.map(row => (
-                <tr key={row.id} className={`group transition-colors ${
-                  theme === "DARK" ? "hover:bg-stone-800/50 border-b border-stone-800/50" : "hover:bg-stone-50 border-b border-stone-50"
-                }`}>
+                <tr key={row.id} className={`group transition-colors ${theme === "DARK" ? "hover:bg-stone-800/50 border-b border-stone-800/50" : "hover:bg-stone-50 border-b border-stone-50"
+                  }`}>
                   {row.getVisibleCells().map(cell => (
                     <td key={cell.id} className="px-8 py-6">
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
@@ -458,18 +450,16 @@ export default function EventsAdminView({ theme = "LIGHT", tenantId }: { theme?:
                 setShowEditModal(false);
                 setEditingEvent(null);
               }}
-              className={`flex-1 py-4 rounded-2xl text-[10px] font-black tracking-widest uppercase transition-colors border ${
-                theme === "DARK" ? "border-stone-800 text-white hover:bg-stone-800" : "border-stone-200 text-stone-900 hover:bg-stone-50"
-              }`}
+              className={`flex-1 py-4 rounded-2xl text-[10px] font-black tracking-widest uppercase transition-colors border ${theme === "DARK" ? "border-stone-800 text-white hover:bg-stone-800" : "border-stone-200 text-stone-900 hover:bg-stone-50"
+                }`}
             >
               CANCEL
             </button>
             <button
               onClick={() => handleSaveEvent(false)}
               disabled={isSaving}
-              className={`flex-1 py-4 rounded-2xl text-[10px] font-black tracking-widest uppercase transition-all shadow-xl flex items-center justify-center gap-3 ${
-                theme === "DARK" ? "bg-[#ccff00] text-stone-950 shadow-[#ccff00]/20" : "bg-stone-900 text-white shadow-black/20"
-              }`}
+              className={`flex-1 py-4 rounded-2xl text-[10px] font-black tracking-widest uppercase transition-all shadow-xl flex items-center justify-center gap-3 ${theme === "DARK" ? "bg-[#ccff00] text-stone-950 shadow-[#ccff00]/20" : "bg-stone-900 text-white shadow-black/20"
+                }`}
             >
               {isSaving ? "SAVING..." : "SAVE EVENT"}
             </button>
@@ -486,7 +476,7 @@ export default function EventsAdminView({ theme = "LIGHT", tenantId }: { theme?:
               placeholder="e.g. Summer Tennis Camp 2024"
             />
           </div>
-          
+
           <div className="col-span-2">
             <label className={labelCls}>Description</label>
             <textarea
@@ -499,23 +489,20 @@ export default function EventsAdminView({ theme = "LIGHT", tenantId }: { theme?:
 
           <div>
             <label className={labelCls}>Start Date & Time</label>
-            <input
-              type="datetime-local"
-              step="600"
+            <PremiumDateTimePicker
               value={formData.date}
-              onChange={e => setFormData({ ...formData, date: e.target.value })}
-              className={inputCls}
+              onChange={val => setFormData({ ...formData, date: val })}
+              theme={theme}
             />
           </div>
 
           <div>
             <label className={labelCls}>End Date & Time (Optional)</label>
-            <input
-              type="datetime-local"
-              step="600"
+            <PremiumDateTimePicker
               value={formData.end_date}
-              onChange={e => setFormData({ ...formData, end_date: e.target.value })}
-              className={inputCls}
+              onChange={val => setFormData({ ...formData, end_date: val })}
+              theme={theme}
+              placeholder="Set end time..."
             />
           </div>
 
@@ -545,9 +532,8 @@ export default function EventsAdminView({ theme = "LIGHT", tenantId }: { theme?:
 
           <div className="col-span-2">
             <label className={labelCls}>Event Leaders</label>
-            <div className={`mt-2 p-4 rounded-2xl border flex flex-wrap gap-2 ${
-              theme === "DARK" ? "bg-stone-950 border-stone-800" : "bg-stone-50 border-stone-200"
-            }`}>
+            <div className={`mt-2 p-4 rounded-2xl border flex flex-wrap gap-2 ${theme === "DARK" ? "bg-stone-950 border-stone-800" : "bg-stone-50 border-stone-200"
+              }`}>
               {tenantUsers.map(user => {
                 const isSelected = formData.event_leaders.includes(user.id);
                 return (
@@ -560,18 +546,16 @@ export default function EventsAdminView({ theme = "LIGHT", tenantId }: { theme?:
                         : [...formData.event_leaders, user.id];
                       setFormData({ ...formData, event_leaders: newLeaders });
                     }}
-                    className={`flex items-center gap-2 px-3 py-1.5 rounded-xl transition-all border ${
-                      isSelected
+                    className={`flex items-center gap-2 px-3 py-1.5 rounded-xl transition-all border ${isSelected
                         ? (theme === "DARK" ? "bg-[#ccff00] border-[#ccff00] text-stone-900" : "bg-stone-900 border-stone-900 text-white")
                         : (theme === "DARK" ? "bg-stone-900 border-stone-800 text-stone-400" : "bg-white border-stone-200 text-stone-600")
-                    }`}
+                      }`}
                   >
                     {user.portrait_url ? (
                       <img src={user.portrait_url} className="w-5 h-5 rounded-full object-cover" alt="" />
                     ) : (
-                      <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-black ${
-                        isSelected ? "bg-black/10" : "bg-stone-200"
-                      }`}>
+                      <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-black ${isSelected ? "bg-black/10" : "bg-stone-200"
+                        }`}>
                         {user.first_name?.[0]}{user.last_name?.[0]}
                       </div>
                     )}
@@ -598,22 +582,20 @@ export default function EventsAdminView({ theme = "LIGHT", tenantId }: { theme?:
             </div>
             <div>
               <label className={labelCls}>Cancellation Deadline</label>
-              <input
-                type="datetime-local"
-                step="600"
+              <PremiumDateTimePicker
                 value={formData.cancellation_deadline}
-                onChange={e => setFormData({ ...formData, cancellation_deadline: e.target.value })}
-                className={inputCls}
+                onChange={val => setFormData({ ...formData, cancellation_deadline: val })}
+                theme={theme}
+                placeholder="Set deadline..."
               />
             </div>
           </div>
 
           <div className="col-span-2">
-            <label className={labelCls}>Hero Image</label>
+            <label className={labelCls}>Event Image</label>
             <div className="flex gap-6 items-start">
-              <div className={`w-40 h-40 rounded-3xl border-2 border-dashed flex flex-col items-center justify-center gap-2 overflow-hidden relative group transition-colors ${
-                theme === "DARK" ? "border-stone-800 bg-stone-950/50" : "border-stone-200 bg-stone-50"
-              }`}>
+              <div className={`w-40 h-40 rounded-3xl border-2 border-dashed flex flex-col items-center justify-center gap-2 overflow-hidden relative group transition-colors ${theme === "DARK" ? "border-stone-800 bg-stone-950/50" : "border-stone-200 bg-stone-50"
+                }`}>
                 {formData.image_url ? (
                   <>
                     <img src={formData.image_url} className="w-full h-full object-cover" alt="Hero" />
@@ -642,9 +624,8 @@ export default function EventsAdminView({ theme = "LIGHT", tenantId }: { theme?:
                 <button
                   onClick={() => fileInputRef.current?.click()}
                   disabled={isUploading}
-                  className={`px-6 py-3 rounded-xl text-[10px] font-black tracking-widest uppercase transition-colors ${
-                    theme === "DARK" ? "bg-stone-800 text-white hover:bg-stone-700" : "bg-white border border-stone-200 hover:bg-stone-50"
-                  }`}
+                  className={`px-6 py-3 rounded-xl text-[10px] font-black tracking-widest uppercase transition-colors ${theme === "DARK" ? "bg-stone-800 text-white hover:bg-stone-700" : "bg-white border border-stone-200 hover:bg-stone-50"
+                    }`}
                 >
                   UPLOAD IMAGE
                 </button>
@@ -672,9 +653,8 @@ export default function EventsAdminView({ theme = "LIGHT", tenantId }: { theme?:
           <div className="flex gap-4">
             <button
               onClick={() => setConfirmDelete(null)}
-              className={`flex-1 py-4 rounded-xl text-[10px] font-black tracking-widest uppercase border ${
-                theme === "DARK" ? "border-stone-800 text-white" : "border-stone-200 text-stone-900"
-              }`}
+              className={`flex-1 py-4 rounded-xl text-[10px] font-black tracking-widest uppercase border ${theme === "DARK" ? "border-stone-800 text-white" : "border-stone-200 text-stone-900"
+                }`}
             >
               CANCEL
             </button>
@@ -703,9 +683,8 @@ export default function EventsAdminView({ theme = "LIGHT", tenantId }: { theme?:
           <div className="flex gap-4">
             <button
               onClick={() => setShowConflictModal(false)}
-              className={`flex-1 py-4 rounded-xl text-[10px] font-black tracking-widest uppercase border ${
-                theme === "DARK" ? "border-stone-800 text-white" : "border-stone-200 text-stone-900"
-              }`}
+              className={`flex-1 py-4 rounded-xl text-[10px] font-black tracking-widest uppercase border ${theme === "DARK" ? "border-stone-800 text-white" : "border-stone-200 text-stone-900"
+                }`}
             >
               CANCEL
             </button>
@@ -722,13 +701,11 @@ export default function EventsAdminView({ theme = "LIGHT", tenantId }: { theme?:
           <p className={`text-sm font-medium ${theme === "DARK" ? "text-stone-300" : "text-stone-600"}`}>
             The following bookings overlap with this event. Saving will cancel these bookings and notify the users.
           </p>
-          <div className={`rounded-2xl border overflow-hidden ${
-            theme === "DARK" ? "bg-stone-950 border-stone-800" : "bg-stone-50 border-stone-200"
-          }`}>
+          <div className={`rounded-2xl border overflow-hidden ${theme === "DARK" ? "bg-stone-950 border-stone-800" : "bg-stone-50 border-stone-200"
+            }`}>
             {conflicts.map((c, i) => (
-              <div key={i} className={`p-4 flex justify-between items-center ${
-                i !== 0 ? (theme === "DARK" ? "border-t border-stone-800" : "border-t border-stone-200") : ""
-              }`}>
+              <div key={i} className={`p-4 flex justify-between items-center ${i !== 0 ? (theme === "DARK" ? "border-t border-stone-800" : "border-t border-stone-200") : ""
+                }`}>
                 <div>
                   <p className="text-[10px] font-black uppercase tracking-tight">{c.userName || "Unknown Player"}</p>
                   <p className={`text-[10px] opacity-60 ${theme === "DARK" ? "text-white" : "text-black"}`}>
@@ -741,6 +718,76 @@ export default function EventsAdminView({ theme = "LIGHT", tenantId }: { theme?:
           </div>
         </div>
       </Modal>
+    </div>
+  );
+}
+
+function PremiumDateTimePicker({ value, onChange, theme, placeholder }: { 
+  value: string; 
+  onChange: (val: string) => void; 
+  theme: "LIGHT" | "DARK" | "VINTAGE";
+  placeholder?: string;
+}) {
+  const isDark = theme === "DARK";
+  
+  // Parse incoming YYYY-MM-DDTHH:mm
+  const [datePart, timePart] = value ? value.split("T") : ["", ""];
+  const [hourPart, minutePart] = timePart ? timePart.split(":") : ["00", "00"];
+
+  const handleDateChange = (newDate: string) => {
+    if (!newDate) {
+      onChange("");
+      return;
+    }
+    onChange(`${newDate}T${hourPart}:${minutePart}`);
+  };
+
+  const handleHourChange = (newHour: string) => {
+    const d = datePart || format(new Date(), "yyyy-MM-dd");
+    onChange(`${d}T${newHour}:${minutePart}`);
+  };
+
+  const handleMinuteChange = (newMinute: string) => {
+    const d = datePart || format(new Date(), "yyyy-MM-dd");
+    onChange(`${d}T${hourPart}:${newMinute}`);
+  };
+
+  const containerCls = `flex items-center gap-2 border rounded-2xl px-4 py-2 transition-all ${
+    isDark ? "bg-stone-950 border-stone-800 text-white" : "bg-white border-stone-200 text-stone-900 shadow-sm"
+  }`;
+
+  const selectCls = `bg-transparent outline-none font-bold text-sm cursor-pointer appearance-none px-2 py-1 hover:bg-stone-100 dark:hover:bg-stone-800 rounded-lg transition-colors`;
+
+  return (
+    <div className={containerCls}>
+      <input
+        type="date"
+        value={datePart}
+        onChange={e => handleDateChange(e.target.value)}
+        className="bg-transparent outline-none font-bold text-sm flex-1 min-w-0"
+      />
+      <div className="flex items-center gap-1 border-l pl-2 border-stone-100 dark:border-stone-800">
+        <select
+          value={hourPart}
+          onChange={e => handleHourChange(e.target.value)}
+          className={selectCls}
+        >
+          {Array.from({ length: 24 }).map((_, i) => {
+            const h = i.toString().padStart(2, "0");
+            return <option key={h} value={h} className={isDark ? "bg-stone-900" : "bg-white"}>{h}</option>;
+          })}
+        </select>
+        <span className="opacity-40">:</span>
+        <select
+          value={minutePart}
+          onChange={e => handleMinuteChange(e.target.value)}
+          className={selectCls}
+        >
+          {["00", "10", "20", "30", "40", "50"].map(m => (
+            <option key={m} value={m} className={isDark ? "bg-stone-900" : "bg-white"}>{m}</option>
+          ))}
+        </select>
+      </div>
     </div>
   );
 }

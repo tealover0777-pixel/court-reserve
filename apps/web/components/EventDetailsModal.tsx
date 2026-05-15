@@ -227,15 +227,16 @@ export default function EventDetailsModal({ event, theme, profile, tenantId, onC
               ) : (
                 <div className="text-center">
                   <p className="text-2xl font-black mb-1">{isFull ? "Waitlist" : "Join Now"}</p>
-                  <p className="text-[10px] opacity-60 uppercase mb-8">{isFull ? "Event is currently full" : "Spots still available"}</p>
+                  <p className="text-[10px] opacity-60 uppercase mb-8">{isFull ? "Join waitlist to be notified" : "Registers you for the event and adds it to your personal schedule."}</p>
                   <button 
                     onClick={handleJoin}
                     disabled={loading}
                     className={`w-full py-4 rounded-xl text-xs font-black tracking-widest uppercase transition-all shadow-lg ${
                       theme === "DARK" ? "bg-[#ccff00] text-stone-950 shadow-[#ccff00]/10" : "bg-[#4f6b28] text-white shadow-[#4f6b28]/10"
-                    } hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50`}
+                    } hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-2`}
                   >
-                    {loading ? "Processing..." : (isFull ? "Join Waitlist" : "Register Now")}
+                    <span className="material-symbols-outlined text-sm">calendar_add_on</span>
+                    {loading ? "Processing..." : (isFull ? "Join Waitlist" : "Register & Add to Schedule")}
                   </button>
                 </div>
               )}

@@ -23,6 +23,8 @@ import {
   orderBy, 
   doc, 
   updateDoc, 
+  deleteDoc,
+  arrayRemove,
   serverTimestamp,
   limit,
   where
@@ -211,6 +213,85 @@ export default function DashboardClient({ params }: { params: { tenantId: string
     });
     return () => unsub();
   }, [profile?.id, tenantId]);
+
+  const [userSchedule, setUserSchedule] = React.useState<any[]>([]);
+
+  React.useEffect(() => {
+    if (!profile?.id || !tenantId) return;
+
+    // 1. Fetch Court Bookings
+    const bookingsQ = query(
+      collection(db, "tenants", tenantId, "bookings"),
+      where("userId", "==", profile.id)
+    );
+
+    const unsubBookings = onSnapshot(bookingsQ, (snap) => {
+      const bookings = snap.docs.map(d => ({
+        id: d.id,
+        type: "BOOKING",
+        ...d.data()
+      }));
+      updateSchedule(bookings, "BOOKINGS");
+    });
+
+    // 2. Fetch Signed up Events
+    const eventsQ = query(
+      collection(db, "tenants", tenantId, "events"),
+      where("signups", "array-contains", profile.id)
+    );
+
+    const unsubEvents = onSnapshot(eventsQ, (snap) => {
+      const events = snap.docs.map(d => ({
+        id: d.id,
+        type: "EVENT",
+        ...d.data()
+      }));
+      updateSchedule(events, "EVENTS");
+    });
+
+    let currentBookings: any[] = [];
+    let currentEvents: any[] = [];
+
+    const updateSchedule = (items: any[], category: "BOOKINGS" | "EVENTS") => {
+      if (category === "BOOKINGS") currentBookings = items;
+      else currentEvents = items;
+
+      const combined = [...currentBookings, ...currentEvents].sort((a, b) => {
+        const dateA = a.type === "EVENT" ? (a.date?.toDate ? a.date.toDate() : new Date(a.date)) : new Date(a.date);
+        const dateB = b.type === "EVENT" ? (b.date?.toDate ? b.date.toDate() : new Date(b.date)) : new Date(b.date);
+        return dateA.getTime() - dateB.getTime();
+      });
+
+      setUserSchedule(combined.filter(item => {
+        const itemDate = item.type === "EVENT" ? (item.date?.toDate ? item.date.toDate() : new Date(item.date)) : new Date(item.date);
+        const now = new Date();
+        now.setHours(0,0,0,0);
+        return itemDate >= now;
+      }));
+    };
+
+    return () => {
+      unsubBookings();
+      unsubEvents();
+    };
+  }, [profile?.id, tenantId]);
+
+  const handleRemoveFromSchedule = async (item: any) => {
+    if (!tenantId || !profile?.id) return;
+    try {
+      if (item.type === "BOOKING") {
+        await deleteDoc(doc(db, "tenants", tenantId, "bookings", item.id));
+      } else {
+        // Event: Unregister
+        const eventRef = doc(db, "tenants", tenantId, "events", item.id);
+        await updateDoc(eventRef, {
+          signups: arrayRemove(profile.id)
+        });
+      }
+    } catch (err) {
+      console.error("Error removing from schedule:", err);
+    }
+  };
 
   const markAllAsRead = async () => {
     if (!tenantId || unreadNotifications.length === 0) return;
@@ -691,7 +772,7 @@ export default function DashboardClient({ params }: { params: { tenantId: string
           }
           
           // 3. Render the view
-          if (activeView === "DASHBOARD") return <DashboardHome theme={theme} profile={profile} tenantId={tenantId} authUser={authUser} />;
+          if (activeView === "DASHBOARD") return <DashboardHome theme={theme} profile={profile} tenantId={tenantId} authUser={authUser} userSchedule={userSchedule} onRemoveFromSchedule={handleRemoveFromSchedule} />;
           if (activeView === "AI_ADMIN") return <AIAdminView theme={theme} />;
           if (activeView === "DIMENSIONS") return <DimensionsView theme={theme} />;
           if (activeView === "ROLE_TYPES") return <RoleTypesView theme={theme} userRoleId={profile?.role} readOnly />;
@@ -751,7 +832,7 @@ export default function DashboardClient({ params }: { params: { tenantId: string
   );
 }
 
-function DashboardHome({ theme, profile, tenantId, authUser }: { theme: "LIGHT" | "DARK" | "VINTAGE", profile: any, tenantId: string, authUser: any }) {
+function DashboardHome({ theme, profile, tenantId, authUser, userSchedule, onRemoveFromSchedule }: { theme: "LIGHT" | "DARK" | "VINTAGE", profile: any, tenantId: string, authUser: any, userSchedule: any[], onRemoveFromSchedule: (item: any) => void }) {
   const [events, setEvents] = useState<any[]>([]);
 
   useEffect(() => {
@@ -879,10 +960,27 @@ function DashboardHome({ theme, profile, tenantId, authUser }: { theme: "LIGHT" 
         </div>
 
         <div className="flex gap-6 overflow-x-auto pb-8 hide-scrollbar">
-          <BookingCard theme={theme} court="Court 02" date="OCT 16" time="04:00 PM - 05:30 PM" partner="Sarah Jenkins" avatar="https://lh3.googleusercontent.com/aida-public/AB6AXuDJwGLQJGS7l8awuXxFimqmgZMt3TgCyqyLykcGCi-I30U4I6UMXYtSSHoLMLp-X_Jh3IDS8WG85Go6xqEYtnE3ZuPzsENZW3X_DVY0IyohJE1JXEztGlZmksG0ifboNkfrakgRhDqaARnOym2XV1Bz_7RRHq7SGY2l_b7n1mrmOSYYjtDkvYJwPhzSV6NOYvLoeiV4jONAvGzksAWjX3u0JAjzJM38DeDRn8mO4seXqz0uojWd-WCz41rqriUeXQBFGr-PNYJDwko" />
-          <BookingCard theme={theme} court="Court 08" date="OCT 18" time="09:00 AM - 10:30 AM" isOpen />
-          <BookingCard theme={theme} court="Clay Court A" date="OCT 19" time="02:00 PM - 04:00 PM" partner="David Chen" avatar="https://lh3.googleusercontent.com/aida-public/AB6AXuBzfMV3RQuW53lY_bhBvzBMT-I3HlNV_sphtXexF5W_G4XkRxeqpHnR-qftrvvgBpR8ICU84H6IzrvC4mtisehaYF4bJtcMsQyBNDvIdynLEn7WZUxGs0yGtrCb6Uy2n9cOrcEVDEx9rurz4q7ULq18bYhOZ8uakqYr398Jv79LVVfZrMzIozUEiRFK8LvlPak-m0-thE3HgKPhoOEcdaX4PZ0LMBGaFXZIE35tp_pd_eBNrtngIobFSvwDt6j2IbAtRP7YRcGmaGE" highlight />
-          <BookingCard theme={theme} court="Court 01" date="OCT 22" time="05:30 PM - 07:00 PM" partner="Emma Watson" avatar="https://lh3.googleusercontent.com/aida-public/AB6AXuBzzuPwdLFtvkWfVtGdUUQWVmIi4KEQypeMrixMSTcgzhQFnc4cwbnSbPlVNw7gv1yXa5tMGjZFa6nOirsGggsolwq7PL0xndKn751oEnA29NzpG0Mx1xNs4wUFiPHlgL46jM66YbdKq6kM8SsbQzqrlSS5dqb_xz1MYIps9CCqjo_yl7HBsMFDtDEcyqWiokD4YmsMYd9rB1FhdBTk01BhklCqlAunBZzrqYxLdFBJYTOrwBYDXiKkyZcQYJ3J2VTtQAUNCgP_cKs" />
+          {userSchedule.length > 0 ? (
+            userSchedule.map(item => (
+              <BookingCard
+                key={item.id}
+                theme={theme}
+                type={item.type}
+                court={item.type === "EVENT" ? (item.tag || "EVENT") : (item.courtName || item.courtId || "Court")}
+                date={format(item.type === "EVENT" ? (item.date?.toDate ? item.date.toDate() : new Date(item.date)) : new Date(item.date), "MMM d")}
+                time={item.type === "EVENT" ? format(item.date?.toDate ? item.date.toDate() : new Date(item.date), "h:mm a") : item.time}
+                partner={item.type === "EVENT" ? "Club Event" : (item.partner || "Solo Session")}
+                avatar={item.type === "EVENT" ? item.image_url : (item.avatar || "/images/clay_court.png")}
+                highlight={item.type === "EVENT"}
+                onRemove={() => onRemoveFromSchedule(item)}
+              />
+            ))
+          ) : (
+            <div className={`p-12 rounded-2xl border-2 border-dashed flex flex-col items-center justify-center min-w-[300px] ${theme === "DARK" ? "border-stone-800" : "border-stone-200"}`}>
+              <span className="material-symbols-outlined text-4xl mb-4 opacity-20">calendar_today</span>
+              <p className="text-[10px] font-black uppercase tracking-widest opacity-40">No upcoming bookings</p>
+            </div>
+          )}
         </div>
       </section>
       <section className="mt-16 mb-24">
@@ -1109,7 +1207,7 @@ function ActivityItem({ icon, title, subtitle, color, fill = false, theme }: { i
   );
 }
 
-function BookingCard({ court, date, time, partner, avatar, isOpen = false, highlight = false, theme }: {
+function BookingCard({ court, date, time, partner, avatar, isOpen = false, highlight = false, theme, type = "BOOKING", onRemove }: {
   court: string;
   date: string;
   time: string;
@@ -1117,7 +1215,9 @@ function BookingCard({ court, date, time, partner, avatar, isOpen = false, highl
   avatar?: string;
   isOpen?: boolean;
   highlight?: boolean;
-  theme: "LIGHT" | "DARK" | "VINTAGE"
+  theme: "LIGHT" | "DARK" | "VINTAGE";
+  type?: "BOOKING" | "EVENT";
+  onRemove?: () => void;
 }) {
   const isDark = theme === "DARK";
   const isVintage = theme === "VINTAGE";
@@ -1135,7 +1235,20 @@ function BookingCard({ court, date, time, partner, avatar, isOpen = false, highl
         <div className={`${badgeClass} px-3 py-1 rounded text-[10px] font-black uppercase tracking-widest`}>
           {court}
         </div>
-        <button className={`material-symbols-outlined ${isDark ? "text-white hover:text-[#ccff00]" : "text-stone-600 hover:text-black"} transition-colors`}>more_vert</button>
+        <div className="relative group/menu">
+          <button className={`material-symbols-outlined ${isDark ? "text-white hover:text-[#ccff00]" : "text-stone-600 hover:text-black"} transition-colors`}>more_vert</button>
+          <div className={`absolute right-0 top-full mt-2 w-48 rounded-xl border shadow-xl opacity-0 translate-y-2 pointer-events-none group-hover/menu:opacity-100 group-hover/menu:translate-y-0 group-hover/menu:pointer-events-auto transition-all z-20 ${
+            isDark ? "bg-stone-900 border-stone-800" : "bg-white border-stone-100"
+          }`}>
+            <button 
+              onClick={onRemove}
+              className="w-full px-4 py-3 text-left text-[10px] font-black uppercase tracking-widest text-red-500 hover:bg-red-500/10 transition-colors flex items-center gap-2"
+            >
+              <span className="material-symbols-outlined text-sm">delete</span>
+              Remove from Schedule
+            </button>
+          </div>
+        </div>
       </div>
       <div className="mb-8">
         <h5 className={`text-3xl font-black tracking-tighter ${isDark ? "text-white" : "text-black"}`}>{date}</h5>
