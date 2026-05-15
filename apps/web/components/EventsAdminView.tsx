@@ -1026,7 +1026,11 @@ function TimePicker({ value, onChange, theme }: { value: string; onChange: (val:
   const containerCls = `flex items-center gap-2 border rounded-2xl px-4 py-3.5 transition-all ${
     isDark ? "bg-stone-950 border-stone-800 text-white" : "bg-white border-stone-200 text-stone-900 shadow-sm"
   }`;
-  const selectCls = `bg-transparent outline-none font-bold text-sm cursor-pointer appearance-none w-full transition-colors hover:bg-stone-100 dark:hover:bg-stone-800`;
+  const selectCls = `bg-transparent outline-none font-bold text-sm cursor-pointer appearance-none w-full transition-colors ${
+    isDark 
+      ? "hover:bg-stone-800 hover:text-white focus:bg-stone-800 focus:text-white" 
+      : "hover:bg-stone-950 hover:text-white focus:bg-stone-950 focus:text-white"
+  }`;
 
   const times = Array.from({ length: 48 }).map((_, i) => {
     const h = Math.floor(i / 2).toString().padStart(2, "0");
@@ -1075,7 +1079,11 @@ function PremiumDateTimePicker({ value, onChange, theme, placeholder }: {
     isDark ? "bg-stone-950 border-stone-800 text-white" : "bg-white border-stone-200 text-stone-900 shadow-sm"
   }`;
 
-  const selectCls = `bg-transparent outline-none font-bold text-sm cursor-pointer appearance-none px-2 py-1 hover:bg-stone-100 dark:hover:bg-stone-800 rounded-lg transition-colors`;
+  const selectCls = `bg-transparent outline-none font-bold text-sm cursor-pointer appearance-none px-2 py-1 rounded-lg transition-colors ${
+    isDark 
+      ? "hover:bg-stone-800 hover:text-white focus:bg-stone-800 focus:text-white" 
+      : "hover:bg-stone-950 hover:text-white focus:bg-stone-950 focus:text-white"
+  }`;
 
   return (
     <div className={containerCls}>
@@ -1099,7 +1107,7 @@ function PremiumDateTimePicker({ value, onChange, theme, placeholder }: {
             const h = Math.floor(i / 2).toString().padStart(2, "0");
             const m = (i % 2 === 0 ? "00" : "30");
             const t = `${h}:${m}`;
-            return <option key={t} value={t} className={isDark ? "bg-stone-900" : "bg-white"}>{t}</option>;
+            return <option key={t} value={t} className={isDark ? "bg-stone-900 text-white" : "bg-white text-stone-900"}>{t}</option>;
           })}
         </select>
       </div>
