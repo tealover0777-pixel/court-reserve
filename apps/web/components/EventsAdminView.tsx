@@ -105,6 +105,7 @@ export default function EventsAdminView({ theme = "LIGHT", tenantId }: { theme?:
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [tenantUsers, setTenantUsers] = useState<User[]>([]);
@@ -219,7 +220,7 @@ export default function EventsAdminView({ theme = "LIGHT", tenantId }: { theme?:
 
     if (isNaN(startDateTime.getTime()) || isNaN(endDateTime.getTime())) {
       console.error("[handleSaveEvent] Invalid Date:", { startDateTime, endDateTime, start_date: formData.start_date, start_time: formData.start_time, end_date: formData.end_date, end_time: formData.end_time });
-      alert("Invalid date or time selected.");
+      setError("Invalid date or time selected.");
       return;
     }
 
@@ -356,7 +357,7 @@ export default function EventsAdminView({ theme = "LIGHT", tenantId }: { theme?:
       resetForm();
     } catch (err) {
       console.error("Failed to save event:", err);
-      alert("Failed to save event.");
+      setError("Failed to save event.");
     } finally {
       setIsSaving(false);
     }
@@ -376,7 +377,7 @@ export default function EventsAdminView({ theme = "LIGHT", tenantId }: { theme?:
       setConfirmDelete(null);
     } catch (err) {
       console.error("Failed to delete event:", err);
-      alert("Failed to delete event.");
+      setError("Failed to delete event.");
     }
   };
 
@@ -392,7 +393,7 @@ export default function EventsAdminView({ theme = "LIGHT", tenantId }: { theme?:
       setFormData(prev => ({ ...prev, image_url: url }));
     } catch (err) {
       console.error("Image upload failed:", err);
-      alert("Failed to upload image.");
+      setError("Failed to upload image.");
     } finally {
       setIsUploading(false);
     }
@@ -618,6 +619,7 @@ export default function EventsAdminView({ theme = "LIGHT", tenantId }: { theme?:
           setShowCreateModal(false);
           setShowEditModal(false);
           setEditingEvent(null);
+          setError(null);
         }}
         title={editingEvent ? "Edit Event" : "Create Event"}
         theme={theme}
@@ -646,6 +648,17 @@ export default function EventsAdminView({ theme = "LIGHT", tenantId }: { theme?:
           </div>
         }
       >
+        {error && (
+          <div className={`col-span-2 mb-6 p-4 rounded-2xl flex items-center gap-3 animate-in fade-in slide-in-from-top-2 duration-300 ${
+            theme === "DARK" ? "bg-red-500/10 border border-red-500/20 text-red-400" : "bg-red-50 border border-red-100 text-red-600"
+          }`}>
+            <span className="material-symbols-outlined text-lg">error</span>
+            <p className="text-[10px] font-black uppercase tracking-widest">{error}</p>
+            <button onClick={() => setError(null)} className="ml-auto opacity-50 hover:opacity-100">
+              <span className="material-symbols-outlined text-sm">close</span>
+            </button>
+          </div>
+        )}
         <div className="grid grid-cols-2 gap-8">
           {/* Scheduling Block at the Top */}
           <div className="col-span-2 p-6 rounded-3xl bg-stone-50 dark:bg-stone-900/50 border border-stone-200 dark:border-stone-800 space-y-8">
@@ -1027,11 +1040,9 @@ function TimePicker({ value, onChange, theme }: { value: string; onChange: (val:
     isDark ? "bg-stone-950 border-stone-800 text-white" : "bg-white border-stone-200 text-stone-900 shadow-sm"
   }`;
   const selectCls = `bg-transparent outline-none font-bold text-sm cursor-pointer appearance-none w-full transition-colors ${
-    theme === "DARK" 
+    isDark 
       ? "hover:bg-stone-800 hover:text-white focus:bg-stone-800 focus:text-white text-white" 
-      : theme === "VINTAGE"
-        ? "hover:bg-stone-100 focus:bg-stone-100 text-stone-900"
-        : "hover:bg-stone-100 focus:bg-stone-100 text-[#4f6b28]" // Kinetic Lemon
+      : "hover:bg-stone-100 focus:bg-stone-100 text-stone-900"
   }`;
 
   const times = Array.from({ length: 48 }).map((_, i) => {
@@ -1052,9 +1063,7 @@ function TimePicker({ value, onChange, theme }: { value: string; onChange: (val:
             key={t} 
             value={t} 
             className={
-              theme === "DARK" ? "bg-stone-900 text-white" : 
-              theme === "LIGHT" ? "bg-white text-[#4f6b28]" : 
-              "bg-white text-stone-900"
+              isDark ? "bg-stone-900 text-white" : "bg-white text-stone-900"
             }
           >
             {t}
@@ -1090,11 +1099,9 @@ function PremiumDateTimePicker({ value, onChange, theme, placeholder }: {
   }`;
 
   const selectCls = `bg-transparent outline-none font-bold text-sm cursor-pointer appearance-none px-2 py-1 rounded-lg transition-colors ${
-    theme === "DARK" 
+    isDark 
       ? "hover:bg-stone-800 hover:text-white focus:bg-stone-800 focus:text-white text-white" 
-      : theme === "VINTAGE"
-        ? "hover:bg-stone-100 focus:bg-stone-100 text-stone-900"
-        : "hover:bg-stone-100 focus:bg-stone-100 text-[#4f6b28]" // Kinetic Lemon
+      : "hover:bg-stone-100 focus:bg-stone-100 text-stone-900"
   }`;
 
   return (
@@ -1124,9 +1131,7 @@ function PremiumDateTimePicker({ value, onChange, theme, placeholder }: {
                 key={t} 
                 value={t} 
                 className={
-                  theme === "DARK" ? "bg-stone-900 text-white" : 
-                  theme === "LIGHT" ? "bg-white text-[#4f6b28]" : 
-                  "bg-white text-stone-900"
+                  isDark ? "bg-stone-900 text-white" : "bg-white text-stone-900"
                 }
               >
                 {t}
