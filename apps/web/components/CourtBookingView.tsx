@@ -391,12 +391,8 @@ export default function CourtBookingView({ theme, isAdmin, tenantId: tenantIdPro
   const tabCls = (active: boolean) =>
     `flex items-center gap-2 px-5 py-2.5 rounded-xl text-[10px] font-black tracking-widest uppercase transition-all ${
       active
-        ? theme === "LIGHT"
-          ? "bg-[#4f6b28] text-white shadow-md"
-          : theme === "DARK"
-          ? "bg-[#00E5FF] text-stone-950 shadow-md"
-          : "bg-stone-900 text-white shadow-md"
-        : isDark ? "text-stone-300 hover:text-white" : "text-stone-950 hover:text-stone-800"
+        ? "bg-primary text-on-primary shadow-md"
+        : "text-on-surface/60 hover:text-on-surface"
     }`;
 
   return (
@@ -404,16 +400,16 @@ export default function CourtBookingView({ theme, isAdmin, tenantId: tenantIdPro
       {/* Header */}
       <div className="flex items-end justify-between gap-6">
         <div className="flex flex-col gap-2">
-          <h3 className={`text-6xl font-black italic tracking-tighter transition-all duration-500 ${
-            isDark ? "text-white" : "text-stone-900"
-          }`}>MY SCHEDULE</h3>
-          <p className={`text-[9px] font-black uppercase tracking-[0.2em] ${theme === "LIGHT" || theme === "DARK" ? "text-white" : "text-stone-900"}`}>
+          <h3 className="text-6xl font-black italic tracking-tighter transition-all duration-500 text-on-surface">
+            MY SCHEDULE
+          </h3>
+          <p className="text-[9px] font-black uppercase tracking-[0.2em] text-primary">
             {theme === "LIGHT" ? "Kinetic Lemon Edition" : theme === "DARK" ? "Noir Edition" : "Pure Edition"}
           </p>
         </div>
 
         {/* View mode tabs */}
-        <div className={`flex items-center gap-1 p-1 rounded-2xl ${isDark ? "bg-stone-900" : "bg-stone-100"}`}>
+        <div className="flex items-center gap-1 p-1 rounded-2xl bg-surface-container">
           <button className={tabCls(viewMode === "WEEK")} onClick={() => setViewMode("WEEK")}>
             <span className="material-symbols-outlined text-sm">view_week</span>
             Week
@@ -440,12 +436,8 @@ export default function CourtBookingView({ theme, isAdmin, tenantId: tenantIdPro
                 setViewMode("WEEK");
               }}
             />
-          ) : theme === "LIGHT" ? (
-            <KineticLemonSchedule {...scheduleProps} />
-          ) : theme === "DARK" ? (
-            <VintageNoirSchedule {...scheduleProps} />
           ) : (
-            <VintagePureSchedule {...scheduleProps} />
+            <UnifiedSchedule {...scheduleProps} />
           )}
         </div>
 
@@ -1490,45 +1482,15 @@ function ScheduleGrid({ courts, bookings, selectedDate, theme, onSlotClick, onDr
 
 // ─── Theme Variants ───────────────────────────────────────────────────────────
 
-function KineticLemonSchedule(props: any) {
+function UnifiedSchedule(props: any) {
   return (
-    <div className="bg-white rounded-[2rem] p-10 shadow-sm border-t-[12px] border-[#ccff00] animate-in slide-in-from-bottom-4 duration-700">
+    <div className="bg-surface rounded-[2rem] p-10 shadow-sm border border-outline-variant animate-in slide-in-from-bottom-4 duration-700">
       <ScheduleNavigation {...props} />
       <ScheduleGrid
         {...props}
-        timeLabelColor="text-[#4f6b28]"
-        borderColor="border-stone-200"
-        rowBorder="border-stone-100"
-      />
-    </div>
-  );
-}
-
-function VintagePureSchedule(props: any) {
-  const isDark = props.theme === "DARK";
-  return (
-    <div className="bg-white rounded-[2rem] p-10 shadow-sm border border-stone-100 animate-in slide-in-from-bottom-4 duration-700">
-      <ScheduleNavigation {...props} />
-      <ScheduleGrid
-        {...props}
-        timeLabelColor={isDark ? "text-white" : "text-stone-900"}
-        borderColor="border-stone-100"
-        rowBorder="border-stone-50"
-      />
-    </div>
-  );
-}
-
-function VintageNoirSchedule(props: any) {
-  const isDark = props.theme === "DARK";
-  return (
-    <div className="bg-stone-950 rounded-[2rem] p-10 shadow-2xl border border-stone-800 animate-in fade-in zoom-in-95 duration-700">
-      <ScheduleNavigation {...props} />
-      <ScheduleGrid
-        {...props}
-        timeLabelColor={isDark ? "text-white" : "text-stone-800"}
-        borderColor="border-stone-800"
-        rowBorder="border-stone-900"
+        timeLabelColor="text-primary"
+        borderColor="border-outline-variant"
+        rowBorder="border-outline-variant/30"
       />
     </div>
   );
@@ -1541,16 +1503,12 @@ function UpcomingSection({ bookings, theme, onBookingClick }: { bookings: any[];
   today.setHours(0,0,0,0);
 
   return (
-    <div className={`p-8 rounded-[2rem] border animate-in fade-in slide-in-from-right-4 duration-1000 ${
-      isDark ? "bg-stone-950 border-stone-800" : "bg-white border-stone-100 shadow-sm"
-    }`}>
+    <div className="p-8 rounded-[2rem] border border-outline-variant bg-surface animate-in fade-in slide-in-from-right-4 duration-1000 shadow-sm">
       <div className="flex items-center justify-between mb-8">
-        <h4 className={`text-xs font-black uppercase tracking-[0.2em] ${isDark ? "text-white" : "text-stone-900"}`}>
+        <h4 className="text-xs font-black uppercase tracking-[0.2em] text-on-surface">
           Upcoming Schedule
         </h4>
-        <span className={`px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-widest ${
-          isDark ? "bg-stone-800 text-white" : "bg-stone-50 text-stone-950"
-        }`}>
+        <span className="px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-widest bg-surface-container text-on-surface">
           {bookings.length}
         </span>
       </div>
@@ -1558,10 +1516,10 @@ function UpcomingSection({ bookings, theme, onBookingClick }: { bookings: any[];
       <div className="space-y-4">
         {bookings.length === 0 ? (
           <div className="py-12 flex flex-col items-center justify-center text-center">
-            <span className={`material-symbols-outlined text-3xl mb-3 opacity-10 ${isDark ? "text-white" : "text-stone-900"}`}>
+            <span className="material-symbols-outlined text-3xl mb-3 opacity-10 text-on-surface">
               event_busy
             </span>
-            <p className={`text-[9px] font-black uppercase tracking-widest opacity-30 ${isDark ? "text-white" : "text-stone-900"}`}>
+            <p className="text-[9px] font-black uppercase tracking-widest opacity-30 text-on-surface">
               No upcoming sessions
             </p>
           </div>
@@ -1579,24 +1537,16 @@ function UpcomingSection({ bookings, theme, onBookingClick }: { bookings: any[];
               <div
                 key={booking.id}
                 onClick={() => onBookingClick(booking)}
-                className={`group relative p-4 rounded-2xl border transition-all hover:scale-[1.02] cursor-pointer ${
-                  isDark
-                    ? "bg-stone-900/40 border-stone-800 hover:border-[#00E5FF]/50"
-                    : "bg-stone-50 border-stone-100 hover:border-stone-300"
-                }`}
+                className="group relative p-4 rounded-2xl border border-outline-variant transition-all hover:scale-[1.02] cursor-pointer bg-surface-container/40 hover:border-primary/50"
                 style={{ animationDelay: `${idx * 100}ms` }}
               >
                 <div className="flex justify-between items-start mb-2">
-                  <span className={`text-[8px] font-black uppercase tracking-widest ${
-                    isDark ? "text-white" : "text-stone-950"
-                  }`}>
+                  <span className="text-[8px] font-black uppercase tracking-widest text-on-surface">
                     {dateLabel} · {booking.time}
                   </span>
-                  <div className={`w-1.5 h-1.5 rounded-full ${
-                    theme === "LIGHT" ? "bg-[#ccff00]" : theme === "DARK" ? "bg-[#00E5FF]" : "bg-stone-900"
-                  }`} />
+                  <div className="w-1.5 h-1.5 rounded-full bg-primary" />
                 </div>
-                <p className={`text-sm font-black tracking-tight mb-0.5 ${isDark ? "text-white" : "text-stone-900"}`}>
+                <p className="text-sm font-black tracking-tight mb-0.5 text-on-surface">
                   {booking.courtName}
                 </p>
                 <div className="flex items-center gap-2">

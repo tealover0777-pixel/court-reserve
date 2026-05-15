@@ -82,10 +82,10 @@ export default function DashboardClient({ params }: { params: { tenantId: string
 
   if (authLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-stone-950">
+      <div className="flex items-center justify-center min-h-screen bg-background">
         <div className="flex flex-col items-center gap-4">
-          <div className="w-12 h-12 border-4 border-[#ccff00] border-t-transparent rounded-full animate-spin"></div>
-          <p className="text-white/50 font-mono text-[10px] uppercase tracking-[0.2em]">Synchronizing Context...</p>
+          <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+          <p className="text-on-background/50 font-body text-[10px] uppercase tracking-[0.2em]">Synchronizing Context...</p>
         </div>
       </div>
     );
@@ -343,279 +343,28 @@ export default function DashboardClient({ params }: { params: { tenantId: string
   }
 
   return (
-    <div className={`min-h-screen transition-colors duration-500 theme-${theme.toLowerCase()} ${theme === "DARK" ? "bg-stone-950 text-white" :
-      theme === "VINTAGE" ? "bg-[#f7f9fb] text-black" :
-        "bg-background text-on-background"
-      } selection:bg-primary/30`}>
-      {/* SideNavBar Component */}
-      <aside className={`fixed left-0 top-0 h-full w-72 border-r transition-colors duration-500 ${theme === "DARK" ? "bg-stone-950 border-stone-800" :
-        theme === "VINTAGE" ? "bg-white border-stone-200" :
-          "bg-white border-stone-200"
-        } flex flex-col z-50`}>
-        <div className="py-6 px-4">
-          {(() => {
-            const currentTenant = allTenants.find(t => t.tenant_id === tenantId || t.id === tenantId);
-            const logoUrl = currentTenant?.logo_url || ((!tenantId || tenantId === "consolidated") ? globalTenant?.logo_url : null);
-
-            if (logoUrl) {
-              return (
-                <div className="w-full mb-6 flex justify-center">
-                  <img
-                    src={logoUrl}
-                    alt="Logo"
-                    className="w-full h-auto max-h-32 object-contain"
-                  />
-                </div>
-              );
-            }
-
-            return (
-              <h1 className={`text-3xl font-black italic tracking-tighter ${theme === "DARK" ? "text-[#ccff00]" :
-                theme === "VINTAGE" ? "text-black" :
-                  theme === "LIGHT" ? "text-[#4f6b28]" : "text-stone-950"
-                }`}>
-                {tenantId === "consolidated" ? "CONSOLIDATED" : (currentTenant?.name || (tenantId ? tenantId.toUpperCase() : "PLATFORM"))}
-              </h1>
-            );
-          })()}
-          <p className={`text-xs font-bold uppercase tracking-[0.2em] mt-1 ${theme === "DARK" ? "text-white" :
-            theme === "VINTAGE" ? "text-stone-800" :
-              "text-stone-900"
-            }`}>
-
-          </p>
-        </div>
-
-        <nav className="flex-1 space-y-2 py-4">
-          {hasPermission("DASHBOARD_VIEW") && (
-            <NavItem
-              icon="grid_view"
-              label="Dashboard"
-              active={activeView === "DASHBOARD"}
-              onClick={() => handleViewChange("DASHBOARD")}
-              theme={theme}
-            />
-          )}
-          {hasPermission("MY_SCHEDULE_VIEW") && (
-            <NavItem
-              icon="sports_tennis"
-              label="My Schedule"
-              active={activeView === "COURT BOOKING"}
-              onClick={() => handleViewChange("COURT BOOKING")}
-              theme={theme}
-            />
-          )}
-          {hasPermission("PROGRAMS_VIEW") && (
-            <NavItem
-              icon="calendar_today"
-              label="Programs"
-              active={activeView === "PROGRAMS"}
-              onClick={() => handleViewChange("PROGRAMS")}
-              theme={theme}
-            />
-          )}
-          {hasPermission("MEMBERSHIP_VIEW") && (
-            <NavItem
-              icon="card_membership"
-              label="Membership"
-              active={activeView === "MEMBERSHIP"}
-              onClick={() => handleViewChange("MEMBERSHIP")}
-              theme={theme}
-            />
-          )}
-          {hasPermission("ADMINISTRATION_VIEW") && (
-            <>
-              <NavItem
-                icon="admin_panel_settings"
-                label="Administration"
-                active={["ROLE_TYPES", "COMPANY", "TENANT_USER_ADMIN", "MEMBER_ADMIN", "SCHEDULES", "EVENTS_ADMIN"].includes(activeView)}
-                onClick={() => setAdministrationOpen(!administrationOpen)}
-                theme={theme}
-              />
-              {administrationOpen && (
-                <div className={`${theme === "DARK" ? "bg-stone-900/40" : "bg-stone-100/50"} py-2`}>
-                  <SubNavItem
-                    label="Role Types"
-                    active={activeView === "ROLE_TYPES"}
-                    onClick={() => handleViewChange("ROLE_TYPES")}
-                    theme={theme}
-                  />
-                  {tenantId !== "consolidated" && (
-                    <SubNavItem
-                      label="Company"
-                      active={activeView === "COMPANY"}
-                      onClick={() => handleViewChange("COMPANY")}
-                      theme={theme}
-                    />
-                  )}
-                  <SubNavItem
-                    label="User Admin"
-                    active={activeView === "TENANT_USER_ADMIN"}
-                    onClick={() => handleViewChange("TENANT_USER_ADMIN")}
-                    theme={theme}
-                  />
-                  <SubNavItem
-                    label="Member Admin"
-                    active={activeView === "MEMBER_ADMIN"}
-                    onClick={() => handleViewChange("MEMBER_ADMIN")}
-                    theme={theme}
-                  />
-                  <SubNavItem
-                    label="Schedules"
-                    active={activeView === "SCHEDULES"}
-                    onClick={() => handleViewChange("SCHEDULES")}
-                    theme={theme}
-                  />
-                  <SubNavItem
-                    label="Events"
-                    active={activeView === "EVENTS_ADMIN"}
-                    onClick={() => handleViewChange("EVENTS_ADMIN")}
-                    theme={theme}
-                  />
-                </div>
-              )}
-            </>
-          )}
-          {hasPermission("SETTINGS_VIEW") && (
-            <NavItem
-              icon="settings"
-              label="Settings"
-              active={activeView === "SETTINGS"}
-              onClick={() => handleViewChange("SETTINGS")}
-              theme={theme}
-            />
-          )}
-          <NavItem
-            icon="person"
-            label="Profile"
-            active={activeView === "PROFILE"}
-            onClick={() => handleViewChange("PROFILE")}
-            theme={theme}
-          />
-          {isGlobalUser && hasPermission("PLATFORM_VIEW") && (
-            <>
-              <NavItem
-                icon="hub"
-                label="Platform"
-                active={["AI_ADMIN", "DIMENSIONS", "USER_ADMIN", "PLATFORM_TENANT_ADMIN", "PLATFORM_COMPANY", "PLATFORM_ROLE_TYPES"].includes(activeView)}
-                onClick={() => setPlatformAdminOpen(!platformAdminOpen)}
-                theme={theme}
-              />
-              {platformAdminOpen && (
-                <div className={`${theme === "DARK" ? "bg-stone-900/40" : "bg-stone-100/50"} py-2`}>
-                  <SubNavItem
-                    label="AI Admin"
-                    active={activeView === "AI_ADMIN"}
-                    onClick={() => handleViewChange("AI_ADMIN")}
-                    theme={theme}
-                  />
-                  <SubNavItem
-                    label="DIMENSIONS"
-                    active={activeView === "DIMENSIONS"}
-                    onClick={() => handleViewChange("DIMENSIONS")}
-                    theme={theme}
-                  />
-                  <SubNavItem
-                    label="USER ADMIN"
-                    active={activeView === "USER_ADMIN"}
-                    onClick={() => handleViewChange("USER_ADMIN")}
-                    theme={theme}
-                  />
-                  <SubNavItem
-                    label="PLATFORM TENANT"
-                    active={activeView === "PLATFORM_TENANT_ADMIN"}
-                    onClick={() => handleViewChange("PLATFORM_TENANT_ADMIN")}
-                    theme={theme}
-                  />
-                  <SubNavItem
-                    label="PLATFORM COMPANY"
-                    active={activeView === "PLATFORM_COMPANY"}
-                    onClick={() => handleViewChange("PLATFORM_COMPANY")}
-                    theme={theme}
-                  />
-                  <SubNavItem
-                    label="Role Types"
-                    active={activeView === "PLATFORM_ROLE_TYPES"}
-                    onClick={() => handleViewChange("PLATFORM_ROLE_TYPES")}
-                    theme={theme}
-                  />
-                </div>
-              )}
-            </>
-          )}
-        </nav>
-
-        <div className="mt-auto p-8 border-t border-stone-200">
-          <button
-            onClick={() => handleViewChange("COURT BOOKING")}
-            className={`w-full py-4 font-black rounded-lg text-xs tracking-widest transition-all uppercase shadow-lg ${
-              theme === "DARK" ? "bg-stone-900 text-white hover:bg-black shadow-stone-900/10" :
-              theme === "VINTAGE" ? "bg-stone-900 text-white hover:bg-black shadow-stone-900/10" :
-              "bg-[#cfff00] text-[#4f6b28] hover:bg-white shadow-[#cfff00]/10"
-            }`}
-          >
-            BOOK A COURT
-          </button>
-
-          <div
-            onClick={() => handleViewChange("PROFILE")}
-            className="mt-8 flex items-center gap-3 cursor-pointer group"
-          >
-            <div className={`w-10 h-10 rounded-full overflow-hidden border-2 border-transparent transition-all flex items-center justify-center ${theme === "DARK" ? "bg-stone-800 group-hover:border-[#ccff00]" :
-              theme === "VINTAGE" ? "bg-stone-100 group-hover:border-black" :
-                "bg-[#fdfbe6] group-hover:border-[#4f6b28]"
-              }`}>
-              {profile?.portrait_url || authUser?.photoURL ? (
-                <img
-                  src={profile?.portrait_url || authUser?.photoURL || ""}
-                  alt="Profile"
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <span className={`text-xs font-black uppercase ${theme === "DARK" ? "text-white" : theme === "LIGHT" ? "text-[#4f6b28]" : "text-stone-800"}`}>
-                  {profile ? `${profile.first_name?.[0] || ""}${profile.last_name?.[0] || ""}` : "?"}
-                </span>
-              )}
-            </div>
-            <div>
-              <p className={`text-xs font-black transition-colors uppercase ${theme === "DARK" ? "group-hover:text-[#ccff00]" :
-                theme === "VINTAGE" ? "group-hover:text-black" :
-                  "group-hover:text-[#4f6b28]"
-                }`}>
-                {profile ? `${profile.first_name} ${profile.last_name}` : (authUser?.displayName || authUser?.email || "User")}
-              </p>
-              <p className={`text-[10px] font-black uppercase tracking-widest ${theme === "DARK" ? "text-white" : "text-stone-800"}`}>
-                {profile
-                  ? (roles.find(r => r.role_id === profile.role || r.id === profile.role)?.role_name || profile.role)
-                  : ""
-                }
-              </p>
-            </div>
-          </div>
-
-          <button
-            onClick={() => signOut(auth)}
-            className={`mt-6 flex items-center gap-3 transition-colors px-1 ${theme === "DARK" ? "text-white hover:text-red-400" :
-              theme === "VINTAGE" ? "text-stone-700 hover:text-black" :
-                "text-[#4f6b28] hover:text-red-500"
-              }`}
-          >
-            <span className="material-symbols-outlined text-sm">logout</span>
-            <span className="text-xs font-black uppercase tracking-widest">LOGOUT</span>
-          </button>
-        </div>
-      </aside>
+    <div className={`min-h-screen transition-colors duration-500 theme-${theme.toLowerCase()} bg-background text-on-background selection:bg-primary/30 font-body`}>
+      <Sidebar 
+        activeView={activeView} 
+        setActiveView={handleViewChange}
+        platformAdminOpen={platformAdminOpen}
+        setPlatformAdminOpen={setPlatformAdminOpen}
+        administrationOpen={administrationOpen}
+        setAdministrationOpen={setAdministrationOpen}
+        isGlobalUser={isGlobalUser}
+        hasPermission={hasPermission}
+        profile={profile}
+        onLogout={() => signOut(auth)}
+        theme={theme}
+        tenantId={tenantId}
+        allTenants={allTenants}
+        globalTenant={globalTenant}
+      />
 
       {/* TopAppBar Component */}
-      <header className={`sticky top-0 z-40 w-full backdrop-blur-xl flex justify-between items-center ml-72 px-12 py-6 max-w-[calc(100%-18rem)] transition-colors duration-500 ${theme === "DARK" ? "bg-stone-950/60 border-b border-stone-800" :
-        theme === "VINTAGE" ? "bg-white/80 border-b border-[#f0f0f0]" :
-          "bg-white/60"
-        }`}>
+      <header className="sticky top-0 z-40 w-full backdrop-blur-xl flex justify-between items-center ml-[320px] px-12 py-6 max-w-[calc(100%-20rem)] transition-colors duration-500 bg-background/60 border-b border-outline/10">
         <div className="flex items-center gap-3">
-          <div className={`w-8 h-8 rounded-xl flex items-center justify-center transition-all ${theme === "DARK" ? "bg-stone-900 text-[#ccff00]" :
-            theme === "VINTAGE" ? "bg-black text-white" :
-              "bg-[#cfff00] text-[#4f6b28]"
-            }`}>
+          <div className="w-8 h-8 rounded-xl flex items-center justify-center transition-all bg-primary-container text-on-primary-container">
             <span className="material-symbols-outlined text-sm">
               {activeView === "DASHBOARD" ? "dashboard" :
                 activeView.includes("ADMIN") ? "admin_panel_settings" :
@@ -623,12 +372,12 @@ export default function DashboardClient({ params }: { params: { tenantId: string
             </span>
           </div>
           <div className="flex items-center gap-2">
-            <span className={`text-[10px] font-black tracking-widest uppercase opacity-70 ${theme === "DARK" ? "text-white" : theme === "LIGHT" ? "text-[#4f6b28]" : "text-stone-900"}`}>
+            <span className="text-[10px] font-black tracking-widest uppercase opacity-70 text-on-background">
               {activeView === "DASHBOARD" || activeView === "PROGRAMS" || activeView === "MEMBERSHIP" || activeView.includes("PLATFORM") || activeView === "USER_ADMIN" || activeView === "AI_ADMIN" || activeView === "DIMENSIONS" ? "PLATFORM" :
                 activeView === "ROLE_TYPES" || activeView === "COMPANY" || activeView === "TENANT_USER_ADMIN" || activeView === "SCHEDULES" ? "ADMINISTRATION" : "MANAGEMENT"}
             </span>
-            <span className="text-stone-800">/</span>
-            <span className={`text-xs font-black tracking-widest uppercase ${theme === "DARK" ? "text-white" : theme === "LIGHT" ? "text-[#4f6b28]" : "text-stone-900"}`}>
+            <span className="text-outline/20">/</span>
+            <span className="text-xs font-black tracking-widest uppercase text-on-background">
               {activeView === "TENANT_USER_ADMIN"
                 ? "USER ADMIN"
                 : activeView === "USER_ADMIN"
@@ -642,11 +391,10 @@ export default function DashboardClient({ params }: { params: { tenantId: string
 
         {/* Tenant Selector - Only visible for platform admins */}
         {isGlobalUser && hasPermission("PLATFORM_VIEW") && (
-          <div className="relative flex items-center gap-3 ml-6 pl-6 border-l border-stone-200 dark:border-stone-800" ref={tenantSelectorRef}>
+          <div className="relative flex items-center gap-3 ml-6 pl-6 border-l border-outline/10" ref={tenantSelectorRef}>
             <button
               onClick={() => setIsTenantSelectorOpen(!isTenantSelectorOpen)}
-              className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-all ${theme === "DARK" ? "bg-stone-900 text-[#ccff00] hover:bg-stone-800 shadow-lg shadow-black/20" : "bg-stone-100 text-stone-950 hover:bg-stone-200"
-                }`}
+              className="flex items-center gap-2 px-4 py-2 rounded-xl transition-all bg-surface-container hover:bg-surface-container-high text-on-surface"
             >
               <span className="material-symbols-outlined text-sm">corporate_fare</span>
               <span className="text-[10px] font-black tracking-widest uppercase truncate max-w-[120px]">
@@ -656,8 +404,7 @@ export default function DashboardClient({ params }: { params: { tenantId: string
             </button>
 
             {isTenantSelectorOpen && (
-              <div className={`absolute top-full left-6 mt-4 w-72 rounded-3xl shadow-2xl z-50 border p-2 animate-in fade-in slide-in-from-top-2 duration-300 ${theme === "DARK" ? "bg-stone-950 border-stone-800" : "bg-white border-stone-100"
-                }`}>
+              <div className="absolute top-full left-6 mt-4 w-72 rounded-3xl shadow-2xl z-50 border p-2 animate-in fade-in slide-in-from-top-2 duration-300 bg-surface border-outline/10">
                 <div className="px-4 py-3 mb-2">
                   <p className="text-[8px] font-black tracking-[0.2em] uppercase opacity-70">Available Companies</p>
                 </div>
@@ -669,8 +416,8 @@ export default function DashboardClient({ params }: { params: { tenantId: string
                       setIsTenantSelectorOpen(false);
                     }}
                     className={`w-full flex flex-col gap-0.5 items-start px-4 py-3 rounded-2xl transition-all ${tenantId === "consolidated"
-                      ? (theme === "DARK" ? "bg-[#ccff00] text-stone-950 shadow-lg shadow-[#ccff00]/10" : "bg-stone-900 text-white shadow-lg")
-                      : (theme === "DARK" ? "hover:bg-stone-900 text-white" : "hover:bg-stone-50 text-stone-700 hover:text-stone-900")
+                      ? "bg-primary text-on-primary shadow-lg shadow-primary/20"
+                      : "hover:bg-surface-container text-on-surface"
                       }`}
                   >
                     <span className="text-[10px] font-black tracking-tight uppercase truncate w-full text-left italic">Consolidated (All Tenants)</span>
@@ -690,8 +437,8 @@ export default function DashboardClient({ params }: { params: { tenantId: string
                           setIsTenantSelectorOpen(false);
                         }}
                         className={`w-full flex flex-col gap-0.5 items-start px-4 py-3 rounded-2xl transition-all ${t.tenant_id === tenantId
-                          ? (theme === "DARK" ? "bg-[#ccff00] text-stone-950 shadow-lg shadow-[#ccff00]/10" : "bg-stone-900 text-white shadow-lg")
-                          : (theme === "DARK" ? "hover:bg-stone-900 text-white" : "hover:bg-stone-50 text-stone-700 hover:text-stone-900")
+                          ? "bg-primary text-on-primary shadow-lg shadow-primary/20"
+                          : "hover:bg-surface-container text-on-surface"
                           }`}
                       >
                         <span className="text-[10px] font-black tracking-tight uppercase truncate w-full text-left">{t.name}</span>
@@ -709,16 +456,11 @@ export default function DashboardClient({ params }: { params: { tenantId: string
             <input
               type="text"
               placeholder="Search platform..."
-              className={`rounded-full px-6 py-2 w-64 text-sm outline-none transition-all ${theme === "DARK"
-                ? "bg-stone-900 text-white focus:ring-2 focus:ring-[#ccff00] placeholder:text-stone-200"
-                : theme === "VINTAGE"
-                  ? "bg-white border border-stone-200 text-black focus:ring-2 focus:ring-black placeholder:text-stone-300"
-                  : "bg-white border border-[#4f6b28]/10 text-[#4f6b28] focus:ring-2 focus:ring-[#4f6b28] placeholder:text-stone-400"
-                }`}
+              className="rounded-full px-6 py-2 w-64 text-sm outline-none transition-all bg-surface-container text-on-surface focus:ring-2 focus:ring-primary placeholder:text-on-surface/30"
             />
-            <span className={`material-symbols-outlined absolute right-4 top-2 transition-colors ${theme === "DARK" ? "text-white" : theme === "VINTAGE" ? "text-stone-400" : "text-[#4f6b28]/40"}`}>search</span>
+            <span className="material-symbols-outlined absolute right-4 top-2 transition-colors text-on-surface/40">search</span>
           </div>
-          <div className={`flex items-center gap-4 ${theme === "DARK" ? "text-[#ccff00]" : theme === "VINTAGE" ? "text-black" : "text-[#4f6b28]"}`}>
+          <div className="flex items-center gap-4 text-primary">
             <button 
               onClick={() => {
                 setShowNotificationsModal(true);
@@ -728,7 +470,7 @@ export default function DashboardClient({ params }: { params: { tenantId: string
             >
               notifications
               {unreadNotifications.length > 0 && (
-                <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white dark:border-stone-950"></span>
+                <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-surface"></span>
               )}
             </button>
             <button className="material-symbols-outlined hover:opacity-80 transition-opacity">settings</button>
@@ -737,10 +479,7 @@ export default function DashboardClient({ params }: { params: { tenantId: string
       </header>
 
       {/* Main Content Area */}
-      <main className={`ml-72 min-h-screen p-12 transition-colors duration-500 ${theme === "DARK" ? "bg-stone-950" :
-          theme === "VINTAGE" ? "bg-[#f7f9fb]" :
-          "bg-[#fdfbe6]"
-        }`}>
+      <main className="ml-[320px] min-h-screen p-12 transition-colors duration-500 bg-background">
         {(() => {
           const requiredPerm = VIEW_PERMISSIONS[activeView];
           
@@ -816,14 +555,14 @@ export default function DashboardClient({ params }: { params: { tenantId: string
         <div className="space-y-4">
           {unreadNotifications.length > 0 ? (
             unreadNotifications.map(n => (
-              <div key={n.id} className={`p-4 rounded-2xl border transition-colors ${theme === "DARK" ? "bg-stone-900 border-stone-800" : theme === "LIGHT" ? "bg-white border-[#4f6b28]/10 shadow-sm" : "bg-stone-50 border-stone-100"}`}>
+              <div key={n.id} className="p-4 rounded-2xl border transition-colors bg-surface-container-low border-outline/10 shadow-sm">
                 <div className="flex justify-between items-start mb-1">
-                  <h5 className={`text-[10px] font-black uppercase tracking-widest ${theme === "DARK" ? "text-[#ccff00]" : theme === "LIGHT" ? "text-[#4f6b28]" : "text-black"}`}>{n.title}</h5>
+                  <h5 className="text-[10px] font-black uppercase tracking-widest text-primary">{n.title}</h5>
                   <span className="text-[8px] opacity-40 font-mono">
                     {n.created_at?.toDate ? format(n.created_at.toDate(), "MMM dd, HH:mm") : "Just now"}
                   </span>
                 </div>
-                <p className={`text-xs ${theme === "DARK" ? "text-stone-300" : theme === "LIGHT" ? "text-[#4f6b28]/70" : "text-stone-600"}`}>{n.message}</p>
+                <p className="text-xs text-on-surface-variant">{n.message}</p>
               </div>
             ))
           ) : (
@@ -835,6 +574,133 @@ export default function DashboardClient({ params }: { params: { tenantId: string
         </div>
       </Modal>
     </div>
+  );
+}
+
+function Sidebar({ activeView, setActiveView, platformAdminOpen, setPlatformAdminOpen, administrationOpen, setAdministrationOpen, isGlobalUser, hasPermission, profile, onLogout, theme, tenantId, allTenants, globalTenant }: any) {
+  return (
+    <aside className="w-[320px] h-screen flex flex-col transition-all duration-700 ease-in-out z-30 fixed left-0 top-0 bg-surface">
+      {/* Brand Header */}
+      <div className="p-10 mb-6">
+        <div className="flex items-center gap-4 group cursor-pointer">
+          <div className="w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-500 group-hover:rotate-[15deg] shadow-lg bg-primary text-on-primary">
+            <span className="material-symbols-outlined text-2xl font-black">sports_tennis</span>
+          </div>
+          <div>
+            <h1 className="text-2xl font-black italic tracking-tighter leading-none transition-colors text-primary font-headline">
+              KINETIC COURT
+            </h1>
+            <p className="text-[10px] font-black uppercase tracking-[0.3em] mt-1 transition-colors text-on-surface/40 font-body">
+              {tenantId === "consolidated" ? "CONSOLIDATED" : 
+               (allTenants?.find((t:any) => t.tenant_id === tenantId || t.id === tenantId)?.name || 
+                (tenantId ? tenantId.toUpperCase() : "PLATFORM"))}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Navigation */}
+      <div className="flex-1 px-6 space-y-2 overflow-y-auto hide-scrollbar">
+        <NavItem
+          label="DASHBOARD"
+          icon="grid_view"
+          active={activeView === "DASHBOARD"}
+          onClick={() => setActiveView("DASHBOARD")}
+          theme={theme}
+        />
+        <NavItem
+          label="COURT BOOKING"
+          icon="calendar_today"
+          active={activeView === "COURT BOOKING"}
+          onClick={() => setActiveView("COURT BOOKING")}
+          theme={theme}
+        />
+        <NavItem
+          label="PROGRAMS"
+          icon="exercise"
+          active={activeView === "PROGRAMS"}
+          onClick={() => setActiveView("PROGRAMS")}
+          theme={theme}
+        />
+        <NavItem
+          label="MEMBERSHIP"
+          icon="card_membership"
+          active={activeView === "MEMBERSHIP"}
+          onClick={() => setActiveView("MEMBERSHIP")}
+          theme={theme}
+        />
+
+        {/* Administration Section */}
+        {(hasPermission('TENANT_ADMIN') || hasPermission('DIMENSIONS_VIEW') || hasPermission('ROLE_TYPES_VIEW') || hasPermission('USER_ADMIN_VIEW') || isGlobalUser) && (
+          <div className="mt-10 pt-10 relative">
+            {/* Tonal Divider */}
+            <div className="absolute top-0 left-4 right-4 h-[1px] bg-outline/10"></div>
+            <p className="px-6 text-[10px] font-black uppercase tracking-[0.2em] mb-4 text-on-surface-variant/50">Administration</p>
+
+            <button
+              onClick={() => setAdministrationOpen(!administrationOpen)}
+              className={`w-full flex items-center justify-between px-6 py-4 rounded-2xl transition-all duration-300 group ${administrationOpen ? "bg-surface-container-low" : "hover:bg-surface-container-low/50"
+                }`}
+            >
+              <div className="flex items-center gap-5">
+                <span className={`material-symbols-outlined text-xl transition-colors ${administrationOpen ? "text-primary" : "text-on-surface-variant"}`}>settings</span>
+                <span className={`text-[11px] font-black uppercase tracking-widest transition-colors ${administrationOpen ? "text-on-surface" : "text-on-surface-variant"}`}>Club Settings</span>
+              </div>
+              <span className={`material-symbols-outlined text-sm transition-transform duration-300 ${administrationOpen ? "rotate-180 text-primary" : "text-on-surface-variant"}`}>expand_more</span>
+            </button>
+
+            {administrationOpen && (
+              <div className="mt-2 space-y-1 animate-in fade-in slide-in-from-top-2 duration-300">
+                {(hasPermission('TENANT_ADMIN') || isGlobalUser) && (
+                  <SubNavItem label="Company" active={activeView === "COMPANY"} onClick={() => setActiveView("COMPANY")} theme={theme} />
+                )}
+                {hasPermission('SCHEDULES_VIEW') && (
+                  <SubNavItem label="Schedules" active={activeView === "SCHEDULES"} onClick={() => setActiveView("SCHEDULES")} theme={theme} />
+                )}
+                {hasPermission('EVENTS_VIEW') && (
+                  <SubNavItem label="Events" active={activeView === "EVENTS_ADMIN"} onClick={() => setActiveView("EVENTS_ADMIN")} theme={theme} />
+                )}
+                {hasPermission('USER_ADMIN_VIEW') && (
+                  <SubNavItem label="Staff" active={activeView === "USER_ADMIN"} onClick={() => setActiveView("USER_ADMIN")} theme={theme} />
+                )}
+                {hasPermission('MEMBER_ADMIN_VIEW') && (
+                  <SubNavItem label="Members" active={activeView === "MEMBER_ADMIN"} onClick={() => setActiveView("MEMBER_ADMIN")} theme={theme} />
+                )}
+                {hasPermission('ROLE_TYPES_VIEW') && (
+                  <SubNavItem label="Roles" active={activeView === "ROLE_TYPES"} onClick={() => setActiveView("ROLE_TYPES")} theme={theme} />
+                )}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* User Profile Section */}
+      <div className="p-6">
+        <div className="p-6 rounded-[2rem] transition-all duration-500 relative overflow-hidden group bg-surface-container-low">
+          <div className="flex items-center gap-4 relative z-10">
+            <div className="relative">
+              <img
+                src={profile?.portrait_url || profile?.photoURL || "/images/clay_court.png"}
+                alt="Profile"
+                className="w-12 h-12 rounded-2xl object-cover ring-2 ring-offset-2 transition-all duration-500 group-hover:scale-110 ring-primary ring-offset-surface"
+              />
+              <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 border-2 border-surface rounded-full"></div>
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-[11px] font-black uppercase tracking-widest truncate text-on-surface">{profile?.first_name || 'Player'} {profile?.last_name || ''}</p>
+              <p className="text-[9px] font-black uppercase tracking-widest transition-colors text-primary">{profile?.role || 'Member'}</p>
+            </div>
+            <button
+              onClick={onLogout}
+              className="w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-300 bg-surface text-on-surface-variant hover:bg-red-500 hover:text-white shadow-sm"
+            >
+              <span className="material-symbols-outlined text-lg">logout</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </aside>
   );
 }
 
@@ -862,110 +728,63 @@ function DashboardHome({ theme, profile, tenantId, authUser, userSchedule, onRem
   return (
     <>
       {/* Welcome Hero */}
-      <section className={`mb-12 relative overflow-hidden rounded-2xl p-12 flex items-end min-h-[320px] shadow-sm transition-colors duration-500 ${theme === "DARK" ? "bg-stone-900" :
-        theme === "VINTAGE" ? "bg-white" :
-          "bg-[#fdfbe6] border border-[#4f6b28]/10"
-        }`}>
+      <section className="mb-12 relative overflow-hidden rounded-[2.5rem] p-16 flex items-end min-h-[400px] shadow-sm transition-colors duration-500 bg-surface-container-low">
         <div className="absolute inset-0 z-0">
           <img
             src="/images/clay_court.png"
             alt="Tennis court"
-            className={`w-full h-full object-cover transition-opacity duration-500 ${theme === "DARK" ? "opacity-10" : "opacity-30"} scale-105`}
+            className="w-full h-full object-cover opacity-20 scale-105"
           />
-          <div className={`absolute inset-0 ${theme === "DARK" ? "bg-gradient-to-t from-stone-900 via-stone-900/40 to-transparent" :
-            theme === "VINTAGE" ? "bg-gradient-to-t from-white via-white/20 to-transparent" :
-              "bg-gradient-to-t from-[#fdfbe6] via-[#fdfbe6]/40 to-transparent"
-            }`}></div>
+          <div className="absolute inset-0 bg-gradient-to-t from-surface to-transparent"></div>
         </div>
         <div className="relative z-10 w-full">
-          <span className={`font-black tracking-widest text-sm uppercase mb-4 block transition-colors ${theme === "DARK" ? "text-[#ccff00]" :
-            theme === "VINTAGE" ? "text-stone-800" :
-              "text-[#4f6b28]"
-            }`}>
+          <span className={`font-black tracking-[0.2em] text-[11px] uppercase mb-4 block transition-colors text-primary`}>
             Welcome Back, {profile?.first_name || authUser?.displayName?.split(' ')[0] || "User"}
           </span>
-          <h3 className={`text-7xl font-black tracking-tighter leading-tight max-w-2xl transition-colors ${theme === "DARK" ? "text-white" : theme === "LIGHT" ? "text-[#4f6b28]" : "text-black"
-            }`}>READY TO DOMINATE THE COURT?</h3>
+          <h3 className={`text-7xl font-black tracking-tighter leading-tight max-w-2xl transition-colors ${theme === "DARK" ? "text-white" : "text-on-surface"
+            }`} style={{ fontFamily: 'Lexend, sans-serif' }}>READY TO DOMINATE THE COURT?</h3>
         </div>
       </section>
 
-      <div className="grid grid-cols-12 gap-8">
+      <div className="grid grid-cols-12 gap-10">
         {/* Performance Stats Bento */}
-        <div className="col-span-12 lg:col-span-8 grid grid-cols-3 gap-6">
-          <StatCard label="Win Rate" value="68%" trend="+4.2% this month" color="primary" theme={theme} />
-          <StatCard label="Matches" value="124" trend="Total Career Played" color="surface" theme={theme} />
-          <StatCard label="Loyalty Points" value="2,450" trend="Elite Status Active" color="tertiary" theme={theme} />
-
-          {/* Next Match Card */}
-          <div className={`col-span-3 rounded-2xl p-8 relative overflow-hidden shadow-xl transition-colors duration-500 ${theme === "DARK" ? "bg-stone-800 text-white" :
-            theme === "VINTAGE" ? "bg-black text-white" :
-              "bg-[#4f6b28] text-white"
-            }`}>
-            <div className={`absolute right-0 top-0 h-full w-1/3 opacity-10 skew-x-12 translate-x-12 ${theme === "DARK" ? "bg-[#ccff00]" : theme === "LIGHT" ? "bg-[#cfff00]" : "bg-white"
-              }`}></div>
-            <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-8">
-              <div>
-                <span className={`inline-block px-3 py-1 rounded-full text-[10px] font-black tracking-widest uppercase mb-4 ${theme === "DARK" ? "bg-[#ccff00] text-stone-950" :
-                  theme === "VINTAGE" ? "bg-white text-black" :
-                    "bg-[#cfff00] text-[#4f6b28]"
-                  }`}>Upcoming: Tomorrow</span>
-                <h4 className="text-3xl font-black tracking-tighter">QUARTER FINAL MATCH</h4>
-                <p className="opacity-60 font-medium mt-2">Center Court • 10:00 AM vs. Marcus V.</p>
-              </div>
-              <button className={`px-8 py-4 rounded-full font-black text-xs tracking-widest transition-all uppercase shadow-lg ${theme === "DARK" ? "bg-[#ccff00] text-stone-950" :
-                theme === "VINTAGE" ? "bg-white text-black" :
-                  "bg-[#cfff00] text-[#4f6b28] hover:bg-white"
-                }`}>
-                MATCH PREVIEW
-              </button>
-            </div>
-          </div>
+        <div className="col-span-12 lg:col-span-8 grid grid-cols-3 gap-8">
+          <StatCard label="Win Rate" value="68%" trend="+4.2%" icon="trending_up" theme={theme} active />
+          <StatCard label="Matches" value="124" trend="Total" icon="sports_tennis" theme={theme} />
+          <StatCard label="Loyalty Points" value="2,450" trend="Active" icon="workspace_premium" theme={theme} />
         </div>
 
         {/* Recent Activity Section */}
         <div className="col-span-12 lg:col-span-4">
-          <div className={`rounded-2xl p-8 h-full shadow-sm border transition-colors duration-500 ${theme === "DARK" ? "bg-stone-950 border-stone-800" :
-            theme === "VINTAGE" ? "bg-white border-transparent" :
-              "bg-white border-[#4f6b28]/10"
-            }`}>
-            <div className="flex justify-between items-center mb-6">
-              <h4 className={`font-headline font-black text-xl tracking-tighter uppercase transition-colors ${theme === "DARK" ? "text-white" : theme === "LIGHT" ? "text-[#4f6b28]" : "text-black"
-                }`}>Recent Activity</h4>
-              <button className={`font-black text-[10px] tracking-widest uppercase hover:underline ${theme === "DARK" ? "text-[#ccff00]" :
-                theme === "VINTAGE" ? "text-black" :
-                  "text-[#4f6b28]"
-                }`}>View All</button>
-            </div>
-            <div className="space-y-6">
-              <ActivityItem icon="check_circle" title="Booking Confirmed" subtitle="Court 4 • Wed, 14 Oct" color={theme === "DARK" ? "bg-stone-800 text-[#ccff00]" : theme === "LIGHT" ? "bg-[#cfff00] text-[#4f6b28]" : "bg-stone-50 text-black"} fill theme={theme} />
-              <ActivityItem icon="trophy" title="Tournament Registration" subtitle="Autumn Open Elite Tier" color={theme === "DARK" ? "bg-stone-800 text-[#ccff00]" : theme === "LIGHT" ? "bg-[#cfff00] text-[#4f6b28]" : "bg-stone-50 text-black"} theme={theme} />
-              <ActivityItem icon="payments" title="Membership Renewal" subtitle="Processed successfully" color={theme === "DARK" ? "bg-stone-800 text-[#ccff00]" : theme === "LIGHT" ? "bg-[#cfff00] text-[#4f6b28]" : "bg-stone-50 text-black"} theme={theme} />
+          <div className="rounded-[2.5rem] p-10 h-full transition-colors duration-500 bg-surface-container-low">
+            <h4 className="font-black text-xl tracking-tighter uppercase mb-8 transition-colors text-on-surface" style={{ fontFamily: 'Lexend, sans-serif' }}>Recent Activity</h4>
+            <div className="space-y-8">
+              <ActivityItem icon="check_circle" title="Booking Confirmed" subtitle="Court 4 • Wed, 14 Oct" theme={theme} />
+              <ActivityItem icon="trophy" title="Tournament Reg" subtitle="Autumn Open Elite" theme={theme} />
+              <ActivityItem icon="payments" title="Membership" subtitle="Processed successfully" theme={theme} />
             </div>
           </div>
         </div>
       </div>
 
-      {/* Upcoming Bookings */}
-      <section className="mt-16">
-        <div className="flex justify-between items-end mb-8">
+      {/* Schedule Section */}
+      <section className="mt-12">
+        <div className="flex justify-between items-end mb-10">
           <div>
-            <h4 className={`text-4xl font-black tracking-tighter uppercase transition-colors ${theme === "DARK" ? "text-white" : theme === "LIGHT" ? "text-[#4f6b28]" : "text-black"
-              }`}>Upcoming Bookings</h4>
-            <p className={`${theme === "DARK" ? "text-white" : theme === "LIGHT" ? "text-[#4f6b28]" : "text-stone-900"} font-medium mt-1`}>Your scheduled time on the court.</p>
+            <h4 className="text-5xl font-black tracking-tighter uppercase transition-colors text-on-surface" style={{ fontFamily: 'Lexend, sans-serif' }}>Upcoming Bookings</h4>
+            <p className="text-on-surface-variant text-[11px] font-black uppercase tracking-widest mt-2">Your scheduled time on the court.</p>
           </div>
-          <div className="flex gap-2">
-            <button className={`w-10 h-10 rounded-full border flex items-center justify-center transition-all ${theme === "DARK" ? "border-stone-800 text-[#ccff00] hover:bg-stone-800" : theme === "LIGHT" ? "border-[#4f6b28]/20 text-[#4f6b28] hover:bg-[#cfff00]/20" : "border-stone-200 text-black hover:bg-stone-50"
-              }`}>
-              <span className="material-symbols-outlined">chevron_left</span>
+          <div className="flex gap-3">
+            <button className="w-12 h-12 rounded-2xl flex items-center justify-center transition-all bg-surface-container-low text-primary hover:bg-surface-container-high shadow-sm">
+              <span className="material-symbols-outlined font-black">chevron_left</span>
             </button>
-            <button className={`w-10 h-10 rounded-full border flex items-center justify-center transition-all ${theme === "DARK" ? "border-stone-800 text-[#ccff00] hover:bg-stone-800" : theme === "LIGHT" ? "border-[#4f6b28]/20 text-[#4f6b28] hover:bg-[#cfff00]/20" : "border-stone-200 text-black hover:bg-stone-50"
-              }`}>
-              <span className="material-symbols-outlined">chevron_right</span>
+            <button className="w-12 h-12 rounded-2xl flex items-center justify-center transition-all bg-surface-container-low text-primary hover:bg-surface-container-high shadow-sm">
+              <span className="material-symbols-outlined font-black">chevron_right</span>
             </button>
           </div>
         </div>
 
-        <div className="flex gap-6 overflow-x-auto pb-8 hide-scrollbar">
+        <div className="flex gap-8 overflow-x-auto pb-10 hide-scrollbar">
           {userSchedule.length > 0 ? (
             userSchedule.map(item => (
               <BookingCard
@@ -982,44 +801,46 @@ function DashboardHome({ theme, profile, tenantId, authUser, userSchedule, onRem
               />
             ))
           ) : (
-            <div className={`p-12 rounded-2xl border-2 border-dashed flex flex-col items-center justify-center min-w-[300px] ${theme === "DARK" ? "border-stone-800" : theme === "LIGHT" ? "border-[#4f6b28]/20" : "border-stone-200"}`}>
-              <span className="material-symbols-outlined text-4xl mb-4 opacity-20">calendar_today</span>
+            <div className="p-16 rounded-[2.5rem] flex flex-col items-center justify-center min-w-[320px] bg-surface-container-low">
+              <span className="material-symbols-outlined text-5xl mb-6 opacity-20 text-primary">calendar_today</span>
               <p className="text-[10px] font-black uppercase tracking-widest opacity-40">No upcoming bookings</p>
             </div>
           )}
         </div>
       </section>
-      <section className="mt-16 mb-24">
-        <h4 className={`text-4xl font-black tracking-tighter uppercase mb-8 transition-colors ${theme === "DARK" ? "text-white" : theme === "LIGHT" ? "text-[#4f6b28]" : "text-black"}`}>
+
+      {/* Events Section */}
+      <section className="mt-20 mb-32">
+        <h4 className="text-5xl font-black tracking-tighter uppercase mb-12 transition-colors text-on-surface" style={{ fontFamily: 'Lexend, sans-serif' }}>
           Club Events & News
         </h4>
-        <div className="grid grid-cols-12 gap-8">
+        <div className="grid grid-cols-12 gap-10">
           {featuredEvent ? (
             <div 
               onClick={() => setSelectedEvent(featuredEvent)}
-              className={`col-span-12 md:col-span-7 group cursor-pointer overflow-hidden rounded-2xl relative h-[400px] shadow-lg border transition-colors ${theme === "DARK" ? "border-stone-800" : "border-transparent"}`}
+              className={`col-span-12 md:col-span-7 group cursor-pointer overflow-hidden rounded-[2.5rem] relative h-[500px] shadow-2xl transition-all duration-700 hover:scale-[1.01]`}
             >
               <img
                 src={featuredEvent.image_url || "/images/clay_court.png"}
                 alt={featuredEvent.title}
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
-              <div className="absolute bottom-0 left-0 p-8">
-                <span className={`px-3 py-1 rounded-full text-[10px] font-black tracking-widest uppercase mb-4 inline-block ${theme === "DARK" ? "bg-[#ccff00] text-stone-950" : theme === "LIGHT" ? "bg-[#cfff00] text-[#4f6b28]" : "bg-white text-black"}`}>
+              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent"></div>
+              <div className="absolute bottom-0 left-0 p-12 w-full">
+                <span className="px-4 py-1.5 rounded-full text-[10px] font-black tracking-widest uppercase mb-6 inline-block bg-primary text-on-primary">
                   {featuredEvent.tag || "Club News"}
                 </span>
-                <h5 className="text-4xl font-black text-white tracking-tighter uppercase">{featuredEvent.title}</h5>
-                <p className="text-white mt-2 max-w-lg line-clamp-2">{featuredEvent.description}</p>
+                <h5 className="text-6xl font-black text-white tracking-tighter uppercase leading-none" style={{ fontFamily: 'Lexend, sans-serif' }}>{featuredEvent.title}</h5>
+                <p className="text-white/70 mt-4 max-w-xl text-sm leading-relaxed line-clamp-2">{featuredEvent.description}</p>
               </div>
             </div>
           ) : (
-            <div className={`col-span-12 md:col-span-7 rounded-2xl border-2 border-dashed flex items-center justify-center h-[400px] ${theme === "DARK" ? "border-stone-800" : theme === "LIGHT" ? "border-[#4f6b28]/20" : "border-stone-200"}`}>
-              <p className="text-[10px] font-black uppercase tracking-widest opacity-40">No upcoming events</p>
+            <div className="col-span-12 md:col-span-7 rounded-[2.5rem] flex items-center justify-center h-[500px] bg-surface-container-low">
+              <p className="text-[10px] font-black uppercase tracking-widest opacity-40 text-on-surface-variant">No upcoming events</p>
             </div>
           )}
 
-          <div className="col-span-12 md:col-span-5 flex flex-col gap-8">
+          <div className="col-span-12 md:col-span-5 flex flex-col gap-4">
             {otherEvents.length > 0 ? (
               otherEvents.map(event => (
                 <NewsItem 
@@ -1032,10 +853,10 @@ function DashboardHome({ theme, profile, tenantId, authUser, userSchedule, onRem
                 />
               ))
             ) : (
-              <>
+              <div className="space-y-4">
                 <NewsItem theme={theme} title="PRO CLINIC WITH COACH MILLER" subtitle="Master the overhead smash this weekend." tag="Training" />
                 <NewsItem theme={theme} title="MIXER NIGHT: DRINKS & DOUBLES" subtitle="Join us for the seasonal social event next Friday." tag="Social" />
-              </>
+              </div>
             )}
           </div>
         </div>
@@ -1056,32 +877,29 @@ function DashboardHome({ theme, profile, tenantId, authUser, userSchedule, onRem
 
 function ThemeSelector({ theme, setTheme }: { theme: "LIGHT" | "DARK" | "VINTAGE", setTheme: (t: "LIGHT" | "DARK" | "VINTAGE") => void }) {
   return (
-    <div className={`flex items-center gap-1 p-1 rounded-full border transition-colors duration-500 ${theme === "DARK" ? "bg-stone-900 border-stone-800" :
-      "bg-stone-50 border-stone-200"
-      }`}>
-      <div className={`px-4 py-1.5 flex items-center gap-2 border-r mr-1 transition-colors ${theme === "DARK" ? "border-stone-800" : "border-stone-200"
-        }`}>
-        <span className={`text-[10px] font-black uppercase tracking-widest ${theme === "DARK" ? "text-white" : "text-stone-900"}`}>
-          {theme === "VINTAGE" ? "light mode" : theme === "DARK" ? "Dark mode" : "Kinetic Lemon"}
+    <div className="flex items-center gap-1 p-1 rounded-full border transition-colors duration-500 bg-surface-container-low border-outline/10">
+      <div className="px-4 py-1.5 flex items-center gap-2 border-r mr-1 transition-colors border-outline/10">
+        <span className="text-[10px] font-black uppercase tracking-widest text-on-surface">
+          {theme === "VINTAGE" ? "Vintage" : theme === "DARK" ? "Vantage Noir" : "Vantage Sport"}
         </span>
       </div>
       <button
         onClick={() => setTheme("LIGHT")}
-        className={`p-1.5 rounded-full transition-all flex items-center justify-center ${theme === "LIGHT" ? "bg-white shadow-sm ring-1 ring-[#4f6b28]/10" : "text-stone-500 hover:bg-stone-900 hover:text-white"}`}
+        className={`p-1.5 rounded-full transition-all flex items-center justify-center ${theme === "LIGHT" ? "bg-surface shadow-sm ring-1 ring-outline/10 text-primary" : "text-on-surface/40 hover:bg-surface-container-high hover:text-on-surface"}`}
         title="Light Mode"
       >
-        <span className={`material-symbols-outlined text-sm ${theme === "LIGHT" ? "text-[#4f6b28]" : ""}`}>sports_tennis</span>
+        <span className="material-symbols-outlined text-sm">sports_tennis</span>
       </button>
       <button
         onClick={() => setTheme("DARK")}
-        className={`p-1.5 rounded-full transition-all flex items-center justify-center ${theme === "DARK" ? "bg-stone-800 shadow-sm" : "text-stone-500 hover:bg-stone-900 hover:text-white"}`}
+        className={`p-1.5 rounded-full transition-all flex items-center justify-center ${theme === "DARK" ? "bg-surface-container-highest shadow-sm text-primary" : "text-on-surface/40 hover:bg-surface-container-high hover:text-on-surface"}`}
         title="Dark Mode"
       >
-        <span className={`material-symbols-outlined text-sm ${theme === "DARK" ? "text-[#ccff00]" : ""}`}>dark_mode</span>
+        <span className="material-symbols-outlined text-sm">dark_mode</span>
       </button>
       <button
         onClick={() => setTheme("VINTAGE")}
-        className={`p-1.5 rounded-full transition-all flex items-center justify-center ${theme === "VINTAGE" ? "bg-black shadow-sm text-white" : "text-stone-500 hover:bg-stone-900 hover:text-white"}`}
+        className={`p-1.5 rounded-full transition-all flex items-center justify-center ${theme === "VINTAGE" ? "bg-surface shadow-sm text-primary" : "text-on-surface/40 hover:bg-surface-container-high hover:text-on-surface"}`}
         title="Vintage Mode"
       >
         <span className="material-symbols-outlined text-sm">light_mode</span>
@@ -1094,207 +912,145 @@ function SubNavItem({ label, active = false, onClick, theme }: { label: string; 
   return (
     <button
       onClick={onClick}
-      className={`w-full flex items-center gap-5 py-3 transition-all duration-300 ease-in-out pl-20 relative group ${active
-        ? (theme === "DARK" ? "text-[#ccff00]" : theme === "VINTAGE" ? "text-black" : "text-[#4f6b28]")
-        : (theme === "DARK" ? "text-white hover:text-[#ccff00]" : theme === "VINTAGE" ? "text-stone-700 hover:text-black" : "text-[#4f6b28]/70 hover:text-[#4f6b28] hover:bg-[#cfff00]/10")
+      className={`w-full flex items-center gap-5 py-3 transition-all duration-300 ease-in-out px-12 relative group ${active
+        ? "text-primary"
+        : "text-on-surface-variant hover:text-primary"
         }`}
     >
-      <span className={`text-sm font-black uppercase tracking-[0.2em] transition-all ${active ? "translate-x-1" : "group-hover:translate-x-1"}`} style={{ fontFamily: 'Lexend, sans-serif' }}>
+      <span className={`text-sm font-black uppercase tracking-[0.2em] transition-all font-headline ${active ? "translate-x-1" : "group-hover:translate-x-1"}`}>
         {label}
       </span>
     </button>
   );
 }
+
 
 function NavItem({ icon, label, active = false, onClick, theme }: { icon: string; label: string; active?: boolean; onClick?: () => void; theme: "LIGHT" | "DARK" | "VINTAGE" }) {
   return (
     <button
       onClick={onClick}
       className={`w-full flex items-center gap-5 py-4 transition-all duration-300 ease-in-out px-8 relative group ${active
-        ? (theme === "DARK" ? "text-[#ccff00] bg-stone-900" : theme === "VINTAGE" ? "text-black bg-[#f7f9fb]" : "text-[#4f6b28] bg-[#fdfbe6]")
-        : (theme === "DARK" ? "text-white hover:text-[#ccff00]" : theme === "VINTAGE" ? "text-stone-700 hover:text-black" : "text-[#4f6b28]/70 hover:text-[#4f6b28] hover:bg-[#cfff00]/10")
+        ? "text-primary bg-primary-container/10"
+        : "text-on-surface-variant hover:text-primary hover:bg-surface-container-high"
         }`}
     >
       {active && (
-        <div className={`absolute left-0 top-0 bottom-0 w-2 rounded-r-full ${theme === "DARK" ? "bg-[#ccff00]" :
-          theme === "VINTAGE" ? "bg-black" :
-            "bg-[#4f6b28]"
-          }`} />
+        <div className="absolute left-0 top-0 bottom-0 w-2 rounded-r-full bg-primary" />
       )}
       <span className={`material-symbols-outlined text-2xl transition-all ${active ? "opacity-100 scale-110" : "opacity-60 group-hover:opacity-100"}`} style={active ? { fontVariationSettings: "'FILL' 1" } : {}}>
         {icon}
       </span>
-      <span className={`text-base font-black uppercase tracking-[0.2em] transition-all ${active ? "translate-x-1" : "group-hover:translate-x-1"}`} style={{ fontFamily: 'Lexend, sans-serif' }}>
+      <span className={`text-base font-black uppercase tracking-[0.2em] transition-all font-headline ${active ? "translate-x-1" : "group-hover:translate-x-1"}`}>
         {label}
       </span>
     </button>
   );
 }
 
-function PlaceholderView({ title, icon, theme }: { title: string; icon: string; theme: "LIGHT" | "DARK" | "VINTAGE" }) {
-  return (
-    <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
-      <div className={`w-24 h-24 rounded-[32px] flex items-center justify-center transition-colors ${theme === "DARK" ? "bg-stone-900 text-[#ccff00]" : theme === "LIGHT" ? "bg-[#cfff00]/20 text-[#4f6b28]" : "bg-stone-50 text-stone-950"}`}>
-        <span className="material-symbols-outlined text-5xl">{icon}</span>
-      </div>
-      <div className="text-center">
-        <h2 className="text-4xl font-black italic tracking-tighter text-stone-950 uppercase mb-4" style={{ fontFamily: 'Lexend, sans-serif' }}>
-          {title}
-        </h2>
-        <p className="text-stone-900 font-bold uppercase tracking-widest text-xs">Module Under Construction</p>
-      </div>
-    </div>
-  );
-}
-
-function StatCard({ label, value, trend, color, theme }: { label: string; value: string; trend: string; color: string; theme: "LIGHT" | "DARK" | "VINTAGE" }) {
-  const isVintage = theme === "VINTAGE";
-  const isDark = theme === "DARK";
-
-  const bgColor = isDark
-    ? "bg-stone-900 border-stone-800"
-    : isVintage
-      ? "bg-white border-transparent"
-      : (color === "primary" ? "bg-white border-[#4f6b28]/10" : color === "tertiary" ? "bg-[#cfff00]" : "bg-white border-[#4f6b28]/10");
-
-  const textColor = isDark
-    ? "text-white"
-    : isVintage
-      ? "text-black"
-      : (color === "tertiary" ? "text-[#4f6b28]" : color === "primary" ? "text-[#4f6b28]" : "text-[#4f6b28]");
-
-  const labelColor = isDark
-    ? "text-white"
-    : isVintage
-      ? "text-stone-800"
-      : (color === "tertiary" ? "text-[#4f6b28]/80" : "text-[#4f6b28]/60");
-
-  const trendColor = isDark
-    ? (color === "primary" ? "text-[#ccff00]" : "text-white")
-    : isVintage
-      ? "text-stone-700"
-      : (color === "tertiary" ? "text-[#4f6b28]" : color === "primary" ? "text-[#4f6b28]" : "text-[#4f6b28]/80");
+function StatCard({ label, value, trend, icon, theme, active = false }: { label: string; value: string; trend: string; icon: string; theme: "LIGHT" | "DARK" | "VINTAGE"; active?: boolean }) {
 
   return (
-    <div className={`col-span-1 ${bgColor} p-8 rounded-2xl flex flex-col justify-between shadow-sm border transition-colors duration-500`}>
-      <span className={`font-label text-xs uppercase font-black tracking-widest ${labelColor}`}>
-        {label}
-      </span>
-      <div className="mt-4">
-        <div className={`text-5xl font-black tracking-tighter ${textColor}`}>{value}</div>
-        <div className={`flex items-center text-[10px] font-black uppercase tracking-widest mt-2 ${isDark ? "text-white" : trendColor}`}>
-          {color === "primary" && <span className="material-symbols-outlined text-sm mr-1">trending_up</span>}
-          <span>{trend}</span>
+    <div className={`p-10 rounded-[2.5rem] transition-all duration-700 ease-in-out group relative overflow-hidden flex flex-col h-full ${active
+      ? "bg-primary shadow-2xl scale-[1.02] z-10"
+      : "bg-surface-container-low hover:bg-surface-container-high"
+      }`}>
+      <div className="flex justify-between items-start mb-10 relative z-10">
+        <div className={`w-16 h-16 rounded-[1.5rem] flex items-center justify-center transition-all duration-500 ${active
+          ? "bg-on-primary text-primary rotate-[15deg]"
+          : "bg-surface text-primary group-hover:rotate-12"
+          }`}>
+          <span className="material-symbols-outlined text-3xl">{icon}</span>
+        </div>
+        <div className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest ${active
+          ? "bg-on-primary/20 text-on-primary"
+          : (trend.startsWith('+') ? "bg-green-500/10 text-green-500" : "bg-red-500/10 text-red-500")
+          }`}>
+          {trend}
         </div>
       </div>
+      <div className="mt-auto relative z-10">
+        <p className={`text-[11px] font-black uppercase tracking-[0.2em] mb-3 transition-colors ${active ? "text-on-primary/70" : "text-on-surface-variant"}`}>{label}</p>
+        <h3 className={`text-6xl font-black tracking-tighter transition-colors ${active ? "text-on-primary" : "text-on-surface"}`} style={{ fontFamily: 'Lexend, sans-serif' }}>{value}</h3>
+      </div>
+      {/* Background Micro-animation */}
+      <div className={`absolute top-0 right-0 w-48 h-48 rounded-full blur-[80px] -mr-24 -mt-24 transition-opacity duration-1000 ${active ? "bg-on-primary/20 opacity-100" : "bg-primary/5 opacity-0 group-hover:opacity-100"}`}></div>
     </div>
   );
 }
 
-function ActivityItem({ icon, title, subtitle, color, fill = false, theme }: { icon: string; title: string; subtitle: string; color: string; fill?: boolean; theme: "LIGHT" | "DARK" | "VINTAGE" }) {
-  const isDark = theme === "DARK";
-  const isVintage = theme === "VINTAGE";
+function ActivityItem({ icon, title, subtitle, theme }: { icon: string; title: string; subtitle: string; theme: "LIGHT" | "DARK" | "VINTAGE" }) {
 
   return (
     <div className="flex gap-4 items-center">
-      <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors ${isDark ? "bg-stone-800 text-[#ccff00]" :
-        isVintage ? "bg-[#f7f9fb] text-black" :
-          color
-        }`}>
-        <span className="material-symbols-outlined text-xl" style={fill ? { fontVariationSettings: "'FILL' 1" } : {}}>{icon}</span>
+      <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-colors bg-surface text-primary`}>
+        <span className="material-symbols-outlined text-xl">{icon}</span>
       </div>
       <div>
-        <p className={`text-sm font-black uppercase tracking-tight ${isDark ? "text-white" : theme === "LIGHT" ? "text-[#4f6b28]" : "text-black"}`}>{title}</p>
-        <p className={`text-[10px] font-black uppercase tracking-widest ${isDark ? "text-white" : theme === "LIGHT" ? "text-[#4f6b28]/60" : "text-stone-900"}`}>{subtitle}</p>
+        <p className={`text-sm font-black uppercase tracking-tight text-on-surface`}>{title}</p>
+        <p className={`text-[10px] font-black uppercase tracking-widest opacity-60 text-on-surface-variant`}>{subtitle}</p>
       </div>
     </div>
   );
 }
 
-function BookingCard({ court, date, time, partner, avatar, isOpen = false, highlight = false, theme, type = "BOOKING", onRemove }: {
+function BookingCard({ court, date, time, partner, avatar, highlight = false, theme, onRemove }: {
   court: string;
   date: string;
   time: string;
   partner?: string;
   avatar?: string;
-  isOpen?: boolean;
   highlight?: boolean;
   theme: "LIGHT" | "DARK" | "VINTAGE";
   type?: "BOOKING" | "EVENT";
   onRemove?: () => void;
 }) {
-  const isDark = theme === "DARK";
-  const isVintage = theme === "VINTAGE";
-
-  const cardBg = isDark ? "bg-stone-900 border-stone-800" : "bg-white border-transparent";
-  const badgeClass = isDark
-    ? (highlight ? 'bg-[#ccff00] text-stone-950' : 'bg-stone-800 text-white')
-    : isVintage
-      ? (highlight ? 'bg-black text-white' : 'bg-[#f7f9fb] text-stone-700')
-      : (highlight ? 'bg-[#4f6b28] text-white' : 'bg-[#cfff00] text-[#4f6b28]');
 
   return (
-    <div className={`min-w-[300px] ${cardBg} border p-8 rounded-2xl shadow-sm hover:shadow-md transition-all duration-500 group`}>
-      <div className="flex justify-between items-start mb-8">
-        <div className={`${badgeClass} px-3 py-1 rounded text-[10px] font-black uppercase tracking-widest`}>
+    <div className={`min-w-[320px] p-10 rounded-[2.5rem] transition-all duration-500 group relative overflow-hidden bg-surface-container-low`}>
+      <div className="flex justify-between items-start mb-10 relative z-10">
+        <div className={`px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest ${highlight 
+          ? "bg-primary text-on-primary" 
+          : "bg-surface-container-high text-on-surface"}`}>
           {court}
         </div>
         <div className="relative group/menu">
-          <button className={`material-symbols-outlined ${isDark ? "text-white hover:text-[#ccff00]" : theme === "LIGHT" ? "text-[#4f6b28]" : "text-stone-600 hover:text-black"} transition-colors`}>more_vert</button>
-          <div className={`absolute right-0 top-full mt-2 w-48 rounded-xl border shadow-xl opacity-0 translate-y-2 pointer-events-none group-hover/menu:opacity-100 group-hover/menu:translate-y-0 group-hover/menu:pointer-events-auto transition-all z-20 ${
-            isDark ? "bg-stone-900 border-stone-800" : "bg-white border-stone-100"
-          }`}>
+          <button className={`material-symbols-outlined w-8 h-8 rounded-lg flex items-center justify-center transition-colors text-on-surface-variant hover:text-primary hover:bg-surface-container-highest`}>more_vert</button>
+          <div className={`absolute right-0 top-full mt-2 w-48 rounded-2xl shadow-2xl opacity-0 translate-y-2 pointer-events-none group-hover/menu:opacity-100 group-hover/menu:translate-y-0 group-hover/menu:pointer-events-auto transition-all z-20 overflow-hidden bg-surface-container-high border border-outline/10`}>
             <button 
               onClick={onRemove}
-              className="w-full px-4 py-3 text-left text-[10px] font-black uppercase tracking-widest text-red-500 hover:bg-red-500/10 transition-colors flex items-center gap-2"
+              className="w-full px-5 py-4 text-left text-[10px] font-black uppercase tracking-widest text-red-500 hover:bg-red-500/10 transition-colors flex items-center gap-3"
             >
               <span className="material-symbols-outlined text-sm">delete</span>
-              Remove from Schedule
+              Cancel Booking
             </button>
           </div>
         </div>
       </div>
-      <div className="mb-8">
-        <h5 className={`text-3xl font-black tracking-tighter ${isDark ? "text-white" : theme === "LIGHT" ? "text-[#4f6b28]" : "text-black"}`}>{date}</h5>
-        <p className={`text-xs font-black uppercase tracking-widest mt-1 ${isDark ? "text-[#ccff00]" : isVintage ? "text-stone-700" : "text-[#4f6b28]"}`}>{time}</p>
+      <div className="mb-10 relative z-10">
+        <h5 className="text-4xl font-black tracking-tighter text-on-surface" style={{ fontFamily: 'Lexend, sans-serif' }}>{date}</h5>
+        <p className="text-xs font-black uppercase tracking-widest mt-2 text-primary">{time}</p>
       </div>
-      <div className={`flex items-center gap-3 pt-6 border-t ${isDark ? "border-stone-800" : "border-stone-50"}`}>
-        {isOpen ? (
-          <>
-            <div className={`w-8 h-8 rounded-full flex items-center justify-center ${isDark ? "bg-stone-800 text-[#ccff00]" : theme === "LIGHT" ? "bg-[#cfff00] text-[#4f6b28]" : "bg-stone-50 text-black"}`}>
-              <span className="material-symbols-outlined text-sm">person_add</span>
-            </div>
-            <span className={`text-[10px] font-black uppercase tracking-widest ${isDark ? "text-white" : theme === "LIGHT" ? "text-[#4f6b28]" : "text-stone-900"}`}>Open Slot</span>
-          </>
-        ) : (
-          <>
-            <img src={avatar} alt={partner} className={`w-8 h-8 rounded-full object-cover border ${isDark ? "border-stone-700" : "border-stone-100"}`} />
-            <span className={`text-[10px] font-black uppercase tracking-widest ${isDark ? "text-white" : theme === "LIGHT" ? "text-[#4f6b28]" : "text-stone-900"}`}>With {partner}</span>
-          </>
-        )}
+      <div className="flex items-center gap-4 relative z-10">
+        <img src={avatar} alt={partner} className="w-12 h-12 rounded-2xl object-cover ring-2 ring-surface-container-high shadow-sm" />
+        <span className="text-[10px] font-black uppercase tracking-widest text-on-surface">With {partner}</span>
       </div>
+      <div className={`absolute -right-4 -bottom-4 w-24 h-24 rounded-full blur-3xl opacity-0 group-hover:opacity-20 transition-opacity duration-700 bg-primary`}></div>
     </div>
   );
 }
 
 function NewsItem({ title, subtitle, tag, theme, onClick }: { title: string; subtitle: string; tag: string; theme: "LIGHT" | "DARK" | "VINTAGE"; onClick?: () => void }) {
-  const isDark = theme === "DARK";
-  const isVintage = theme === "VINTAGE";
-
   return (
-    <div onClick={onClick} className="group cursor-pointer flex gap-6 hover:translate-x-1 transition-all duration-300">
-      <div className={`w-24 h-24 flex-shrink-0 overflow-hidden rounded-xl relative transition-colors ${isDark ? "bg-stone-900" : isVintage ? "bg-[#f7f9fb]" : "bg-[#fdfbe6]"
-        }`}>
-        <div className={`absolute inset-0 flex items-center justify-center opacity-20 ${isDark ? "text-[#ccff00]" : isVintage ? "text-black" : "text-[#4f6b28]"}`}>
-          <span className="material-symbols-outlined text-4xl">image</span>
+    <div onClick={onClick} className="group cursor-pointer flex gap-6 p-6 rounded-[2rem] transition-all duration-300 hover:bg-surface-container-low">
+      <div className="w-28 h-28 flex-shrink-0 overflow-hidden rounded-[1.5rem] relative transition-all duration-500 group-hover:scale-105 bg-surface-container-high">
+        <div className="absolute inset-0 flex items-center justify-center opacity-20 text-primary">
+          <span className="material-symbols-outlined text-4xl font-black">image</span>
         </div>
       </div>
-      <div className="py-2">
-        <span className={`font-black text-[10px] tracking-widest uppercase transition-colors ${isDark ? "text-[#ccff00]" : isVintage ? "text-stone-700" : "text-[#4f6b28]"
-          }`}>{tag}</span>
-        <h6 className={`text-lg font-black tracking-tight mt-1 group-hover:translate-x-1 transition-all ${isDark ? "text-white group-hover:text-[#ccff00]" : theme === "LIGHT" ? "text-[#4f6b28]" : "text-black"
-          }`}>{title}</h6>
-        <p className={`text-[10px] font-black uppercase tracking-widest mt-1 ${isDark ? "text-white" : "text-stone-900"}`}>{subtitle}</p>
+      <div className="flex flex-col justify-center">
+        <span className="font-black text-[10px] tracking-widest uppercase transition-colors text-primary">{tag}</span>
+        <h6 className="text-xl font-black tracking-tight mt-1 group-hover:translate-x-1 transition-all text-on-surface" style={{ fontFamily: 'Lexend, sans-serif' }}>{title}</h6>
+        <p className="text-[10px] font-black uppercase tracking-widest mt-1 opacity-60 text-on-surface-variant">{subtitle}</p>
       </div>
     </div>
   );
@@ -1302,35 +1058,27 @@ function NewsItem({ title, subtitle, tag, theme, onClick }: { title: string; sub
 
 
 function ProgramsView({ theme }: { theme: "LIGHT" | "DARK" | "VINTAGE" }) {
-  const isDark = theme === "DARK";
-  const isVintage = theme === "VINTAGE";
 
   return (
     <div className="space-y-16 animate-in fade-in slide-in-from-bottom-4 duration-700">
       {/* Header Section */}
       <div className="flex justify-between items-center">
-        <h2 className={`text-5xl font-black tracking-tighter uppercase transition-colors ${isDark ? "text-white" : theme === "LIGHT" ? "text-[#4f6b28]" : "text-black"
-          }`} style={{ fontFamily: 'Lexend, sans-serif' }}>
+        <h2 className="text-5xl font-black tracking-tighter uppercase transition-colors text-primary" style={{ fontFamily: 'Lexend, sans-serif' }}>
           CLUB PROGRAMS
         </h2>
         <div className="relative">
           <input
             type="text"
             placeholder="Search training..."
-            className={`border-none rounded-full px-8 py-3 w-80 focus:ring-2 text-sm font-black uppercase tracking-widest transition-colors ${isDark ? "bg-stone-900 text-white focus:ring-yellow-400 placeholder-stone-600" :
-              isVintage ? "bg-white text-black focus:ring-black placeholder-stone-300" :
-                "bg-white text-[#4f6b28] focus:ring-[#4f6b28] placeholder-stone-400"
-              }`}
+            className="border-none rounded-full px-8 py-3 w-80 focus:ring-2 text-sm font-black uppercase tracking-widest transition-colors bg-surface-container text-on-surface focus:ring-primary placeholder:text-on-surface-variant/40"
           />
-          <span className={`material-symbols-outlined absolute right-4 top-3 ${isDark ? "text-stone-700" : "text-stone-300"
-            }`}>search</span>
+          <span className="material-symbols-outlined absolute right-4 top-3 text-on-surface-variant/60">search</span>
         </div>
       </div>
 
       {/* Hero Section */}
       <div className="grid grid-cols-12 gap-8">
-        <div className={`col-span-12 lg:col-span-8 group relative h-[450px] overflow-hidden rounded-[40px] shadow-2xl border ${isDark ? "border-stone-800" : "border-transparent"
-          }`}>
+        <div className="col-span-12 lg:col-span-8 group relative h-[450px] overflow-hidden rounded-[40px] shadow-2xl border border-outline/10">
           <img
             src="/images/programs_hero.png"
             alt="Championship Clinic"
@@ -1347,28 +1095,16 @@ function ProgramsView({ theme }: { theme: "LIGHT" | "DARK" | "VINTAGE" }) {
           </div>
         </div>
 
-        <div className={`col-span-12 lg:col-span-4 rounded-[40px] p-10 flex flex-col justify-between shadow-xl transition-colors ${isDark ? "bg-stone-900" :
-          isVintage ? "bg-white border border-stone-50" :
-            "bg-[#4f6b28]"
-          }`}>
+        <div className="col-span-12 lg:col-span-4 rounded-[40px] p-10 flex flex-col justify-between shadow-xl transition-colors border bg-surface-container-low border-outline/10">
           <div>
-            <h4 className={`text-3xl font-black leading-tight mb-4 uppercase transition-colors ${isDark ? "text-[#ccff00]" :
-              isVintage ? "text-black" :
-                "text-[#cfff00]"
-              }`}>
+            <h4 className="text-3xl font-black leading-tight mb-4 uppercase transition-colors text-primary">
               PRO-FOCUS WEEKEND
             </h4>
-            <p className={`font-medium leading-relaxed transition-colors ${isDark ? "text-white" :
-              isVintage ? "text-stone-800" :
-                "text-white/80"
-              }`}>
+            <p className="font-medium leading-relaxed transition-colors text-on-surface-variant">
               Join Coach Marcus for a 48-hour immersion into strategy and bio-mechanics. Limited to 8 participants.
             </p>
           </div>
-          <button className={`w-full py-4 border-2 rounded-full text-[10px] font-black tracking-[0.2em] transition-all uppercase ${isDark ? "border-[#ccff00] text-[#ccff00] hover:bg-[#ccff00] hover:text-stone-950" :
-            isVintage ? "border-black text-black hover:bg-black hover:text-white" :
-              "border-[#cfff00] text-[#cfff00] hover:bg-[#cfff00] hover:text-[#4f6b28]"
-            }`}>
+          <button className="w-full py-4 border-2 rounded-full text-[10px] font-black tracking-[0.2em] transition-all uppercase border-primary text-primary hover:bg-primary hover:text-on-primary">
             VIEW COACH BIO
           </button>
         </div>
@@ -1377,49 +1113,38 @@ function ProgramsView({ theme }: { theme: "LIGHT" | "DARK" | "VINTAGE" }) {
       {/* Training Tracks Section */}
       <section>
         <div className="flex justify-between items-end mb-12">
-          <h3 className={`text-5xl font-black tracking-tighter uppercase transition-colors ${isDark ? "text-white" : theme === "LIGHT" ? "text-[#4f6b28]" : "text-black"
-            }`}>
+          <h3 className="text-5xl font-black tracking-tighter uppercase transition-colors text-primary">
             TRAINING TRACKS
           </h3>
-          <div className={`flex gap-8 text-[10px] font-black tracking-widest uppercase ${isDark ? "text-white" : theme === "LIGHT" ? "text-[#4f6b28]/60" : "text-stone-900"}`}>
+          <div className="flex gap-8 text-[10px] font-black tracking-widest uppercase text-on-surface-variant">
             <span>FILTER BY:</span>
-            <button className={`pb-1 transition-colors ${isDark ? "text-[#ccff00] border-b-2 border-[#ccff00]" :
-              isVintage ? "text-black border-b-2 border-black" :
-                "text-[#4f6b28] border-b-2 border-[#4f6b28]"
-              }`}>ALL</button>
-            <button className={`hover:opacity-70 transition-colors ${isDark ? "text-white" : theme === "LIGHT" ? "text-[#4f6b28]" : "text-stone-900"}`}>YOUTH</button>
-            <button className={`hover:opacity-70 transition-colors ${isDark ? "text-white" : theme === "LIGHT" ? "text-[#4f6b28]" : "text-stone-900"}`}>ADULT</button>
-            <button className={`hover:opacity-70 transition-colors ${isDark ? "text-white" : theme === "LIGHT" ? "text-[#4f6b28]" : "text-stone-900"}`}>PRO</button>
+            <button className="pb-1 transition-colors text-primary border-b-2 border-primary">ALL</button>
+            <button className="hover:text-primary transition-colors">YOUTH</button>
+            <button className="hover:text-primary transition-colors">ADULT</button>
+            <button className="hover:text-primary transition-colors">PRO</button>
           </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {/* Active Clinics */}
-          <div className={`rounded-[40px] overflow-hidden flex flex-col group shadow-lg transition-colors border ${isDark ? "bg-stone-900 border-stone-800" :
-            isVintage ? "bg-white border-stone-50" :
-              "bg-white border-[#4f6b28]/10"
-            }`}>
+          <div className="rounded-[40px] overflow-hidden flex flex-col group shadow-lg transition-colors border bg-surface-container-low border-outline/10">
             <div className="h-64 overflow-hidden">
               <img src="/images/active_clinics.png" alt="Active Clinics" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
             </div>
             <div className="p-10 flex-1 relative">
-              <div className={`absolute right-10 top-10 w-12 h-12 rounded-full flex items-center justify-center shadow-md transition-colors ${isDark ? "bg-stone-800 text-[#ccff00]" : theme === "LIGHT" ? "bg-[#cfff00] text-[#4f6b28]" : "bg-white text-black"
-                }`}>
+              <div className="absolute right-10 top-10 w-12 h-12 rounded-full flex items-center justify-center shadow-md transition-colors bg-surface-container-highest text-primary">
                 <span className="material-symbols-outlined">bolt</span>
               </div>
-              <h4 className={`text-3xl font-black mb-4 uppercase transition-colors ${isDark ? "text-white" : isVintage ? "text-black" : "text-[#4f6b28]"
-                }`}>ACTIVE CLINICS</h4>
-              <p className={`text-sm font-medium leading-relaxed mb-8 transition-colors ${isDark ? "text-white" : isVintage ? "text-stone-800" : "text-[#4f6b28]/60"
-                }`}>
+              <h4 className="text-3xl font-black mb-4 uppercase transition-colors text-primary">ACTIVE CLINICS</h4>
+              <p className="text-sm font-medium leading-relaxed mb-8 transition-colors text-on-surface-variant">
                 High-energy drills focused on footwork, stamina, and consistent point construction.
               </p>
               <div className="flex justify-between items-center mt-auto">
                 <div>
-                  <div className={`text-[10px] font-black uppercase tracking-widest ${isDark ? "text-white" : theme === "LIGHT" ? "text-[#4f6b28]/60" : "text-stone-900"}`}>STARTS AT</div>
-                  <div className={`text-2xl font-black ${isDark ? "text-[#ccff00]" : theme === "LIGHT" ? "text-[#4f6b28]" : "text-black"}`}>$45/HR</div>
+                  <div className="text-[10px] font-black uppercase tracking-widest text-on-surface-variant/60">STARTS AT</div>
+                  <div className="text-2xl font-black text-on-surface">$45/HR</div>
                 </div>
-                <button className={`w-14 h-14 rounded-full flex items-center justify-center hover:scale-110 transition-transform shadow-lg ${isDark ? "bg-[#ccff00] text-stone-950" : isVintage ? "bg-black text-white" : "bg-[#4f6b28] text-[#cfff00]"
-                  }`}>
+                <button className="w-14 h-14 rounded-full flex items-center justify-center hover:scale-110 transition-transform shadow-lg bg-primary text-on-primary">
                   <span className="material-symbols-outlined">arrow_forward</span>
                 </button>
               </div>
@@ -1427,62 +1152,48 @@ function ProgramsView({ theme }: { theme: "LIGHT" | "DARK" | "VINTAGE" }) {
           </div>
 
           {/* Junior Academy */}
-          <div className={`rounded-[40px] overflow-hidden flex flex-col group shadow-lg transition-colors ${isDark ? "bg-stone-900 border border-stone-800" :
-            isVintage ? "bg-white border border-stone-50" :
-              "bg-white border border-[#4f6b28]/10"
-            }`}>
+          <div className="rounded-[40px] overflow-hidden flex flex-col group shadow-lg transition-colors bg-surface-container-low border border-outline/10">
             <div className="h-64 overflow-hidden relative">
               <img src="/images/junior_academy.png" alt="Junior Academy" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
-              <div className={`absolute top-6 left-6 px-4 py-1 backdrop-blur rounded-full text-[8px] font-black tracking-widest uppercase ${isDark ? "bg-stone-900/90 text-[#ccff00]" : "bg-white/90 text-black"
-                }`}>
+              <div className="absolute top-6 left-6 px-4 py-1 backdrop-blur rounded-full text-[8px] font-black tracking-widest uppercase bg-surface/90 text-primary">
                 PREMIER LEVEL
               </div>
             </div>
             <div className="p-10 flex-1">
-              <h4 className={`text-3xl font-black mb-4 uppercase leading-none transition-colors ${isDark ? "text-white" : isVintage ? "text-black" : "text-[#4f6b28]"
-                }`}>JUNIOR<br />ACADEMY</h4>
-              <p className={`text-sm font-medium leading-relaxed mb-8 transition-colors ${isDark ? "text-white" : theme === "LIGHT" ? "text-[#4f6b28]/60" : "text-black/60"
-                }`}>
+              <h4 className="text-3xl font-black mb-4 uppercase leading-none transition-colors text-primary">JUNIOR<br />ACADEMY</h4>
+              <p className="text-sm font-medium leading-relaxed mb-8 transition-colors text-on-surface-variant">
                 Developing the next generation of competitors. Age groups 8-16.
               </p>
-              <button className={`w-full py-4 rounded-2xl text-[10px] font-black tracking-widest transition-all uppercase ${isDark ? "bg-[#ccff00] text-stone-950" : theme === "LIGHT" ? "bg-[#4f6b28] text-[#cfff00]" : "bg-black text-white"
-                }`}>
+              <button className="w-full py-4 rounded-2xl text-[10px] font-black tracking-widest transition-all uppercase bg-primary text-on-primary">
                 EXPLORE PATHWAY
               </button>
             </div>
           </div>
 
           {/* Social Mixers */}
-          <div className={`rounded-[40px] overflow-hidden flex flex-col group shadow-lg transition-colors border ${isDark ? "bg-stone-900 border-stone-800" :
-            isVintage ? "bg-white border-stone-50" :
-              "bg-stone-50 border-stone-100"
-            }`}>
+          <div className="rounded-[40px] overflow-hidden flex flex-col group shadow-lg transition-colors border bg-surface-container-low border-outline/10">
             <div className="p-10 pb-0">
               <div className="flex justify-between items-start mb-4">
-                <h4 className={`text-3xl font-black uppercase leading-none transition-colors ${isDark ? "text-white" : isVintage ? "text-black" : "text-[#4f6b28]"
-                  }`}>SOCIAL<br />MIXERS</h4>
-                <span className={`material-symbols-outlined transition-colors ${isDark ? "text-[#ccff00] opacity-40" : "text-stone-900 opacity-40"}`}>groups</span>
+                <h4 className="text-3xl font-black uppercase leading-none transition-colors text-primary">SOCIAL<br />MIXERS</h4>
+                <span className="material-symbols-outlined transition-colors text-primary/40">groups</span>
               </div>
-              <p className={`text-sm font-medium leading-relaxed mb-6 transition-colors ${isDark ? "text-white" : isVintage ? "text-stone-800" : "text-stone-900/60"
-                }`}>
+              <p className="text-sm font-medium leading-relaxed mb-6 transition-colors text-on-surface-variant">
                 Network while you play. Round-robin format followed by clubhouse drinks.
               </p>
               <div className="flex items-center -space-x-3 mb-8">
                 {[1, 2, 3].map(i => (
-                  <div key={i} className={`w-8 h-8 rounded-full border-2 overflow-hidden ${isDark ? "border-stone-900" : "border-white"}`}>
+                  <div key={i} className="w-8 h-8 rounded-full border-2 overflow-hidden border-surface">
                     <img src={`https://i.pravatar.cc/100?img=${i + 10}`} alt="User" />
                   </div>
                 ))}
-                <div className={`h-8 px-2 text-white text-[8px] font-black flex items-center justify-center rounded-full border-2 transition-colors ${isDark ? "bg-stone-800 border-stone-900" : "bg-black border-white"
-                  }`}>
+                <div className="h-8 px-2 text-on-primary text-[8px] font-black flex items-center justify-center rounded-full border-2 transition-colors bg-primary border-surface">
                   +14
                 </div>
               </div>
             </div>
             <div className="h-48 overflow-hidden relative mt-auto">
               <img src="/images/social_mixers.png" alt="Social Mixers" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
-              <div className={`absolute right-6 bottom-6 w-12 h-12 rounded-2xl flex items-center justify-center shadow-xl transition-colors ${isDark ? "bg-[#ccff00] text-stone-950" : theme === "LIGHT" ? "bg-[#cfff00] text-[#4f6b28]" : "bg-black text-white"
-                }`}>
+              <div className="absolute right-6 bottom-6 w-12 h-12 rounded-2xl flex items-center justify-center shadow-xl transition-colors bg-primary text-on-primary">
                 <span className="material-symbols-outlined">calendar_today</span>
               </div>
             </div>
@@ -1491,24 +1202,25 @@ function ProgramsView({ theme }: { theme: "LIGHT" | "DARK" | "VINTAGE" }) {
       </section>
 
       {/* Spring Session Section */}
-      <section className={`rounded-[40px] p-16 grid grid-cols-12 gap-12 transition-colors border ${isDark ? "bg-stone-950 border-stone-800" :
-        isVintage ? "bg-white border-stone-50 shadow-sm" :
-          "bg-[#4f6b28] border-transparent"
-        }`}>
+      <section className="rounded-[40px] p-16 grid grid-cols-12 gap-12 transition-colors border bg-surface-container-low border-outline/10 shadow-sm">
         <div className="col-span-12 lg:col-span-5 space-y-8">
           <div className="space-y-4">
-            <h3 className={`text-6xl font-black tracking-tighter uppercase leading-none transition-colors ${isDark ? "text-white" : theme === "LIGHT" ? "text-white" : "text-black"
-              }`}>
+            <h3 className="text-6xl font-black tracking-tighter uppercase leading-none transition-colors text-on-surface">
               SPRING<br />SESSION '24
             </h3>
-            <p className={`font-medium leading-relaxed max-w-sm transition-colors ${isDark ? "text-white" : theme === "LIGHT" ? "text-white/80" : "text-stone-900"
-              }`}>
+            <div className="flex items-center gap-4 transition-colors text-primary">
+              <div className="w-6 h-6 rounded-md flex items-center justify-center transition-colors bg-primary text-on-primary">
+                <span className="material-symbols-outlined text-sm">schedule</span>
+              </div>
+              <span className="text-[10px] font-black tracking-widest uppercase">24/7 ELITE ACCESS</span>
+            </div>
+            <p className="font-medium leading-relaxed max-w-sm transition-colors text-on-surface-variant">
               Registration is now open for all technical workshops and weekly ladders. Secure your spot before March 15th.
             </p>
           </div>
 
           <div className="space-y-4 pt-4">
-            <div className={`flex items-center gap-4 transition-colors ${isDark ? "text-[#ccff00]" : isVintage ? "text-black" : "text-white"
+            <div className={`flex items-center gap-4 transition-colors ${isDark ? "text-[#ccff00]" : isVintage ? "text-black" : "text-[#4f6b28]"
               }`}>
               <div className={`w-6 h-6 rounded-md flex items-center justify-center transition-colors ${isDark ? "bg-[#ccff00] text-stone-950" : isVintage ? "bg-black text-white" : "bg-[#cfff00] text-[#4f6b28]"
                 }`}>
@@ -1516,7 +1228,7 @@ function ProgramsView({ theme }: { theme: "LIGHT" | "DARK" | "VINTAGE" }) {
               </div>
               <span className="text-[10px] font-black tracking-widest uppercase">ITF GOLD STANDARDS</span>
             </div>
-            <div className={`flex items-center gap-4 transition-colors ${isDark ? "text-[#ccff00]" : isVintage ? "text-black" : "text-white"
+            <div className={`flex items-center gap-4 transition-colors ${isDark ? "text-[#ccff00]" : isVintage ? "text-black" : "text-[#4f6b28]"
               }`}>
               <div className={`w-6 h-6 rounded-md flex items-center justify-center transition-colors ${isDark ? "bg-[#ccff00] text-stone-950" : isVintage ? "bg-black text-white" : "bg-[#cfff00] text-[#4f6b28]"
                 }`}>
