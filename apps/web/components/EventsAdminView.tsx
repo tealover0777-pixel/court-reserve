@@ -116,7 +116,6 @@ export default function EventsAdminView({ theme = "LIGHT", tenantId }: { theme?:
     image_url: "",
     tag: "",
     event_leaders: [] as string[],
-    use_end_date: true,
     save_to_schedules: false,
     court_id: "",
     repeat_type: "none" as "none" | "daily" | "weekly" | "monthly",
@@ -205,10 +204,7 @@ export default function EventsAdminView({ theme = "LIGHT", tenantId }: { theme?:
     if (!formData.title || !formData.start_date || !tenantId) return;
 
     const startDateTime = new Date(`${formData.start_date}T${formData.start_time}`);
-    // If NO END DATE is selected, default to 1 hour after start time for the schedule block
-    const endDateTime = formData.use_end_date 
-      ? new Date(`${formData.end_date}T${formData.end_time}`)
-      : new Date(startDateTime.getTime() + 60 * 60 * 1000);
+    const endDateTime = new Date(`${formData.end_date}T${formData.end_time}`);
 
     const durationHours = (endDateTime.getTime() - startDateTime.getTime()) / (60 * 60 * 1000);
 
@@ -639,80 +635,50 @@ export default function EventsAdminView({ theme = "LIGHT", tenantId }: { theme?:
               <h3 className="text-xs font-black uppercase tracking-widest">Date & Time Settings</h3>
             </div>
 
-            <div className="grid grid-cols-2 gap-8">
-              {/* Start Date & Time */}
+            <div className="grid grid-cols-3 gap-8">
+              {/* Event Date */}
               <div className="space-y-4">
-                <h4 className="text-[10px] font-black uppercase text-stone-400 tracking-tighter">Start Schedule</h4>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className={labelCls}>Start Date</label>
-                    <input
-                      type="date"
-                      value={formData.start_date}
-                      onChange={e => setFormData({ ...formData, start_date: e.target.value })}
-                      className={inputCls}
-                    />
-                  </div>
-                  <div>
-                    <label className={labelCls}>Start Time</label>
-                    <input
-                      type="time"
-                      value={formData.start_time}
-                      onChange={e => setFormData({ ...formData, start_time: e.target.value })}
-                      className={inputCls}
-                    />
-                  </div>
+                <h4 className="text-[10px] font-black uppercase text-stone-400 tracking-tighter">Event Schedule</h4>
+                <div>
+                  <label className={labelCls}>Event Date</label>
+                  <input
+                    type="date"
+                    value={formData.start_date}
+                    onChange={e => setFormData({ ...formData, start_date: e.target.value, end_date: e.target.value })}
+                    className={inputCls}
+                  />
                 </div>
               </div>
 
-              {/* End Date & Time */}
-              <div className={`space-y-4 transition-all ${formData.use_end_date ? "opacity-100" : "opacity-30 pointer-events-none grayscale"}`}>
-                <h4 className="text-[10px] font-black uppercase text-stone-400 tracking-tighter">
-                  End Schedule {formData.use_end_date ? "" : "(Disabled)"}
-                </h4>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className={labelCls}>End Date</label>
-                    <input
-                      type="date"
-                      value={formData.end_date}
-                      onChange={e => setFormData({ ...formData, end_date: e.target.value })}
-                      className={inputCls}
-                    />
-                  </div>
-                  <div>
-                    <label className={labelCls}>End Time</label>
-                    <input
-                      type="time"
-                      value={formData.end_time}
-                      onChange={e => setFormData({ ...formData, end_time: e.target.value })}
-                      className={inputCls}
-                    />
-                  </div>
+              {/* Start Time */}
+              <div className="space-y-4">
+                <h4 className="text-[10px] font-black uppercase text-stone-400 tracking-tighter">&nbsp;</h4>
+                <div>
+                  <label className={labelCls}>Start Time</label>
+                  <TimePicker
+                    value={formData.start_time}
+                    onChange={val => setFormData({ ...formData, start_time: val })}
+                    theme={theme}
+                  />
+                </div>
+              </div>
+
+              {/* End Time */}
+              <div className="space-y-4">
+                <h4 className="text-[10px] font-black uppercase text-stone-400 tracking-tighter">&nbsp;</h4>
+                <div>
+                  <label className={labelCls}>End Time</label>
+                  <TimePicker
+                    value={formData.end_time}
+                    onChange={val => setFormData({ ...formData, end_time: val })}
+                    theme={theme}
+                  />
                 </div>
               </div>
             </div>
 
             {/* Toggles on the same line */}
             <div className="grid grid-cols-2 gap-4">
-              <div className="flex items-center justify-between p-4 rounded-2xl border border-dashed border-stone-200 dark:border-stone-800">
-                <div className="space-y-1">
-                  <h4 className={`text-xs font-black uppercase tracking-tight ${theme === "DARK" ? "text-white" : "text-stone-900"}`}>
-                    {formData.use_end_date ? "USE END DATE" : "NO END DATE"}
-                  </h4>
-                  <p className="text-[10px] text-stone-400 font-medium italic">Enable specific end time</p>
-                </div>
-                <label className="relative inline-flex items-center cursor-pointer">
-                  <input 
-                    type="checkbox" 
-                    className="sr-only peer" 
-                    checked={formData.use_end_date}
-                    onChange={(e) => setFormData({ ...formData, use_end_date: e.target.checked })}
-                  />
-                  <div className="w-11 h-6 bg-stone-200 peer-focus:outline-none rounded-full peer dark:bg-stone-800 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-[#ccff00]"></div>
-                </label>
-              </div>
-
               <div className="flex items-center justify-between p-4 rounded-2xl border border-dashed border-stone-200 dark:border-stone-800">
                 <div className="space-y-1">
                   <h4 className={`text-xs font-black uppercase tracking-tight ${theme === "DARK" ? "text-white" : "text-stone-900"}`}>
@@ -729,6 +695,10 @@ export default function EventsAdminView({ theme = "LIGHT", tenantId }: { theme?:
                   />
                   <div className="w-11 h-6 bg-stone-200 peer-focus:outline-none rounded-full peer dark:bg-stone-800 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-[#ccff00]"></div>
                 </label>
+              </div>
+
+              <div className="p-4 rounded-2xl border border-dashed border-stone-200 dark:border-stone-800 opacity-50 flex items-center justify-center">
+                <p className="text-[10px] text-stone-400 font-black uppercase">Schedule Sync Active</p>
               </div>
             </div>
 
@@ -1031,6 +1001,37 @@ export default function EventsAdminView({ theme = "LIGHT", tenantId }: { theme?:
   );
 }
 
+function TimePicker({ value, onChange, theme }: { value: string; onChange: (val: string) => void; theme: string }) {
+  const isDark = theme === "DARK";
+  
+  const containerCls = `flex items-center gap-2 border rounded-2xl px-4 py-3.5 transition-all ${
+    isDark ? "bg-stone-950 border-stone-800 text-white" : "bg-white border-stone-200 text-stone-900 shadow-sm"
+  }`;
+  const selectCls = `bg-transparent outline-none font-bold text-sm cursor-pointer appearance-none w-full transition-colors hover:bg-stone-100 dark:hover:bg-stone-800`;
+
+  const times = Array.from({ length: 48 }).map((_, i) => {
+    const h = Math.floor(i / 2).toString().padStart(2, "0");
+    const m = (i % 2 === 0 ? "00" : "30");
+    return `${h}:${m}`;
+  });
+
+  return (
+    <div className={containerCls}>
+      <select
+        value={value || "09:00"}
+        onChange={e => onChange(e.target.value)}
+        className={selectCls}
+      >
+        {times.map(t => (
+          <option key={t} value={t} className={isDark ? "bg-stone-900 text-white" : "bg-white text-stone-900"}>
+            {t}
+          </option>
+        ))}
+      </select>
+    </div>
+  );
+}
+
 function PremiumDateTimePicker({ value, onChange, theme, placeholder }: { 
   value: string; 
   onChange: (val: string) => void; 
@@ -1051,16 +1052,6 @@ function PremiumDateTimePicker({ value, onChange, theme, placeholder }: {
     onChange(`${newDate}T${hourPart}:${minutePart}`);
   };
 
-  const handleHourChange = (newHour: string) => {
-    const d = datePart || format(new Date(), "yyyy-MM-dd");
-    onChange(`${d}T${newHour}:${minutePart}`);
-  };
-
-  const handleMinuteChange = (newMinute: string) => {
-    const d = datePart || format(new Date(), "yyyy-MM-dd");
-    onChange(`${d}T${hourPart}:${newMinute}`);
-  };
-
   const containerCls = `flex items-center gap-2 border rounded-2xl px-4 py-2 transition-all ${
     isDark ? "bg-stone-950 border-stone-800 text-white" : "bg-white border-stone-200 text-stone-900 shadow-sm"
   }`;
@@ -1077,24 +1068,20 @@ function PremiumDateTimePicker({ value, onChange, theme, placeholder }: {
       />
       <div className="flex items-center gap-1 border-l pl-2 border-stone-100 dark:border-stone-800">
         <select
-          value={hourPart}
-          onChange={e => handleHourChange(e.target.value)}
+          value={`${hourPart}:${minutePart}`}
+          onChange={e => {
+            const [nh, nm] = e.target.value.split(":");
+            const d = datePart || format(new Date(), "yyyy-MM-dd");
+            onChange(`${d}T${nh}:${nm}`);
+          }}
           className={selectCls}
         >
-          {Array.from({ length: 24 }).map((_, i) => {
-            const h = i.toString().padStart(2, "0");
-            return <option key={h} value={h} className={isDark ? "bg-stone-900" : "bg-white"}>{h}</option>;
+          {Array.from({ length: 48 }).map((_, i) => {
+            const h = Math.floor(i / 2).toString().padStart(2, "0");
+            const m = (i % 2 === 0 ? "00" : "30");
+            const t = `${h}:${m}`;
+            return <option key={t} value={t} className={isDark ? "bg-stone-900" : "bg-white"}>{t}</option>;
           })}
-        </select>
-        <span className="opacity-40">:</span>
-        <select
-          value={minutePart}
-          onChange={e => handleMinuteChange(e.target.value)}
-          className={selectCls}
-        >
-          {["00", "10", "20", "30", "40", "50"].map(m => (
-            <option key={m} value={m} className={isDark ? "bg-stone-900" : "bg-white"}>{m}</option>
-          ))}
         </select>
       </div>
     </div>
