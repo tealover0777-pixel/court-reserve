@@ -407,7 +407,7 @@ export default function CourtBookingView({ theme, isAdmin, tenantId: tenantIdPro
           <h3 className={`text-6xl font-black italic tracking-tighter transition-all duration-500 ${
             isDark ? "text-white" : "text-stone-900"
           }`}>MY SCHEDULE</h3>
-          <p className={`text-[9px] font-black uppercase tracking-[0.2em] ${isDark ? "text-white" : "text-stone-900"}`}>
+          <p className={`text-[9px] font-black uppercase tracking-[0.2em] ${theme === "LIGHT" || theme === "DARK" ? "text-white" : "text-stone-900"}`}>
             {theme === "LIGHT" ? "Kinetic Lemon Edition" : theme === "DARK" ? "Noir Edition" : "Pure Edition"}
           </p>
         </div>

@@ -432,7 +432,9 @@ export default function EventsAdminView({ theme = "LIGHT", tenantId }: { theme?:
       header: "TYPE",
       cell: (info: any) => (
         <span className={`px-2 py-1 rounded text-[10px] font-black uppercase ${
-          info.getValue() === "regular" ? "bg-[#ccff00] text-stone-900" : "bg-stone-100 text-stone-600 dark:bg-stone-800 dark:text-stone-400"
+          info.getValue() === "regular" 
+            ? "bg-[#ccff00] text-stone-900" 
+            : (theme === "DARK" ? "bg-stone-800 text-stone-400" : "bg-stone-900 text-white")
         }`}>
           {info.getValue()}
         </span>
@@ -509,9 +511,9 @@ export default function EventsAdminView({ theme = "LIGHT", tenantId }: { theme?:
               <div className="w-12 h-1.5 bg-[#ccff00] rounded-full" />
               <span className="text-[10px] font-black tracking-[0.2em] uppercase opacity-40">Admin Control</span>
             </div>
-            <h1 className="text-7xl md:text-8xl font-black tracking-tighter uppercase leading-[0.85]">
+            <h1 className={`text-7xl md:text-8xl font-black tracking-tighter uppercase leading-[0.85] ${theme === "DARK" ? "text-white" : "text-stone-900"}`}>
               EVENTS<br />
-              <span className="text-stone-300 dark:text-stone-800">MANAGEMENT</span>
+              <span className={theme === "DARK" ? "text-stone-800" : "text-stone-300"}>MANAGEMENT</span>
             </h1>
             <p className={`text-sm font-medium max-w-md ${theme === "DARK" ? "text-stone-400" : "text-stone-500"}`}>
               Design, schedule, and oversee club activities. All events synced to court bookings automatically.

@@ -1051,13 +1051,12 @@ function DashboardHome({ theme, profile, tenantId, authUser, userSchedule, onRem
 function ThemeSelector({ theme, setTheme }: { theme: "LIGHT" | "DARK" | "VINTAGE", setTheme: (t: "LIGHT" | "DARK" | "VINTAGE") => void }) {
   return (
     <div className={`flex items-center gap-1 p-1 rounded-full border transition-colors duration-500 ${theme === "DARK" ? "bg-stone-900 border-stone-800" :
-      theme === "VINTAGE" ? "bg-[#f2f4f6] border-stone-200" :
-        "bg-stone-100 border-stone-200"
+      theme === "VINTAGE" ? "bg-stone-900 border-stone-800" :
+        "bg-stone-900 border-stone-800"
       }`}>
-      <div className={`px-4 py-1.5 flex items-center gap-2 border-r mr-1 transition-colors ${theme === "DARK" ? "border-stone-800" : "border-stone-200"
+      <div className={`px-4 py-1.5 flex items-center gap-2 border-r mr-1 transition-colors ${theme === "DARK" ? "border-stone-800" : "border-stone-800"
         }`}>
-        <span className={`text-[10px] font-black uppercase tracking-widest ${theme === "DARK" ? "text-white" : "text-stone-900"
-          }`}>
+        <span className="text-[10px] font-black uppercase tracking-widest text-white">
           {theme === "VINTAGE" ? "light mode" : theme === "DARK" ? "Dark mode" : "Kinetic Lemon"}
         </span>
       </div>
