@@ -376,10 +376,28 @@ export default function EventsAdminView({ theme = "LIGHT", tenantId }: { theme?:
       )
     }),
     columnHelper.accessor("date", {
-      header: "DATE/TIME",
+      header: "SCHEDULE",
       cell: info => {
-        const d = info.getValue()?.toDate ? info.getValue().toDate() : new Date(info.getValue());
-        return <span className="font-mono text-xs">{format(d, "MMM dd, yyyy HH:mm")}</span>;
+        const ev = info.row.original;
+        const start = ev.date?.toDate ? ev.date.toDate() : new Date(ev.date);
+        const end = ev.end_date?.toDate ? ev.end_date.toDate() : (ev.end_date ? new Date(ev.end_date) : null);
+        
+        return (
+          <div className="flex flex-col gap-1">
+            <div className="flex items-center gap-2">
+              <div className={`w-1 h-1 rounded-full ${theme === "DARK" ? "bg-[#ccff00]" : "bg-stone-900"}`} />
+              <span className="text-[9px] font-black opacity-40 uppercase tracking-widest w-8">Start</span>
+              <span className="font-mono text-[10px] font-bold">{format(start, "MMM dd, HH:mm")}</span>
+            </div>
+            {ev.use_end_date && end && (
+              <div className="flex items-center gap-2">
+                <div className="w-1 h-1 rounded-full bg-stone-300" />
+                <span className="text-[9px] font-black opacity-40 uppercase tracking-widest w-8">End</span>
+                <span className="font-mono text-[10px] font-bold">{format(end, "MMM dd, HH:mm")}</span>
+              </div>
+            )}
+          </div>
+        );
       }
     }),
     columnHelper.accessor("signups", {
