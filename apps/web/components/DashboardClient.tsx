@@ -807,69 +807,84 @@ function DashboardHome({ theme, profile, tenantId, authUser, userSchedule, onRem
     buttonText: "Match Preview",
     imageUrl: "/images/clay_court.png"
   };
+  const showHeroSection = config?.showHeroSection !== undefined ? config.showHeroSection : true;
+  const showStatsSection = config?.showStatsSection !== undefined ? config.showStatsSection : true;
+  const showRecentActivity = config?.showRecentActivity !== undefined ? config.showRecentActivity : true;
+  const showFeaturedCard = config?.showFeaturedCard !== undefined ? config.showFeaturedCard : true;
   const showUpcomingBookings = config?.showUpcomingBookings !== undefined ? config.showUpcomingBookings : true;
+  const showClubEvents = config?.showClubEvents !== undefined ? config.showClubEvents : true;
+  
   const upcomingBookingsTitle = config?.upcomingBookingsTitle || "Upcoming Bookings";
   const recentActivityTitle = config?.recentActivityTitle || "Recent Activity";
+  const clubEventsTitle = config?.clubEventsTitle || "Club Events & News";
 
   return (
     <>
       {/* Welcome Hero */}
-      <section className="mb-12 relative overflow-hidden rounded-[2.5rem] p-16 flex items-end min-h-[400px] shadow-sm transition-colors duration-500 bg-surface-container-low">
-        <div className="absolute inset-0 z-0">
-          <img
-            src={heroImageUrl}
-            alt="Hero Background"
-            className="w-full h-full object-cover opacity-90 scale-105"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-surface to-transparent"></div>
-        </div>
-        <div className="relative z-10 w-full">
-          <span className={`font-black tracking-[0.2em] text-[11px] uppercase mb-4 block transition-colors text-primary`}>
-            {heroSubheadline}, {profile?.first_name || authUser?.displayName?.split(' ')[0] || "User"}
-          </span>
-          <h3 className={`text-7xl font-black tracking-tighter leading-tight max-w-2xl transition-colors ${theme === "DARK" ? "text-white" : "text-on-surface"
-            }`} style={{ fontFamily: 'Lexend, sans-serif' }}>{heroHeadline}</h3>
-        </div>
-      </section>
+      {showHeroSection && (
+        <section className="mb-12 relative overflow-hidden rounded-[2.5rem] p-16 flex items-end min-h-[400px] shadow-sm transition-colors duration-500 bg-surface-container-low">
+          <div className="absolute inset-0 z-0">
+            <img
+              src={heroImageUrl}
+              alt="Hero Background"
+              className="w-full h-full object-cover opacity-90 scale-105"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-surface to-transparent"></div>
+          </div>
+          <div className="relative z-10 w-full">
+            <span className={`font-black tracking-[0.2em] text-[11px] uppercase mb-4 block transition-colors text-primary`}>
+              {heroSubheadline}, {profile?.first_name || authUser?.displayName?.split(' ')[0] || "User"}
+            </span>
+            <h3 className={`text-7xl font-black tracking-tighter leading-tight max-w-2xl transition-colors ${theme === "DARK" ? "text-white" : "text-on-surface"
+              }`} style={{ fontFamily: 'Lexend, sans-serif' }}>{heroHeadline}</h3>
+          </div>
+        </section>
+      )}
 
       <div className="grid grid-cols-12 gap-10">
         {/* Performance Stats Bento */}
         <div className="col-span-12 lg:col-span-8 space-y-8">
-          <div className="grid grid-cols-3 gap-8">
-            {stats.map((stat: any, idx: number) => (
-              <StatCard key={idx} label={stat.label} value={stat.value} trend={stat.trend} icon={stat.icon} theme={theme} variant={stat.variant} />
-            ))}
-          </div>
+          {showStatsSection && (
+            <div className="grid grid-cols-3 gap-8">
+              {stats.map((stat: any, idx: number) => (
+                <StatCard key={idx} label={stat.label} value={stat.value} trend={stat.trend} icon={stat.icon} theme={theme} variant={stat.variant} />
+              ))}
+            </div>
+          )}
 
           {/* Featured Card */}
-          <div className="rounded-[2.5rem] p-12 relative overflow-hidden group cursor-pointer shadow-xl transition-all hover:scale-[1.01] bg-primary">
-            <div 
-              className="absolute inset-0 opacity-30 bg-cover bg-center mix-blend-overlay"
-              style={{ backgroundImage: `url(${featuredCard.imageUrl || "/images/clay_court.png"})` }}
-            ></div>
-            <div className="relative z-10 flex justify-between items-center">
-              <div>
-                <span className="px-4 py-1 rounded-full text-[9px] font-black tracking-widest uppercase bg-white/20 text-white mb-4 inline-block">{featuredCard.tag}</span>
-                <h4 className="text-4xl font-black text-white tracking-tighter uppercase" style={{ fontFamily: 'Lexend, sans-serif' }}>{featuredCard.title}</h4>
-                <p className="text-white/70 text-xs font-black uppercase tracking-widest mt-2">{featuredCard.subtitle}</p>
+          {showFeaturedCard && (
+            <div className="rounded-[2.5rem] p-12 relative overflow-hidden group cursor-pointer shadow-xl transition-all hover:scale-[1.01] bg-primary">
+              <div 
+                className="absolute inset-0 opacity-30 bg-cover bg-center mix-blend-overlay"
+                style={{ backgroundImage: `url(${featuredCard.imageUrl || "/images/clay_court.png"})` }}
+              ></div>
+              <div className="relative z-10 flex justify-between items-center">
+                <div>
+                  <span className="px-4 py-1 rounded-full text-[9px] font-black tracking-widest uppercase bg-white/20 text-white mb-4 inline-block">{featuredCard.tag}</span>
+                  <h4 className="text-4xl font-black text-white tracking-tighter uppercase" style={{ fontFamily: 'Lexend, sans-serif' }}>{featuredCard.title}</h4>
+                  <p className="text-white/70 text-xs font-black uppercase tracking-widest mt-2">{featuredCard.subtitle}</p>
+                </div>
+                <button className="px-8 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all bg-white text-primary hover:bg-stone-100 shadow-lg">
+                  {featuredCard.buttonText}
+                </button>
               </div>
-              <button className="px-8 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all bg-white text-primary hover:bg-stone-100 shadow-lg">
-                {featuredCard.buttonText}
-              </button>
             </div>
-          </div>
+          )}
         </div>
 
         {/* Recent Activity Section */}
         <div className="col-span-12 lg:col-span-4">
-          <div className="rounded-[2.5rem] p-10 h-full transition-colors duration-500 bg-surface-container-low">
-            <h4 className="font-black text-xl tracking-tighter uppercase mb-8 transition-colors text-on-surface" style={{ fontFamily: 'Lexend, sans-serif' }}>{recentActivityTitle}</h4>
-            <div className="space-y-8">
-              <ActivityItem icon="check_circle" title="Booking Confirmed" subtitle="Court 4 • Wed, 14 Oct" theme={theme} />
-              <ActivityItem icon="trophy" title="Tournament Reg" subtitle="Autumn Open Elite" theme={theme} />
-              <ActivityItem icon="payments" title="Membership" subtitle="Processed successfully" theme={theme} />
+          {showRecentActivity && (
+            <div className="rounded-[2.5rem] p-10 h-full transition-colors duration-500 bg-surface-container-low">
+              <h4 className="font-black text-xl tracking-tighter uppercase mb-8 transition-colors text-on-surface" style={{ fontFamily: 'Lexend, sans-serif' }}>{recentActivityTitle}</h4>
+              <div className="space-y-8">
+                <ActivityItem icon="check_circle" title="Booking Confirmed" subtitle="Court 4 • Wed, 14 Oct" theme={theme} />
+                <ActivityItem icon="trophy" title="Tournament Reg" subtitle="Autumn Open Elite" theme={theme} />
+                <ActivityItem icon="payments" title="Membership" subtitle="Processed successfully" theme={theme} />
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </div>
 
@@ -918,10 +933,11 @@ function DashboardHome({ theme, profile, tenantId, authUser, userSchedule, onRem
       )}
 
       {/* Events Section */}
-      <section className="mt-20 mb-32">
-        <h4 className="text-5xl font-black tracking-tighter uppercase mb-12 transition-colors text-on-surface" style={{ fontFamily: 'Lexend, sans-serif' }}>
-          Club Events & News
-        </h4>
+      {showClubEvents && (
+        <section className="mt-20 mb-32">
+          <h4 className="text-5xl font-black tracking-tighter uppercase mb-12 transition-colors text-on-surface" style={{ fontFamily: 'Lexend, sans-serif' }}>
+            {clubEventsTitle}
+          </h4>
         <div className="grid grid-cols-12 gap-10">
           {featuredEvent ? (
             <div

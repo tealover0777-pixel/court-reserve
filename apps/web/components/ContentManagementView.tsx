@@ -31,9 +31,18 @@ interface DashboardConfig {
     buttonText: string;
     imageUrl: string;
   };
+  // Toggles
+  showHeroSection: boolean;
+  showStatsSection: boolean;
+  showRecentActivity: boolean;
+  showFeaturedCard: boolean;
   showUpcomingBookings: boolean;
+  showClubEvents: boolean;
+  
+  // Titles
   upcomingBookingsTitle: string;
   recentActivityTitle: string;
+  clubEventsTitle: string;
 }
 
 const DEFAULT_CONFIG: DashboardConfig = {
@@ -52,9 +61,15 @@ const DEFAULT_CONFIG: DashboardConfig = {
     buttonText: "Match Preview",
     imageUrl: "/images/clay_court.png"
   },
+  showHeroSection: true,
+  showStatsSection: true,
+  showRecentActivity: true,
+  showFeaturedCard: true,
   showUpcomingBookings: true,
+  showClubEvents: true,
   upcomingBookingsTitle: "Upcoming Bookings",
-  recentActivityTitle: "Recent Activity"
+  recentActivityTitle: "Recent Activity",
+  clubEventsTitle: "Club Events & News"
 };
 
 export default function ContentManagementView({ theme, tenantId }: { theme: string; tenantId: string }) {
@@ -154,9 +169,20 @@ export default function ContentManagementView({ theme, tenantId }: { theme: stri
         {/* Hero Section Editor */}
         <div className="col-span-12 lg:col-span-8 space-y-6">
           <div className="rounded-[2.5rem] p-10 border transition-colors bg-surface-container-low border-outline/10">
-            <div className="flex items-center gap-3 mb-8">
-              <span className="material-symbols-outlined text-primary">campaign</span>
-              <h3 className="text-xl font-black uppercase tracking-widest">Hero Section</h3>
+            <div className="flex items-center justify-between mb-8">
+              <div className="flex items-center gap-3">
+                <span className="material-symbols-outlined text-primary">campaign</span>
+                <h3 className="text-xl font-black uppercase tracking-widest">Hero Section</h3>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-[9px] font-black uppercase tracking-widest opacity-40">Display Section</span>
+                <button
+                  onClick={() => setConfig({ ...config, showHeroSection: !config.showHeroSection })}
+                  className={`w-10 h-5 rounded-full transition-all relative ${config.showHeroSection ? 'bg-primary' : 'bg-surface-container-highest'}`}
+                >
+                  <div className={`absolute top-1 w-3 h-3 rounded-full bg-white transition-all ${config.showHeroSection ? 'left-6' : 'left-1'}`}></div>
+                </button>
+              </div>
             </div>
             
             <div className="space-y-6">
@@ -220,9 +246,20 @@ export default function ContentManagementView({ theme, tenantId }: { theme: stri
 
           {/* Featured Card Editor */}
           <div className="rounded-[2.5rem] p-10 border transition-colors bg-surface-container-low border-outline/10">
-            <div className="flex items-center gap-3 mb-8">
-              <span className="material-symbols-outlined text-primary">star</span>
-              <h3 className="text-xl font-black uppercase tracking-widest">Featured Promotional Card</h3>
+            <div className="flex items-center justify-between mb-8">
+              <div className="flex items-center gap-3">
+                <span className="material-symbols-outlined text-primary">star</span>
+                <h3 className="text-xl font-black uppercase tracking-widest">Featured Promotional Card</h3>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-[9px] font-black uppercase tracking-widest opacity-40">Display Section</span>
+                <button
+                  onClick={() => setConfig({ ...config, showFeaturedCard: !config.showFeaturedCard })}
+                  className={`w-10 h-5 rounded-full transition-all relative ${config.showFeaturedCard ? 'bg-primary' : 'bg-surface-container-highest'}`}
+                >
+                  <div className={`absolute top-1 w-3 h-3 rounded-full bg-white transition-all ${config.showFeaturedCard ? 'left-6' : 'left-1'}`}></div>
+                </button>
+              </div>
             </div>
             
             <div className="grid grid-cols-2 gap-8">
@@ -330,6 +367,19 @@ export default function ContentManagementView({ theme, tenantId }: { theme: stri
 
               <div className={`h-px bg-outline/10 mx-2`}></div>
 
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-xs font-black uppercase tracking-widest">Recent Activity</p>
+                  <p className="text-[9px] opacity-50 uppercase tracking-widest mt-1">Show section on home</p>
+                </div>
+                <button
+                  onClick={() => setConfig({ ...config, showRecentActivity: !config.showRecentActivity })}
+                  className={`w-12 h-6 rounded-full transition-all relative ${config.showRecentActivity ? 'bg-primary' : 'bg-surface-container-highest'}`}
+                >
+                  <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-all ${config.showRecentActivity ? 'left-7' : 'left-1'}`}></div>
+                </button>
+              </div>
+
               <div className="space-y-4">
                 <div className="space-y-2">
                   <label className="text-[10px] font-black uppercase tracking-[0.2em] opacity-50 ml-1">Recent Activity Title</label>
@@ -341,12 +391,50 @@ export default function ContentManagementView({ theme, tenantId }: { theme: stri
                   />
                 </div>
               </div>
+
+              <div className={`h-px bg-outline/10 mx-2`}></div>
+
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-xs font-black uppercase tracking-widest">Club Events & News</p>
+                  <p className="text-[9px] opacity-50 uppercase tracking-widest mt-1">Show section on home</p>
+                </div>
+                <button
+                  onClick={() => setConfig({ ...config, showClubEvents: !config.showClubEvents })}
+                  className={`w-12 h-6 rounded-full transition-all relative ${config.showClubEvents ? 'bg-primary' : 'bg-surface-container-highest'}`}
+                >
+                  <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-all ${config.showClubEvents ? 'left-7' : 'left-1'}`}></div>
+                </button>
+              </div>
+
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black uppercase tracking-[0.2em] opacity-50 ml-1">Club Events Title</label>
+                  <input
+                    type="text"
+                    value={config.clubEventsTitle}
+                    onChange={(e) => setConfig({ ...config, clubEventsTitle: e.target.value })}
+                    className="w-full px-6 py-3 rounded-2xl bg-surface-container border-none focus:ring-2 focus:ring-primary text-xs font-bold transition-all"
+                  />
+                </div>
+              </div>
             </div>
           </div>
 
           {/* Stats Cards Editor */}
           <div className="rounded-[2.5rem] p-10 border transition-colors bg-surface-container-low border-outline/10">
-            <h3 className="text-xl font-black uppercase tracking-widest mb-8">Performance Stats</h3>
+            <div className="flex items-center justify-between mb-8">
+              <h3 className="text-xl font-black uppercase tracking-widest">Performance Stats</h3>
+              <div className="flex items-center gap-2">
+                <span className="text-[9px] font-black uppercase tracking-widest opacity-40">Display</span>
+                <button
+                  onClick={() => setConfig({ ...config, showStatsSection: !config.showStatsSection })}
+                  className={`w-10 h-5 rounded-full transition-all relative ${config.showStatsSection ? 'bg-primary' : 'bg-surface-container-highest'}`}
+                >
+                  <div className={`absolute top-1 w-3 h-3 rounded-full bg-white transition-all ${config.showStatsSection ? 'left-6' : 'left-1'}`}></div>
+                </button>
+              </div>
+            </div>
             <div className="space-y-6">
               {config.stats.map((stat, idx) => (
                 <div key={idx} className="p-6 rounded-3xl bg-surface-container border border-outline/5 space-y-4">
