@@ -165,266 +165,93 @@ export default function DashboardManagementView({ theme, tenantId }: { theme: st
         </button>
       </div>
 
-      <div className="grid grid-cols-12 gap-8">
-        {/* Hero Section Editor */}
-        <div className="col-span-12 lg:col-span-8 space-y-6">
-          <div className="rounded-[2.5rem] p-10 border transition-colors bg-surface-container-low border-outline/10">
-            <div className="flex items-center justify-between mb-8">
-              <div className="flex items-center gap-3">
-                <span className="material-symbols-outlined text-primary">campaign</span>
-                <h3 className="text-xl font-black uppercase tracking-widest">Hero Section</h3>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="text-[9px] font-black uppercase tracking-widest opacity-40">Display Section</span>
-                <button
-                  onClick={() => setConfig({ ...config, showHeroSection: !config.showHeroSection })}
-                  className={`w-10 h-5 rounded-full transition-all relative ${config.showHeroSection ? 'bg-primary' : 'bg-surface-container-highest'}`}
-                >
-                  <div className={`absolute top-1 w-3 h-3 rounded-full bg-white transition-all ${config.showHeroSection ? 'left-6' : 'left-1'}`}></div>
-                </button>
-              </div>
+      <div className="space-y-12">
+        {/* 1. Hero Section Editor */}
+        <div className="rounded-[2.5rem] p-10 border transition-colors bg-surface-container-low border-outline/10">
+          <div className="flex items-center justify-between mb-8">
+            <div className="flex items-center gap-3">
+              <span className="material-symbols-outlined text-primary">campaign</span>
+              <h3 className="text-xl font-black uppercase tracking-widest">Hero Section</h3>
             </div>
-            
-            <div className="space-y-6">
-              <div className="grid grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black uppercase tracking-[0.2em] opacity-50 ml-1">Headline</label>
-                  <input
-                    type="text"
-                    value={config.heroHeadline}
-                    onChange={(e) => setConfig({ ...config, heroHeadline: e.target.value })}
-                    className="w-full px-6 py-4 rounded-2xl bg-surface-container border-none focus:ring-2 focus:ring-primary text-sm font-bold transition-all"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black uppercase tracking-[0.2em] opacity-50 ml-1">Sub-Headline</label>
-                  <input
-                    type="text"
-                    value={config.heroSubheadline}
-                    onChange={(e) => setConfig({ ...config, heroSubheadline: e.target.value })}
-                    className="w-full px-6 py-4 rounded-2xl bg-surface-container border-none focus:ring-2 focus:ring-primary text-sm font-bold transition-all"
-                  />
-                </div>
-              </div>
-
+            <div className="flex items-center gap-2">
+              <span className="text-[9px] font-black uppercase tracking-widest opacity-40">Display Section</span>
+              <button
+                onClick={() => setConfig({ ...config, showHeroSection: !config.showHeroSection })}
+                className={`w-10 h-5 rounded-full transition-all relative ${config.showHeroSection ? 'bg-primary' : 'bg-surface-container-highest'}`}
+              >
+                <div className={`absolute top-1 w-3 h-3 rounded-full bg-white transition-all ${config.showHeroSection ? 'left-6' : 'left-1'}`}></div>
+              </button>
+            </div>
+          </div>
+          
+          <div className="space-y-6">
+            <div className="grid grid-cols-2 gap-6">
               <div className="space-y-2">
-                <label className="text-[10px] font-black uppercase tracking-[0.2em] opacity-50 ml-1">Background Image</label>
-                <div 
-                  onClick={() => heroInputRef.current?.click()}
-                  className="group relative h-48 rounded-[2rem] overflow-hidden cursor-pointer border-2 border-dashed border-outline/20 hover:border-primary/50 transition-all flex items-center justify-center bg-surface-container/50"
-                >
-                  {config.heroImageUrl ? (
-                    <>
-                      <img src={config.heroImageUrl} className="absolute inset-0 w-full h-full object-cover opacity-40 group-hover:scale-105 transition-all duration-700" alt="Hero" />
-                      <div className="relative z-10 flex flex-col items-center gap-2">
-                        <span className="material-symbols-outlined text-4xl text-white">cloud_upload</span>
-                        <span className="text-[10px] font-black uppercase tracking-widest text-white">Change Hero Image</span>
-                      </div>
-                    </>
-                  ) : (
-                    <div className="flex flex-col items-center gap-2 opacity-40">
-                      <span className="material-symbols-outlined text-4xl">add_photo_alternate</span>
-                      <span className="text-[10px] font-black uppercase tracking-widest">Upload Image</span>
-                    </div>
-                  )}
-                  {uploading === 'hero' && (
-                    <div className="absolute inset-0 bg-black/60 flex items-center justify-center z-20">
-                      <div className="w-8 h-8 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                    </div>
-                  )}
-                </div>
-                <input 
-                  type="file" 
-                  ref={heroInputRef} 
-                  className="hidden" 
-                  onChange={(e) => e.target.files?.[0] && handleImageUpload(e.target.files[0], 'hero')}
-                  accept="image/*"
+                <label className="text-[10px] font-black uppercase tracking-[0.2em] opacity-50 ml-1">Headline</label>
+                <input
+                  type="text"
+                  value={config.heroHeadline}
+                  onChange={(e) => setConfig({ ...config, heroHeadline: e.target.value })}
+                  className="w-full px-6 py-4 rounded-2xl bg-surface-container border-none focus:ring-2 focus:ring-primary text-sm font-bold transition-all"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-[10px] font-black uppercase tracking-[0.2em] opacity-50 ml-1">Sub-Headline</label>
+                <input
+                  type="text"
+                  value={config.heroSubheadline}
+                  onChange={(e) => setConfig({ ...config, heroSubheadline: e.target.value })}
+                  className="w-full px-6 py-4 rounded-2xl bg-surface-container border-none focus:ring-2 focus:ring-primary text-sm font-bold transition-all"
                 />
               </div>
             </div>
-          </div>
 
-          {/* Featured Card Editor */}
-          <div className="rounded-[2.5rem] p-10 border transition-colors bg-surface-container-low border-outline/10">
-            <div className="flex items-center justify-between mb-8">
-              <div className="flex items-center gap-3">
-                <span className="material-symbols-outlined text-primary">star</span>
-                <h3 className="text-xl font-black uppercase tracking-widest">Featured Promotional Card</h3>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="text-[9px] font-black uppercase tracking-widest opacity-40">Display Section</span>
-                <button
-                  onClick={() => setConfig({ ...config, showFeaturedCard: !config.showFeaturedCard })}
-                  className={`w-10 h-5 rounded-full transition-all relative ${config.showFeaturedCard ? 'bg-primary' : 'bg-surface-container-highest'}`}
-                >
-                  <div className={`absolute top-1 w-3 h-3 rounded-full bg-white transition-all ${config.showFeaturedCard ? 'left-6' : 'left-1'}`}></div>
-                </button>
-              </div>
-            </div>
-            
-            <div className="grid grid-cols-2 gap-8">
-              <div className="space-y-6">
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black uppercase tracking-[0.2em] opacity-50 ml-1">Tag (e.g. Scheduled)</label>
-                  <input
-                    type="text"
-                    value={config.featuredCard.tag}
-                    onChange={(e) => setConfig({ ...config, featuredCard: { ...config.featuredCard, tag: e.target.value } })}
-                    className="w-full px-6 py-4 rounded-2xl bg-surface-container border-none focus:ring-2 focus:ring-primary text-sm font-bold transition-all"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black uppercase tracking-[0.2em] opacity-50 ml-1">Title</label>
-                  <input
-                    type="text"
-                    value={config.featuredCard.title}
-                    onChange={(e) => setConfig({ ...config, featuredCard: { ...config.featuredCard, title: e.target.value } })}
-                    className="w-full px-6 py-4 rounded-2xl bg-surface-container border-none focus:ring-2 focus:ring-primary text-sm font-bold transition-all"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black uppercase tracking-[0.2em] opacity-50 ml-1">Subtitle / Location</label>
-                  <input
-                    type="text"
-                    value={config.featuredCard.subtitle}
-                    onChange={(e) => setConfig({ ...config, featuredCard: { ...config.featuredCard, subtitle: e.target.value } })}
-                    className="w-full px-6 py-4 rounded-2xl bg-surface-container border-none focus:ring-2 focus:ring-primary text-sm font-bold transition-all"
-                  />
-                </div>
-              </div>
-              
-              <div className="space-y-6">
-                 <div className="space-y-2">
-                  <label className="text-[10px] font-black uppercase tracking-[0.2em] opacity-50 ml-1">Background Image</label>
-                  <div 
-                    onClick={() => featuredInputRef.current?.click()}
-                    className="group relative h-full min-h-[220px] rounded-[2rem] overflow-hidden cursor-pointer border-2 border-dashed border-outline/20 hover:border-primary/50 transition-all flex items-center justify-center bg-surface-container/50"
-                  >
-                    {config.featuredCard.imageUrl ? (
-                      <>
-                        <img src={config.featuredCard.imageUrl} className="absolute inset-0 w-full h-full object-cover opacity-40 group-hover:scale-105 transition-all duration-700" alt="Featured" />
-                        <div className="relative z-10 flex flex-col items-center gap-2">
-                          <span className="material-symbols-outlined text-3xl text-white">image</span>
-                          <span className="text-[10px] font-black uppercase tracking-widest text-white">Change Image</span>
-                        </div>
-                      </>
-                    ) : (
-                      <div className="flex flex-col items-center gap-2 opacity-40">
-                        <span className="material-symbols-outlined text-3xl">add_photo_alternate</span>
-                        <span className="text-[10px] font-black uppercase tracking-widest">Upload Image</span>
-                      </div>
-                    )}
-                    {uploading === 'featured' && (
-                      <div className="absolute inset-0 bg-black/60 flex items-center justify-center z-20">
-                        <div className="w-8 h-8 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                      </div>
-                    )}
+            <div className="space-y-2">
+              <label className="text-[10px] font-black uppercase tracking-[0.2em] opacity-50 ml-1">Background Image</label>
+              <div 
+                onClick={() => heroInputRef.current?.click()}
+                className="group relative h-48 rounded-[2rem] overflow-hidden cursor-pointer border-2 border-dashed border-outline/20 hover:border-primary/50 transition-all flex items-center justify-center bg-surface-container/50"
+              >
+                {config.heroImageUrl ? (
+                  <>
+                    <img src={config.heroImageUrl} className="absolute inset-0 w-full h-full object-cover opacity-40 group-hover:scale-105 transition-all duration-700" alt="Hero" />
+                    <div className="relative z-10 flex flex-col items-center gap-2">
+                      <span className="material-symbols-outlined text-4xl text-white">cloud_upload</span>
+                      <span className="text-[10px] font-black uppercase tracking-widest text-white">Change Hero Image</span>
+                    </div>
+                  </>
+                ) : (
+                  <div className="flex flex-col items-center gap-2 opacity-40">
+                    <span className="material-symbols-outlined text-4xl">add_photo_alternate</span>
+                    <span className="text-[10px] font-black uppercase tracking-widest">Upload Image</span>
                   </div>
-                  <input 
-                    type="file" 
-                    ref={featuredInputRef} 
-                    className="hidden" 
-                    onChange={(e) => e.target.files?.[0] && handleImageUpload(e.target.files[0], 'featured')}
-                    accept="image/*"
-                  />
-                </div>
+                )}
+                {uploading === 'hero' && (
+                  <div className="absolute inset-0 bg-black/60 flex items-center justify-center z-20">
+                    <div className="w-8 h-8 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  </div>
+                )}
               </div>
+              <input 
+                type="file" 
+                ref={heroInputRef} 
+                className="hidden" 
+                onChange={(e) => e.target.files?.[0] && handleImageUpload(e.target.files[0], 'hero')}
+                accept="image/*"
+              />
             </div>
           </div>
         </div>
 
-        {/* Sidebar Controls */}
-        <div className="col-span-12 lg:col-span-4 space-y-6">
-          {/* Section Visibility */}
-          <div className="rounded-[2.5rem] p-10 border transition-colors bg-surface-container-low border-outline/10">
-            <h3 className="text-xl font-black uppercase tracking-widest mb-8">Layout Settings</h3>
-            
-            <div className="space-y-8">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs font-black uppercase tracking-widest">Upcoming Bookings</p>
-                  <p className="text-[9px] opacity-50 uppercase tracking-widest mt-1">Show section on home</p>
-                </div>
-                <button
-                  onClick={() => setConfig({ ...config, showUpcomingBookings: !config.showUpcomingBookings })}
-                  className={`w-12 h-6 rounded-full transition-all relative ${config.showUpcomingBookings ? 'bg-primary' : 'bg-surface-container-highest'}`}
-                >
-                  <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-all ${config.showUpcomingBookings ? 'left-7' : 'left-1'}`}></div>
-                </button>
-              </div>
-
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black uppercase tracking-[0.2em] opacity-50 ml-1">Section Title</label>
-                  <input
-                    type="text"
-                    value={config.upcomingBookingsTitle}
-                    onChange={(e) => setConfig({ ...config, upcomingBookingsTitle: e.target.value })}
-                    className="w-full px-6 py-3 rounded-2xl bg-surface-container border-none focus:ring-2 focus:ring-primary text-xs font-bold transition-all"
-                  />
-                </div>
-              </div>
-
-              <div className={`h-px bg-outline/10 mx-2`}></div>
-
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs font-black uppercase tracking-widest">Recent Activity</p>
-                  <p className="text-[9px] opacity-50 uppercase tracking-widest mt-1">Show section on home</p>
-                </div>
-                <button
-                  onClick={() => setConfig({ ...config, showRecentActivity: !config.showRecentActivity })}
-                  className={`w-12 h-6 rounded-full transition-all relative ${config.showRecentActivity ? 'bg-primary' : 'bg-surface-container-highest'}`}
-                >
-                  <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-all ${config.showRecentActivity ? 'left-7' : 'left-1'}`}></div>
-                </button>
-              </div>
-
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black uppercase tracking-[0.2em] opacity-50 ml-1">Recent Activity Title</label>
-                  <input
-                    type="text"
-                    value={config.recentActivityTitle}
-                    onChange={(e) => setConfig({ ...config, recentActivityTitle: e.target.value })}
-                    className="w-full px-6 py-3 rounded-2xl bg-surface-container border-none focus:ring-2 focus:ring-primary text-xs font-bold transition-all"
-                  />
-                </div>
-              </div>
-
-              <div className={`h-px bg-outline/10 mx-2`}></div>
-
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs font-black uppercase tracking-widest">Club Events & News</p>
-                  <p className="text-[9px] opacity-50 uppercase tracking-widest mt-1">Show section on home</p>
-                </div>
-                <button
-                  onClick={() => setConfig({ ...config, showClubEvents: !config.showClubEvents })}
-                  className={`w-12 h-6 rounded-full transition-all relative ${config.showClubEvents ? 'bg-primary' : 'bg-surface-container-highest'}`}
-                >
-                  <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-all ${config.showClubEvents ? 'left-7' : 'left-1'}`}></div>
-                </button>
-              </div>
-
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black uppercase tracking-[0.2em] opacity-50 ml-1">Club Events Title</label>
-                  <input
-                    type="text"
-                    value={config.clubEventsTitle}
-                    onChange={(e) => setConfig({ ...config, clubEventsTitle: e.target.value })}
-                    className="w-full px-6 py-3 rounded-2xl bg-surface-container border-none focus:ring-2 focus:ring-primary text-xs font-bold transition-all"
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Stats Cards Editor */}
-          <div className="rounded-[2.5rem] p-10 border transition-colors bg-surface-container-low border-outline/10">
+        {/* 2. Stats & Featured Card Row */}
+        <div className="grid grid-cols-12 gap-8">
+          {/* Performance Stats Editor */}
+          <div className="col-span-12 lg:col-span-7 rounded-[2.5rem] p-10 border transition-colors bg-surface-container-low border-outline/10">
             <div className="flex items-center justify-between mb-8">
-              <h3 className="text-xl font-black uppercase tracking-widest">Performance Stats</h3>
+              <div className="flex items-center gap-3">
+                <span className="material-symbols-outlined text-primary">analytics</span>
+                <h3 className="text-xl font-black uppercase tracking-widest">Performance Stats</h3>
+              </div>
               <div className="flex items-center gap-2">
                 <span className="text-[9px] font-black uppercase tracking-widest opacity-40">Display</span>
                 <button
@@ -486,6 +313,140 @@ export default function DashboardManagementView({ theme, tenantId }: { theme: st
                   </div>
                 </div>
               ))}
+            </div>
+          </div>
+
+          {/* Featured Card Editor */}
+          <div className="col-span-12 lg:col-span-5 rounded-[2.5rem] p-10 border transition-colors bg-surface-container-low border-outline/10">
+            <div className="flex items-center justify-between mb-8">
+              <div className="flex items-center gap-3">
+                <span className="material-symbols-outlined text-primary">star</span>
+                <h3 className="text-xl font-black uppercase tracking-widest">Featured Card</h3>
+              </div>
+              <button
+                onClick={() => setConfig({ ...config, showFeaturedCard: !config.showFeaturedCard })}
+                className={`w-10 h-5 rounded-full transition-all relative ${config.showFeaturedCard ? 'bg-primary' : 'bg-surface-container-highest'}`}
+              >
+                <div className={`absolute top-1 w-3 h-3 rounded-full bg-white transition-all ${config.showFeaturedCard ? 'left-6' : 'left-1'}`}></div>
+              </button>
+            </div>
+            
+            <div className="space-y-6">
+              <div className="space-y-2">
+                <label className="text-[10px] font-black uppercase tracking-[0.2em] opacity-50 ml-1">Tag</label>
+                <input
+                  type="text"
+                  value={config.featuredCard.tag}
+                  onChange={(e) => setConfig({ ...config, featuredCard: { ...config.featuredCard, tag: e.target.value } })}
+                  className="w-full px-6 py-4 rounded-2xl bg-surface-container border-none text-xs font-bold"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-[10px] font-black uppercase tracking-[0.2em] opacity-50 ml-1">Title</label>
+                <input
+                  type="text"
+                  value={config.featuredCard.title}
+                  onChange={(e) => setConfig({ ...config, featuredCard: { ...config.featuredCard, title: e.target.value } })}
+                  className="w-full px-6 py-4 rounded-2xl bg-surface-container border-none text-xs font-bold"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-[10px] font-black uppercase tracking-[0.2em] opacity-50 ml-1">Image</label>
+                <div 
+                  onClick={() => featuredInputRef.current?.click()}
+                  className="group relative h-40 rounded-[2rem] overflow-hidden cursor-pointer border-2 border-dashed border-outline/20 hover:border-primary/50 transition-all flex items-center justify-center bg-surface-container/50"
+                >
+                  {config.featuredCard.imageUrl ? (
+                    <>
+                      <img src={config.featuredCard.imageUrl} className="absolute inset-0 w-full h-full object-cover opacity-30" alt="Featured" />
+                      <span className="relative z-10 material-symbols-outlined text-xl text-primary">image</span>
+                    </>
+                  ) : (
+                    <span className="material-symbols-outlined text-xl opacity-20">add_photo_alternate</span>
+                  )}
+                  {uploading === 'featured' && (
+                    <div className="absolute inset-0 bg-black/60 flex items-center justify-center z-20">
+                      <div className="w-4 h-4 border border-white border-t-transparent rounded-full animate-spin"></div>
+                    </div>
+                  )}
+                </div>
+                <input type="file" ref={featuredInputRef} className="hidden" onChange={(e) => e.target.files?.[0] && handleImageUpload(e.target.files[0], 'featured')} accept="image/*" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* 3. Section Titles & Visibility */}
+        <div className="grid grid-cols-12 gap-8">
+          {/* Recent Activity */}
+          <div className="col-span-12 lg:col-span-4 rounded-[2.5rem] p-10 border transition-colors bg-surface-container-low border-outline/10">
+            <div className="flex items-center justify-between mb-8">
+              <h3 className="text-xl font-black uppercase tracking-widest">Recent Activity</h3>
+              <button
+                onClick={() => setConfig({ ...config, showRecentActivity: !config.showRecentActivity })}
+                className={`w-10 h-5 rounded-full transition-all relative ${config.showRecentActivity ? 'bg-primary' : 'bg-surface-container-highest'}`}
+              >
+                <div className={`absolute top-1 w-3 h-3 rounded-full bg-white transition-all ${config.showRecentActivity ? 'left-6' : 'left-1'}`}></div>
+              </button>
+            </div>
+            <div className="space-y-4">
+              <div className="space-y-1">
+                <label className="text-[9px] font-black uppercase tracking-widest opacity-40">Section Title</label>
+                <input
+                  type="text"
+                  value={config.recentActivityTitle}
+                  onChange={(e) => setConfig({ ...config, recentActivityTitle: e.target.value })}
+                  className="w-full px-4 py-3 rounded-xl bg-surface-container border-none text-[10px] font-bold"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Upcoming Bookings */}
+          <div className="col-span-12 lg:col-span-4 rounded-[2.5rem] p-10 border transition-colors bg-surface-container-low border-outline/10">
+            <div className="flex items-center justify-between mb-8">
+              <h3 className="text-xl font-black uppercase tracking-widest">Upcoming Bookings</h3>
+              <button
+                onClick={() => setConfig({ ...config, showUpcomingBookings: !config.showUpcomingBookings })}
+                className={`w-10 h-5 rounded-full transition-all relative ${config.showUpcomingBookings ? 'bg-primary' : 'bg-surface-container-highest'}`}
+              >
+                <div className={`absolute top-1 w-3 h-3 rounded-full bg-white transition-all ${config.showUpcomingBookings ? 'left-6' : 'left-1'}`}></div>
+              </button>
+            </div>
+            <div className="space-y-4">
+              <div className="space-y-1">
+                <label className="text-[9px] font-black uppercase tracking-widest opacity-40">Section Title</label>
+                <input
+                  type="text"
+                  value={config.upcomingBookingsTitle}
+                  onChange={(e) => setConfig({ ...config, upcomingBookingsTitle: e.target.value })}
+                  className="w-full px-4 py-3 rounded-xl bg-surface-container border-none text-[10px] font-bold"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Club Events */}
+          <div className="col-span-12 lg:col-span-4 rounded-[2.5rem] p-10 border transition-colors bg-surface-container-low border-outline/10">
+            <div className="flex items-center justify-between mb-8">
+              <h3 className="text-xl font-black uppercase tracking-widest">Club Events</h3>
+              <button
+                onClick={() => setConfig({ ...config, showClubEvents: !config.showClubEvents })}
+                className={`w-10 h-5 rounded-full transition-all relative ${config.showClubEvents ? 'bg-primary' : 'bg-surface-container-highest'}`}
+              >
+                <div className={`absolute top-1 w-3 h-3 rounded-full bg-white transition-all ${config.showClubEvents ? 'left-6' : 'left-1'}`}></div>
+              </button>
+            </div>
+            <div className="space-y-4">
+              <div className="space-y-1">
+                <label className="text-[9px] font-black uppercase tracking-widest opacity-40">Section Title</label>
+                <input
+                  type="text"
+                  value={config.clubEventsTitle}
+                  onChange={(e) => setConfig({ ...config, clubEventsTitle: e.target.value })}
+                  className="w-full px-4 py-3 rounded-xl bg-surface-container border-none text-[10px] font-bold"
+                />
+              </div>
             </div>
           </div>
         </div>
