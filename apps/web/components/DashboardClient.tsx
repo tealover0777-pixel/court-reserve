@@ -984,7 +984,8 @@ function DashboardHome({ theme, profile, tenantId, authUser, userSchedule, onRem
             )}
           </div>
         </div>
-      </section>
+        </section>
+      )}
 
       {selectedEvent && (
         <EventDetailsModal
