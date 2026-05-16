@@ -132,7 +132,7 @@ export default function DashboardClient({ params }: { params: { tenantId: string
   // View → required permission mapping
   const VIEW_PERMISSIONS: Partial<Record<typeof activeView, string>> = {
     "DASHBOARD": "DASHBOARD_VIEW",
-    "COURT BOOKING": "MY_SCHEDULE_VIEW",
+    "COURT BOOKING": "COURT_BOOKING_VIEW",
     "PROGRAMS": "PROGRAMS_VIEW",
     "MEMBERSHIP": "MEMBERSHIP_VIEW",
     "ROLE_TYPES": "ADMINISTRATION_VIEW",
@@ -188,7 +188,7 @@ export default function DashboardClient({ params }: { params: { tenantId: string
     if (requiredPermission && !hasPermission(requiredPermission)) {
       if (hasPermission("DASHBOARD_VIEW")) {
         setActiveView("DASHBOARD");
-      } else if (hasPermission("MY_SCHEDULE_VIEW")) {
+      } else if (hasPermission("COURT_BOOKING_VIEW")) {
         setActiveView("COURT BOOKING");
       } else {
         setActiveView("PROFILE");
