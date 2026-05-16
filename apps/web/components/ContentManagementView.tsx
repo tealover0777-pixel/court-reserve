@@ -355,8 +355,9 @@ export default function ContentManagementView({ theme, tenantId }: { theme: stri
                       type="text"
                       value={stat.label}
                       onChange={(e) => {
-                        const newStats = [...config.stats];
-                        newStats[idx].label = e.target.value;
+                        const newStats = config.stats.map((s, i) => 
+                          i === idx ? { ...s, label: e.target.value } : s
+                        );
                         setConfig({ ...config, stats: newStats });
                       }}
                       className="bg-transparent border-none focus:ring-0 p-0 text-[10px] font-black uppercase tracking-widest w-full"
@@ -369,8 +370,9 @@ export default function ContentManagementView({ theme, tenantId }: { theme: stri
                         type="text"
                         value={stat.value}
                         onChange={(e) => {
-                          const newStats = [...config.stats];
-                          newStats[idx].value = e.target.value;
+                          const newStats = config.stats.map((s, i) => 
+                            i === idx ? { ...s, value: e.target.value } : s
+                          );
                           setConfig({ ...config, stats: newStats });
                         }}
                         className="w-full px-4 py-2 rounded-xl bg-surface-container-highest border-none text-[10px] font-bold"
@@ -382,8 +384,9 @@ export default function ContentManagementView({ theme, tenantId }: { theme: stri
                         type="text"
                         value={stat.trend}
                         onChange={(e) => {
-                          const newStats = [...config.stats];
-                          newStats[idx].trend = e.target.value;
+                          const newStats = config.stats.map((s, i) => 
+                            i === idx ? { ...s, trend: e.target.value } : s
+                          );
                           setConfig({ ...config, stats: newStats });
                         }}
                         className="w-full px-4 py-2 rounded-xl bg-surface-container-highest border-none text-[10px] font-bold"
