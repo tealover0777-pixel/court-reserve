@@ -14,7 +14,7 @@ import CompanyView from "./CompanyView";
 import CourtBookingView from "./CourtBookingView";
 import SchedulesAdminView from "./SchedulesAdminView";
 import MemberAdminView from "./MemberAdminView";
-import ContentManagementView from "./ContentManagementView";
+import DashboardManagementView from "./DashboardManagementView";
 import ProgramsManagementView from "./ProgramsManagementView";
 import { useNotification } from "../context/NotificationContext";
 import { Modal } from "@repo/ui/modal";
@@ -52,7 +52,7 @@ export default function DashboardClient({ params }: { params: { tenantId: string
   const searchParams = useSearchParams();
   const pathname = usePathname();
 
-  const [activeView, setActiveView] = React.useState<"DASHBOARD" | "COURT BOOKING" | "PROGRAMS" | "MEMBERSHIP" | "SETTINGS" | "PROFILE" | "AI_ADMIN" | "DIMENSIONS" | "ROLE_TYPES" | "USER_ADMIN" | "PLATFORM_TENANT_ADMIN" | "COMPANY" | "PLATFORM_COMPANY" | "TENANT_USER_ADMIN" | "MEMBER_ADMIN" | "PLATFORM_ROLE_TYPES" | "SCHEDULES" | "EVENTS_ADMIN" | "CONTENT_MANAGEMENT" | "PROGRAMS_MANAGEMENT">("DASHBOARD");
+  const [activeView, setActiveView] = React.useState<"DASHBOARD" | "COURT BOOKING" | "PROGRAMS" | "MEMBERSHIP" | "SETTINGS" | "PROFILE" | "AI_ADMIN" | "DIMENSIONS" | "ROLE_TYPES" | "USER_ADMIN" | "PLATFORM_TENANT_ADMIN" | "COMPANY" | "PLATFORM_COMPANY" | "TENANT_USER_ADMIN" | "MEMBER_ADMIN" | "PLATFORM_ROLE_TYPES" | "SCHEDULES" | "EVENTS_ADMIN" | "DASHBOARD_MANAGEMENT" | "PROGRAMS_MANAGEMENT">("DASHBOARD");
   const [platformAdminOpen, setPlatformAdminOpen] = React.useState(false);
   const [administrationOpen, setAdministrationOpen] = React.useState(false);
   const [theme, setTheme] = React.useState<"LIGHT" | "DARK" | "VINTAGE">("LIGHT");
@@ -148,7 +148,7 @@ export default function DashboardClient({ params }: { params: { tenantId: string
     "PLATFORM_COMPANY": "PLATFORM_VIEW",
     "PLATFORM_ROLE_TYPES": "PLATFORM_VIEW",
     "EVENTS_ADMIN": "ADMINISTRATION_VIEW",
-    "CONTENT_MANAGEMENT": "ADMINISTRATION_VIEW",
+    "DASHBOARD_MANAGEMENT": "ADMINISTRATION_VIEW",
     "PROGRAMS_MANAGEMENT": "ADMINISTRATION_VIEW",
   };
 
@@ -540,7 +540,7 @@ export default function DashboardClient({ params }: { params: { tenantId: string
           if (activeView === "SETTINGS") return <SettingsView theme={theme} />;
           if (activeView === "PROFILE") return <ProfileView theme={theme} profile={profile} roles={roles} />;
           if (activeView === "EVENTS_ADMIN") return <EventsAdminView theme={theme} tenantId={tenantId} />;
-          if (activeView === "CONTENT_MANAGEMENT") return <ContentManagementView theme={theme} tenantId={tenantId} />;
+          if (activeView === "DASHBOARD_MANAGEMENT") return <DashboardManagementView theme={theme} tenantId={tenantId} />;
           if (activeView === "PROGRAMS_MANAGEMENT") return <ProgramsManagementView theme={theme} tenantId={tenantId} />;
           return (
             <div className={`flex flex-col items-center justify-center min-h-[60vh] ${theme === "DARK" ? "text-white" : theme === "LIGHT" ? "text-[#4f6b28]" : "text-stone-900"}`}>
@@ -666,7 +666,7 @@ function Sidebar({ activeView, setActiveView, platformAdminOpen, setPlatformAdmi
                   <SubNavItem label="Events" active={activeView === "EVENTS_ADMIN"} onClick={() => setActiveView("EVENTS_ADMIN")} theme={theme} />
                 )}
                  {(hasPermission('ADMINISTRATION_VIEW') || profile?.role?.includes('R10005')) && (
-                  <SubNavItem label="Content Mgmt" active={activeView === "CONTENT_MANAGEMENT"} onClick={() => setActiveView("CONTENT_MANAGEMENT")} theme={theme} />
+                  <SubNavItem label="Dashboard Mgmt" active={activeView === "DASHBOARD_MANAGEMENT"} onClick={() => setActiveView("DASHBOARD_MANAGEMENT")} theme={theme} />
                 )}
                 {(hasPermission('ADMINISTRATION_VIEW') || profile?.role?.includes('R10005')) && (
                   <SubNavItem label="Programs Mgmt" active={activeView === "PROGRAMS_MANAGEMENT"} onClick={() => setActiveView("PROGRAMS_MANAGEMENT")} theme={theme} />

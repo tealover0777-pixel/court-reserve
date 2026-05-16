@@ -72,7 +72,7 @@ const DEFAULT_CONFIG: DashboardConfig = {
   clubEventsTitle: "Club Events & News"
 };
 
-export default function ContentManagementView({ theme, tenantId }: { theme: string; tenantId: string }) {
+export default function DashboardManagementView({ theme, tenantId }: { theme: string; tenantId: string }) {
   const [config, setConfig] = useState<DashboardConfig>(DEFAULT_CONFIG);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -152,7 +152,7 @@ export default function ContentManagementView({ theme, tenantId }: { theme: stri
       <div className="flex justify-between items-end">
         <div>
           <h2 className="text-5xl font-black tracking-tighter uppercase transition-colors text-primary" style={{ fontFamily: 'Lexend, sans-serif' }}>
-            CONTENT MANAGEMENT
+            DASHBOARD MANAGEMENT
           </h2>
           <p className="text-on-surface-variant text-[11px] font-black uppercase tracking-widest mt-2">Customize your dashboard experience.</p>
         </div>
