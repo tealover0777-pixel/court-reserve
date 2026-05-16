@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useEffect, useRef } from "react";
+import { useNotification } from "../context/NotificationContext";
 import { db, storage, auth } from "../lib/firebase";
 import {
   doc,
@@ -61,6 +62,7 @@ export default function ContentManagementView({ theme, tenantId }: { theme: stri
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState<string | null>(null);
+  const { showNotification } = useNotification();
   const heroInputRef = useRef<HTMLInputElement>(null);
   const featuredInputRef = useRef<HTMLInputElement>(null);
 
@@ -90,10 +92,10 @@ export default function ContentManagementView({ theme, tenantId }: { theme: stri
         updatedAt: serverTimestamp(),
         updatedBy: auth.currentUser?.uid
       }, { merge: true });
-      alert("Configuration saved successfully!");
+      showNotification("Configuration saved successfully!");
     } catch (error) {
       console.error("Error saving config:", error);
-      alert("Failed to save configuration.");
+      showNotification("Failed to save configuration.", "error");
     } finally {
       setSaving(false);
     }
@@ -113,9 +115,10 @@ export default function ContentManagementView({ theme, tenantId }: { theme: stri
       } else {
         setConfig(prev => ({ ...prev, featuredCard: { ...prev.featuredCard, imageUrl: url } }));
       }
+      showNotification("Image uploaded successfully!");
     } catch (error) {
       console.error("Error uploading image:", error);
-      alert("Failed to upload image.");
+      showNotification("Failed to upload image.", "error");
     } finally {
       setUploading(null);
     }

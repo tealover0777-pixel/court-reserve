@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useEffect, useMemo, useRef } from "react";
+import { useNotification } from "../context/NotificationContext";
 import { db } from "../lib/firebase";
 import { doc, onSnapshot, collection, query, where, addDoc, serverTimestamp, deleteDoc, updateDoc } from "firebase/firestore";
 import { useTenant } from "../context/TenantContext";
@@ -134,6 +135,7 @@ export default function CourtBookingView({ theme, isAdmin, tenantId: tenantIdPro
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [tenantConfig, setTenantConfig] = useState<any>(null);
   const [allUserBookings, setAllUserBookings] = useState<any[]>([]);
+  const { showNotification } = useNotification();
 
   useEffect(() => {
     if (!tenantId) return;
@@ -247,7 +249,7 @@ export default function CourtBookingView({ theme, isAdmin, tenantId: tenantIdPro
         "START": "before the reservation starts",
         "END": "before the reservation ends"
       };
-      alert(`Policy Restriction: This reservation can only be changed ${policyLabels[policy] || "before it starts"}.`);
+      showNotification(`Policy Restriction: This reservation can only be changed ${policyLabels[policy] || "before it starts"}.`, "error");
       return;
     }
 
@@ -317,7 +319,7 @@ export default function CourtBookingView({ theme, isAdmin, tenantId: tenantIdPro
     });
 
     if (hasOverlap) {
-      alert("This reservation overlaps with an existing schedule. Please adjust the duration or time.");
+      showNotification("This reservation overlaps with an existing schedule.", "error");
       setIsSubmitting(false);
       return;
     }
@@ -1604,6 +1606,7 @@ function BookingDetails({ tenantId, booking, theme, user, isAdmin, canModify, on
   const [editPlayerCount, setEditPlayerCount] = useState(booking.playerCount || 1);
 
   const isDark = theme === "DARK";
+  const { showNotification } = useNotification();
   const isOwner = user?.uid === booking.userId;
 
   const handleCancel = async () => {
@@ -1631,7 +1634,7 @@ function BookingDetails({ tenantId, booking, theme, user, isAdmin, canModify, on
     });
 
     if (hasOverlap) {
-      alert("This update overlaps with an existing reservation. Please choose a different time or duration.");
+      showNotification("This update overlaps with an existing reservation.", "error");
       setIsSubmitting(false);
       return;
     }

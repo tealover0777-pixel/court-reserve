@@ -15,6 +15,7 @@ import CourtBookingView from "./CourtBookingView";
 import SchedulesAdminView from "./SchedulesAdminView";
 import MemberAdminView from "./MemberAdminView";
 import ContentManagementView from "./ContentManagementView";
+import { useNotification } from "../context/NotificationContext";
 import { Modal } from "@repo/ui/modal";
 import { useAuth } from "../context/AuthContext";
 import {
@@ -1381,7 +1382,7 @@ function ProgramsView({ theme }: { theme: "LIGHT" | "DARK" | "VINTAGE" }) {
 function ProfileView({ theme, profile, roles }: { theme: "LIGHT" | "DARK" | "VINTAGE", profile: any, roles: any[] }) {
   const [showEditModal, setShowEditModal] = React.useState(false);
   const [isSaving, setIsSaving] = React.useState(false);
-  const [showSuccess, setShowSuccess] = React.useState<string | null>(null);
+  const { showNotification } = useNotification();
   const [isUploading, setIsUploading] = React.useState(false);
   const [showPortraitSelector, setShowPortraitSelector] = React.useState(false);
   const [defaultPortraits, setDefaultPortraits] = React.useState<{ id: string; url: string; label: string }[]>([]);
@@ -1404,7 +1405,7 @@ function ProfileView({ theme, profile, roles }: { theme: "LIGHT" | "DARK" | "VIN
 
     if (!profile || !profile.user_id) {
       console.error("Missing profile user_id for upload:", profile);
-      alert("Error: User ID not found. Please refresh and try again.");
+      showNotification("Error: User ID not found.", "error");
       return;
     }
 
@@ -1442,11 +1443,10 @@ function ProfileView({ theme, profile, roles }: { theme: "LIGHT" | "DARK" | "VIN
         console.log("Auth profile updated");
       }
 
-      setShowSuccess("Profile photo updated!");
-      setTimeout(() => setShowSuccess(null), 3000);
+      showNotification("Profile photo updated!");
     } catch (err: any) {
       console.error("Photo upload error:", err);
-      alert(`Failed to upload photo: ${err.message || "Unknown error"}`);
+      showNotification(`Failed to upload photo: ${err.message || "Unknown error"}`, "error");
     } finally {
       setIsUploading(false);
     }
@@ -1466,12 +1466,11 @@ function ProfileView({ theme, profile, roles }: { theme: "LIGHT" | "DARK" | "VIN
         await updateProfile(auth.currentUser, { photoURL: url });
       }
 
-      setShowSuccess("Profile photo updated!");
-      setTimeout(() => setShowSuccess(null), 3000);
+      showNotification("Profile photo updated!");
       setShowPortraitSelector(false);
     } catch (err: any) {
       console.error("Portrait update error:", err);
-      alert(`Failed to update photo: ${err.message || "Unknown error"}`);
+      showNotification(`Failed to update photo: ${err.message || "Unknown error"}`, "error");
     } finally {
       setIsUploading(false);
     }
@@ -1512,11 +1511,10 @@ function ProfileView({ theme, profile, roles }: { theme: "LIGHT" | "DARK" | "VIN
         updated_at: serverTimestamp()
       });
       setShowEditModal(false);
-      setShowSuccess("Profile updated successfully!");
-      setTimeout(() => setShowSuccess(null), 3000);
+      showNotification("Profile updated successfully!");
     } catch (err) {
       console.error("Failed to update profile:", err);
-      alert("Failed to update profile. Please try again.");
+      showNotification("Failed to update profile.", "error");
     } finally {
       setIsSaving(false);
     }
@@ -1526,24 +1524,16 @@ function ProfileView({ theme, profile, roles }: { theme: "LIGHT" | "DARK" | "VIN
     if (!profile?.email) return;
     try {
       await sendPasswordResetEmail(auth, profile.email);
-      setShowSuccess("Password reset email sent!");
-      setTimeout(() => setShowSuccess(null), 5000);
+      showNotification("Password reset email sent!");
     } catch (err) {
       console.error("Password reset error:", err);
-      alert("Failed to send reset email. Please try again.");
+      showNotification("Failed to send reset email.", "error");
     }
   };
 
 
   return (
     <div className="max-w-4xl space-y-16 animate-in fade-in slide-in-from-bottom-4 duration-700">
-      {showSuccess && (
-        <div className={`fixed top-8 right-8 z-[9999] px-8 py-4 rounded-2xl shadow-2xl animate-in slide-in-from-right-8 duration-500 border flex items-center gap-3 ${theme === "DARK" ? "bg-[#ccff00] text-stone-950 border-[#ccff00]" : "bg-stone-900 text-white border-stone-800"
-          }`}>
-          <span className="material-symbols-outlined">check_circle</span>
-          <span className="text-xs font-black uppercase tracking-widest">{showSuccess}</span>
-        </div>
-      )}
 
       <div className="flex items-center gap-10">
         <div className={`w-40 h-40 rounded-[40px] overflow-hidden border-4 shadow-2xl transition-all relative group ${theme === "DARK" ? "border-stone-800" : "border-white"

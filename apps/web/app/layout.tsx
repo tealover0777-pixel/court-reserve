@@ -18,6 +18,7 @@ export const metadata: Metadata = {
 
 import { TenantProvider } from "../context/TenantContext";
 import { AuthProvider } from "../context/AuthContext";
+import { NotificationProvider } from "../context/NotificationContext";
 
 export default function RootLayout({
   children,
@@ -33,7 +34,9 @@ export default function RootLayout({
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
         <AuthProvider>
           <TenantProvider>
-            {children}
+            <NotificationProvider>
+              {children}
+            </NotificationProvider>
           </TenantProvider>
         </AuthProvider>
       </body>
