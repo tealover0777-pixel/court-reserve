@@ -6,20 +6,28 @@
 [1m[38;2;173;127;168m▲ Next.js 16.2.0[39m[22m (Turbopack)
 
 [37m[1m [22m[39m Creating an optimized production build ...
-[32m[1m✓[22m[39m Compiled successfully in 3.6s
-[?25l[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[2K[1G[?25h[?25l[37m[1m [22m[39m Finished TypeScript in 4.0s  [36m.[39m[2K[1G[?25h[37m[1m [22m[39m Finished TypeScript in 4.0s    [32m[1m✓[22m[39m Finished TypeScript in 4.0s 
-[?25l[37m[1m [22m[39m Collecting page data using 7 workers  [36m.[39m[2K[1G[37m[1m [22m[39m Collecting page data using 7 workers  [36m..[39m[2K[1G[?25h[37m[1m [22m[39m Collecting page data using 7 workers in 303ms    [32m[1m✓[22m[39m Collecting page data using 7 workers in 303ms 
-[?25l[37m[1m [22m[39m Generating static pages using 7 workers (0/6)  [36m[    ][39m[2K[1G[37m[1m [22m[39m Generating static pages using 7 workers (0/6)  [36m[=   ][39m[2K[1G[37m[1m [22m[39m Generating static pages using 7 workers (1/6)  [36m[==  ][39m[2K[1G[?25h[32m[1m✓[22m[39m Generating static pages using 7 workers (6/6) in 440ms
-[?25l[37m[1m [22m[39m Finalizing page optimization  [36m.[39m[2K[1G[37m[1m [22m[39m Finalizing page optimization  [36m..[39m[2K[1G[37m[1m [22m[39m Finalizing page optimization  [36m...[39m[2K[1G[?25h[37m[1m [22m[39m Finalizing page optimization in 555ms    [32m[1m✓[22m[39m Finalizing page optimization in 555ms 
+[32m[1m✓[22m[39m Compiled successfully in 3.8s
+[?25l[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m.[39m[31mFailed to type check.
+[39m
+[36m./components/ProgramsManagementView.tsx[39m:[33m153[39m:[33m9[39m
+[31m[1mType error[22m[39m: Type '{ imageUrl: string; title?: string | undefined; description?: string | undefined; priceLabel?: string | undefined; priceValue?: string | undefined; icon?: string | undefined; tag?: string; }' is not assignable to type 'ProgramTrack'.
+  Types of property 'title' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
 
-[4mRoute (app)[24m
-┌ ○ /
-├ ○ /_not-found
-├ ƒ /api/send-verification-email
-└ ○ /reset-password
-
-
-○  (Static)   prerendered as static content
-ƒ  (Dynamic)  server-rendered on demand
-
-[?25h⠙[1G[0K
+  [90m151 |[0m       } [36melse[0m [36mif[0m ([36mtype[0m === [32m'track'[0m && index !== [36mundefined[0m) {
+  [90m152 |[0m         [36mconst[0m newTracks = [...config.tracks];
+[31m[1m>[0m [90m153 |[0m         newTracks[index] = { ...newTracks[index], imageUrl: url };
+  [90m    |[0m         [31m[1m^[0m
+  [90m154 |[0m         setConfig(prev => ({ ...prev, tracks: newTracks }));
+  [90m155 |[0m       }
+  [90m156 |[0m       showNotification([32m"Image uploaded successfully!"[0m);
+[2K[1G[?25hNext.js build worker exited with code: 1 and signal: null
+[?25l [36m.[39m [?25h⠙[1G[0K[1mnpm[22m [31merror[39m Lifecycle script `build` failed with error:
+⠙[1G[0K[1mnpm[22m [31merror[39m [94mcode[39m [33m1[39m
+⠙[1G[0K[1mnpm[22m [31merror[39m [94mpath[39m /Users/kyuahn/Documents/AVG/court-reserve/apps/web
+⠙[1G[0K[1mnpm[22m [31merror[39m [94mworkspace[39m web@0.1.0
+⠙[1G[0K[1mnpm[22m [31merror[39m [94mlocation[39m /Users/kyuahn/Documents/AVG/court-reserve/apps/web
+⠙[1G[0K[1mnpm[22m [31merror[39m command failed
+⠙[1G[0K[1mnpm[22m [31merror[39m [94mcommand[39m sh -c next build
+⠙[1G[0K

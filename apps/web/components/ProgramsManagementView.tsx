@@ -149,9 +149,14 @@ export default function ProgramsManagementView({ theme, tenantId }: { theme: str
       } else if (type === 'bottom') {
         setConfig(prev => ({ ...prev, bottomImageUrl: url }));
       } else if (type === 'track' && index !== undefined) {
-        const newTracks = [...config.tracks];
-        newTracks[index] = { ...newTracks[index], imageUrl: url };
-        setConfig(prev => ({ ...prev, tracks: newTracks }));
+        setConfig(prev => {
+          const newTracks = [...prev.tracks];
+          const track = newTracks[index];
+          if (track) {
+            newTracks[index] = { ...track, imageUrl: url };
+          }
+          return { ...prev, tracks: newTracks };
+        });
       }
       showNotification("Image uploaded successfully!");
     } catch (error) {
@@ -291,9 +296,15 @@ export default function ProgramsManagementView({ theme, tenantId }: { theme: str
                           type="text"
                           value={track.title}
                           onChange={(e) => {
-                            const newTracks = [...config.tracks];
-                            newTracks[idx] = { ...newTracks[idx], title: e.target.value };
-                            setConfig({ ...config, tracks: newTracks });
+                            const val = e.target.value;
+                            setConfig(prev => {
+                              const newTracks = [...prev.tracks];
+                              const track = newTracks[idx];
+                              if (track) {
+                                newTracks[idx] = { ...track, title: val };
+                              }
+                              return { ...prev, tracks: newTracks };
+                            });
                           }}
                           className="w-full px-4 py-3 rounded-xl bg-surface border-none text-[10px] font-bold"
                         />
@@ -303,9 +314,15 @@ export default function ProgramsManagementView({ theme, tenantId }: { theme: str
                         <textarea
                           value={track.description}
                           onChange={(e) => {
-                            const newTracks = [...config.tracks];
-                            newTracks[idx] = { ...newTracks[idx], description: e.target.value };
-                            setConfig({ ...config, tracks: newTracks });
+                            const val = e.target.value;
+                            setConfig(prev => {
+                              const newTracks = [...prev.tracks];
+                              const track = newTracks[idx];
+                              if (track) {
+                                newTracks[idx] = { ...track, description: val };
+                              }
+                              return { ...prev, tracks: newTracks };
+                            });
                           }}
                           className="w-full px-4 py-3 rounded-xl bg-surface border-none text-[10px] font-bold min-h-[80px]"
                         />
@@ -320,9 +337,15 @@ export default function ProgramsManagementView({ theme, tenantId }: { theme: str
                             type="text"
                             value={track.priceLabel}
                             onChange={(e) => {
-                              const newTracks = [...config.tracks];
-                              newTracks[idx] = { ...newTracks[idx], priceLabel: e.target.value };
-                              setConfig({ ...config, tracks: newTracks });
+                              const val = e.target.value;
+                              setConfig(prev => {
+                                const newTracks = [...prev.tracks];
+                                const track = newTracks[idx];
+                                if (track) {
+                                  newTracks[idx] = { ...track, priceLabel: val };
+                                }
+                                return { ...prev, tracks: newTracks };
+                              });
                             }}
                             className="w-full px-4 py-3 rounded-xl bg-surface border-none text-[10px] font-bold"
                           />
@@ -333,9 +356,15 @@ export default function ProgramsManagementView({ theme, tenantId }: { theme: str
                             type="text"
                             value={track.priceValue}
                             onChange={(e) => {
-                              const newTracks = [...config.tracks];
-                              newTracks[idx] = { ...newTracks[idx], priceValue: e.target.value };
-                              setConfig({ ...config, tracks: newTracks });
+                              const val = e.target.value;
+                              setConfig(prev => {
+                                const newTracks = [...prev.tracks];
+                                const track = newTracks[idx];
+                                if (track) {
+                                  newTracks[idx] = { ...track, priceValue: val };
+                                }
+                                return { ...prev, tracks: newTracks };
+                              });
                             }}
                             className="w-full px-4 py-3 rounded-xl bg-surface border-none text-[10px] font-bold"
                           />
@@ -345,7 +374,7 @@ export default function ProgramsManagementView({ theme, tenantId }: { theme: str
                       <div className="space-y-1">
                         <label className="text-[9px] font-black uppercase tracking-widest opacity-40">Track Image</label>
                         <div 
-                          onClick={() => trackRefs[idx].current?.click()}
+                          onClick={() => trackRefs[idx]?.current?.click()}
                           className="group relative h-24 rounded-xl overflow-hidden cursor-pointer border-2 border-dashed border-outline/10 hover:border-primary/50 transition-all flex items-center justify-center bg-surface"
                         >
                           {track.imageUrl ? (
