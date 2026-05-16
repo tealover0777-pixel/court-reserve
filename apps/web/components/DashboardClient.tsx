@@ -15,6 +15,7 @@ import CourtBookingView from "./CourtBookingView";
 import SchedulesAdminView from "./SchedulesAdminView";
 import MemberAdminView from "./MemberAdminView";
 import ContentManagementView from "./ContentManagementView";
+import ProgramsManagementView from "./ProgramsManagementView";
 import { useNotification } from "../context/NotificationContext";
 import { Modal } from "@repo/ui/modal";
 import { useAuth } from "../context/AuthContext";
@@ -51,7 +52,7 @@ export default function DashboardClient({ params }: { params: { tenantId: string
   const searchParams = useSearchParams();
   const pathname = usePathname();
 
-  const [activeView, setActiveView] = React.useState<"DASHBOARD" | "COURT BOOKING" | "PROGRAMS" | "MEMBERSHIP" | "SETTINGS" | "PROFILE" | "AI_ADMIN" | "DIMENSIONS" | "ROLE_TYPES" | "USER_ADMIN" | "PLATFORM_TENANT_ADMIN" | "COMPANY" | "PLATFORM_COMPANY" | "TENANT_USER_ADMIN" | "MEMBER_ADMIN" | "PLATFORM_ROLE_TYPES" | "SCHEDULES" | "EVENTS_ADMIN" | "CONTENT_MANAGEMENT">("DASHBOARD");
+  const [activeView, setActiveView] = React.useState<"DASHBOARD" | "COURT BOOKING" | "PROGRAMS" | "MEMBERSHIP" | "SETTINGS" | "PROFILE" | "AI_ADMIN" | "DIMENSIONS" | "ROLE_TYPES" | "USER_ADMIN" | "PLATFORM_TENANT_ADMIN" | "COMPANY" | "PLATFORM_COMPANY" | "TENANT_USER_ADMIN" | "MEMBER_ADMIN" | "PLATFORM_ROLE_TYPES" | "SCHEDULES" | "EVENTS_ADMIN" | "CONTENT_MANAGEMENT" | "PROGRAMS_MANAGEMENT">("DASHBOARD");
   const [platformAdminOpen, setPlatformAdminOpen] = React.useState(false);
   const [administrationOpen, setAdministrationOpen] = React.useState(false);
   const [theme, setTheme] = React.useState<"LIGHT" | "DARK" | "VINTAGE">("LIGHT");
@@ -148,6 +149,7 @@ export default function DashboardClient({ params }: { params: { tenantId: string
     "PLATFORM_ROLE_TYPES": "PLATFORM_VIEW",
     "EVENTS_ADMIN": "ADMINISTRATION_VIEW",
     "CONTENT_MANAGEMENT": "ADMINISTRATION_VIEW",
+    "PROGRAMS_MANAGEMENT": "ADMINISTRATION_VIEW",
   };
 
   // Sync state with History API for clean URL + Back/Forward support
@@ -377,7 +379,7 @@ export default function DashboardClient({ params }: { params: { tenantId: string
           <div className="flex items-center gap-2">
             <span className="text-[10px] font-black tracking-widest uppercase opacity-70 text-on-background">
               {activeView === "DASHBOARD" || activeView === "PROGRAMS" || activeView === "MEMBERSHIP" || activeView.includes("PLATFORM") || activeView === "USER_ADMIN" || activeView === "AI_ADMIN" || activeView === "DIMENSIONS" ? "PLATFORM" :
-                activeView === "ROLE_TYPES" || activeView === "COMPANY" || activeView === "TENANT_USER_ADMIN" || activeView === "SCHEDULES" ? "ADMINISTRATION" : "MANAGEMENT"}
+                activeView === "ROLE_TYPES" || activeView === "COMPANY" || activeView === "TENANT_USER_ADMIN" || activeView === "SCHEDULES" || activeView === "PROGRAMS_MANAGEMENT" ? "ADMINISTRATION" : "MANAGEMENT"}
             </span>
             <span className="text-outline/20">/</span>
             <span className="text-xs font-black tracking-widest uppercase text-on-background">
@@ -533,12 +535,13 @@ export default function DashboardClient({ params }: { params: { tenantId: string
           if (activeView === "PLATFORM_ROLE_TYPES") return <RoleTypesView theme={theme} />;
           if (activeView === "COURT BOOKING") return <CourtBookingView theme={theme} isAdmin={hasPermission("ADMINISTRATION_VIEW")} tenantId={tenantId ?? undefined} />;
           if (activeView === "SCHEDULES") return <SchedulesAdminView theme={theme} />;
-          if (activeView === "PROGRAMS") return <ProgramsView theme={theme} />;
+          if (activeView === "PROGRAMS") return <ProgramsView theme={theme} tenantId={tenantId} />;
           if (activeView === "MEMBERSHIP") return <MembershipView theme={theme} />;
           if (activeView === "SETTINGS") return <SettingsView theme={theme} />;
           if (activeView === "PROFILE") return <ProfileView theme={theme} profile={profile} roles={roles} />;
           if (activeView === "EVENTS_ADMIN") return <EventsAdminView theme={theme} tenantId={tenantId} />;
           if (activeView === "CONTENT_MANAGEMENT") return <ContentManagementView theme={theme} tenantId={tenantId} />;
+          if (activeView === "PROGRAMS_MANAGEMENT") return <ProgramsManagementView theme={theme} tenantId={tenantId} />;
           return (
             <div className={`flex flex-col items-center justify-center min-h-[60vh] ${theme === "DARK" ? "text-white" : theme === "LIGHT" ? "text-[#4f6b28]" : "text-stone-900"}`}>
               <span className="material-symbols-outlined text-6xl mb-4">construction</span>
@@ -662,8 +665,11 @@ function Sidebar({ activeView, setActiveView, platformAdminOpen, setPlatformAdmi
                 {(hasPermission('EVENTS_VIEW') || profile?.role?.includes('R10005')) && (
                   <SubNavItem label="Events" active={activeView === "EVENTS_ADMIN"} onClick={() => setActiveView("EVENTS_ADMIN")} theme={theme} />
                 )}
-                {(hasPermission('ADMINISTRATION_VIEW') || profile?.role?.includes('R10005')) && (
+                 {(hasPermission('ADMINISTRATION_VIEW') || profile?.role?.includes('R10005')) && (
                   <SubNavItem label="Content Mgmt" active={activeView === "CONTENT_MANAGEMENT"} onClick={() => setActiveView("CONTENT_MANAGEMENT")} theme={theme} />
+                )}
+                {(hasPermission('ADMINISTRATION_VIEW') || profile?.role?.includes('R10005')) && (
+                  <SubNavItem label="Programs Mgmt" active={activeView === "PROGRAMS_MANAGEMENT"} onClick={() => setActiveView("PROGRAMS_MANAGEMENT")} theme={theme} />
                 )}
                 {(hasPermission('USER_ADMIN_VIEW') || profile?.role?.includes('R10005')) && (
                   <SubNavItem label="Staff" active={activeView === "TENANT_USER_ADMIN"} onClick={() => setActiveView("TENANT_USER_ADMIN")} theme={theme} />
@@ -1194,7 +1200,64 @@ function NewsItem({ title, subtitle, tag, theme, onClick }: { title: string; sub
 }
 
 
-function ProgramsView({ theme }: { theme: "LIGHT" | "DARK" | "VINTAGE" }) {
+function ProgramsView({ theme, tenantId }: { theme: "LIGHT" | "DARK" | "VINTAGE", tenantId: string }) {
+  const [config, setConfig] = useState<any>(null);
+
+  useEffect(() => {
+    if (!tenantId) return;
+    const configRef = doc(db, "tenants", tenantId, "config", "programs");
+    const unsubscribe = onSnapshot(configRef, (docSnap) => {
+      if (docSnap.exists()) {
+        setConfig(docSnap.data());
+      }
+    });
+    return () => unsubscribe();
+  }, [tenantId]);
+
+  const heroHeadline = config?.heroHeadline || "CHAMPIONSHIP CLINIC 2024";
+  const heroDescription = config?.heroDescription || "Intensive technical refinement for competitive players. Lead by ITF-certified master professionals.";
+  const heroImageUrl = config?.heroImageUrl || "/images/programs_hero.png";
+  
+  const sidebarHeadline = config?.sidebarHeadline || "PRO-FOCUS WEEKEND";
+  const sidebarDescription = config?.sidebarDescription || "Join Coach Marcus for a 48-hour immersion into strategy and bio-mechanics. Limited to 8 participants.";
+  const sidebarButtonText = config?.sidebarButtonText || "VIEW COACH BIO";
+  
+  const tracks = config?.tracks || [
+    { 
+      title: "ACTIVE CLINICS", 
+      description: "High-energy drills focused on footwork, stamina, and consistent point construction.", 
+      imageUrl: "/images/active_clinics.png",
+      priceLabel: "STARTS AT",
+      priceValue: "$45/HR",
+      icon: "bolt"
+    },
+    { 
+      title: "JUNIOR ACADEMY", 
+      description: "Developing the next generation of competitors. Age groups 8-16.", 
+      imageUrl: "/images/junior_academy.png",
+      priceLabel: "LEVEL",
+      priceValue: "PREMIER",
+      icon: "school",
+      tag: "PREMIER LEVEL"
+    },
+    { 
+      title: "SOCIAL MIXERS", 
+      description: "Network while you play. Round-robin format followed by clubhouse drinks.", 
+      imageUrl: "/images/social_mixers.png",
+      priceLabel: "CAPACITY",
+      priceValue: "24 PLAYERS",
+      icon: "groups"
+    }
+  ];
+  
+  const bottomHeadline = config?.bottomHeadline || "SPRING SESSION '24";
+  const bottomDescription = config?.bottomDescription || "Our most comprehensive training cycle yet. Registration now open for all skill levels.";
+  const bottomImageUrl = config?.bottomImageUrl || "/images/spring_session.png";
+
+  const showHero = config?.showHero !== undefined ? config.showHero : true;
+  const showSidebar = config?.showSidebar !== undefined ? config.showSidebar : true;
+  const showTracks = config?.showTracks !== undefined ? config.showTracks : true;
+  const showBottom = config?.showBottom !== undefined ? config.showBottom : true;
 
   return (
     <div className="space-y-16 animate-in fade-in slide-in-from-bottom-4 duration-700">
@@ -1214,187 +1277,152 @@ function ProgramsView({ theme }: { theme: "LIGHT" | "DARK" | "VINTAGE" }) {
       </div>
 
       {/* Hero Section */}
-      <div className="grid grid-cols-12 gap-8">
-        <div className="col-span-12 lg:col-span-8 group relative h-[450px] overflow-hidden rounded-[40px] shadow-2xl border border-outline/10">
-          <img
-            src="/images/programs_hero.png"
-            alt="Championship Clinic"
-            className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105"
-          />
-          <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent"></div>
-          <div className="absolute inset-0 p-12 flex flex-col justify-end max-w-2xl">
-            <h3 className="text-7xl font-black text-white leading-[0.9] tracking-tighter mb-6 uppercase">
-              CHAMPIONSHIP CLINIC 2024
-            </h3>
-            <p className="text-white/80 text-lg font-medium leading-relaxed">
-              Intensive technical refinement for competitive players. Lead by ITF-certified master professionals.
-            </p>
-          </div>
-        </div>
-
-        <div className="col-span-12 lg:col-span-4 rounded-[40px] p-10 flex flex-col justify-between shadow-xl transition-colors border bg-surface-container-low border-outline/10">
-          <div>
-            <h4 className="text-3xl font-black leading-tight mb-4 uppercase transition-colors text-primary">
-              PRO-FOCUS WEEKEND
-            </h4>
-            <p className="font-medium leading-relaxed transition-colors text-on-surface-variant">
-              Join Coach Marcus for a 48-hour immersion into strategy and bio-mechanics. Limited to 8 participants.
-            </p>
-          </div>
-          <button className="w-full py-4 border-2 rounded-full text-[10px] font-black tracking-[0.2em] transition-all uppercase border-primary text-primary hover:bg-primary hover:text-on-primary">
-            VIEW COACH BIO
-          </button>
-        </div>
-      </div>
-
-      {/* Training Tracks Section */}
-      <section>
-        <div className="flex justify-between items-end mb-12">
-          <h3 className="text-5xl font-black tracking-tighter uppercase transition-colors text-primary">
-            TRAINING TRACKS
-          </h3>
-          <div className="flex gap-8 text-[10px] font-black tracking-widest uppercase text-on-surface-variant">
-            <span>FILTER BY:</span>
-            <button className="pb-1 transition-colors text-primary border-b-2 border-primary">ALL</button>
-            <button className="hover:text-primary transition-colors">YOUTH</button>
-            <button className="hover:text-primary transition-colors">ADULT</button>
-            <button className="hover:text-primary transition-colors">PRO</button>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {/* Active Clinics */}
-          <div className="rounded-[40px] overflow-hidden flex flex-col group shadow-lg transition-colors border bg-surface-container-low border-outline/10">
-            <div className="h-64 overflow-hidden">
-              <img src="/images/active_clinics.png" alt="Active Clinics" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
-            </div>
-            <div className="p-10 flex-1 relative">
-              <div className="absolute right-10 top-10 w-12 h-12 rounded-full flex items-center justify-center shadow-md transition-colors bg-surface-container-highest text-primary">
-                <span className="material-symbols-outlined">bolt</span>
-              </div>
-              <h4 className="text-3xl font-black mb-4 uppercase transition-colors text-primary">ACTIVE CLINICS</h4>
-              <p className="text-sm font-medium leading-relaxed mb-8 transition-colors text-on-surface-variant">
-                High-energy drills focused on footwork, stamina, and consistent point construction.
-              </p>
-              <div className="flex justify-between items-center mt-auto">
-                <div>
-                  <div className="text-[10px] font-black uppercase tracking-widest text-on-surface-variant/60">STARTS AT</div>
-                  <div className="text-2xl font-black text-on-surface">$45/HR</div>
-                </div>
-                <button className="w-14 h-14 rounded-full flex items-center justify-center hover:scale-110 transition-transform shadow-lg bg-primary text-on-primary">
-                  <span className="material-symbols-outlined">arrow_forward</span>
-                </button>
+      {(showHero || showSidebar) && (
+        <div className="grid grid-cols-12 gap-8">
+          {showHero && (
+            <div className={`${showSidebar ? 'col-span-12 lg:col-span-8' : 'col-span-12'} group relative h-[450px] overflow-hidden rounded-[40px] shadow-2xl border border-outline/10`}>
+              <img
+                src={heroImageUrl}
+                alt={heroHeadline}
+                className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105"
+              />
+              <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent"></div>
+              <div className="absolute inset-0 p-12 flex flex-col justify-end max-w-2xl">
+                <h3 className="text-7xl font-black text-white leading-[0.9] tracking-tighter mb-6 uppercase">
+                  {heroHeadline}
+                </h3>
+                <p className="text-white/80 text-lg font-medium leading-relaxed">
+                  {heroDescription}
+                </p>
               </div>
             </div>
-          </div>
+          )}
 
-          {/* Junior Academy */}
-          <div className="rounded-[40px] overflow-hidden flex flex-col group shadow-lg transition-colors bg-surface-container-low border border-outline/10">
-            <div className="h-64 overflow-hidden relative">
-              <img src="/images/junior_academy.png" alt="Junior Academy" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
-              <div className="absolute top-6 left-6 px-4 py-1 backdrop-blur rounded-full text-[8px] font-black tracking-widest uppercase bg-surface/90 text-primary">
-                PREMIER LEVEL
+          {showSidebar && (
+            <div className={`${showHero ? 'col-span-12 lg:col-span-4' : 'col-span-12'} rounded-[40px] p-10 flex flex-col justify-between shadow-xl transition-colors border bg-surface-container-low border-outline/10`}>
+              <div>
+                <h4 className="text-3xl font-black leading-tight mb-4 uppercase transition-colors text-primary">
+                  {sidebarHeadline}
+                </h4>
+                <p className="font-medium leading-relaxed transition-colors text-on-surface-variant">
+                  {sidebarDescription}
+                </p>
               </div>
-            </div>
-            <div className="p-10 flex-1">
-              <h4 className="text-3xl font-black mb-4 uppercase leading-none transition-colors text-primary">JUNIOR<br />ACADEMY</h4>
-              <p className="text-sm font-medium leading-relaxed mb-8 transition-colors text-on-surface-variant">
-                Developing the next generation of competitors. Age groups 8-16.
-              </p>
-              <button className="w-full py-4 rounded-2xl text-[10px] font-black tracking-widest transition-all uppercase bg-primary text-on-primary">
-                EXPLORE PATHWAY
+              <button className="w-full py-4 border-2 rounded-full text-[10px] font-black tracking-[0.2em] transition-all uppercase border-primary text-primary hover:bg-primary hover:text-on-primary">
+                {sidebarButtonText}
               </button>
             </div>
+          )}
+        </div>
+      )}
+
+      {/* Training Tracks Section */}
+      {showTracks && (
+        <section>
+          <div className="flex justify-between items-end mb-12">
+            <h3 className="text-5xl font-black tracking-tighter uppercase transition-colors text-primary">
+              TRAINING TRACKS
+            </h3>
+            <div className="flex gap-8 text-[10px] font-black tracking-widest uppercase text-on-surface-variant">
+              <span>FILTER BY:</span>
+              <button className="pb-1 transition-colors text-primary border-b-2 border-primary">ALL</button>
+              <button className="hover:text-primary transition-colors">YOUTH</button>
+              <button className="hover:text-primary transition-colors">ADULT</button>
+              <button className="hover:text-primary transition-colors">PRO</button>
+            </div>
           </div>
 
-          {/* Social Mixers */}
-          <div className="rounded-[40px] overflow-hidden flex flex-col group shadow-lg transition-colors border bg-surface-container-low border-outline/10">
-            <div className="p-10 pb-0">
-              <div className="flex justify-between items-start mb-4">
-                <h4 className="text-3xl font-black uppercase leading-none transition-colors text-primary">SOCIAL<br />MIXERS</h4>
-                <span className="material-symbols-outlined transition-colors text-primary/40">groups</span>
-              </div>
-              <p className="text-sm font-medium leading-relaxed mb-6 transition-colors text-on-surface-variant">
-                Network while you play. Round-robin format followed by clubhouse drinks.
-              </p>
-              <div className="flex items-center -space-x-3 mb-8">
-                {[1, 2, 3].map(i => (
-                  <div key={i} className="w-8 h-8 rounded-full border-2 overflow-hidden border-surface">
-                    <img src={`https://i.pravatar.cc/100?img=${i + 10}`} alt="User" />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {tracks.map((track: any, idx: number) => (
+              <div key={idx} className="rounded-[40px] overflow-hidden flex flex-col group shadow-lg transition-colors border bg-surface-container-low border-outline/10">
+                <div className="h-64 overflow-hidden relative">
+                  <img src={track.imageUrl} alt={track.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                  {track.tag && (
+                    <div className="absolute top-6 left-6 px-4 py-1 backdrop-blur rounded-full text-[8px] font-black tracking-widest uppercase bg-surface/90 text-primary">
+                      {track.tag}
+                    </div>
+                  )}
+                </div>
+                <div className="p-10 flex-1 relative">
+                  <div className="absolute right-10 top-10 w-12 h-12 rounded-full flex items-center justify-center shadow-md transition-colors bg-surface-container-highest text-primary">
+                    <span className="material-symbols-outlined">{track.icon}</span>
                   </div>
-                ))}
-                <div className="h-8 px-2 text-on-primary text-[8px] font-black flex items-center justify-center rounded-full border-2 transition-colors bg-primary border-surface">
-                  +14
+                  <h4 className="text-3xl font-black mb-4 uppercase transition-colors text-primary leading-tight">{track.title}</h4>
+                  <p className="text-sm font-medium leading-relaxed mb-8 transition-colors text-on-surface-variant">
+                    {track.description}
+                  </p>
+                  <div className="flex justify-between items-center mt-auto">
+                    <div>
+                      <div className="text-[10px] font-black uppercase tracking-widest text-on-surface-variant/60">{track.priceLabel}</div>
+                      <div className="text-2xl font-black text-on-surface uppercase">{track.priceValue}</div>
+                    </div>
+                    <button className="w-14 h-14 rounded-full flex items-center justify-center hover:scale-110 transition-transform shadow-lg bg-primary text-on-primary">
+                      <span className="material-symbols-outlined">arrow_forward</span>
+                    </button>
+                  </div>
                 </div>
               </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {showBottom && (
+        <section className="rounded-[40px] p-16 grid grid-cols-12 gap-12 transition-colors border bg-surface-container-low border-outline/10 shadow-sm relative overflow-hidden">
+          <div className="absolute inset-0 z-0">
+             <img src={bottomImageUrl} alt={bottomHeadline} className="w-full h-full object-cover opacity-10" />
+             <div className="absolute inset-0 bg-gradient-to-r from-surface-container-low via-transparent to-transparent"></div>
+          </div>
+          <div className="col-span-12 lg:col-span-5 space-y-8 relative z-10">
+            <div className="space-y-4">
+              <h3 className="text-6xl font-black tracking-tighter uppercase leading-none transition-colors text-on-surface">
+                {bottomHeadline}
+              </h3>
+              <p className="text-on-surface-variant text-lg font-medium leading-relaxed">
+                {bottomDescription}
+              </p>
             </div>
-            <div className="h-48 overflow-hidden relative mt-auto">
-              <img src="/images/social_mixers.png" alt="Social Mixers" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
-              <div className="absolute right-6 bottom-6 w-12 h-12 rounded-2xl flex items-center justify-center shadow-xl transition-colors bg-primary text-on-primary">
-                <span className="material-symbols-outlined">calendar_today</span>
+            
+            <div className="space-y-4 pt-4">
+              <div className="flex items-center gap-4 transition-colors text-primary">
+                <div className="w-6 h-6 rounded-md flex items-center justify-center transition-colors bg-primary text-on-primary">
+                  <span className="material-symbols-outlined text-sm">schedule</span>
+                </div>
+                <span className="text-[10px] font-black tracking-widest uppercase">24/7 ELITE ACCESS</span>
+              </div>
+              <div className="flex items-center gap-4 transition-colors text-primary">
+                <div className="w-6 h-6 rounded-md flex items-center justify-center transition-colors bg-primary text-on-primary">
+                  <span className="material-symbols-outlined text-sm">check</span>
+                </div>
+                <span className="text-[10px] font-black tracking-widest uppercase">ITF GOLD STANDARDS</span>
               </div>
             </div>
           </div>
-        </div>
-      </section>
 
-      {/* Spring Session Section */}
-      <section className="rounded-[40px] p-16 grid grid-cols-12 gap-12 transition-colors border bg-surface-container-low border-outline/10 shadow-sm">
-        <div className="col-span-12 lg:col-span-5 space-y-8">
-          <div className="space-y-4">
-            <h3 className="text-6xl font-black tracking-tighter uppercase leading-none transition-colors text-on-surface">
-              SPRING<br />SESSION '24
-            </h3>
-            <div className="flex items-center gap-4 transition-colors text-primary">
-              <div className="w-6 h-6 rounded-md flex items-center justify-center transition-colors bg-primary text-on-primary">
-                <span className="material-symbols-outlined text-sm">schedule</span>
+          <div className="col-span-12 lg:col-span-7 grid grid-cols-1 md:grid-cols-2 gap-6 relative z-10">
+            {[
+              { date: "MARCH 12-14", title: "SERVE VELOCITY CLINIC", badge: "2 SLOTS LEFT" },
+              { date: "APRIL 05", title: "DOUBLES MASTERCLASS", badge: "OPENING SOON" },
+              { date: "WEEKLY SAT", title: "CARDIO TENNIS LADDER", badge: "RECURRING" },
+              { date: "MONTHLY", title: "VIDEO ANALYSIS LAB", badge: "MEMBER EXCLUSIVE" }
+            ].map((item, i) => (
+              <div key={i} className="p-8 rounded-3xl group cursor-pointer hover:shadow-xl transition-all border bg-surface border-outline/10 hover:border-primary/50">
+                <div className="flex justify-between items-start mb-4">
+                  <span className="text-[10px] font-black opacity-40 uppercase tracking-[0.2em]">{item.date}</span>
+                  <span className="px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest bg-primary/10 text-primary">
+                    {item.badge}
+                  </span>
+                </div>
+                <h5 className="text-xl font-black uppercase transition-colors group-hover:text-primary leading-tight">{item.title}</h5>
               </div>
-              <span className="text-[10px] font-black tracking-widest uppercase">24/7 ELITE ACCESS</span>
-            </div>
-            <p className="font-medium leading-relaxed max-w-sm transition-colors text-on-surface-variant">
-              Registration is now open for all technical workshops and weekly ladders. Secure your spot before March 15th.
-            </p>
+            ))}
           </div>
-
-          <div className="space-y-4 pt-4">
-            <div className={`flex items-center gap-4 transition-colors ${theme === "DARK" ? "text-[#ccff00]" : theme === "VINTAGE" ? "text-black" : "text-[#4f6b28]"}`}>
-              <div className={`w-6 h-6 rounded-md flex items-center justify-center transition-colors ${theme === "DARK" ? "bg-[#ccff00] text-stone-950" : theme === "VINTAGE" ? "bg-black text-white" : "bg-[#cfff00] text-[#4f6b28]"}`}>
-                <span className="material-symbols-outlined text-sm">check</span>
-              </div>
-              <span className="text-[10px] font-black tracking-widest uppercase">ITF GOLD STANDARDS</span>
-            </div>
-            <div className={`flex items-center gap-4 transition-colors ${theme === "DARK" ? "text-[#ccff00]" : theme === "VINTAGE" ? "text-black" : "text-[#4f6b28]"}`}>
-              <div className={`w-6 h-6 rounded-md flex items-center justify-center transition-colors ${theme === "DARK" ? "bg-[#ccff00] text-stone-950" : theme === "VINTAGE" ? "bg-black text-white" : "bg-[#cfff00] text-[#4f6b28]"}`}>
-                <span className="material-symbols-outlined text-sm">bar_chart</span>
-              </div>
-              <span className="text-[10px] font-black tracking-widest uppercase">PERFORMANCE TRACKING</span>
-            </div>
-          </div>
-        </div>
-
-        <div className="col-span-12 lg:col-span-7 grid grid-cols-1 md:grid-cols-2 gap-6">
-          {[
-            { date: "MARCH 12-14", title: "SERVE VELOCITY CLINIC", badge: "2 SLOTS LEFT", badgeColor: theme === "DARK" ? "bg-stone-900 text-[#ccff00]" : theme === "LIGHT" ? "bg-[#cfff00] text-[#4f6b28]" : "bg-yellow-100 text-yellow-700" },
-            { date: "APRIL 05", title: "DOUBLES MASTERCLASS", badge: "OPENING SOON", badgeColor: theme === "DARK" ? "bg-stone-900 text-white" : theme === "LIGHT" ? "bg-[#cfff00] text-[#4f6b28]" : "bg-blue-100 text-blue-700" },
-            { date: "WEEKLY SAT", title: "CARDIO TENNIS LADDER", badge: "RECURRING", badgeColor: theme === "DARK" ? "bg-stone-900 text-[#ccff00]" : theme === "LIGHT" ? "bg-[#cfff00] text-[#4f6b28]" : "bg-green-100 text-green-700" },
-            { date: "MONTHLY", title: "VIDEO ANALYSIS LAB", badge: "MEMBER EXCLUSIVE", badgeColor: theme === "DARK" ? "bg-stone-900 text-white" : theme === "LIGHT" ? "bg-[#cfff00] text-[#4f6b28]" : "bg-stone-200 text-stone-800" }
-          ].map((item, i) => (
-            <div key={i} className={`p-8 rounded-3xl group cursor-pointer hover:shadow-xl transition-all border ${theme === "DARK" ? "bg-stone-900 border-stone-800" : theme === "LIGHT" ? "bg-white border-[#cfff00]/20" : "bg-white border-stone-100"}`}>
-              <div className={`text-[10px] font-black tracking-widest uppercase mb-2 ${theme === "DARK" ? "text-white" : "text-stone-600"}`}>{item.date}</div>
-              <h5 className={`text-lg font-black tracking-tighter mb-6 group-hover:translate-x-1 transition-all uppercase leading-tight ${theme === "DARK" ? "text-white group-hover:text-[#ccff00]" : theme === "LIGHT" ? "text-[#4f6b28] group-hover:text-[#3a4f1d]" : "text-stone-900 group-hover:text-black"}`}>{item.title}</h5>
-              <div className="flex justify-between items-center">
-                <span className={`px-3 py-1 rounded-full text-[8px] font-black tracking-widest uppercase ${item.badgeColor}`}>
-                  {item.badge}
-                </span>
-                <span className={`material-symbols-outlined group-hover:translate-x-1 transition-all ${theme === "DARK" ? "text-white group-hover:text-[#ccff00]" : theme === "LIGHT" ? "text-[#4f6b28] group-hover:text-[#3a4f1d]" : "text-stone-900 group-hover:text-black"}`}>chevron_right</span>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
+        </section>
+      )}
     </div>
   );
 }
+
 
 function ProfileView({ theme, profile, roles }: { theme: "LIGHT" | "DARK" | "VINTAGE", profile: any, roles: any[] }) {
   const [showEditModal, setShowEditModal] = React.useState(false);
