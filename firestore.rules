@@ -1,11 +1,6 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Helper to check if user belongs to the tenant
-    function isTenantMember(tenantId) {
-      return request.auth != null && request.auth.token.tenantId == tenantId;
-    }
-
     // Helper to check if user is an admin (can be expanded)
     function isAdmin() {
       return request.auth != null; // For now, allow any auth user to be an admin for debugging
