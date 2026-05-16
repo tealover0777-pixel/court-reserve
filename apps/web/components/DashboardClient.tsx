@@ -14,6 +14,7 @@ import CompanyView from "./CompanyView";
 import CourtBookingView from "./CourtBookingView";
 import SchedulesAdminView from "./SchedulesAdminView";
 import MemberAdminView from "./MemberAdminView";
+import ContentManagementView from "./ContentManagementView";
 import { Modal } from "@repo/ui/modal";
 import { useAuth } from "../context/AuthContext";
 import {
@@ -49,7 +50,7 @@ export default function DashboardClient({ params }: { params: { tenantId: string
   const searchParams = useSearchParams();
   const pathname = usePathname();
 
-  const [activeView, setActiveView] = React.useState<"DASHBOARD" | "COURT BOOKING" | "PROGRAMS" | "MEMBERSHIP" | "SETTINGS" | "PROFILE" | "AI_ADMIN" | "DIMENSIONS" | "ROLE_TYPES" | "USER_ADMIN" | "PLATFORM_TENANT_ADMIN" | "COMPANY" | "PLATFORM_COMPANY" | "TENANT_USER_ADMIN" | "MEMBER_ADMIN" | "PLATFORM_ROLE_TYPES" | "SCHEDULES" | "EVENTS_ADMIN">("DASHBOARD");
+  const [activeView, setActiveView] = React.useState<"DASHBOARD" | "COURT BOOKING" | "PROGRAMS" | "MEMBERSHIP" | "SETTINGS" | "PROFILE" | "AI_ADMIN" | "DIMENSIONS" | "ROLE_TYPES" | "USER_ADMIN" | "PLATFORM_TENANT_ADMIN" | "COMPANY" | "PLATFORM_COMPANY" | "TENANT_USER_ADMIN" | "MEMBER_ADMIN" | "PLATFORM_ROLE_TYPES" | "SCHEDULES" | "EVENTS_ADMIN" | "CONTENT_MANAGEMENT">("DASHBOARD");
   const [platformAdminOpen, setPlatformAdminOpen] = React.useState(false);
   const [administrationOpen, setAdministrationOpen] = React.useState(false);
   const [theme, setTheme] = React.useState<"LIGHT" | "DARK" | "VINTAGE">("LIGHT");
@@ -145,6 +146,7 @@ export default function DashboardClient({ params }: { params: { tenantId: string
     "PLATFORM_COMPANY": "PLATFORM_VIEW",
     "PLATFORM_ROLE_TYPES": "PLATFORM_VIEW",
     "EVENTS_ADMIN": "ADMINISTRATION_VIEW",
+    "CONTENT_MANAGEMENT": "ADMINISTRATION_VIEW",
   };
 
   // Sync state with History API for clean URL + Back/Forward support
@@ -535,6 +537,7 @@ export default function DashboardClient({ params }: { params: { tenantId: string
           if (activeView === "SETTINGS") return <SettingsView theme={theme} />;
           if (activeView === "PROFILE") return <ProfileView theme={theme} profile={profile} roles={roles} />;
           if (activeView === "EVENTS_ADMIN") return <EventsAdminView theme={theme} tenantId={tenantId} />;
+          if (activeView === "CONTENT_MANAGEMENT") return <ContentManagementView theme={theme} tenantId={tenantId} />;
           return (
             <div className={`flex flex-col items-center justify-center min-h-[60vh] ${theme === "DARK" ? "text-white" : theme === "LIGHT" ? "text-[#4f6b28]" : "text-stone-900"}`}>
               <span className="material-symbols-outlined text-6xl mb-4">construction</span>
@@ -658,6 +661,9 @@ function Sidebar({ activeView, setActiveView, platformAdminOpen, setPlatformAdmi
                 {(hasPermission('EVENTS_VIEW') || profile?.role?.includes('R10005')) && (
                   <SubNavItem label="Events" active={activeView === "EVENTS_ADMIN"} onClick={() => setActiveView("EVENTS_ADMIN")} theme={theme} />
                 )}
+                {(hasPermission('ADMINISTRATION_VIEW') || profile?.role?.includes('R10005')) && (
+                  <SubNavItem label="Content Mgmt" active={activeView === "CONTENT_MANAGEMENT"} onClick={() => setActiveView("CONTENT_MANAGEMENT")} theme={theme} />
+                )}
                 {(hasPermission('USER_ADMIN_VIEW') || profile?.role?.includes('R10005')) && (
                   <SubNavItem label="Staff" active={activeView === "TENANT_USER_ADMIN"} onClick={() => setActiveView("TENANT_USER_ADMIN")} theme={theme} />
                 )}
@@ -751,18 +757,32 @@ function Sidebar({ activeView, setActiveView, platformAdminOpen, setPlatformAdmi
 
 function DashboardHome({ theme, profile, tenantId, authUser, userSchedule, onRemoveFromSchedule }: { theme: "LIGHT" | "DARK" | "VINTAGE", profile: any, tenantId: string, authUser: any, userSchedule: any[], onRemoveFromSchedule: (item: any) => void }) {
   const [events, setEvents] = useState<any[]>([]);
+  const [config, setConfig] = useState<any>(null);
 
   useEffect(() => {
     if (!tenantId) return;
+
+    // Fetch config
+    const configRef = doc(db, "tenants", tenantId, "config", "dashboard");
+    const unsubConfig = onSnapshot(configRef, (docSnap) => {
+      if (docSnap.exists()) {
+        setConfig(docSnap.data());
+      }
+    });
+
     const q = query(
       collection(db, "tenants", tenantId, "events"),
       orderBy("date", "asc"),
       limit(4)
     );
-    const unsub = onSnapshot(q, (snap) => {
+    const unsubEvents = onSnapshot(q, (snap) => {
       setEvents(snap.docs.map(d => ({ id: d.id, ...d.data() })));
     });
-    return () => unsub();
+
+    return () => {
+      unsubConfig();
+      unsubEvents();
+    };
   }, [tenantId]);
 
   const [selectedEvent, setSelectedEvent] = useState<any | null>(null);
@@ -770,24 +790,44 @@ function DashboardHome({ theme, profile, tenantId, authUser, userSchedule, onRem
   const featuredEvent = events[0];
   const otherEvents = events.slice(1);
 
+  // Fallback defaults
+  const heroHeadline = config?.heroHeadline || "READY TO DOMINATE THE COURT?";
+  const heroSubheadline = config?.heroSubheadline || "Welcome Back";
+  const heroImageUrl = config?.heroImageUrl || "/images/clay_court.png";
+  const stats = config?.stats || [
+    { label: "Win Rate", value: "68%", trend: "+4.2%", icon: "trending_up", variant: "primary" },
+    { label: "Matches", value: "124", trend: "Total", icon: "sports_tennis", variant: "default" },
+    { label: "Loyalty Points", value: "2,450", trend: "Active", icon: "workspace_premium", variant: "yellow" }
+  ];
+  const featuredCard = config?.featuredCard || {
+    tag: "Scheduled: Tomorrow",
+    title: "QUARTER FINAL MATCH",
+    subtitle: "Center Court • 10:00 AM vs. Marcus V.",
+    buttonText: "Match Preview",
+    imageUrl: "/images/clay_court.png"
+  };
+  const showUpcomingBookings = config?.showUpcomingBookings !== undefined ? config.showUpcomingBookings : true;
+  const upcomingBookingsTitle = config?.upcomingBookingsTitle || "Upcoming Bookings";
+  const recentActivityTitle = config?.recentActivityTitle || "Recent Activity";
+
   return (
     <>
       {/* Welcome Hero */}
       <section className="mb-12 relative overflow-hidden rounded-[2.5rem] p-16 flex items-end min-h-[400px] shadow-sm transition-colors duration-500 bg-surface-container-low">
         <div className="absolute inset-0 z-0">
           <img
-            src="/images/clay_court.png"
-            alt="Tennis court"
+            src={heroImageUrl}
+            alt="Hero Background"
             className="w-full h-full object-cover opacity-90 scale-105"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-surface to-transparent"></div>
         </div>
         <div className="relative z-10 w-full">
           <span className={`font-black tracking-[0.2em] text-[11px] uppercase mb-4 block transition-colors text-primary`}>
-            Welcome Back, {profile?.first_name || authUser?.displayName?.split(' ')[0] || "User"}
+            {heroSubheadline}, {profile?.first_name || authUser?.displayName?.split(' ')[0] || "User"}
           </span>
           <h3 className={`text-7xl font-black tracking-tighter leading-tight max-w-2xl transition-colors ${theme === "DARK" ? "text-white" : "text-on-surface"
-            }`} style={{ fontFamily: 'Lexend, sans-serif' }}>READY TO DOMINATE THE COURT?</h3>
+            }`} style={{ fontFamily: 'Lexend, sans-serif' }}>{heroHeadline}</h3>
         </div>
       </section>
 
@@ -795,22 +835,25 @@ function DashboardHome({ theme, profile, tenantId, authUser, userSchedule, onRem
         {/* Performance Stats Bento */}
         <div className="col-span-12 lg:col-span-8 space-y-8">
           <div className="grid grid-cols-3 gap-8">
-            <StatCard label="Win Rate" value="68%" trend="+4.2%" icon="trending_up" theme={theme} />
-            <StatCard label="Matches" value="124" trend="Total" icon="sports_tennis" theme={theme} />
-            <StatCard label="Loyalty Points" value="2,450" trend="Active" icon="workspace_premium" theme={theme} variant="yellow" />
+            {stats.map((stat: any, idx: number) => (
+              <StatCard key={idx} label={stat.label} value={stat.value} trend={stat.trend} icon={stat.icon} theme={theme} variant={stat.variant} />
+            ))}
           </div>
 
-          {/* Featured Match Card */}
+          {/* Featured Card */}
           <div className="rounded-[2.5rem] p-12 relative overflow-hidden group cursor-pointer shadow-xl transition-all hover:scale-[1.01] bg-primary">
-            <div className="absolute inset-0 opacity-30 bg-[url('/images/clay_court.png')] bg-cover bg-center mix-blend-overlay"></div>
+            <div 
+              className="absolute inset-0 opacity-30 bg-cover bg-center mix-blend-overlay"
+              style={{ backgroundImage: `url(${featuredCard.imageUrl || "/images/clay_court.png"})` }}
+            ></div>
             <div className="relative z-10 flex justify-between items-center">
               <div>
-                <span className="px-4 py-1 rounded-full text-[9px] font-black tracking-widest uppercase bg-white/20 text-white mb-4 inline-block">Scheduled: Tomorrow</span>
-                <h4 className="text-4xl font-black text-white tracking-tighter uppercase" style={{ fontFamily: 'Lexend, sans-serif' }}>QUARTER FINAL MATCH</h4>
-                <p className="text-white/70 text-xs font-black uppercase tracking-widest mt-2">Center Court • 10:00 AM vs. Marcus V.</p>
+                <span className="px-4 py-1 rounded-full text-[9px] font-black tracking-widest uppercase bg-white/20 text-white mb-4 inline-block">{featuredCard.tag}</span>
+                <h4 className="text-4xl font-black text-white tracking-tighter uppercase" style={{ fontFamily: 'Lexend, sans-serif' }}>{featuredCard.title}</h4>
+                <p className="text-white/70 text-xs font-black uppercase tracking-widest mt-2">{featuredCard.subtitle}</p>
               </div>
               <button className="px-8 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all bg-white text-primary hover:bg-stone-100 shadow-lg">
-                Match Preview
+                {featuredCard.buttonText}
               </button>
             </div>
           </div>
@@ -819,7 +862,7 @@ function DashboardHome({ theme, profile, tenantId, authUser, userSchedule, onRem
         {/* Recent Activity Section */}
         <div className="col-span-12 lg:col-span-4">
           <div className="rounded-[2.5rem] p-10 h-full transition-colors duration-500 bg-surface-container-low">
-            <h4 className="font-black text-xl tracking-tighter uppercase mb-8 transition-colors text-on-surface" style={{ fontFamily: 'Lexend, sans-serif' }}>Recent Activity</h4>
+            <h4 className="font-black text-xl tracking-tighter uppercase mb-8 transition-colors text-on-surface" style={{ fontFamily: 'Lexend, sans-serif' }}>{recentActivityTitle}</h4>
             <div className="space-y-8">
               <ActivityItem icon="check_circle" title="Booking Confirmed" subtitle="Court 4 • Wed, 14 Oct" theme={theme} />
               <ActivityItem icon="trophy" title="Tournament Reg" subtitle="Autumn Open Elite" theme={theme} />
@@ -830,46 +873,48 @@ function DashboardHome({ theme, profile, tenantId, authUser, userSchedule, onRem
       </div>
 
       {/* Schedule Section */}
-      <section className="mt-12">
-        <div className="flex justify-between items-end mb-10">
-          <div>
-            <h4 className="text-5xl font-black tracking-tighter uppercase transition-colors text-on-surface" style={{ fontFamily: 'Lexend, sans-serif' }}>Upcoming Bookings</h4>
-            <p className="text-on-surface-variant text-[11px] font-black uppercase tracking-widest mt-2">Your scheduled time on the court.</p>
-          </div>
-          <div className="flex gap-3">
-            <button className="w-12 h-12 rounded-2xl flex items-center justify-center transition-all bg-surface-container-low text-primary hover:bg-surface-container-high shadow-sm">
-              <span className="material-symbols-outlined font-black">chevron_left</span>
-            </button>
-            <button className="w-12 h-12 rounded-2xl flex items-center justify-center transition-all bg-surface-container-low text-primary hover:bg-surface-container-high shadow-sm">
-              <span className="material-symbols-outlined font-black">chevron_right</span>
-            </button>
-          </div>
-        </div>
-
-        <div className="flex gap-8 overflow-x-auto pb-10 hide-scrollbar">
-          {userSchedule.length > 0 ? (
-            userSchedule.map(item => (
-              <BookingCard
-                key={item.id}
-                theme={theme}
-                type={item.type}
-                court={item.type === "EVENT" ? (item.tag || "EVENT") : (item.courtName || item.courtId || "Court")}
-                date={format(item.type === "EVENT" ? (item.date?.toDate ? item.date.toDate() : new Date(item.date)) : new Date(item.date), "MMM d")}
-                time={item.type === "EVENT" ? format(item.date?.toDate ? item.date.toDate() : new Date(item.date), "h:mm a") : item.time}
-                partner={item.type === "EVENT" ? "Club Event" : (item.partner || "Solo Session")}
-                avatar={item.type === "EVENT" ? item.image_url : (item.avatar || "/images/clay_court.png")}
-                highlight={item.type === "EVENT"}
-                onRemove={() => onRemoveFromSchedule(item)}
-              />
-            ))
-          ) : (
-            <div className="p-16 rounded-[2.5rem] flex flex-col items-center justify-center min-w-[320px] bg-surface-container-low">
-              <span className="material-symbols-outlined text-5xl mb-6 opacity-20 text-primary">calendar_today</span>
-              <p className="text-[10px] font-black uppercase tracking-widest opacity-40">No upcoming bookings</p>
+      {showUpcomingBookings && (
+        <section className="mt-12">
+          <div className="flex justify-between items-end mb-10">
+            <div>
+              <h4 className="text-5xl font-black tracking-tighter uppercase transition-colors text-on-surface" style={{ fontFamily: 'Lexend, sans-serif' }}>{upcomingBookingsTitle}</h4>
+              <p className="text-on-surface-variant text-[11px] font-black uppercase tracking-widest mt-2">Your scheduled time on the court.</p>
             </div>
-          )}
-        </div>
-      </section>
+            <div className="flex gap-3">
+              <button className="w-12 h-12 rounded-2xl flex items-center justify-center transition-all bg-surface-container-low text-primary hover:bg-surface-container-high shadow-sm">
+                <span className="material-symbols-outlined font-black">chevron_left</span>
+              </button>
+              <button className="w-12 h-12 rounded-2xl flex items-center justify-center transition-all bg-surface-container-low text-primary hover:bg-surface-container-high shadow-sm">
+                <span className="material-symbols-outlined font-black">chevron_right</span>
+              </button>
+            </div>
+          </div>
+
+          <div className="flex gap-8 overflow-x-auto pb-10 hide-scrollbar">
+            {userSchedule.length > 0 ? (
+              userSchedule.map(item => (
+                <BookingCard
+                  key={item.id}
+                  theme={theme}
+                  type={item.type}
+                  court={item.type === "EVENT" ? (item.tag || "EVENT") : (item.courtName || item.courtId || "Court")}
+                  date={format(item.type === "EVENT" ? (item.date?.toDate ? item.date.toDate() : new Date(item.date)) : new Date(item.date), "MMM d")}
+                  time={item.type === "EVENT" ? format(item.date?.toDate ? item.date.toDate() : new Date(item.date), "h:mm a") : item.time}
+                  partner={item.type === "EVENT" ? "Club Event" : (item.partner || "Solo Session")}
+                  avatar={item.type === "EVENT" ? item.image_url : (item.avatar || "/images/clay_court.png")}
+                  highlight={item.type === "EVENT"}
+                  onRemove={() => onRemoveFromSchedule(item)}
+                />
+              ))
+            ) : (
+              <div className="p-16 rounded-[2.5rem] flex flex-col items-center justify-center min-w-[320px] bg-surface-container-low">
+                <span className="material-symbols-outlined text-5xl mb-6 opacity-20 text-primary">calendar_today</span>
+                <p className="text-[10px] font-black uppercase tracking-widest opacity-40">No upcoming bookings</p>
+              </div>
+            )}
+          </div>
+        </section>
+      )}
 
       {/* Events Section */}
       <section className="mt-20 mb-32">
