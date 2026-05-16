@@ -443,58 +443,65 @@ export default function ProgramsManagementView({ theme, tenantId }: { theme: str
             </div>
           </div>
 
-          {/* Bottom Banner Editor */}
-          <div className="rounded-[2.5rem] p-10 border transition-colors bg-surface-container-low border-outline/10">
-            <div className="flex items-center justify-between mb-8">
-              <h3 className="text-xl font-black uppercase tracking-widest">Bottom Banner</h3>
-              <button
-                onClick={() => setConfig({ ...config, showBottom: !config.showBottom })}
-                className={`w-10 h-5 rounded-full transition-all relative ${config.showBottom ? 'bg-primary' : 'bg-surface-container-highest'}`}
-              >
-                <div className={`absolute top-1 w-3 h-3 rounded-full bg-white transition-all ${config.showBottom ? 'left-6' : 'left-1'}`}></div>
-              </button>
-            </div>
-            <div className="space-y-4">
-               <div className="space-y-1">
-                <label className="text-[9px] font-black uppercase tracking-widest opacity-40">Headline</label>
-                <input
-                  type="text"
-                  value={config.bottomHeadline}
-                  onChange={(e) => setConfig({ ...config, bottomHeadline: e.target.value })}
-                  className="w-full px-4 py-3 rounded-xl bg-surface-container border-none text-[10px] font-bold"
-                />
-              </div>
-              <div className="space-y-1">
-                <label className="text-[9px] font-black uppercase tracking-widest opacity-40">Description</label>
-                <textarea
-                  value={config.bottomDescription}
-                  onChange={(e) => setConfig({ ...config, bottomDescription: e.target.value })}
-                  className="w-full px-4 py-3 rounded-xl bg-surface-container border-none text-[10px] font-bold min-h-[80px]"
-                />
-              </div>
-              <div className="space-y-1">
-                <label className="text-[9px] font-black uppercase tracking-widest opacity-40">Banner Image</label>
-                <div 
-                  onClick={() => bottomInputRef.current?.click()}
-                  className="group relative h-32 rounded-xl overflow-hidden cursor-pointer border-2 border-dashed border-outline/10 hover:border-primary/50 transition-all flex items-center justify-center bg-surface"
-                >
-                  {config.bottomImageUrl ? (
-                    <>
-                      <img src={config.bottomImageUrl} className="absolute inset-0 w-full h-full object-cover opacity-30" alt="Bottom" />
-                      <span className="relative z-10 material-symbols-outlined text-xl text-primary">image</span>
-                    </>
-                  ) : (
-                    <span className="material-symbols-outlined text-xl opacity-20">add_photo_alternate</span>
-                  )}
-                  {uploading === 'bottom' && (
-                    <div className="absolute inset-0 bg-black/60 flex items-center justify-center z-20">
-                      <div className="w-4 h-4 border border-white border-t-transparent rounded-full animate-spin"></div>
-                    </div>
-                  )}
+        </div>
+      </div>
+
+      {/* Bottom Banner Editor */}
+      <div className="rounded-[2.5rem] p-10 border transition-colors bg-surface-container-low border-outline/10">
+        <div className="flex items-center justify-between mb-8">
+          <h3 className="text-xl font-black uppercase tracking-widest">Bottom Banner</h3>
+          <button
+            onClick={() => setConfig({ ...config, showBottom: !config.showBottom })}
+            className={`w-10 h-5 rounded-full transition-all relative ${config.showBottom ? 'bg-primary' : 'bg-surface-container-highest'}`}
+          >
+            <div className={`absolute top-1 w-3 h-3 rounded-full bg-white transition-all ${config.showBottom ? 'left-6' : 'left-1'}`}></div>
+          </button>
+        </div>
+        <div className="space-y-4">
+           <div className="space-y-1">
+            <label className="text-[9px] font-black uppercase tracking-widest opacity-40">Headline</label>
+            <input
+              type="text"
+              value={config.bottomHeadline}
+              onChange={(e) => setConfig({ ...config, bottomHeadline: e.target.value })}
+              className="w-full px-4 py-3 rounded-xl bg-surface-container border-none text-[10px] font-bold"
+            />
+          </div>
+          <div className="space-y-1">
+            <label className="text-[9px] font-black uppercase tracking-widest opacity-40">Description</label>
+            <textarea
+              value={config.bottomDescription}
+              onChange={(e) => setConfig({ ...config, bottomDescription: e.target.value })}
+              className="w-full px-4 py-3 rounded-xl bg-surface-container border-none text-[10px] font-bold min-h-[80px]"
+            />
+          </div>
+          <div className="space-y-1">
+            <label className="text-[9px] font-black uppercase tracking-widest opacity-40">Banner Image</label>
+            <div 
+              onClick={() => bottomInputRef.current?.click()}
+              className="group relative h-48 rounded-[2rem] overflow-hidden cursor-pointer border-2 border-dashed border-outline/10 hover:border-primary/50 transition-all flex items-center justify-center bg-surface-container/50"
+            >
+              {config.bottomImageUrl ? (
+                <>
+                  <img src={config.bottomImageUrl} className="absolute inset-0 w-full h-full object-cover opacity-40 group-hover:scale-105 transition-all duration-700" alt="Bottom" />
+                  <div className="relative z-10 flex flex-col items-center gap-2">
+                    <span className="material-symbols-outlined text-4xl text-on-surface">cloud_upload</span>
+                    <span className="text-[10px] font-black uppercase tracking-widest text-on-surface">Change Image</span>
+                  </div>
+                </>
+              ) : (
+                <div className="flex flex-col items-center gap-2 opacity-40">
+                  <span className="material-symbols-outlined text-4xl">add_photo_alternate</span>
+                  <span className="text-[10px] font-black uppercase tracking-widest">Upload Image</span>
                 </div>
-                <input type="file" ref={bottomInputRef} className="hidden" onChange={(e) => e.target.files?.[0] && handleImageUpload(e.target.files[0], 'bottom')} accept="image/*" />
-              </div>
+              )}
+              {uploading === 'bottom' && (
+                <div className="absolute inset-0 bg-black/60 flex items-center justify-center z-20">
+                  <div className="w-8 h-8 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                </div>
+              )}
             </div>
+            <input type="file" ref={bottomInputRef} className="hidden" onChange={(e) => e.target.files?.[0] && handleImageUpload(e.target.files[0], 'bottom')} accept="image/*" />
           </div>
         </div>
       </div>
