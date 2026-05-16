@@ -6,39 +6,20 @@
 [1m[38;2;173;127;168m▲ Next.js 16.2.0[39m[22m (Turbopack)
 
 [37m[1m [22m[39m Creating an optimized production build ...
+[32m[1m✓[22m[39m Compiled successfully in 3.9s
+[?25l[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[?25h[?25l[37m[1m [22m[39m Finished TypeScript in 4.0s  [36m.[39m[2K[1G[?25h[37m[1m [22m[39m Finished TypeScript in 4.0s    [32m[1m✓[22m[39m Finished TypeScript in 4.0s 
+[?25l[37m[1m [22m[39m Collecting page data using 7 workers  [36m.[39m[2K[1G[37m[1m [22m[39m Collecting page data using 7 workers  [36m..[39m[2K[1G[?25h[37m[1m [22m[39m Collecting page data using 7 workers in 348ms    [32m[1m✓[22m[39m Collecting page data using 7 workers in 348ms 
+[?25l[37m[1m [22m[39m Generating static pages using 7 workers (0/6)  [36m[    ][39m[2K[1G[37m[1m [22m[39m Generating static pages using 7 workers (0/6)  [36m[=   ][39m[2K[1G[37m[1m [22m[39m Generating static pages using 7 workers (1/6)  [36m[==  ][39m[2K[1G[?25h[32m[1m✓[22m[39m Generating static pages using 7 workers (6/6) in 444ms
+[?25l[37m[1m [22m[39m Finalizing page optimization  [36m.[39m[2K[1G[37m[1m [22m[39m Finalizing page optimization  [36m..[39m[2K[1G[37m[1m [22m[39m Finalizing page optimization  [36m...[39m[2K[1G[?25h[37m[1m [22m[39m Finalizing page optimization in 524ms    [32m[1m✓[22m[39m Finalizing page optimization in 524ms 
 
-> Build error occurred
-Error: Turbopack build failed with 1 errors:
-./apps/web/components/DashboardClient.tsx:989:7
-Expected '</', got '{'
-  [90m987 |[0m       </section>
-  [90m988 |[0m
-[31m[1m>[0m [90m989 |[0m       {selectedEvent && (
-  [90m    |[0m       [31m[1m^[0m
-  [90m990 |[0m         <[33mEventDetailsModal[0m
-  [90m991 |[0m           event={selectedEvent}
-  [90m992 |[0m           theme={theme}
-
-Parsing ecmascript source code failed
-
-Import traces:
-  Client Component Browser:
-    ./apps/web/components/DashboardClient.tsx [Client Component Browser]
-    ./apps/web/app/page.tsx [Client Component Browser]
-    ./apps/web/app/page.tsx [Server Component]
-
-  Client Component SSR:
-    ./apps/web/components/DashboardClient.tsx [Client Component SSR]
-    ./apps/web/app/page.tsx [Client Component SSR]
-    ./apps/web/app/page.tsx [Server Component]
+[4mRoute (app)[24m
+┌ ○ /
+├ ○ /_not-found
+├ ƒ /api/send-verification-email
+└ ○ /reset-password
 
 
-    at <unknown> (./apps/web/components/DashboardClient.tsx:989:7)
-⠙[1G[0K[1mnpm[22m [31merror[39m Lifecycle script `build` failed with error:
-⠙[1G[0K[1mnpm[22m [31merror[39m [94mcode[39m [33m1[39m
-⠙[1G[0K[1mnpm[22m [31merror[39m [94mpath[39m /Users/kyuahn/Documents/AVG/court-reserve/apps/web
-⠙[1G[0K[1mnpm[22m [31merror[39m [94mworkspace[39m web@0.1.0
-⠙[1G[0K[1mnpm[22m [31merror[39m [94mlocation[39m /Users/kyuahn/Documents/AVG/court-reserve/apps/web
-⠙[1G[0K[1mnpm[22m [31merror[39m command failed
-⠙[1G[0K[1mnpm[22m [31merror[39m [94mcommand[39m sh -c next build
-⠙[1G[0K
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+
+[?25h⠙[1G[0K
