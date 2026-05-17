@@ -539,7 +539,7 @@ export default function DashboardClient({ params }: { params: { tenantId: string
           if (activeView === "MEMBERSHIP") return <MembershipView theme={theme} />;
           if (activeView === "SETTINGS") return <SettingsView theme={theme} />;
           if (activeView === "PROFILE") return <ProfileView theme={theme} profile={profile} roles={roles} />;
-          if (activeView === "EVENTS_ADMIN") return <EventsAdminView theme={theme} tenantId={tenantId} />;
+          if (activeView === "EVENTS_ADMIN") return <EventsAdminView theme={theme} tenantId={tenantId} allTenants={isGlobalUser ? allTenants : []} />;
           if (activeView === "DASHBOARD_MANAGEMENT") return <DashboardManagementView theme={theme} tenantId={tenantId} />;
           if (activeView === "PROGRAMS_MANAGEMENT") return <ProgramsManagementView theme={theme} tenantId={tenantId} />;
           return (
@@ -595,12 +595,12 @@ function Sidebar({ activeView, setActiveView, platformAdminOpen, setPlatformAdmi
           </div>
           <div>
             <h1 className="text-xl font-black italic tracking-tighter leading-none transition-colors text-primary font-headline">
-              LINWOOD COURT
-            </h1>
-            <p className="text-[8px] font-black uppercase tracking-[0.3em] mt-1 transition-colors text-on-surface/40 font-body">
               {tenantId === "consolidated" ? "CONSOLIDATED" :
                 (allTenants?.find((t: any) => t.tenant_id === tenantId || t.id === tenantId)?.name ||
-                  (tenantId ? tenantId.toUpperCase() : "PLATFORM"))}
+                  (tenantId ? "COURT RESERVE" : "VANTAGE HUB"))}
+            </h1>
+            <p className="text-[8px] font-black uppercase tracking-[0.3em] mt-1 transition-colors text-on-surface/40 font-body">
+              {tenantId ? `TENANT: ${tenantId.toUpperCase()}` : "PLATFORM ADMINISTRATION"}
             </p>
           </div>
         </div>

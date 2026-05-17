@@ -13,6 +13,7 @@ import { Modal } from "@repo/ui/modal";
 import { db, storage } from "../lib/firebase";
 import {
   collection,
+  collectionGroup,
   onSnapshot,
   query,
   orderBy,
@@ -95,7 +96,8 @@ const timeToMinutes = (timeStr: string): number => {
   return h * 60 + m;
 };
 
-export default function EventsAdminView({ theme = "LIGHT", tenantId }: { theme?: "LIGHT" | "DARK" | "VINTAGE", tenantId: string }) {
+export default function EventsAdminView({ theme = "LIGHT", tenantId, allTenants = [] }: { theme?: "LIGHT" | "DARK" | "VINTAGE", tenantId: string, allTenants?: any[] }) {
+  const isGlobalMode = !tenantId;
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -130,7 +132,8 @@ export default function EventsAdminView({ theme = "LIGHT", tenantId }: { theme?:
     repeat_type: "none" as "none" | "daily" | "weekly" | "monthly",
     repeat_until: "occurrences" as "date" | "occurrences",
     repeat_end_date: "",
-    repeat_count: 1
+    repeat_count: 1,
+    tenant_id: tenantId || ""
   };
 
   const [formData, setFormData] = useState(initialFormState);
@@ -152,9 +155,11 @@ export default function EventsAdminView({ theme = "LIGHT", tenantId }: { theme?:
     }`;
 
   useEffect(() => {
-    if (!tenantId) return;
+    const eventsRef = tenantId 
+      ? collection(db, "tenants", tenantId, "events")
+      : collectionGroup(db, "events");
 
-    const q = query(collection(db, "tenants", tenantId, "events"), orderBy("date", "desc"));
+    const q = query(eventsRef, orderBy("date", "desc"));
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const eventData = snapshot.docs.map(doc => ({
         id: doc.id,
@@ -162,11 +167,23 @@ export default function EventsAdminView({ theme = "LIGHT", tenantId }: { theme?:
       })) as Event[];
       setEvents(eventData);
       setLoading(false);
+    }, (err) => {
+      console.error("Error fetching events:", err);
+      // Fallback if collectionGroup index is missing
+      if (!tenantId) {
+        const fallbackQ = query(eventsRef);
+        onSnapshot(fallbackQ, (snap) => {
+           setEvents(snap.docs.map(d => ({ id: d.id, ...d.data() })) as Event[]);
+           setLoading(false);
+        });
+      }
     });
 
-    // Fetch tenant users for leader selection
+    // Fetch tenant users for leader selection (if tenant specified)
     const fetchUsers = async () => {
-      const userSnap = await getDocs(collection(db, "tenants", tenantId, "users"));
+      if (!tenantId && !formData.tenant_id) return;
+      const targetTenantId = tenantId || formData.tenant_id;
+      const userSnap = await getDocs(collection(db, "tenants", targetTenantId, "users"));
       const userData = userSnap.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
@@ -196,18 +213,21 @@ export default function EventsAdminView({ theme = "LIGHT", tenantId }: { theme?:
     fetchCategories();
 
     // Fetch tenant configuration (including courts)
-    const unsubTenant = onSnapshot(doc(db, "tenants", tenantId), (snap) => {
-      if (snap.exists()) {
-        const data = snap.data();
-        setCourts(data.courts || []);
-      }
-    });
+    let unsubTenant = () => {};
+    if (tenantId || formData.tenant_id) {
+      unsubTenant = onSnapshot(doc(db, "tenants", tenantId || formData.tenant_id), (snap) => {
+        if (snap.exists()) {
+          const data = snap.data();
+          setCourts(data.courts || []);
+        }
+      });
+    }
  
     return () => {
       unsubscribe();
       unsubTenant();
     };
-  }, [tenantId]);
+  }, [tenantId, formData.tenant_id]);
 
   const handleSaveEvent = async (force = false) => {
     if (!formData.title) {
@@ -218,8 +238,10 @@ export default function EventsAdminView({ theme = "LIGHT", tenantId }: { theme?:
       setError("Please select a start date.");
       return;
     }
-    if (!tenantId) {
-      setError("Tenant information is missing.");
+    
+    const targetTenantId = tenantId || formData.tenant_id;
+    if (!targetTenantId) {
+      setError("Please select a club (tenant).");
       return;
     }
 
@@ -251,7 +273,7 @@ export default function EventsAdminView({ theme = "LIGHT", tenantId }: { theme?:
 
     // Check for conflicts if saving to schedules and not forcing
     if (formData.save_to_schedules && formData.court_id && !force) {
-      const bookingsSnap = await getDocs(collection(db, "tenants", tenantId, "bookings"));
+      const bookingsSnap = await getDocs(collection(db, "tenants", targetTenantId, "bookings"));
       const allBookings = bookingsSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       
       const overlapping = allBookings.filter((b: any) => {
@@ -291,15 +313,15 @@ export default function EventsAdminView({ theme = "LIGHT", tenantId }: { theme?:
         cancellation_deadline: formData.cancellation_deadline ? new Date(formData.cancellation_deadline) : null,
         max_participants: Number(formData.max_participants),
         updated_at: serverTimestamp(),
-        tenant_id: tenantId,
+        tenant_id: targetTenantId,
         court_name: courts.find(c => (c.id || c.name) === formData.court_id)?.name || "",
       };
- 
+
       let eventId = editingEvent?.id;
       if (editingEvent) {
-        await updateDoc(doc(db, "tenants", tenantId, "events", editingEvent.id), payload);
+        await updateDoc(doc(db, "tenants", editingEvent.tenant_id || targetTenantId, "events", editingEvent.id), payload);
       } else {
-        const docRef = await addDoc(collection(db, "tenants", tenantId, "events"), {
+        const docRef = await addDoc(collection(db, "tenants", targetTenantId, "events"), {
           ...payload,
           signups: [],
           waiting_list: [],
@@ -313,10 +335,10 @@ export default function EventsAdminView({ theme = "LIGHT", tenantId }: { theme?:
         const selectedCourt = courts.find(c => (c.id || c.name) === formData.court_id);
         
         // Delete ALL existing bookings for this event first to sync correctly
-        const bQuery = query(collection(db, "tenants", tenantId, "bookings"), where("eventId", "==", eventId));
+        const bQuery = query(collection(db, "tenants", targetTenantId, "bookings"), where("eventId", "==", eventId));
         const bSnap = await getDocs(bQuery);
         for (const bDoc of bSnap.docs) {
-          await deleteDoc(doc(db, "tenants", tenantId, "bookings", bDoc.id));
+          await deleteDoc(doc(db, "tenants", targetTenantId, "bookings", bDoc.id));
         }
 
         // Create new bookings for each occurrence
@@ -337,23 +359,23 @@ export default function EventsAdminView({ theme = "LIGHT", tenantId }: { theme?:
             updatedAt: serverTimestamp(),
             createdAt: serverTimestamp()
           };
-          await addDoc(collection(db, "tenants", tenantId, "bookings"), bookingData);
+          await addDoc(collection(db, "tenants", targetTenantId, "bookings"), bookingData);
         }
       } else {
         // If not saving to schedules, delete all existing bookings for this event
-        const bQuery = query(collection(db, "tenants", tenantId, "bookings"), where("eventId", "==", eventId));
+        const bQuery = query(collection(db, "tenants", targetTenantId, "bookings"), where("eventId", "==", eventId));
         const bSnap = await getDocs(bQuery);
         for (const bDoc of bSnap.docs) {
-          await deleteDoc(doc(db, "tenants", tenantId, "bookings", bDoc.id));
+          await deleteDoc(doc(db, "tenants", targetTenantId, "bookings", bDoc.id));
         }
       }
 
       // If we forced save, cancel the conflicts
       if (force && conflicts.length > 0) {
         for (const conflict of conflicts) {
-          await deleteDoc(doc(db, "tenants", tenantId, "bookings", conflict.id));
+          await deleteDoc(doc(db, "tenants", targetTenantId, "bookings", conflict.id));
           // TODO: Notify user (e.g. add to notifications collection)
-          await addDoc(collection(db, "tenants", tenantId, "notifications"), {
+          await addDoc(collection(db, "tenants", targetTenantId, "notifications"), {
             userId: conflict.userId,
             title: "Booking Cancelled",
             message: `Your booking on ${conflict.date} at ${conflict.time} was cancelled due to a club event: ${formData.title}.`,
@@ -379,16 +401,20 @@ export default function EventsAdminView({ theme = "LIGHT", tenantId }: { theme?:
   };
 
   const handleDeleteEvent = async () => {
-    if (!confirmDelete || !tenantId) return;
+    if (!confirmDelete) return;
+    const eventToDelete = events.find(e => e.id === confirmDelete);
+    if (!eventToDelete) return;
+    const targetTenantId = tenantId || eventToDelete.tenant_id;
+    
     try {
       // Also delete ALL linked bookings
-      const bQuery = query(collection(db, "tenants", tenantId, "bookings"), where("eventId", "==", confirmDelete));
+      const bQuery = query(collection(db, "tenants", targetTenantId, "bookings"), where("eventId", "==", confirmDelete));
       const bSnap = await getDocs(bQuery);
       for (const bDoc of bSnap.docs) {
-        await deleteDoc(doc(db, "tenants", tenantId, "bookings", bDoc.id));
+        await deleteDoc(doc(db, "tenants", targetTenantId, "bookings", bDoc.id));
       }
 
-      await deleteDoc(doc(db, "tenants", tenantId, "events", confirmDelete));
+      await deleteDoc(doc(db, "tenants", targetTenantId, "events", confirmDelete));
       setConfirmDelete(null);
     } catch (err) {
       console.error("Failed to delete event:", err);
@@ -422,7 +448,17 @@ export default function EventsAdminView({ theme = "LIGHT", tenantId }: { theme?:
       cell: (info: any) => (
         <div className="flex flex-col">
           <span className="font-black uppercase tracking-tight">{info.getValue()}</span>
-          <span className="text-[10px] opacity-40 uppercase font-bold">{info.row.original.tag}</span>
+          <div className="flex items-center gap-2">
+            <span className="text-[10px] opacity-40 uppercase font-bold">{info.row.original.tag}</span>
+            {isGlobalMode && (
+              <>
+                <span className="text-[10px] opacity-20">•</span>
+                <span className="text-[10px] font-black text-primary uppercase">
+                  {allTenants.find(t => t.id === info.row.original.tenant_id || t.tenant_id === info.row.original.tenant_id)?.name || "Unknown Club"}
+                </span>
+              </>
+            )}
+          </div>
         </div>
       ),
     },
@@ -682,6 +718,21 @@ export default function EventsAdminView({ theme = "LIGHT", tenantId }: { theme?:
           </div>
         )}
         <div className="grid grid-cols-2 gap-8">
+          {isGlobalMode && !editingEvent && (
+            <div className="col-span-2">
+              <label className={labelCls}>Select Club (Tenant)</label>
+              <select
+                value={formData.tenant_id || ""}
+                onChange={e => setFormData({ ...formData, tenant_id: e.target.value })}
+                className={inputCls}
+              >
+                <option value="">SELECT A CLUB...</option>
+                {allTenants.map(t => (
+                  <option key={t.id} value={t.id || t.tenant_id}>{t.name}</option>
+                ))}
+              </select>
+            </div>
+          )}
           {/* Scheduling Block at the Top */}
           <div className="col-span-2 p-6 rounded-3xl bg-stone-50 dark:bg-stone-900/50 border border-stone-200 dark:border-stone-800 space-y-8">
             <div className="flex items-center gap-2">
