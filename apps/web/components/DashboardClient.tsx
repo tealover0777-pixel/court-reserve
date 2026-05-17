@@ -2166,9 +2166,46 @@ function MembershipView({ theme, tenantId }: { theme: "LIGHT" | "DARK" | "VINTAG
   useEffect(() => {
     if (!tenantId) {
       setPlans([
-        { name: "SILVER", price: "99", popular: false, features: ["2 Bookings/Week", "Standard Access", "Social Mixers"] },
-        { name: "GOLD", price: "199", popular: true, features: ["Unlimited Bookings", "Priority Courts", "Guest Passes (4)", "Pro Discounts"] },
-        { name: "PLATINUM", price: "299", popular: false, features: ["24/7 Access", "Personal Locker", "Free Stringing", "Pro Clinic Access"] }
+        {
+          name: "FREE",
+          price: "0",
+          popular: false,
+          features: ["Standard Access", "Fast Check out and Check in confirmation"],
+          bgColor: "#ccff00",
+          textColor: "#000000",
+          themeColors: {
+            LIGHT: { bgColor: "#ccff00", textColor: "#000000" },
+            DARK: { bgColor: "#ccff00", textColor: "#000000" },
+            VINTAGE: { bgColor: "#ccff00", textColor: "#000000" }
+          }
+        },
+        { name: "SILVER", price: "99", popular: true, features: ["2 Bookings/Week", "Standard Access", "Social Mixers"] },
+        {
+          name: "GOLD",
+          price: "199",
+          popular: false,
+          features: ["Unlimited Bookings", "Priority Courts", "Guest Passes (4)", "Pro Discounts"],
+          bgColor: "#b8860b",
+          textColor: "#ffffff",
+          themeColors: {
+            LIGHT: { bgColor: "#b8860b", textColor: "#ffffff" },
+            DARK: { bgColor: "#b8860b", textColor: "#ffffff" },
+            VINTAGE: { bgColor: "#b8860b", textColor: "#ffffff" }
+          }
+        },
+        {
+          name: "PLATINUM",
+          price: "299",
+          popular: false,
+          features: ["24/7 Access", "Personal Locker", "Free Stringing", "Pro Clinic Access"],
+          bgColor: "#8a9597",
+          textColor: "#ffffff",
+          themeColors: {
+            LIGHT: { bgColor: "#8a9597", textColor: "#ffffff" },
+            DARK: { bgColor: "#8a9597", textColor: "#ffffff" },
+            VINTAGE: { bgColor: "#8a9597", textColor: "#ffffff" }
+          }
+        }
       ]);
       setLoading(false);
       return;
@@ -2182,16 +2219,90 @@ function MembershipView({ theme, tenantId }: { theme: "LIGHT" | "DARK" | "VINTAG
           setPlans(data.plans);
         } else {
           setPlans([
-            { name: "SILVER", price: "99", popular: false, features: ["2 Bookings/Week", "Standard Access", "Social Mixers"] },
-            { name: "GOLD", price: "199", popular: true, features: ["Unlimited Bookings", "Priority Courts", "Guest Passes (4)", "Pro Discounts"] },
-            { name: "PLATINUM", price: "299", popular: false, features: ["24/7 Access", "Personal Locker", "Free Stringing", "Pro Clinic Access"] }
+            {
+              name: "FREE",
+              price: "0",
+              popular: false,
+              features: ["Standard Access", "Fast Check out and Check in confirmation"],
+              bgColor: "#ccff00",
+              textColor: "#000000",
+              themeColors: {
+                LIGHT: { bgColor: "#ccff00", textColor: "#000000" },
+                DARK: { bgColor: "#ccff00", textColor: "#000000" },
+                VINTAGE: { bgColor: "#ccff00", textColor: "#000000" }
+              }
+            },
+            { name: "SILVER", price: "99", popular: true, features: ["2 Bookings/Week", "Standard Access", "Social Mixers"] },
+            {
+              name: "GOLD",
+              price: "199",
+              popular: false,
+              features: ["Unlimited Bookings", "Priority Courts", "Guest Passes (4)", "Pro Discounts"],
+              bgColor: "#b8860b",
+              textColor: "#ffffff",
+              themeColors: {
+                LIGHT: { bgColor: "#b8860b", textColor: "#ffffff" },
+                DARK: { bgColor: "#b8860b", textColor: "#ffffff" },
+                VINTAGE: { bgColor: "#b8860b", textColor: "#ffffff" }
+              }
+            },
+            {
+              name: "PLATINUM",
+              price: "299",
+              popular: false,
+              features: ["24/7 Access", "Personal Locker", "Free Stringing", "Pro Clinic Access"],
+              bgColor: "#8a9597",
+              textColor: "#ffffff",
+              themeColors: {
+                LIGHT: { bgColor: "#8a9597", textColor: "#ffffff" },
+                DARK: { bgColor: "#8a9597", textColor: "#ffffff" },
+                VINTAGE: { bgColor: "#8a9597", textColor: "#ffffff" }
+              }
+            }
           ]);
         }
       } else {
         setPlans([
-          { name: "SILVER", price: "99", popular: false, features: ["2 Bookings/Week", "Standard Access", "Social Mixers"] },
-          { name: "GOLD", price: "199", popular: true, features: ["Unlimited Bookings", "Priority Courts", "Guest Passes (4)", "Pro Discounts"] },
-          { name: "PLATINUM", price: "299", popular: false, features: ["24/7 Access", "Personal Locker", "Free Stringing", "Pro Clinic Access"] }
+          {
+            name: "FREE",
+            price: "0",
+            popular: false,
+            features: ["Standard Access", "Fast Check out and Check in confirmation"],
+            bgColor: "#ccff00",
+            textColor: "#000000",
+            themeColors: {
+              LIGHT: { bgColor: "#ccff00", textColor: "#000000" },
+              DARK: { bgColor: "#ccff00", textColor: "#000000" },
+              VINTAGE: { bgColor: "#ccff00", textColor: "#000000" }
+            }
+          },
+          { name: "SILVER", price: "99", popular: true, features: ["2 Bookings/Week", "Standard Access", "Social Mixers"] },
+          {
+            name: "GOLD",
+            price: "199",
+            popular: false,
+            features: ["Unlimited Bookings", "Priority Courts", "Guest Passes (4)", "Pro Discounts"],
+            bgColor: "#b8860b",
+            textColor: "#ffffff",
+            themeColors: {
+              LIGHT: { bgColor: "#b8860b", textColor: "#ffffff" },
+              DARK: { bgColor: "#b8860b", textColor: "#ffffff" },
+              VINTAGE: { bgColor: "#b8860b", textColor: "#ffffff" }
+            }
+          },
+          {
+            name: "PLATINUM",
+            price: "299",
+            popular: false,
+            features: ["24/7 Access", "Personal Locker", "Free Stringing", "Pro Clinic Access"],
+            bgColor: "#8a9597",
+            textColor: "#ffffff",
+            themeColors: {
+              LIGHT: { bgColor: "#8a9597", textColor: "#ffffff" },
+              DARK: { bgColor: "#8a9597", textColor: "#ffffff" },
+              VINTAGE: { bgColor: "#8a9597", textColor: "#ffffff" }
+            }
+          }
         ]);
       }
       setLoading(false);

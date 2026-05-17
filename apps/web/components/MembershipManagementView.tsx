@@ -35,9 +35,46 @@ interface MembershipsConfig {
 }
 
 const DEFAULT_PLANS: MembershipPlan[] = [
-  { name: "SILVER", price: "99", popular: false, features: ["2 Bookings/Week", "Standard Access", "Social Mixers"] },
-  { name: "GOLD", price: "199", popular: true, features: ["Unlimited Bookings", "Priority Courts", "Guest Passes (4)", "Pro Discounts"] },
-  { name: "PLATINUM", price: "299", popular: false, features: ["24/7 Access", "Personal Locker", "Free Stringing", "Pro Clinic Access"] }
+  {
+    name: "FREE",
+    price: "0",
+    popular: false,
+    features: ["Standard Access", "Fast Check out and Check in confirmation"],
+    bgColor: "#ccff00",
+    textColor: "#000000",
+    themeColors: {
+      LIGHT: { bgColor: "#ccff00", textColor: "#000000" },
+      DARK: { bgColor: "#ccff00", textColor: "#000000" },
+      VINTAGE: { bgColor: "#ccff00", textColor: "#000000" }
+    }
+  },
+  { name: "SILVER", price: "99", popular: true, features: ["2 Bookings/Week", "Standard Access", "Social Mixers"] },
+  {
+    name: "GOLD",
+    price: "199",
+    popular: false,
+    features: ["Unlimited Bookings", "Priority Courts", "Guest Passes (4)", "Pro Discounts"],
+    bgColor: "#b8860b",
+    textColor: "#ffffff",
+    themeColors: {
+      LIGHT: { bgColor: "#b8860b", textColor: "#ffffff" },
+      DARK: { bgColor: "#b8860b", textColor: "#ffffff" },
+      VINTAGE: { bgColor: "#b8860b", textColor: "#ffffff" }
+    }
+  },
+  {
+    name: "PLATINUM",
+    price: "299",
+    popular: false,
+    features: ["24/7 Access", "Personal Locker", "Free Stringing", "Pro Clinic Access"],
+    bgColor: "#8a9597",
+    textColor: "#ffffff",
+    themeColors: {
+      LIGHT: { bgColor: "#8a9597", textColor: "#ffffff" },
+      DARK: { bgColor: "#8a9597", textColor: "#ffffff" },
+      VINTAGE: { bgColor: "#8a9597", textColor: "#ffffff" }
+    }
+  }
 ];
 
 const PRESET_COLORS = [
@@ -55,7 +92,7 @@ const PRESET_COLORS = [
 export default function MembershipManagementView({ theme, tenantId }: { theme: string; tenantId: string }) {
   const [plans, setPlans] = useState<MembershipPlan[]>(DEFAULT_PLANS);
   const [customNames, setCustomNames] = useState<string[]>([]);
-  const [globalMembershipOptions, setGlobalMembershipOptions] = useState<string[]>(["SILVER", "GOLD", "PLATINUM"]);
+  const [globalMembershipOptions, setGlobalMembershipOptions] = useState<string[]>(["FREE", "SILVER", "GOLD", "PLATINUM"]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [activePlanIdx, setActivePlanIdx] = useState<number | null>(0);
@@ -84,7 +121,7 @@ export default function MembershipManagementView({ theme, tenantId }: { theme: s
       if (docSnap) {
         setGlobalMembershipOptions(docSnap.data().items || []);
       } else {
-        setGlobalMembershipOptions(["SILVER", "GOLD", "PLATINUM"]);
+        setGlobalMembershipOptions(["FREE", "SILVER", "GOLD", "PLATINUM"]);
       }
     });
     return () => unsubscribe();
@@ -99,7 +136,13 @@ export default function MembershipManagementView({ theme, tenantId }: { theme: s
       if (docSnap.exists()) {
         const data = docSnap.data();
         if (data.plans && Array.isArray(data.plans)) {
-          setPlans(data.plans);
+          const hasFree = data.plans.some((p: any) => p.name?.toUpperCase() === "FREE");
+          if (!hasFree) {
+            const updatedPlans = [DEFAULT_PLANS[0], ...data.plans];
+            setPlans(updatedPlans);
+          } else {
+            setPlans(data.plans);
+          }
         } else {
           setPlans(DEFAULT_PLANS);
         }
@@ -402,6 +445,19 @@ export default function MembershipManagementView({ theme, tenantId }: { theme: s
           >
             <span className="material-symbols-outlined text-sm">add_circle</span>
             Add New Tier
+          </button>
+          <button
+            onClick={() => {
+              if (window.confirm("Are you sure you want to reset all plans to standard system defaults? This will overwrite your current configuration with the FREE, SILVER, GOLD, and PLATINUM plan defaults.")) {
+                setPlans(DEFAULT_PLANS);
+                setActivePlanIdx(0);
+                showNotification("Plans reset to system defaults. Please click 'Save Changes' to permanently apply them.");
+              }
+            }}
+            className="flex-1 md:flex-none px-6 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all bg-surface-container border border-outline/20 text-[#e11d48] hover:bg-red-500/10 active:scale-95 flex items-center justify-center gap-2"
+          >
+            <span className="material-symbols-outlined text-sm">restart_alt</span>
+            Reset Defaults
           </button>
           <button
             onClick={handleSave}

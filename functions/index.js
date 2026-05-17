@@ -315,3 +315,128 @@ exports.deleteUserAccount = functions.https.onCall(async (data, context) => {
     throw new functions.https.HttpsError("internal", error.message);
   }
 });
+
+
+/**
+ * Database Migration Utility:
+ * Sets or updates the high-fidelity 4-tier default membership plans for all active tenants.
+ * Can be triggered locally or via deployed cloud functions.
+ */
+exports.seedFreeMemberships = functions.https.onRequest(async (req, res) => {
+  res.set("Access-Control-Allow-Origin", "*");
+  res.set("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+
+  try {
+    const tenantsSnap = await db.collection("tenants").get();
+    if (tenantsSnap.empty) {
+      res.status(200).json({ success: true, message: "No tenants found to seed." });
+      return;
+    }
+
+    const defaultPlans = [
+      {
+        name: "FREE",
+        price: "0",
+        popular: false,
+        features: ["Standard Access", "Fast Check out and Check in confirmation"],
+        bgColor: "#ccff00",
+        textColor: "#000000",
+        themeColors: {
+          LIGHT: { bgColor: "#ccff00", textColor: "#000000" },
+          DARK: { bgColor: "#ccff00", textColor: "#000000" },
+          VINTAGE: { bgColor: "#ccff00", textColor: "#000000" }
+        }
+      },
+      {
+        name: "SILVER",
+        price: "99",
+        popular: true,
+        features: ["2 Bookings/Week", "Standard Access", "Social Mixers"]
+      },
+      {
+        name: "GOLD",
+        price: "199",
+        popular: false,
+        features: ["Unlimited Bookings", "Priority Courts", "Guest Passes (4)", "Pro Discounts"],
+        bgColor: "#b8860b",
+        textColor: "#ffffff",
+        themeColors: {
+          LIGHT: { bgColor: "#b8860b", textColor: "#ffffff" },
+          DARK: { bgColor: "#b8860b", textColor: "#ffffff" },
+          VINTAGE: { bgColor: "#b8860b", textColor: "#ffffff" }
+        }
+      },
+      {
+        name: "PLATINUM",
+        price: "299",
+        popular: false,
+        features: ["24/7 Access", "Personal Locker", "Free Stringing", "Pro Clinic Access"],
+        bgColor: "#8a9597",
+        textColor: "#ffffff",
+        themeColors: {
+          LIGHT: { bgColor: "#8a9597", textColor: "#ffffff" },
+          DARK: { bgColor: "#8a9597", textColor: "#ffffff" },
+          VINTAGE: { bgColor: "#8a9597", textColor: "#ffffff" }
+        }
+      }
+    ];
+
+    const results = [];
+
+    for (const tenantDoc of tenantsSnap.docs) {
+      const tenantId = tenantDoc.id;
+      const membershipsRef = db.collection("tenants").doc(tenantId).collection("config").doc("memberships");
+      const snap = await membershipsRef.get();
+
+      if (snap.exists) {
+        const data = snap.data();
+        let plansToSave = defaultPlans;
+
+        // If plans already exist, we prepend FREE if missing, or fully overwrite if reset requested
+        if (req.query.reset !== "true" && data.plans && Array.isArray(data.plans)) {
+          const hasFree = data.plans.some(p => p.name?.toUpperCase() === "FREE");
+          if (!hasFree) {
+            plansToSave = [defaultPlans[0], ...data.plans];
+          } else {
+            // Update exist Free to have neon green colors
+            plansToSave = data.plans.map(p => {
+              if (p.name?.toUpperCase() === "FREE") {
+                return {
+                  ...defaultPlans[0],
+                  ...p,
+                  bgColor: "#ccff00",
+                  textColor: "#000000",
+                  themeColors: defaultPlans[0].themeColors
+                };
+              }
+              return p;
+            });
+          }
+        }
+
+        await membershipsRef.set({
+          plans: plansToSave,
+          updatedAt: new Date()
+        }, { merge: true });
+
+        results.push({ tenantId, action: "updated", plansCount: plansToSave.length });
+      } else {
+        await membershipsRef.set({
+          plans: defaultPlans,
+          customNames: [],
+          updatedAt: new Date()
+        });
+        results.push({ tenantId, action: "created", plansCount: defaultPlans.length });
+      }
+    }
+
+    res.status(200).json({
+      success: true,
+      message: `Successfully seeded memberships config for ${results.length} tenants.`,
+      results
+    });
+  } catch (error) {
+    console.error("Migration error:", error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
