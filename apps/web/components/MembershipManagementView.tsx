@@ -6,7 +6,9 @@ import {
   doc,
   serverTimestamp,
   onSnapshot,
-  setDoc
+  setDoc,
+  collection,
+  query
 } from "firebase/firestore";
 
 interface ThemeColors {
@@ -52,12 +54,20 @@ const PRESET_COLORS = [
 
 export default function MembershipManagementView({ theme, tenantId }: { theme: string; tenantId: string }) {
   const [plans, setPlans] = useState<MembershipPlan[]>(DEFAULT_PLANS);
+  const [customNames, setCustomNames] = useState<string[]>([]);
+  const [globalMembershipOptions, setGlobalMembershipOptions] = useState<string[]>(["SILVER", "GOLD", "PLATINUM"]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [activePlanIdx, setActivePlanIdx] = useState<number | null>(0);
   const [previewTheme, setPreviewTheme] = useState<"LIGHT" | "DARK" | "VINTAGE">(
     theme === "DARK" || theme === "VINTAGE" || theme === "LIGHT" ? (theme as any) : "LIGHT"
   );
+  
+  // Custom Names editor state
+  const [newCustomName, setNewCustomName] = useState("");
+  const [editingCustomNameIdx, setEditingCustomNameIdx] = useState<number | null>(null);
+  const [editingCustomNameVal, setEditingCustomNameVal] = useState("");
+
   const { showNotification } = useNotification();
 
   useEffect(() => {
@@ -66,20 +76,41 @@ export default function MembershipManagementView({ theme, tenantId }: { theme: s
     }
   }, [theme]);
 
+  // Fetch standard dimensions for category === "Membership"
+  useEffect(() => {
+    const q = query(collection(db, "dimensions"));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const docSnap = snapshot.docs.find(d => d.data().category?.toUpperCase() === "MEMBERSHIP");
+      if (docSnap) {
+        setGlobalMembershipOptions(docSnap.data().items || []);
+      } else {
+        setGlobalMembershipOptions(["SILVER", "GOLD", "PLATINUM"]);
+      }
+    });
+    return () => unsubscribe();
+  }, []);
+
+  // Fetch memberships config including plans and custom tenant names
   useEffect(() => {
     if (!tenantId) return;
 
     const configRef = doc(db, "tenants", tenantId, "config", "memberships");
     const unsubscribe = onSnapshot(configRef, (docSnap) => {
       if (docSnap.exists()) {
-        const data = docSnap.data() as MembershipsConfig;
+        const data = docSnap.data();
         if (data.plans && Array.isArray(data.plans)) {
           setPlans(data.plans);
         } else {
           setPlans(DEFAULT_PLANS);
         }
+        if (data.customNames && Array.isArray(data.customNames)) {
+          setCustomNames(data.customNames);
+        } else {
+          setCustomNames([]);
+        }
       } else {
         setPlans(DEFAULT_PLANS);
+        setCustomNames([]);
       }
       setLoading(false);
     });
@@ -94,10 +125,11 @@ export default function MembershipManagementView({ theme, tenantId }: { theme: s
       const configRef = doc(db, "tenants", tenantId, "config", "memberships");
       await setDoc(configRef, {
         plans,
+        customNames,
         updatedAt: serverTimestamp(),
         updatedBy: auth.currentUser?.uid
       }, { merge: true });
-      showNotification("Membership plans configuration saved successfully!");
+      showNotification("Membership configuration and custom names saved successfully!");
     } catch (error) {
       console.error("Error saving memberships config:", error);
       showNotification("Failed to save memberships configuration.", "error");
@@ -114,6 +146,61 @@ export default function MembershipManagementView({ theme, tenantId }: { theme: s
       updated[index] = { ...target, ...updatedFields };
       return updated;
     });
+  };
+
+  const getMembershipOptions = (currentName: string) => {
+    const options = new Set([
+      ...globalMembershipOptions,
+      ...customNames
+    ]);
+    if (currentName) {
+      options.add(currentName);
+    }
+    return Array.from(options);
+  };
+
+  const handleAddCustomName = () => {
+    const name = newCustomName.trim().toUpperCase();
+    if (!name) return;
+    
+    if (globalMembershipOptions.includes(name) || customNames.includes(name)) {
+      showNotification("This membership name already exists!", "error");
+      return;
+    }
+    
+    setCustomNames(prev => [...prev, name]);
+    setNewCustomName("");
+    showNotification("Custom membership name added!");
+  };
+
+  const handleUpdateCustomName = (index: number, newVal: string) => {
+    const uppercaseVal = newVal.trim().toUpperCase();
+    if (!uppercaseVal) return;
+    
+    setCustomNames(prev => {
+      const oldVal = prev[index];
+      const updated = [...prev];
+      updated[index] = uppercaseVal;
+      
+      // Keep any active plans that were using the old custom name in sync
+      if (oldVal) {
+        setPlans(prevPlans => prevPlans.map(plan => {
+          if (plan.name === oldVal) {
+            return { ...plan, name: uppercaseVal };
+          }
+          return plan;
+        }));
+      }
+      
+      return updated;
+    });
+    setEditingCustomNameIdx(null);
+    showNotification("Custom membership name updated!");
+  };
+
+  const handleDeleteCustomName = (index: number) => {
+    setCustomNames(prev => prev.filter((_, i) => i !== index));
+    showNotification("Custom membership name deleted.");
   };
 
   const handleUpdateThemeColor = (index: number, key: 'bgColor' | 'textColor', value: string) => {
@@ -377,12 +464,23 @@ export default function MembershipManagementView({ theme, tenantId }: { theme: s
                         <div className="grid grid-cols-2 gap-4">
                           <div className="space-y-2">
                             <label className="text-[9px] font-black uppercase tracking-[0.2em] opacity-40 ml-1">Plan Name</label>
-                            <input
-                              type="text"
+                            <select
                               value={plan.name}
-                              onChange={(e) => handleUpdatePlan(index, { name: e.target.value.toUpperCase() })}
-                              className="w-full px-5 py-3 rounded-2xl bg-surface border-none text-xs font-bold focus:ring-2 focus:ring-primary transition-all"
-                            />
+                              onChange={(e) => handleUpdatePlan(index, { name: e.target.value })}
+                              className="w-full px-5 py-3 rounded-2xl bg-surface border-none text-xs font-bold focus:ring-2 focus:ring-primary transition-all text-on-surface appearance-none"
+                              style={{
+                                backgroundImage: `url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='${previewTheme === "DARK" ? "%23ffffff" : "%23000000"}' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'></polyline></svg>")`,
+                                backgroundRepeat: 'no-repeat',
+                                backgroundPosition: 'right 16px center',
+                                backgroundSize: '16px'
+                              }}
+                            >
+                              {getMembershipOptions(plan.name).map((opt) => (
+                                <option key={opt} value={opt} className="bg-surface text-on-surface">
+                                  {opt}
+                                </option>
+                              ))}
+                            </select>
                           </div>
                           <div className="space-y-2">
                             <label className="text-[9px] font-black uppercase tracking-[0.2em] opacity-40 ml-1">Price ($/mo)</label>
@@ -544,6 +642,126 @@ export default function MembershipManagementView({ theme, tenantId }: { theme: s
                   </div>
                 );
               })}
+            </div>
+          </div>
+
+          {/* Custom Tenant Memberships Names Manager Card */}
+          <div className="rounded-[2.5rem] p-10 border transition-colors bg-surface-container-low border-outline/10 space-y-8 mt-6">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <span className="material-symbols-outlined text-primary">sell</span>
+                <h3 className="text-xl font-black uppercase tracking-widest">Custom Membership Names</h3>
+              </div>
+            </div>
+
+            <p className="text-on-surface-variant text-[11px] font-medium leading-relaxed">
+              Define custom membership tiers exclusive to your club. These custom names will immediately become available in the "Plan Name" dropdown choices above.
+            </p>
+
+            <div className="space-y-4">
+              {/* Add New Custom Name Input */}
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  placeholder="e.g. PLATINUM PLUS, VIP ELITE"
+                  value={newCustomName}
+                  onChange={(e) => setNewCustomName(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      handleAddCustomName();
+                    }
+                  }}
+                  className="flex-1 px-5 py-3 rounded-2xl bg-surface border-none text-xs font-bold focus:ring-2 focus:ring-primary transition-all uppercase"
+                />
+                <button
+                  onClick={handleAddCustomName}
+                  className="px-5 py-3 rounded-2xl font-black text-xs uppercase tracking-wider bg-primary text-on-primary hover:opacity-90 active:scale-95 transition-all flex items-center justify-center gap-1 border-0"
+                >
+                  <span className="material-symbols-outlined text-sm">add</span>
+                  Add
+                </button>
+              </div>
+
+              {/* Custom Names List */}
+              <div className="space-y-2 max-h-60 overflow-y-auto pr-1">
+                {customNames.map((name, idx) => {
+                  const isEditing = editingCustomNameIdx === idx;
+                  return (
+                    <div
+                      key={name + "-" + idx}
+                      className="flex items-center justify-between bg-surface/50 p-4 rounded-2xl border border-outline/5 hover:border-outline/15 transition-all group"
+                    >
+                      {isEditing ? (
+                        <input
+                          type="text"
+                          value={editingCustomNameVal}
+                          onChange={(e) => setEditingCustomNameVal(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") {
+                              handleUpdateCustomName(idx, editingCustomNameVal);
+                            } else if (e.key === "Escape") {
+                              setEditingCustomNameIdx(null);
+                            }
+                          }}
+                          className="flex-1 px-4 py-2 rounded-xl bg-surface border border-primary text-xs font-bold focus:ring-1 focus:ring-primary outline-none uppercase"
+                          autoFocus
+                        />
+                      ) : (
+                        <span className="text-xs font-black uppercase tracking-wider text-on-surface">
+                          {name}
+                        </span>
+                      )}
+
+                      <div className="flex items-center gap-1">
+                        {isEditing ? (
+                          <>
+                            <button
+                              onClick={() => handleUpdateCustomName(idx, editingCustomNameVal)}
+                              className="p-2 rounded-xl text-primary hover:bg-primary/10 transition-all border-0 bg-transparent cursor-pointer"
+                              title="Confirm Rename"
+                            >
+                              <span className="material-symbols-outlined text-base">check</span>
+                            </button>
+                            <button
+                              onClick={() => setEditingCustomNameIdx(null)}
+                              className="p-2 rounded-xl text-on-surface-variant hover:bg-surface-container-high transition-all border-0 bg-transparent cursor-pointer"
+                              title="Cancel"
+                            >
+                              <span className="material-symbols-outlined text-base">close</span>
+                            </button>
+                          </>
+                        ) : (
+                          <>
+                            <button
+                              onClick={() => {
+                                setEditingCustomNameIdx(idx);
+                                setEditingCustomNameVal(name);
+                              }}
+                              className="p-2 rounded-xl text-on-surface-variant hover:text-primary hover:bg-primary/10 transition-all opacity-0 group-hover:opacity-100 focus:opacity-100 border-0 bg-transparent cursor-pointer"
+                              title="Rename Custom Name"
+                            >
+                              <span className="material-symbols-outlined text-base">edit</span>
+                            </button>
+                            <button
+                              onClick={() => handleDeleteCustomName(idx)}
+                              className="p-2 rounded-xl text-on-surface-variant hover:text-error hover:bg-error/10 transition-all opacity-0 group-hover:opacity-100 focus:opacity-100 border-0 bg-transparent cursor-pointer"
+                              title="Delete Custom Name"
+                            >
+                              <span className="material-symbols-outlined text-base">delete</span>
+                            </button>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+
+                {customNames.length === 0 && (
+                  <div className="text-center py-8 border border-dashed border-outline/10 rounded-2xl opacity-40 text-[9px] uppercase tracking-widest font-black">
+                    No custom membership names defined yet.
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>
