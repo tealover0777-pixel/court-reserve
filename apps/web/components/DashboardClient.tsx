@@ -594,13 +594,15 @@ function Sidebar({ activeView, setActiveView, platformAdminOpen, setPlatformAdmi
     <aside className="w-[320px] h-screen flex flex-col transition-all duration-700 ease-in-out z-30 fixed left-0 top-0 bg-surface">
       {/* Brand Header */}
       <div className="px-8 pt-10 pb-6 mb-4">
-        <div className="flex items-center gap-4 group cursor-pointer" onClick={() => setActiveView("DASHBOARD")}>
-          <div className="w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-500 group-hover:rotate-[15deg] shadow-lg bg-primary text-on-primary">
-            <span className="material-symbols-outlined text-xl font-black">sports_tennis</span>
-          </div>
-          <div>
+        <div className={`flex ${logoUrl ? 'flex-col gap-2' : 'items-center gap-4'} group cursor-pointer`} onClick={() => setActiveView("DASHBOARD")}>
+          {!logoUrl && (
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-500 group-hover:rotate-[15deg] shadow-lg bg-primary text-on-primary shrink-0">
+              <span className="material-symbols-outlined text-xl font-black">sports_tennis</span>
+            </div>
+          )}
+          <div className={logoUrl ? "w-full flex flex-col items-start" : ""}>
             {logoUrl ? (
-              <img src={logoUrl} alt={companyName} className="h-10 w-auto object-contain" />
+              <img src={logoUrl} alt={companyName} className="w-full h-auto max-h-20 object-contain object-left" />
             ) : (
               <h1 className="text-xl font-black italic tracking-tighter leading-none transition-colors text-primary font-headline">
                 {companyName}
@@ -753,7 +755,7 @@ function Sidebar({ activeView, setActiveView, platformAdminOpen, setPlatformAdmi
               {profile?.first_name || 'Player'} {profile?.last_name || ''}
             </p>
             <p className="text-[8px] font-black uppercase tracking-widest transition-colors text-primary truncate opacity-70">
-              {roles?.find((r: any) => r.role_id === profile?.role || r.id === profile?.role)?.name || profile?.role || 'Member'}
+              {roles?.find((r: any) => r.role_id === profile?.role || r.id === profile?.role)?.role_name || profile?.role || 'Member'}
             </p>
           </div>
           <button
