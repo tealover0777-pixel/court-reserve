@@ -29,6 +29,7 @@ interface ProgramTrack {
     DARK?: ThemeColors;
     VINTAGE?: ThemeColors;
   };
+  clickDetails?: string;
 }
 
 interface FeaturedProgramItem {
@@ -116,7 +117,8 @@ const DEFAULT_CONFIG: ProgramsConfig = {
       imageUrl: "/images/active_clinics.png",
       priceLabel: "STARTS AT",
       priceValue: "$45/HR",
-      icon: "bolt"
+      icon: "bolt",
+      clickDetails: ""
     },
     { 
       title: "JUNIOR ACADEMY", 
@@ -125,7 +127,8 @@ const DEFAULT_CONFIG: ProgramsConfig = {
       priceLabel: "LEVEL",
       priceValue: "PREMIER",
       icon: "school",
-      tag: "PREMIER LEVEL"
+      tag: "PREMIER LEVEL",
+      clickDetails: ""
     },
     { 
       title: "SOCIAL MIXERS", 
@@ -133,7 +136,8 @@ const DEFAULT_CONFIG: ProgramsConfig = {
       imageUrl: "/images/social_mixers.png",
       priceLabel: "CAPACITY",
       priceValue: "24 PLAYERS",
-      icon: "groups"
+      icon: "groups",
+      clickDetails: ""
     }
   ],
   
@@ -311,7 +315,11 @@ export default function ProgramsManagementView({ theme, tenantId }: { theme: str
           imageClickDetails: item.imageClickDetails || "",
           buttonClickDetails: item.buttonClickDetails || ""
         }));
-        setConfig({ ...DEFAULT_CONFIG, ...data, featuredPrograms });
+        const tracks = (data.tracks || DEFAULT_CONFIG.tracks).map((track: any) => ({
+          ...track,
+          clickDetails: track.clickDetails || ""
+        }));
+        setConfig({ ...DEFAULT_CONFIG, ...data, featuredPrograms, tracks });
       } else {
         setConfig(DEFAULT_CONFIG);
       }
@@ -911,6 +919,26 @@ export default function ProgramsManagementView({ theme, tenantId }: { theme: str
                   </div>
                 </div>
 
+                <div className="space-y-1">
+                  <label className="text-[9px] font-black uppercase tracking-widest opacity-40">Track Detail Information (Modal Pop-up)</label>
+                  <textarea
+                    value={track.clickDetails || ""}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      setConfig(prev => {
+                        const newTracks = [...prev.tracks];
+                        const trackObj = newTracks[idx];
+                        if (trackObj) {
+                          newTracks[idx] = { ...trackObj, clickDetails: val };
+                        }
+                        return { ...prev, tracks: newTracks };
+                      });
+                    }}
+                    className="w-full px-4 py-3 rounded-xl bg-surface border-none text-[10px] font-bold min-h-[60px]"
+                    placeholder="Detail information displayed in a pop-up when this training track card image or action button is clicked..."
+                  />
+                </div>
+
                 {/* Track Theme Custom Color Pickers */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-surface/30 p-4 rounded-2xl border border-outline/10 mt-4">
                   <div className="space-y-1">
@@ -1016,7 +1044,8 @@ export default function ProgramsManagementView({ theme, tenantId }: { theme: str
                       imageUrl: "",
                       priceLabel: "STARTS AT",
                       priceValue: "$50/HR",
-                      icon: "fitness_center"
+                      icon: "fitness_center",
+                      clickDetails: ""
                     }
                   ]
                 }));

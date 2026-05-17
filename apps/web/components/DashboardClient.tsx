@@ -1320,14 +1320,15 @@ function ProgramsView({ theme, tenantId }: { theme: "LIGHT" | "DARK" | "VINTAGE"
   const sidebarDescription = config?.sidebarDescription || "Join Coach Marcus for a 48-hour immersion into strategy and bio-mechanics. Limited to 8 participants.";
   const sidebarButtonText = config?.sidebarButtonText || "VIEW COACH BIO";
   
-  const tracks = config?.tracks || [
+  const rawTracks = config?.tracks || [
     { 
       title: "ACTIVE CLINICS", 
       description: "High-energy drills focused on footwork, stamina, and consistent point construction.", 
       imageUrl: "/images/active_clinics.png",
       priceLabel: "STARTS AT",
       priceValue: "$45/HR",
-      icon: "bolt"
+      icon: "bolt",
+      clickDetails: ""
     },
     { 
       title: "JUNIOR ACADEMY", 
@@ -1336,7 +1337,8 @@ function ProgramsView({ theme, tenantId }: { theme: "LIGHT" | "DARK" | "VINTAGE"
       priceLabel: "LEVEL",
       priceValue: "PREMIER",
       icon: "school",
-      tag: "PREMIER LEVEL"
+      tag: "PREMIER LEVEL",
+      clickDetails: ""
     },
     { 
       title: "SOCIAL MIXERS", 
@@ -1344,9 +1346,15 @@ function ProgramsView({ theme, tenantId }: { theme: "LIGHT" | "DARK" | "VINTAGE"
       imageUrl: "/images/social_mixers.png",
       priceLabel: "CAPACITY",
       priceValue: "24 PLAYERS",
-      icon: "groups"
+      icon: "groups",
+      clickDetails: ""
     }
   ];
+
+  const tracks = rawTracks.map((track: any) => ({
+    ...track,
+    clickDetails: track.clickDetails || ""
+  }));
   
   const bottomHeadline = config?.bottomHeadline || "SPRING SESSION '24";
   const bottomDescription = config?.bottomDescription || "Our most comprehensive training cycle yet. Registration now open for all skill levels.";
@@ -1505,17 +1513,41 @@ function ProgramsView({ theme, tenantId }: { theme: "LIGHT" | "DARK" | "VINTAGE"
                     backgroundColor: trackCustomBgColor || undefined,
                   }}
                 >
-                  <div className="h-64 overflow-hidden relative">
+                  <div 
+                    onClick={() => {
+                      if (track.clickDetails) {
+                        setActiveModalData({
+                          title: track.title,
+                          content: track.clickDetails
+                        });
+                      }
+                    }}
+                    className={`h-64 overflow-hidden relative ${track.clickDetails ? 'cursor-pointer' : ''}`}
+                  >
                     <img src={track.imageUrl} alt={track.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
                     {track.tag && (
                       <div className="absolute top-6 left-6 px-4 py-1 backdrop-blur rounded-full text-[8px] font-black tracking-widest uppercase bg-surface/90 text-primary">
                         {track.tag}
                       </div>
                     )}
+                    {track.clickDetails && (
+                      <div className="absolute bottom-6 right-6 px-3.5 py-1.5 backdrop-blur rounded-full text-[8px] font-black tracking-widest uppercase bg-primary/95 text-on-primary flex items-center gap-1 shadow-md transition-all hover:bg-primary">
+                        <span className="material-symbols-outlined text-[10px]">info</span>
+                        Click for Details
+                      </div>
+                    )}
                   </div>
                   <div className="p-10 flex-1 relative">
                     <div 
-                      className="absolute right-10 top-10 w-12 h-12 rounded-full flex items-center justify-center shadow-md transition-colors bg-surface-container-highest text-primary"
+                      onClick={() => {
+                        if (track.clickDetails) {
+                          setActiveModalData({
+                            title: track.title,
+                            content: track.clickDetails
+                          });
+                        }
+                      }}
+                      className={`absolute right-10 top-10 w-12 h-12 rounded-full flex items-center justify-center shadow-md transition-all bg-surface-container-highest text-primary ${track.clickDetails ? 'cursor-pointer hover:bg-primary/20 hover:scale-105' : ''}`}
                       style={trackCustomBgColor ? {
                         backgroundColor: `${trackCustomTextColor || '#ffffff'}22`,
                         color: trackCustomTextColor || undefined
@@ -1551,13 +1583,23 @@ function ProgramsView({ theme, tenantId }: { theme: "LIGHT" | "DARK" | "VINTAGE"
                         </div>
                       </div>
                       <button 
-                        className="w-14 h-14 rounded-full flex items-center justify-center hover:scale-110 transition-transform shadow-lg bg-primary text-on-primary"
+                        onClick={() => {
+                          if (track.clickDetails) {
+                            setActiveModalData({
+                              title: track.title,
+                              content: track.clickDetails
+                            });
+                          }
+                        }}
+                        className={`w-14 h-14 rounded-full flex items-center justify-center hover:scale-110 transition-transform shadow-lg bg-primary text-on-primary ${track.clickDetails ? 'cursor-pointer' : ''}`}
                         style={trackCustomBgColor ? {
                           backgroundColor: trackCustomTextColor || '#ffffff',
                           color: trackCustomBgColor || 'var(--md-sys-color-primary)'
                         } : undefined}
                       >
-                        <span className="material-symbols-outlined">arrow_forward</span>
+                        <span className="material-symbols-outlined">
+                          {track.clickDetails ? 'info' : 'arrow_forward'}
+                        </span>
                       </button>
                     </div>
                   </div>
