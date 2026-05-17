@@ -299,6 +299,29 @@ export default function MembershipManagementView({ theme, tenantId }: { theme: s
     setActivePlanIdx(prev => (prev === index ? 0 : prev !== null && prev > index ? prev - 1 : prev));
   };
 
+  const handleMovePlan = (index: number, direction: 'up' | 'down') => {
+    if (direction === 'up' && index === 0) return;
+    if (direction === 'down' && index === plans.length - 1) return;
+
+    const targetIndex = direction === 'up' ? index - 1 : index + 1;
+    setPlans(prev => {
+      const updated = [...prev];
+      const temp = updated[index];
+      if (temp && updated[targetIndex]) {
+        updated[index] = updated[targetIndex];
+        updated[targetIndex] = temp;
+      }
+      return updated;
+    });
+
+    // Keep editing/active tier index in sync with movement
+    if (activePlanIdx === index) {
+      setActivePlanIdx(targetIndex);
+    } else if (activePlanIdx === targetIndex) {
+      setActivePlanIdx(index);
+    }
+  };
+
   // Helper styles to emulate real dashboard cards in preview mode
   const getPreviewCardStyle = (plan: MembershipPlan, themeSelected: string, index: number, total: number) => {
     const isDark = themeSelected === "DARK";
@@ -442,10 +465,28 @@ export default function MembershipManagementView({ theme, tenantId }: { theme: s
                       </div>
 
                       <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
+                        {index > 0 && (
+                          <button
+                            onClick={() => handleMovePlan(index, 'up')}
+                            className="p-2 rounded-xl text-on-surface-variant hover:bg-surface-container-high transition-all border-0 bg-transparent cursor-pointer flex items-center justify-center"
+                            title="Move Up"
+                          >
+                            <span className="material-symbols-outlined text-lg">arrow_upward</span>
+                          </button>
+                        )}
+                        {index < plans.length - 1 && (
+                          <button
+                            onClick={() => handleMovePlan(index, 'down')}
+                            className="p-2 rounded-xl text-on-surface-variant hover:bg-surface-container-high transition-all border-0 bg-transparent cursor-pointer flex items-center justify-center"
+                            title="Move Down"
+                          >
+                            <span className="material-symbols-outlined text-lg">arrow_downward</span>
+                          </button>
+                        )}
                         {plans.length > 1 && (
                           <button
                             onClick={() => handleRemovePlan(index)}
-                            className="p-2 rounded-xl text-error hover:bg-error/10 hover:text-error transition-all animate-in fade-in"
+                            className="p-2 rounded-xl text-error hover:bg-error/10 hover:text-error transition-all animate-in fade-in border-0 bg-transparent cursor-pointer flex items-center justify-center"
                             title="Delete Plan"
                           >
                             <span className="material-symbols-outlined text-lg">delete</span>
