@@ -369,7 +369,7 @@ export default function RoleTypesView({ theme = "LIGHT", userRoleId, readOnly = 
               onClick={handleOpenAdd}
               className={`px-8 py-3 rounded-full font-black text-xs tracking-widest transition-all uppercase shadow-lg flex items-center gap-2 ${
                 theme === "DARK"
-                  ? "bg-[#ccff00] text-stone-950 shadow-[#ccff00]/10 hover:opacity-90"
+                  ? "bg-[#ccff00] text-black shadow-[#ccff00]/10 hover:opacity-90"
                   : theme === "VINTAGE"
                     ? "bg-black text-white shadow-black/10 hover:opacity-90"
                     : "bg-[#4f6b28] text-white shadow-[#4f6b28]/20 hover:opacity-90"
@@ -522,7 +522,7 @@ export default function RoleTypesView({ theme = "LIGHT", userRoleId, readOnly = 
             <button 
               onClick={handleSaveRole}
               className={`flex-1 py-4 rounded-2xl text-[10px] font-black tracking-widest transition-all uppercase shadow-lg ${
-                theme === "DARK" ? "bg-[#ccff00] text-stone-950 shadow-[#ccff00]/20" : 
+                theme === "DARK" ? "bg-[#ccff00] text-black shadow-[#ccff00]/20" : 
                 theme === "VINTAGE" ? "bg-black text-white shadow-black/20" :
                 "bg-[#4f6b28] text-white shadow-[#4f6b28]/20"
               } hover:opacity-90`}
@@ -569,7 +569,7 @@ export default function RoleTypesView({ theme = "LIGHT", userRoleId, readOnly = 
             <div 
               className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all ${
                 isGlobal 
-                  ? (theme === "DARK" ? "bg-[#ccff00] border-[#ccff00] text-stone-950" : theme === "VINTAGE" ? "bg-black border-black text-white" : "bg-[#4f6b28] border-[#4f6b28] text-white")
+                  ? (theme === "DARK" ? "bg-[#ccff00] border-[#ccff00] text-black" : theme === "VINTAGE" ? "bg-black border-black text-white" : "bg-[#4f6b28] border-[#4f6b28] text-white")
                   : (theme === "DARK" ? "border-stone-200 bg-stone-100" : "border-stone-200 bg-white")
               }`}
               onClick={() => setIsGlobal(!isGlobal)}
@@ -640,7 +640,7 @@ export default function RoleTypesView({ theme = "LIGHT", userRoleId, readOnly = 
                 }}
                 className={`px-4 py-2 rounded-full text-[10px] font-black tracking-tight transition-all uppercase ${
                   selectedPerms.includes(p) 
-                    ? (theme === "DARK" ? "bg-[#ccff00] text-stone-950 shadow-md shadow-[#ccff00]/20" : theme === "VINTAGE" ? "bg-black text-white shadow-md shadow-black/20" : "bg-[#4f6b28] text-white shadow-md shadow-[#4f6b28]/20")
+                    ? (theme === "DARK" ? "bg-[#ccff00] text-black shadow-md shadow-[#ccff00]/20" : theme === "VINTAGE" ? "bg-black text-white shadow-md shadow-black/20" : "bg-[#4f6b28] text-white shadow-md shadow-[#4f6b28]/20")
                     : (theme === "DARK" ? "bg-stone-800 text-stone-400 border border-stone-700 hover:border-[#ccff00]/30" : "bg-white text-stone-900 border border-stone-200 hover:border-[#4f6b28]/30")
                 }`}
               >

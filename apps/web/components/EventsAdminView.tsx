@@ -485,7 +485,7 @@ export default function EventsAdminView({ theme = "LIGHT", tenantId, allTenants 
       cell: (info: any) => (
         <span className={`px-2 py-1 rounded text-[10px] font-black uppercase ${
           info.getValue() === "regular" 
-            ? "bg-[#ccff00] text-stone-900" 
+            ? "bg-[#ccff00] text-black" 
             : (theme === "DARK" ? "bg-stone-800 text-stone-400" : "bg-stone-900 text-white")
         }`}>
           {info.getValue()}
@@ -595,7 +595,7 @@ export default function EventsAdminView({ theme = "LIGHT", tenantId, allTenants 
               }}
               className={`w-full sm:w-auto px-8 py-4 rounded-2xl text-[10px] font-black tracking-widest uppercase transition-all shadow-2xl flex items-center justify-center gap-3 ${
                 theme === "DARK" 
-                  ? "bg-[#ccff00] text-stone-950 hover:scale-[1.02] active:scale-[0.98] shadow-[#ccff00]/20" 
+                  ? "bg-[#ccff00] text-black hover:scale-[1.02] active:scale-[0.98] shadow-[#ccff00]/20" 
                   : theme === "VINTAGE"
                     ? "bg-black text-white hover:bg-stone-800 shadow-black/20"
                     : "bg-[#ccff00] text-[#4f6b28] hover:brightness-105 active:scale-95 shadow-[#ccff00]/10"
@@ -695,7 +695,7 @@ export default function EventsAdminView({ theme = "LIGHT", tenantId, allTenants 
               disabled={isSaving}
               className={`flex-1 py-4 rounded-2xl text-[10px] font-black tracking-widest uppercase transition-all shadow-xl flex items-center justify-center gap-3 ${
                 theme === "DARK" 
-                  ? "bg-[#ccff00] text-stone-950 shadow-[#ccff00]/20" 
+                  ? "bg-[#ccff00] text-black shadow-[#ccff00]/20" 
                   : theme === "VINTAGE" 
                     ? "bg-black text-white shadow-black/20"
                     : "bg-[#ccff00] text-[#4f6b28] shadow-[#ccff00]/10 hover:brightness-105 active:scale-95"
@@ -931,7 +931,7 @@ export default function EventsAdminView({ theme = "LIGHT", tenantId, allTenants 
                       setFormData({ ...formData, event_leaders: newLeaders });
                     }}
                     className={`flex items-center gap-2 px-3 py-1.5 rounded-xl transition-all border ${isSelected
-                        ? (theme === "DARK" ? "bg-[#ccff00] border-[#ccff00] text-stone-900" : "bg-stone-900 border-stone-900 text-white")
+                        ? (theme === "DARK" ? "bg-[#ccff00] border-[#ccff00] text-black" : "bg-stone-900 border-stone-900 text-white")
                         : (theme === "DARK" ? "bg-stone-100 border-stone-200 text-stone-400" : "bg-white border-stone-200 text-stone-600")
                       }`}
                   >
@@ -1074,7 +1074,7 @@ export default function EventsAdminView({ theme = "LIGHT", tenantId, allTenants 
             </button>
             <button
               onClick={() => handleSaveEvent(true)}
-              className="flex-1 py-4 rounded-xl text-[10px] font-black tracking-widest uppercase bg-[#ccff00] text-stone-900 shadow-lg shadow-[#ccff00]/20"
+              className="flex-1 py-4 rounded-xl text-[10px] font-black tracking-widest uppercase bg-[#ccff00] text-black shadow-lg shadow-[#ccff00]/20"
             >
               NOTIFY & CANCEL ALL
             </button>

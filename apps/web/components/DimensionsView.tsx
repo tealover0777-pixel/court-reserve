@@ -342,7 +342,7 @@ export default function DimensionsView({ theme = "LIGHT" }: { theme?: "LIGHT" | 
             onClick={() => setShowNewModal(true)}
             className={`px-8 py-3 rounded-full font-black text-xs tracking-widest transition-all uppercase shadow-lg flex items-center gap-2 ${
               theme === "DARK"
-                ? "bg-[#ccff00] text-stone-950 shadow-[#ccff00]/10 hover:opacity-90"
+                ? "bg-[#ccff00] text-black shadow-[#ccff00]/10 hover:opacity-90"
                 : theme === "VINTAGE"
                   ? "bg-black text-white shadow-black/10 hover:opacity-90"
                   : "bg-[#4f6b28] text-white shadow-[#4f6b28]/20 hover:opacity-90"
@@ -509,7 +509,7 @@ export default function DimensionsView({ theme = "LIGHT" }: { theme?: "LIGHT" | 
             <button 
               onClick={() => handleAddValue(editingCategoryId)}
               className={`px-6 py-3 rounded-xl font-black text-xs uppercase tracking-widest transition-all ${
-                theme === "DARK" ? "bg-[#ccff00] text-stone-950" : 
+                theme === "DARK" ? "bg-[#ccff00] text-black" : 
                 theme === "VINTAGE" ? "bg-black text-white" :
                 "bg-[#4f6b28] text-white"
               } hover:opacity-90`}
@@ -542,7 +542,7 @@ export default function DimensionsView({ theme = "LIGHT" }: { theme?: "LIGHT" | 
             <button 
               onClick={handleCreate}
               className={`flex-1 py-4 rounded-2xl text-[10px] font-black tracking-widest transition-all uppercase shadow-lg ${
-                theme === "DARK" ? "bg-[#ccff00] text-stone-950 shadow-[#ccff00]/20" : 
+                theme === "DARK" ? "bg-[#ccff00] text-black shadow-[#ccff00]/20" : 
                 theme === "VINTAGE" ? "bg-black text-white shadow-black/20" :
                 "bg-[#4f6b28] text-white shadow-[#4f6b28]/20"
               } hover:opacity-90`}
@@ -678,7 +678,7 @@ export default function DimensionsView({ theme = "LIGHT" }: { theme?: "LIGHT" | 
             <button 
               onClick={handleAddPermission}
               className={`px-8 rounded-2xl font-black text-xs tracking-widest transition-all uppercase ${
-                theme === "DARK" ? "bg-[#ccff00] text-stone-950" : 
+                theme === "DARK" ? "bg-[#ccff00] text-black" : 
                 theme === "VINTAGE" ? "bg-black text-white" :
                 "bg-[#4f6b28] text-white"
               } hover:opacity-90`}
@@ -692,7 +692,7 @@ export default function DimensionsView({ theme = "LIGHT" }: { theme?: "LIGHT" | 
                 <div 
                   className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all ${
                     permToggles[k as keyof typeof permToggles] 
-                      ? (theme === "DARK" ? "bg-[#ccff00] border-[#ccff00] text-stone-950" : theme === "VINTAGE" ? "bg-black border-black text-white" : "bg-[#4f6b28] border-[#4f6b28] text-white")
+                      ? (theme === "DARK" ? "bg-[#ccff00] border-[#ccff00] text-black" : theme === "VINTAGE" ? "bg-black border-black text-white" : "bg-[#4f6b28] border-[#4f6b28] text-white")
                       : (theme === "DARK" ? "border-stone-200 bg-stone-50" : "border-stone-200 bg-white")
                   }`}
                   onClick={() => setPermToggles(prev => ({ ...prev, [k]: !prev[k as keyof typeof prev] }))}

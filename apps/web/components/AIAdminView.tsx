@@ -120,7 +120,7 @@ export default function AIAdminView({ theme = "LIGHT" }: { theme?: "LIGHT" | "DA
             <p className="text-white/60 text-xs font-bold uppercase tracking-widest leading-loose">The engine is currently running at peak efficiency with sub-100ms latency.</p>
           </div>
           <button className={`w-full py-4 rounded-2xl text-[10px] font-black tracking-widest transition-all uppercase mt-12 ${
-            theme === "DARK" ? "bg-[#ccff00] text-stone-950 hover:opacity-90" : 
+            theme === "DARK" ? "bg-[#ccff00] text-black hover:opacity-90" : 
             theme === "VINTAGE" ? "bg-white text-black hover:bg-stone-50" :
             "bg-white text-[#4f6b28] hover:bg-stone-50"
           }`}>

@@ -132,7 +132,7 @@ export default function CompanyView({ theme, tenantId: tenantIdProp }: CompanyVi
             key={tab.id}
             onClick={() => setActiveTab(tab.id as any)}
             className={`flex items-center gap-2 px-6 py-3 rounded-xl text-[10px] font-black tracking-widest uppercase transition-all ${activeTab === tab.id
-                ? (isDark ? "bg-[#ccff00] text-stone-950 shadow-lg shadow-[#ccff00]/20" : "bg-white text-stone-950 shadow-sm")
+                ? (isDark ? "bg-[#ccff00] text-black shadow-lg shadow-[#ccff00]/20" : "bg-white text-stone-950 shadow-sm")
                 : (isDark ? "text-stone-300 hover:text-white" : "text-stone-950 hover:text-stone-900")
               }`}
           >
@@ -161,7 +161,7 @@ export default function CompanyView({ theme, tenantId: tenantIdProp }: CompanyVi
       {notification && (
         <div className="fixed bottom-12 left-1/2 -translate-x-1/2 z-50 animate-in slide-in-from-bottom-4">
           <div className={`px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-4 ${notification.type === "SUCCESS"
-              ? (isDark ? "bg-[#ccff00] text-stone-950" : "bg-stone-900 text-white")
+              ? (isDark ? "bg-[#ccff00] text-black" : "bg-stone-900 text-white")
               : "bg-red-500 text-white"
             }`}>
             <span className="material-symbols-outlined">
@@ -300,7 +300,7 @@ function InfoTab({ data, onSave, isSaving, theme }: any) {
         <button
           onClick={() => onSave(formData)}
           disabled={isSaving}
-          className={`px-12 py-5 rounded-2xl text-xs font-black tracking-[0.2em] uppercase transition-all ${isDark ? "bg-[#ccff00] text-stone-950 hover:scale-[1.02]" : "bg-stone-900 text-white hover:shadow-xl"
+          className={`px-12 py-5 rounded-2xl text-xs font-black tracking-[0.2em] uppercase transition-all ${isDark ? "bg-[#ccff00] text-black hover:scale-[1.02]" : "bg-stone-900 text-white hover:shadow-xl"
             }`}
         >
           {isSaving ? "Saving..." : "Save All Changes"}
@@ -447,7 +447,7 @@ function BrandingTab({ data, onSave, isSaving, theme, tenantId, isGlobalView }: 
         <button
           onClick={() => onSave(formData)}
           disabled={isSaving}
-          className={`px-12 py-5 rounded-2xl text-xs font-black tracking-[0.2em] uppercase transition-all ${isDark ? "bg-[#ccff00] text-stone-950 hover:scale-[1.02]" : "bg-stone-900 text-white hover:shadow-xl"
+          className={`px-12 py-5 rounded-2xl text-xs font-black tracking-[0.2em] uppercase transition-all ${isDark ? "bg-[#ccff00] text-black hover:scale-[1.02]" : "bg-stone-900 text-white hover:shadow-xl"
             }`}
         >
           {isSaving ? "Saving..." : "Apply Branding"}
@@ -624,7 +624,7 @@ function EmailTab({ data, onSave, isSaving, theme, tenantId, isGlobalView }: any
               <button
                 onClick={() => setFormData({ ...formData, delivery_method: "API" })}
                 className={`flex-1 py-3 px-4 rounded-xl text-[10px] font-black tracking-widest uppercase transition-all ${formData.delivery_method === "API"
-                    ? (isDark ? "bg-[#ccff00] text-stone-950 shadow-lg shadow-[#ccff00]/10" : "bg-white text-stone-900 shadow-sm")
+                    ? (isDark ? "bg-[#ccff00] text-black shadow-lg shadow-[#ccff00]/10" : "bg-white text-stone-900 shadow-sm")
                     : (isDark ? "text-stone-300 hover:text-white" : "text-stone-950 hover:text-stone-900")
                   }`}
               >
@@ -633,7 +633,7 @@ function EmailTab({ data, onSave, isSaving, theme, tenantId, isGlobalView }: any
               <button
                 onClick={() => setFormData({ ...formData, delivery_method: "SMTP" })}
                 className={`flex-1 py-3 px-4 rounded-xl text-[10px] font-black tracking-widest uppercase transition-all relative ${formData.delivery_method === "SMTP"
-                    ? (isDark ? "bg-[#ccff00] text-stone-950 shadow-lg shadow-[#ccff00]/10" : "bg-stone-900 text-white shadow-lg")
+                    ? (isDark ? "bg-[#ccff00] text-black shadow-lg shadow-[#ccff00]/10" : "bg-stone-900 text-white shadow-lg")
                     : (isDark ? "text-stone-300 hover:text-white" : "text-stone-950 hover:text-stone-900")
                   }`}
               >
@@ -854,7 +854,7 @@ function EmailTab({ data, onSave, isSaving, theme, tenantId, isGlobalView }: any
         <button
           onClick={() => onSave(formData)}
           disabled={isSaving}
-          className={`px-12 py-5 rounded-2xl text-xs font-black tracking-[0.2em] uppercase transition-all ${isDark ? "bg-[#ccff00] text-stone-950 hover:scale-[1.02]" : "bg-stone-900 text-white hover:shadow-xl shadow-stone-900/20"
+          className={`px-12 py-5 rounded-2xl text-xs font-black tracking-[0.2em] uppercase transition-all ${isDark ? "bg-[#ccff00] text-black hover:scale-[1.02]" : "bg-stone-900 text-white hover:shadow-xl shadow-stone-900/20"
             }`}
         >
           {isSaving ? "Saving..." : "Save Email Configuration"}
@@ -907,7 +907,7 @@ function PaymentTab({ data, onSave, isSaving, theme }: any) {
       <button
         onClick={() => onSave(formData)}
         disabled={isSaving}
-        className={`px-12 py-5 rounded-2xl text-xs font-black tracking-[0.2em] uppercase transition-all ${isDark ? "bg-[#ccff00] text-stone-950 hover:scale-[1.02]" : "bg-stone-900 text-white hover:shadow-xl"
+        className={`px-12 py-5 rounded-2xl text-xs font-black tracking-[0.2em] uppercase transition-all ${isDark ? "bg-[#ccff00] text-black hover:scale-[1.02]" : "bg-stone-900 text-white hover:shadow-xl"
           }`}
       >
         {isSaving ? "Saving..." : "Update Billing Info"}
@@ -1339,7 +1339,7 @@ function CourtTab({ data, onSave, isSaving, theme, dimensions, tenantId }: any) 
             <button
               onClick={handleSubmitCourt}
               disabled={!courtName.trim() || !courtCondition}
-              className={`px-8 py-4 rounded-2xl text-[10px] font-black tracking-[0.2em] uppercase transition-all disabled:opacity-40 ${isDark ? "bg-[#ccff00] text-stone-950" : "bg-stone-900 text-white"
+              className={`px-8 py-4 rounded-2xl text-[10px] font-black tracking-[0.2em] uppercase transition-all disabled:opacity-40 ${isDark ? "bg-[#ccff00] text-black" : "bg-stone-900 text-white"
                 }`}
             >
               {editingCourtId ? "Update Court" : "Add Court"}
@@ -1468,7 +1468,7 @@ function CourtTab({ data, onSave, isSaving, theme, dimensions, tenantId }: any) 
         <button
           onClick={handleSaveCourts}
           disabled={isSaving}
-          className={`px-12 py-5 rounded-2xl text-xs font-black tracking-[0.2em] uppercase transition-all ${isDark ? "bg-[#ccff00] text-stone-950 hover:scale-[1.02]" : "bg-stone-900 text-white hover:shadow-xl"
+          className={`px-12 py-5 rounded-2xl text-xs font-black tracking-[0.2em] uppercase transition-all ${isDark ? "bg-[#ccff00] text-black hover:scale-[1.02]" : "bg-stone-900 text-white hover:shadow-xl"
             }`}
         >
           {isSaving ? "Saving..." : (tenantId === "Global" ? "Save Default Court Configuration" : "Save Court Configuration")}
@@ -1553,7 +1553,7 @@ function DefaultCourtsTab({ theme, setNotification }: { theme: string; setNotifi
           }`}>
             <div className="space-y-6">
               <div className="flex items-center gap-3">
-                <div className={`w-8 h-8 rounded-xl flex items-center justify-center ${isDark ? "bg-[#ccff00] text-stone-950" : "bg-stone-900 text-white"}`}>
+                <div className={`w-8 h-8 rounded-xl flex items-center justify-center ${isDark ? "bg-[#ccff00] text-black" : "bg-stone-900 text-white"}`}>
                   <span className="material-symbols-outlined text-sm">add</span>
                 </div>
                 <h5 className={`text-[10px] font-black uppercase tracking-widest ${isDark ? "text-white" : "text-stone-900"}`}>Add New Court</h5>

@@ -527,7 +527,7 @@ function ScheduleSettings({ config, tenantId, theme, onClose }: any) {
       <button
         onClick={handleSave}
         disabled={isSaving}
-        className="w-full py-5 rounded-2xl bg-stone-900 text-white dark:bg-[#ccff00] dark:text-stone-950 text-[11px] font-black uppercase tracking-widest transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50"
+        className="w-full py-5 rounded-2xl bg-stone-900 text-white dark:bg-[#ccff00] dark:text-black text-[11px] font-black uppercase tracking-widest transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50"
       >
         {isSaving ? "Saving Policy..." : "Update Schedule Policy"}
       </button>

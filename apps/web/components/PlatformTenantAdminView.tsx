@@ -649,7 +649,7 @@ export default function PlatformTenantAdminView({ theme = "LIGHT" }: { theme?: "
               setShowNewModal(true);
             }}
             className={`px-8 py-3 rounded-full font-black text-xs tracking-widest transition-all uppercase shadow-lg flex items-center gap-2 ${theme === "DARK"
-                ? "bg-[#ccff00] text-stone-950 shadow-[#ccff00]/10 hover:opacity-90"
+                ? "bg-[#ccff00] text-black shadow-[#ccff00]/10 hover:opacity-90"
                 : theme === "VINTAGE"
                   ? "bg-black text-white shadow-black/10 hover:opacity-90"
                   : "bg-[#4f6b28] text-white shadow-[#4f6b28]/20 hover:opacity-90"
@@ -838,7 +838,7 @@ export default function PlatformTenantAdminView({ theme = "LIGHT" }: { theme?: "
         footer={
           <button
             onClick={() => setShowInviteSuccess(false)}
-            className={`w-full py-4 rounded-2xl text-[10px] font-black tracking-widest transition-all uppercase shadow-lg ${theme === "DARK" ? "bg-[#ccff00] text-stone-950" : "bg-black text-white"
+            className={`w-full py-4 rounded-2xl text-[10px] font-black tracking-widest transition-all uppercase shadow-lg ${theme === "DARK" ? "bg-[#ccff00] text-black" : "bg-black text-white"
               }`}
           >
             Done
@@ -908,7 +908,7 @@ export default function PlatformTenantAdminView({ theme = "LIGHT" }: { theme?: "
               onClick={handleSave}
               disabled={isSaving}
               className={`flex-1 py-4 rounded-2xl text-[10px] font-black tracking-widest transition-all uppercase shadow-lg flex items-center justify-center gap-3 ${isSaving ? "opacity-70 cursor-not-allowed" : "hover:opacity-90"
-                } ${theme === "DARK" ? "bg-[#ccff00] text-stone-950 shadow-[#ccff00]/20" :
+                } ${theme === "DARK" ? "bg-[#ccff00] text-black shadow-[#ccff00]/20" :
                   theme === "VINTAGE" ? "bg-black text-white shadow-black/20" :
                     "bg-[#4f6b28] text-white shadow-[#4f6b28]/20"
                 }`}
@@ -1095,7 +1095,7 @@ export default function PlatformTenantAdminView({ theme = "LIGHT" }: { theme?: "
       {notification && (
         <div className="fixed top-8 left-1/2 -translate-x-1/2 z-[9999] animate-in fade-in slide-in-from-top-4 duration-300">
           <div className={`px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-4 border ${notification.type === "SUCCESS"
-              ? (theme === "DARK" ? "bg-[#ccff00] text-stone-950 border-[#ccff00]" : "bg-green-600 text-white border-green-500")
+              ? (theme === "DARK" ? "bg-[#ccff00] text-black border-[#ccff00]" : "bg-green-600 text-white border-green-500")
               : notification.type === "ERROR"
                 ? "bg-red-600 text-white border-red-500"
                 : (theme === "DARK" ? "bg-stone-800 text-white border-stone-700" : "bg-white text-stone-900 border-stone-200")
