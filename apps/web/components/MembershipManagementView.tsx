@@ -28,6 +28,18 @@ const DEFAULT_PLANS: MembershipPlan[] = [
   { name: "PLATINUM", price: "299", popular: false, features: ["24/7 Access", "Personal Locker", "Free Stringing", "Pro Clinic Access"] }
 ];
 
+const PRESET_COLORS = [
+  { name: "Brand Green", value: "#4f6b28" },
+  { name: "Neon Lime", value: "#ccff00" },
+  { name: "Royal Gold", value: "#b8860b" },
+  { name: "Sleek Silver", value: "#8a9597" },
+  { name: "Charcoal Black", value: "#1c1917" },
+  { name: "Pure White", value: "#ffffff" },
+  { name: "Crimson Coral", value: "#e11d48" },
+  { name: "Midnight Navy", value: "#1e3a8a" },
+  { name: "Royal Violet", value: "#581c87" }
+];
+
 export default function MembershipManagementView({ theme, tenantId }: { theme: string; tenantId: string }) {
   const [plans, setPlans] = useState<MembershipPlan[]>(DEFAULT_PLANS);
   const [loading, setLoading] = useState(true);
@@ -376,6 +388,20 @@ export default function MembershipManagementView({ theme, tenantId }: { theme: s
                                 className="flex-1 bg-transparent border-none text-[11px] font-bold outline-none uppercase placeholder:text-stone-500 w-full"
                               />
                             </div>
+                            {/* Predefined Palette Swatches */}
+                            <div className="flex flex-wrap gap-1.5 pt-2 ml-1">
+                              {PRESET_COLORS.map((preset) => (
+                                <button
+                                  key={preset.name}
+                                  onClick={() => handleUpdatePlan(index, { bgColor: preset.value })}
+                                  className={`w-5 h-5 rounded-full border transition-all hover:scale-115 cursor-pointer ${
+                                    plan.bgColor === preset.value ? "ring-2 ring-primary scale-110" : "border-outline/15 hover:border-outline/30"
+                                  }`}
+                                  style={{ backgroundColor: preset.value }}
+                                  title={preset.name}
+                                />
+                              ))}
+                            </div>
                           </div>
 
                           <div className="space-y-2">
@@ -404,6 +430,20 @@ export default function MembershipManagementView({ theme, tenantId }: { theme: s
                                 onChange={(e) => handleUpdatePlan(index, { textColor: e.target.value })}
                                 className="flex-1 bg-transparent border-none text-[11px] font-bold outline-none uppercase placeholder:text-stone-500 w-full"
                               />
+                            </div>
+                            {/* Predefined Palette Swatches */}
+                            <div className="flex flex-wrap gap-1.5 pt-2 ml-1">
+                              {PRESET_COLORS.map((preset) => (
+                                <button
+                                  key={preset.name}
+                                  onClick={() => handleUpdatePlan(index, { textColor: preset.value })}
+                                  className={`w-5 h-5 rounded-full border transition-all hover:scale-115 cursor-pointer ${
+                                    plan.textColor === preset.value ? "ring-2 ring-primary scale-110" : "border-outline/15 hover:border-outline/30"
+                                  }`}
+                                  style={{ backgroundColor: preset.value }}
+                                  title={preset.name}
+                                />
+                              ))}
                             </div>
                           </div>
                         </div>
