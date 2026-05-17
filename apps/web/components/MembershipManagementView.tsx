@@ -454,7 +454,7 @@ export default function MembershipManagementView({ theme, tenantId }: { theme: s
                             {plan.name || "UNNAMED PLAN"}
                             {plan.popular && (
                               <span className="bg-[#ccff00] text-black text-[7px] font-black tracking-widest px-2 py-0.5 rounded-full uppercase">
-                                FEATURED
+                                MOST POPULAR
                               </span>
                             )}
                           </h4>
@@ -535,17 +535,32 @@ export default function MembershipManagementView({ theme, tenantId }: { theme: s
                         </div>
 
                         {/* Popular Toggles */}
-                        <div className="flex items-center justify-between p-4 rounded-2xl bg-surface/50 border border-outline/10">
+                        <div 
+                          className="flex items-center justify-between p-4 rounded-2xl bg-surface/50 border border-outline/10 cursor-pointer select-none hover:bg-surface/80 transition-colors"
+                          onClick={() => handleUpdatePlan(index, { popular: !plan.popular })}
+                        >
                           <div>
-                            <h5 className="text-[10px] font-black uppercase tracking-wider">Highlight Plan</h5>
-                            <p className="text-[8px] font-bold opacity-40 mt-0.5">Adds a highlighted badge and distinctive visual background styling.</p>
+                            <h5 className="text-[10px] font-black uppercase tracking-wider flex items-center gap-2">
+                              <span>"MOST POPULAR" Indicator</span>
+                              {plan.popular && (
+                                <span className="bg-[#ccff00] text-black text-[6px] font-black tracking-widest px-1.5 py-0.5 rounded-full uppercase">
+                                  Active
+                                </span>
+                              )}
+                            </h5>
+                            <p className="text-[8px] font-bold opacity-40 mt-0.5">Displays a prominent "MOST POPULAR" badge on the client dashboard and enhances visual styles.</p>
                           </div>
-                          <button
-                            onClick={() => handleUpdatePlan(index, { popular: !plan.popular })}
-                            className={`w-10 h-5 rounded-full transition-all relative ${plan.popular ? 'bg-primary' : 'bg-surface-container-highest'}`}
-                          >
-                            <div className={`absolute top-1 w-3 h-3 rounded-full bg-white transition-all ${plan.popular ? 'left-6' : 'left-1'}`}></div>
-                          </button>
+                          <div className="flex items-center">
+                            <div className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all ${
+                              plan.popular 
+                                ? "bg-primary border-primary text-white" 
+                                : "border-outline/30 hover:border-outline/60 bg-transparent"
+                            }`}>
+                              {plan.popular && (
+                                <span className="material-symbols-outlined text-sm font-black">check</span>
+                              )}
+                            </div>
+                          </div>
                         </div>
 
                         {/* Custom Color Controls */}
