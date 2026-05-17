@@ -350,13 +350,51 @@ export default function CourtBookingView({ theme, isAdmin, tenantId: tenantIdPro
     }
   };
 
+  const getFirstDayOfWeek = (d: Date) => {
+    const start = new Date(d);
+    start.setHours(0, 0, 0, 0);
+    const day = start.getDay();
+    const diff = start.getDate() - day + (day === 0 ? -6 : 1);
+    start.setDate(diff);
+    return start;
+  };
+
   const navHandlers = {
-    onPrevWeek: () => { const d = new Date(baseDate); d.setDate(d.getDate() - 7); setBaseDate(d); },
-    onNextWeek: () => { const d = new Date(baseDate); d.setDate(d.getDate() + 7); setBaseDate(d); },
-    onPrevMonth: () => { const d = new Date(baseDate); d.setMonth(d.getMonth() - 1); setBaseDate(d); },
-    onNextMonth: () => { const d = new Date(baseDate); d.setMonth(d.getMonth() + 1); setBaseDate(d); },
-    onToday: () => { const today = new Date(); setBaseDate(today); setSelectedDate(today); },
-    onJumpToMonth: (year: number, month: number) => setBaseDate(new Date(year, month, 1)),
+    onPrevWeek: () => { 
+      const d = new Date(baseDate); 
+      d.setDate(d.getDate() - 7); 
+      setBaseDate(d); 
+      setSelectedDate(getFirstDayOfWeek(d));
+    },
+    onNextWeek: () => { 
+      const d = new Date(baseDate); 
+      d.setDate(d.getDate() + 7); 
+      setBaseDate(d); 
+      setSelectedDate(getFirstDayOfWeek(d));
+    },
+    onPrevMonth: () => { 
+      const d = new Date(baseDate); 
+      d.setMonth(d.getMonth() - 1); 
+      setBaseDate(d); 
+      setSelectedDate(new Date(d.getFullYear(), d.getMonth(), 1));
+    },
+    onNextMonth: () => { 
+      const d = new Date(baseDate); 
+      d.setMonth(d.getMonth() + 1); 
+      setBaseDate(d); 
+      setSelectedDate(new Date(d.getFullYear(), d.getMonth(), 1));
+    },
+    onToday: () => { 
+      const today = new Date(); 
+      today.setHours(0, 0, 0, 0);
+      setBaseDate(today); 
+      setSelectedDate(today); 
+    },
+    onJumpToMonth: (year: number, month: number) => {
+      const d = new Date(year, month, 1);
+      setBaseDate(d);
+      setSelectedDate(d);
+    },
   };
 
   const times = useMemo(() => buildTimes(courts), [courts]);
