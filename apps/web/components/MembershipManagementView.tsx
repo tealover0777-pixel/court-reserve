@@ -9,6 +9,11 @@ import {
   setDoc
 } from "firebase/firestore";
 
+interface ThemeColors {
+  bgColor?: string;
+  textColor?: string;
+}
+
 interface MembershipPlan {
   name: string;
   price: string;
@@ -16,6 +21,11 @@ interface MembershipPlan {
   features: string[];
   bgColor?: string;
   textColor?: string;
+  themeColors?: {
+    LIGHT?: ThemeColors;
+    DARK?: ThemeColors;
+    VINTAGE?: ThemeColors;
+  };
 }
 
 interface MembershipsConfig {
@@ -102,6 +112,35 @@ export default function MembershipManagementView({ theme, tenantId }: { theme: s
       const target = updated[index];
       if (!target) return prev;
       updated[index] = { ...target, ...updatedFields };
+      return updated;
+    });
+  };
+
+  const handleUpdateThemeColor = (index: number, key: 'bgColor' | 'textColor', value: string) => {
+    setPlans(prev => {
+      const updated = [...prev];
+      const target = updated[index];
+      if (!target) return prev;
+      
+      const themeColors = { ...(target.themeColors || {}) };
+      const currentThemeOverride = { ...(themeColors[previewTheme] || {}) };
+      
+      if (value === "") {
+        delete currentThemeOverride[key];
+      } else {
+        currentThemeOverride[key] = value;
+      }
+      
+      if (Object.keys(currentThemeOverride).length === 0) {
+        delete themeColors[previewTheme];
+      } else {
+        themeColors[previewTheme] = currentThemeOverride;
+      }
+      
+      updated[index] = {
+        ...target,
+        themeColors
+      };
       return updated;
     });
   };
@@ -279,6 +318,9 @@ export default function MembershipManagementView({ theme, tenantId }: { theme: s
             <div className="space-y-4">
               {plans.map((plan, index) => {
                 const isActive = activePlanIdx === index;
+                const activeBgColor = plan.themeColors?.[previewTheme]?.bgColor || "";
+                const activeTextColor = plan.themeColors?.[previewTheme]?.textColor || "";
+                const activeThemeName = previewTheme === "LIGHT" ? "Kinetic" : previewTheme === "VINTAGE" ? "Light" : "Dark";
                 return (
                   <div
                     key={index}
@@ -371,10 +413,12 @@ export default function MembershipManagementView({ theme, tenantId }: { theme: s
                         <div className="grid grid-cols-2 gap-4 bg-surface/30 p-5 rounded-3xl border border-outline/10">
                           <div className="space-y-2">
                             <div className="flex items-center justify-between">
-                              <label className="text-[9px] font-black uppercase tracking-[0.2em] opacity-40 ml-1">Custom Background</label>
-                              {plan.bgColor && (
+                              <label className="text-[9px] font-black uppercase tracking-[0.2em] opacity-40 ml-1">
+                                Background ({activeThemeName})
+                              </label>
+                              {activeBgColor && (
                                 <button
-                                  onClick={() => handleUpdatePlan(index, { bgColor: "" })}
+                                  onClick={() => handleUpdateThemeColor(index, "bgColor", "")}
                                   className="text-[8px] font-black uppercase text-error hover:underline"
                                 >
                                   Reset
@@ -384,15 +428,15 @@ export default function MembershipManagementView({ theme, tenantId }: { theme: s
                             <div className="flex items-center gap-3 bg-surface p-2.5 rounded-2xl">
                               <input
                                 type="color"
-                                value={plan.bgColor || "#ffffff"}
-                                onChange={(e) => handleUpdatePlan(index, { bgColor: e.target.value })}
+                                value={activeBgColor || "#ffffff"}
+                                onChange={(e) => handleUpdateThemeColor(index, "bgColor", e.target.value)}
                                 className="w-8 h-8 rounded-xl border-0 cursor-pointer overflow-hidden bg-transparent"
                               />
                               <input
                                 type="text"
                                 placeholder="Auto Theme"
-                                value={plan.bgColor || ""}
-                                onChange={(e) => handleUpdatePlan(index, { bgColor: e.target.value })}
+                                value={activeBgColor || ""}
+                                onChange={(e) => handleUpdateThemeColor(index, "bgColor", e.target.value)}
                                 className="flex-1 bg-transparent border-none text-[11px] font-bold outline-none uppercase placeholder:text-stone-500 w-full"
                               />
                             </div>
@@ -401,9 +445,9 @@ export default function MembershipManagementView({ theme, tenantId }: { theme: s
                               {PRESET_COLORS.map((preset) => (
                                 <button
                                   key={preset.name}
-                                  onClick={() => handleUpdatePlan(index, { bgColor: preset.value })}
+                                  onClick={() => handleUpdateThemeColor(index, "bgColor", preset.value)}
                                   className={`w-5 h-5 rounded-full border transition-all hover:scale-115 cursor-pointer ${
-                                    plan.bgColor === preset.value ? "ring-2 ring-primary scale-110" : "border-outline/15 hover:border-outline/30"
+                                    activeBgColor === preset.value ? "ring-2 ring-primary scale-110" : "border-outline/15 hover:border-outline/30"
                                   }`}
                                   style={{ backgroundColor: preset.value }}
                                   title={preset.name}
@@ -414,10 +458,12 @@ export default function MembershipManagementView({ theme, tenantId }: { theme: s
 
                           <div className="space-y-2">
                             <div className="flex items-center justify-between">
-                              <label className="text-[9px] font-black uppercase tracking-[0.2em] opacity-40 ml-1">Custom Font Color</label>
-                              {plan.textColor && (
+                              <label className="text-[9px] font-black uppercase tracking-[0.2em] opacity-40 ml-1">
+                                Font Color ({activeThemeName})
+                              </label>
+                              {activeTextColor && (
                                 <button
-                                  onClick={() => handleUpdatePlan(index, { textColor: "" })}
+                                  onClick={() => handleUpdateThemeColor(index, "textColor", "")}
                                   className="text-[8px] font-black uppercase text-error hover:underline"
                                 >
                                   Reset
@@ -427,15 +473,15 @@ export default function MembershipManagementView({ theme, tenantId }: { theme: s
                             <div className="flex items-center gap-3 bg-surface p-2.5 rounded-2xl">
                               <input
                                 type="color"
-                                value={plan.textColor || "#000000"}
-                                onChange={(e) => handleUpdatePlan(index, { textColor: e.target.value })}
+                                value={activeTextColor || "#000000"}
+                                onChange={(e) => handleUpdateThemeColor(index, "textColor", e.target.value)}
                                 className="w-8 h-8 rounded-xl border-0 cursor-pointer overflow-hidden bg-transparent"
                               />
                               <input
                                 type="text"
                                 placeholder="Auto Theme"
-                                value={plan.textColor || ""}
-                                onChange={(e) => handleUpdatePlan(index, { textColor: e.target.value })}
+                                value={activeTextColor || ""}
+                                onChange={(e) => handleUpdateThemeColor(index, "textColor", e.target.value)}
                                 className="flex-1 bg-transparent border-none text-[11px] font-bold outline-none uppercase placeholder:text-stone-500 w-full"
                               />
                             </div>
@@ -444,9 +490,9 @@ export default function MembershipManagementView({ theme, tenantId }: { theme: s
                               {PRESET_COLORS.map((preset) => (
                                 <button
                                   key={preset.name}
-                                  onClick={() => handleUpdatePlan(index, { textColor: preset.value })}
+                                  onClick={() => handleUpdateThemeColor(index, "textColor", preset.value)}
                                   className={`w-5 h-5 rounded-full border transition-all hover:scale-115 cursor-pointer ${
-                                    plan.textColor === preset.value ? "ring-2 ring-primary scale-110" : "border-outline/15 hover:border-outline/30"
+                                    activeTextColor === preset.value ? "ring-2 ring-primary scale-110" : "border-outline/15 hover:border-outline/30"
                                   }`}
                                   style={{ backgroundColor: preset.value }}
                                   title={preset.name}
@@ -547,6 +593,8 @@ export default function MembershipManagementView({ theme, tenantId }: { theme: s
                   {plans.map((plan, i) => {
                     const cardStyle = getPreviewCardStyle(plan, previewTheme, i, plans.length);
                     const buttonStyle = getPreviewButtonStyle(plan, previewTheme);
+                    const customBgColor = plan.themeColors?.[previewTheme]?.bgColor || plan.bgColor;
+                    const customTextColor = plan.themeColors?.[previewTheme]?.textColor || plan.textColor;
                     
                     return (
                       <div
@@ -555,8 +603,8 @@ export default function MembershipManagementView({ theme, tenantId }: { theme: s
                           activePlanIdx === i ? "ring-2 ring-primary scale-[1.02]" : "opacity-85"
                         }`}
                         style={{
-                          backgroundColor: plan.bgColor || undefined,
-                          color: plan.textColor || undefined,
+                          backgroundColor: customBgColor || undefined,
+                          color: customTextColor || undefined,
                         }}
                       >
                         {plan.popular && (
@@ -584,15 +632,15 @@ export default function MembershipManagementView({ theme, tenantId }: { theme: s
                         <button
                           className={`mt-8 w-full py-4 rounded-xl text-[9px] font-black tracking-widest uppercase transition-all ${buttonStyle}`}
                           style={
-                            plan.textColor || plan.bgColor
+                            customTextColor || customBgColor
                               ? plan.popular
                                 ? {
-                                    backgroundColor: plan.textColor || undefined,
-                                    color: plan.bgColor || undefined,
+                                    backgroundColor: customTextColor || undefined,
+                                    color: customBgColor || undefined,
                                   }
                                 : {
-                                    borderColor: plan.textColor || undefined,
-                                    color: plan.textColor || undefined,
+                                    borderColor: customTextColor || undefined,
+                                    color: customTextColor || undefined,
                                   }
                               : undefined
                           }

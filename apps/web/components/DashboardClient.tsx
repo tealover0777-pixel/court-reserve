@@ -1958,13 +1958,15 @@ function MembershipView({ theme, tenantId }: { theme: "LIGHT" | "DARK" | "VINTAG
         {plans.map((plan, i) => {
           const cardColor = getCardColor(plan, i, plans.length);
           const buttonColor = getButtonColor(plan);
+          const customBgColor = plan.themeColors?.[theme]?.bgColor || plan.bgColor;
+          const customTextColor = plan.themeColors?.[theme]?.textColor || plan.textColor;
           return (
             <div
               key={i}
               className={`${cardColor} rounded-[40px] p-12 shadow-2xl relative flex flex-col transition-all hover:scale-105 duration-300`}
               style={{
-                backgroundColor: plan.bgColor || undefined,
-                color: plan.textColor || undefined,
+                backgroundColor: customBgColor || undefined,
+                color: customTextColor || undefined,
               }}
             >
               {plan.popular && (
@@ -1991,15 +1993,15 @@ function MembershipView({ theme, tenantId }: { theme: "LIGHT" | "DARK" | "VINTAG
               <button
                 className={`mt-12 w-full py-5 rounded-2xl text-[10px] font-black tracking-widest transition-all uppercase ${buttonColor}`}
                 style={
-                  plan.textColor || plan.bgColor
+                  customTextColor || customBgColor
                     ? plan.popular
                       ? {
-                          backgroundColor: plan.textColor || undefined,
-                          color: plan.bgColor || undefined,
+                          backgroundColor: customTextColor || undefined,
+                          color: customBgColor || undefined,
                         }
                       : {
-                          borderColor: plan.textColor || undefined,
-                          color: plan.textColor || undefined,
+                          borderColor: customTextColor || undefined,
+                          color: customTextColor || undefined,
                         }
                     : undefined
                 }
