@@ -734,7 +734,7 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
         }`}>{info.getValue() || "—"}</span>,
     }),
     ...(tenantId && tenantId !== "consolidated" ? [] : [columnHelper.accessor("tenant_id", {
-      header: "TENANT",
+      header: "COMPANY NAME",
       size: 160,
       cell: info => {
         const tid = info.getValue();
