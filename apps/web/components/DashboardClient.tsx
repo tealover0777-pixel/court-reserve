@@ -1104,7 +1104,7 @@ function StatCard({ label, value, trend, icon, theme, active = false, variant }:
   const isPale = variant === 'primary' || variant === 'default';
 
   const bgCls = theme === "DARK"
-    ? (isYellow ? "bg-[#fcd34d]" : "bg-stone-800") 
+    ? (isYellow ? "bg-[#fcd34d]" : variant === 'primary' ? "bg-stone-900" : "bg-stone-800") 
     : (isYellow ? "bg-[#fce138]" : isPale ? "bg-[#eefa9a]" : "bg-surface-container-low");
 
   const textCls = theme === "DARK"
