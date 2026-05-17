@@ -921,7 +921,7 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
               placeholder="Search members..."
               className={`w-full border rounded-full pl-12 pr-6 py-3 text-sm font-medium outline-none transition-all shadow-sm ${
                 theme === "DARK" 
-                  ? "bg-stone-900 border-stone-800 text-white focus:border-[#ccff00] placeholder:text-stone-500" 
+                  ? "bg-stone-100 border-stone-200 text-white focus:border-[#ccff00] placeholder:text-stone-500" 
                   : theme === "VINTAGE"
                     ? "bg-white border-stone-100 text-black focus:border-black shadow-md placeholder:text-stone-400"
                     : "bg-white border-stone-200 text-stone-900 focus:border-[#4f6b28] placeholder:text-stone-500"
@@ -1006,7 +1006,7 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
                   key={row.id} 
                   className={`border-b transition-colors group ${
                     theme === "DARK" 
-                      ? (i % 2 !== 0 ? 'bg-stone-900/40 border-stone-800' : 'bg-stone-950 border-stone-800 hover:bg-stone-900/60') 
+                      ? (i % 2 !== 0 ? 'bg-stone-100/40 border-stone-200' : 'bg-stone-50 border-stone-200 hover:bg-stone-100/60') 
                       : theme === "VINTAGE"
                         ? (i % 2 !== 0 ? 'bg-[#f7f9fb]/50 border-stone-100' : 'bg-white border-stone-100 hover:bg-[#f7f9fb]/80')
                         : (i % 2 !== 0 ? 'bg-stone-50/50 border-stone-900' : 'bg-white border-stone-900 hover:bg-stone-50')
@@ -2144,7 +2144,7 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
                 }}
                 className={`group relative aspect-square rounded-[32px] overflow-hidden border-4 transition-all hover:scale-105 active:scale-95 ${
                   theme === "DARK" 
-                    ? "border-stone-900 bg-stone-900 hover:border-[#ccff00]" 
+                    ? "border-stone-100 bg-stone-100 hover:border-[#ccff00]" 
                     : "border-white bg-white hover:border-[#4f6b28] shadow-md hover:shadow-xl"
                 } ${formData.portrait_url === portrait.url ? (theme === "DARK" ? "border-[#ccff00]" : "border-[#4f6b28]") : ""}`}
               >

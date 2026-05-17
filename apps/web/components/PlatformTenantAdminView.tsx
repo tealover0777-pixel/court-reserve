@@ -634,7 +634,7 @@ export default function PlatformTenantAdminView({ theme = "LIGHT" }: { theme?: "
               type="text"
               placeholder="Search tenants..."
               className={`w-full border rounded-full pl-12 pr-6 py-3 text-sm font-medium outline-none transition-all shadow-sm ${theme === "DARK"
-                  ? "bg-stone-900 border-stone-800 text-white focus:border-[#ccff00]"
+                  ? "bg-stone-100 border-stone-200 text-white focus:border-[#ccff00]"
                   : theme === "VINTAGE"
                     ? "bg-white border-stone-100 text-black focus:border-stone-400 shadow-md"
                     : "bg-white border-stone-200 text-stone-900 focus:border-[#4f6b28]"
@@ -731,7 +731,7 @@ export default function PlatformTenantAdminView({ theme = "LIGHT" }: { theme?: "
                 <tr
                   key={row.id}
                   className={`border-b transition-colors group ${theme === "DARK"
-                      ? (i % 2 !== 0 ? 'bg-stone-900/40 border-stone-800' : 'bg-stone-950 border-stone-800 hover:bg-stone-900/60')
+                      ? (i % 2 !== 0 ? 'bg-stone-100/40 border-stone-200' : 'bg-stone-50 border-stone-200 hover:bg-stone-100/60')
                       : theme === "VINTAGE"
                         ? (i % 2 !== 0 ? 'bg-[#f7f9fb]/50 border-stone-100' : 'bg-white border-stone-100 hover:bg-[#f7f9fb]/80')
                         : (i % 2 !== 0 ? 'bg-stone-50/50 border-stone-900' : 'bg-white border-stone-900 hover:bg-stone-50')
@@ -1011,7 +1011,7 @@ export default function PlatformTenantAdminView({ theme = "LIGHT" }: { theme?: "
               readOnly={!!editingTenantId}
               placeholder="e.g. U10001"
               className={`w-full border rounded-2xl px-6 py-4 text-sm font-bold placeholder:text-stone-200 outline-none transition-colors ${theme === "DARK"
-                  ? (editingTenantId ? "bg-stone-900 text-stone-500 border-stone-800" : "bg-stone-950 text-white border-stone-800 focus:border-[#ccff00]")
+                  ? (editingTenantId ? "bg-stone-100 text-stone-500 border-stone-200" : "bg-stone-50 text-white border-stone-200 focus:border-[#ccff00]")
                   : (editingTenantId ? "bg-stone-50 text-stone-400 border-stone-100" : "bg-white text-stone-900 border-stone-200 focus:border-stone-400")
                 }`}
             />
@@ -1125,7 +1125,7 @@ function FormField({ label, children, theme }: { label: string; children: React.
 }
 
 const inputClasses = (theme: string) => `w-full border-none rounded-2xl px-6 py-4 text-sm font-bold placeholder:text-stone-200 outline-none transition-colors ${theme === "DARK"
-    ? "bg-stone-900 text-white focus:ring-2 focus:ring-[#ccff00]"
+    ? "bg-stone-100 text-white focus:ring-2 focus:ring-[#ccff00]"
     : theme === "VINTAGE"
       ? "bg-[#f7f9fb] text-black focus:ring-2 focus:ring-black"
       : "bg-stone-50 text-stone-900 focus:ring-2 focus:ring-[#4f6b28]"

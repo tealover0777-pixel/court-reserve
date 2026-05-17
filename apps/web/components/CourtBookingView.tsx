@@ -577,7 +577,7 @@ function BookingForm({
 
   const inputCls = `w-full border rounded-2xl px-4 py-3 text-sm font-bold outline-none transition-all ${
     isDark
-      ? "bg-stone-900 border-stone-800 text-white focus:border-[#00E5FF]"
+      ? "bg-stone-100 border-stone-200 text-white focus:border-[#00E5FF]"
       : "bg-stone-50 border-stone-100 text-stone-900 focus:border-stone-400"
   }`;
   const labelCls = `text-[9px] font-black uppercase tracking-widest mb-2 block ${isDark ? "text-white" : "text-stone-950"}`;
@@ -837,7 +837,7 @@ function MonthView({ baseDate, selectedDate, allUserBookings, theme, onDayClick,
                         idx === month && pickerYear === year
                           ? accentBg
                           : isDark
-                          ? "text-stone-300 hover:bg-stone-900 hover:text-white"
+                          ? "text-stone-300 hover:bg-stone-100 hover:text-white"
                           : "text-stone-950 hover:bg-stone-50 hover:text-stone-950"
                       }`}
                     >
@@ -883,7 +883,7 @@ function MonthView({ baseDate, selectedDate, allUserBookings, theme, onDayClick,
               ? accentBg + " shadow-lg"
               : isCurrentMonth
               ? isDark
-                ? "bg-stone-900/40 hover:bg-stone-900"
+                ? "bg-stone-100/40 hover:bg-stone-100"
                 : "bg-stone-50 hover:bg-stone-100"
               : isDark
               ? "bg-stone-950/50 opacity-40"
@@ -1135,7 +1135,7 @@ function ScheduleNavigation({
                           isCurrent
                             ? accentBg
                             : isDark
-                            ? "text-white hover:bg-stone-900 hover:text-[#00E5FF]"
+                            ? "text-white hover:bg-stone-100 hover:text-[#00E5FF]"
                             : "text-stone-950 hover:bg-stone-50 hover:text-stone-900"
                         }`}
                       >

@@ -356,7 +356,7 @@ export default function RoleTypesView({ theme = "LIGHT", userRoleId, readOnly = 
               placeholder="Search roles..."
               className={`w-full border rounded-full pl-12 pr-6 py-3 text-sm font-medium outline-none transition-all shadow-sm ${
                 theme === "DARK" 
-                  ? "bg-stone-900 border-stone-800 text-white focus:border-[#ccff00]" 
+                  ? "bg-stone-100 border-stone-200 text-white focus:border-[#ccff00]" 
                   : theme === "VINTAGE"
                     ? "bg-white border-stone-100 text-black focus:border-black shadow-md"
                     : "bg-white border-stone-200 text-stone-900 focus:border-[#4f6b28]"
@@ -466,7 +466,7 @@ export default function RoleTypesView({ theme = "LIGHT", userRoleId, readOnly = 
                   key={row.id} 
                   className={`border-b transition-colors group ${
                     theme === "DARK" 
-                      ? (i % 2 !== 0 ? 'bg-stone-900/40 border-stone-800' : 'bg-stone-950 border-stone-800 hover:bg-stone-900/60') 
+                      ? (i % 2 !== 0 ? 'bg-stone-100/40 border-stone-200' : 'bg-stone-50 border-stone-200 hover:bg-stone-100/60') 
                       : theme === "VINTAGE"
                         ? (i % 2 !== 0 ? 'bg-[#f7f9fb]/50 border-stone-100' : 'bg-white border-stone-100 hover:bg-[#f7f9fb]/80')
                         : (i % 2 !== 0 ? 'bg-stone-50/50 border-stone-900' : 'bg-white border-stone-900 hover:bg-stone-50')
@@ -555,7 +555,7 @@ export default function RoleTypesView({ theme = "LIGHT", userRoleId, readOnly = 
               placeholder="e.g. Club Manager, Instructor..."
               className={`w-full border-none rounded-2xl px-6 py-4 text-sm font-bold placeholder:text-stone-400 outline-none transition-colors ${
                 theme === "DARK" 
-                  ? "bg-stone-900 text-white focus:ring-2 focus:ring-[#ccff00]" 
+                  ? "bg-stone-100 text-white focus:ring-2 focus:ring-[#ccff00]" 
                   : theme === "VINTAGE"
                     ? "bg-[#f7f9fb] text-black focus:ring-2 focus:ring-black"
                     : "bg-stone-100 text-stone-900 focus:ring-2 focus:ring-[#4f6b28]"
@@ -591,7 +591,7 @@ export default function RoleTypesView({ theme = "LIGHT", userRoleId, readOnly = 
             value=""
             className={`w-full border-none rounded-2xl px-6 py-4 text-sm font-bold outline-none transition-colors appearance-none cursor-pointer ${
               theme === "DARK" 
-                ? "bg-stone-900 text-white focus:ring-2 focus:ring-[#ccff00]" 
+                ? "bg-stone-100 text-white focus:ring-2 focus:ring-[#ccff00]" 
                 : theme === "VINTAGE"
                   ? "bg-[#f7f9fb] text-black focus:ring-2 focus:ring-black shadow-sm"
                   : "bg-stone-100 text-stone-900 focus:ring-2 focus:ring-[#4f6b28]"

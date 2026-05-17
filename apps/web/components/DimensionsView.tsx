@@ -355,7 +355,7 @@ export default function DimensionsView({ theme = "LIGHT" }: { theme?: "LIGHT" | 
             onClick={() => setShowPermsModal(true)}
             className={`px-8 py-3 rounded-full font-black text-xs tracking-widest transition-all uppercase border-2 flex items-center gap-2 ${
               theme === "DARK" 
-                ? "border-stone-800 text-stone-300 hover:bg-stone-900" 
+                ? "border-stone-200 text-stone-300 hover:bg-stone-100" 
                 : theme === "VINTAGE"
                   ? "border-stone-100 text-black hover:bg-stone-50"
                   : "border-stone-200 text-stone-900 hover:bg-stone-50"
@@ -427,7 +427,7 @@ export default function DimensionsView({ theme = "LIGHT" }: { theme?: "LIGHT" | 
                     key={row.id} 
                     className={`border-b transition-colors group ${
                       theme === "DARK" 
-                        ? (i % 2 !== 0 ? 'bg-stone-900/40 border-stone-800' : 'bg-stone-950 border-stone-800 hover:bg-stone-900/60') 
+                        ? (i % 2 !== 0 ? 'bg-stone-100/40 border-stone-200' : 'bg-stone-50 border-stone-200 hover:bg-stone-100/60') 
                         : theme === "VINTAGE"
                           ? (i % 2 !== 0 ? 'bg-[#f7f9fb]/50 border-stone-100' : 'bg-white border-stone-100 hover:bg-[#f7f9fb]/80')
                           : (i % 2 !== 0 ? 'bg-stone-50/50 border-stone-900' : 'bg-white border-stone-900 hover:bg-stone-50')
@@ -500,7 +500,7 @@ export default function DimensionsView({ theme = "LIGHT" }: { theme?: "LIGHT" | 
               placeholder="Add new value..."
               className={`flex-1 border rounded-xl px-5 py-3 text-sm font-medium outline-none transition-all ${
                 theme === "DARK" 
-                  ? "bg-stone-900 border-stone-800 text-white focus:border-[#ccff00]" 
+                  ? "bg-stone-100 border-stone-200 text-white focus:border-[#ccff00]" 
                   : theme === "VINTAGE"
                     ? "bg-[#f7f9fb] border-transparent text-black focus:border-stone-200"
                     : "bg-white border-stone-300 text-stone-900 focus:border-[#4f6b28]"
@@ -563,7 +563,7 @@ export default function DimensionsView({ theme = "LIGHT" }: { theme?: "LIGHT" | 
               placeholder="e.g. Skill Level, Membership Type..."
               className={`w-full border-none rounded-2xl px-6 py-4 text-sm font-bold placeholder:text-stone-300 outline-none transition-colors ${
                 theme === "DARK" 
-                  ? "bg-stone-900 text-white focus:ring-2 focus:ring-[#ccff00]" 
+                  ? "bg-stone-100 text-white focus:ring-2 focus:ring-[#ccff00]" 
                   : theme === "VINTAGE"
                     ? "bg-[#f7f9fb] text-black focus:ring-2 focus:ring-black"
                     : "bg-stone-50 text-stone-900 focus:ring-2 focus:ring-[#4f6b28]"
@@ -582,7 +582,7 @@ export default function DimensionsView({ theme = "LIGHT" }: { theme?: "LIGHT" | 
               rows={4}
               className={`w-full border-none rounded-2xl px-6 py-4 text-sm font-bold placeholder:text-stone-400 outline-none resize-none transition-colors ${
                 theme === "DARK" 
-                  ? "bg-stone-900 text-white focus:ring-2 focus:ring-[#ccff00]" 
+                  ? "bg-stone-100 text-white focus:ring-2 focus:ring-[#ccff00]" 
                   : theme === "VINTAGE"
                     ? "bg-[#f7f9fb] text-black focus:ring-2 focus:ring-black"
                     : "bg-stone-100 text-stone-900 focus:ring-2 focus:ring-[#4f6b28]"
