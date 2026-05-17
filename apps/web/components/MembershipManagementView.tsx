@@ -56,9 +56,9 @@ const DEFAULT_PLANS: MembershipPlan[] = [
     bgColor: "#ffffff",
     textColor: "#000000",
     themeColors: {
-      LIGHT: { bgColor: "#ffffff", textColor: "#000000" },
-      DARK: { bgColor: "#ffffff", textColor: "#000000" },
-      VINTAGE: { bgColor: "#ffffff", textColor: "#000000" }
+      LIGHT: { bgColor: "#e2e3e4", textColor: "#000000" },
+      DARK: { bgColor: "#e2e3e4", textColor: "#000000" },
+      VINTAGE: { bgColor: "#e2e3e4", textColor: "#000000" }
     }
   },
   {
@@ -111,7 +111,7 @@ export default function MembershipManagementView({ theme, tenantId }: { theme: s
   const [previewTheme, setPreviewTheme] = useState<"LIGHT" | "DARK" | "VINTAGE">(
     theme === "DARK" || theme === "VINTAGE" || theme === "LIGHT" ? (theme as any) : "LIGHT"
   );
-  
+
   // Custom Names editor state
   const [newCustomName, setNewCustomName] = useState("");
   const [editingCustomNameIdx, setEditingCustomNameIdx] = useState<number | null>(null);
@@ -198,7 +198,7 @@ export default function MembershipManagementView({ theme, tenantId }: { theme: s
       let updated = [...prev];
       const target = updated[index];
       if (!target) return prev;
-      
+
       if (updatedFields.popular === true) {
         updated = updated.map((plan, idx) => {
           if (idx === index) {
@@ -227,12 +227,12 @@ export default function MembershipManagementView({ theme, tenantId }: { theme: s
   const handleAddCustomName = () => {
     const name = newCustomName.trim().toUpperCase();
     if (!name) return;
-    
+
     if (globalMembershipOptions.includes(name) || customNames.includes(name)) {
       showNotification("This membership name already exists!", "error");
       return;
     }
-    
+
     setCustomNames(prev => [...prev, name]);
     setNewCustomName("");
     showNotification("Custom membership name added!");
@@ -241,12 +241,12 @@ export default function MembershipManagementView({ theme, tenantId }: { theme: s
   const handleUpdateCustomName = (index: number, newVal: string) => {
     const uppercaseVal = newVal.trim().toUpperCase();
     if (!uppercaseVal) return;
-    
+
     setCustomNames(prev => {
       const oldVal = prev[index];
       const updated = [...prev];
       updated[index] = uppercaseVal;
-      
+
       // Keep any active plans that were using the old custom name in sync
       if (oldVal) {
         setPlans(prevPlans => prevPlans.map(plan => {
@@ -256,7 +256,7 @@ export default function MembershipManagementView({ theme, tenantId }: { theme: s
           return plan;
         }));
       }
-      
+
       return updated;
     });
     setEditingCustomNameIdx(null);
@@ -273,22 +273,22 @@ export default function MembershipManagementView({ theme, tenantId }: { theme: s
       const updated = [...prev];
       const target = updated[index];
       if (!target) return prev;
-      
+
       const themeColors = { ...(target.themeColors || {}) };
       const currentThemeOverride = { ...(themeColors[previewTheme] || {}) };
-      
+
       if (value === "") {
         delete currentThemeOverride[key];
       } else {
         currentThemeOverride[key] = value;
       }
-      
+
       if (Object.keys(currentThemeOverride).length === 0) {
         delete themeColors[previewTheme];
       } else {
         themeColors[previewTheme] = currentThemeOverride;
       }
-      
+
       updated[index] = {
         ...target,
         themeColors
@@ -400,7 +400,7 @@ export default function MembershipManagementView({ theme, tenantId }: { theme: s
           ? "bg-black text-white"
           : "bg-[#b8860b] text-white shadow-xl shadow-[#b8860b]/20";
     }
-    
+
     if (index === total - 1 && total > 1) {
       return isDark
         ? "bg-stone-50 text-white border border-stone-200"
@@ -512,19 +512,17 @@ export default function MembershipManagementView({ theme, tenantId }: { theme: s
                 return (
                   <div
                     key={index}
-                    className={`rounded-3xl border transition-all duration-300 ${
-                      isActive
+                    className={`rounded-3xl border transition-all duration-300 ${isActive
                         ? "bg-surface-container border-primary/40 ring-1 ring-primary/40 p-6"
                         : "bg-surface-container-low border-outline/10 p-5 hover:bg-surface-container hover:border-outline/30 cursor-pointer"
-                    }`}
+                      }`}
                     onClick={() => !isActive && setActivePlanIdx(index)}
                   >
                     {/* Collapsed view header */}
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-4 flex-1">
-                        <div className={`w-10 h-10 rounded-2xl flex items-center justify-center font-bold text-xs ${
-                          plan.popular ? "bg-[#ccff00]/15 text-[#ccff00]" : "bg-primary/10 text-primary"
-                        }`}>
+                        <div className={`w-10 h-10 rounded-2xl flex items-center justify-center font-bold text-xs ${plan.popular ? "bg-[#ccff00]/15 text-[#ccff00]" : "bg-primary/10 text-primary"
+                          }`}>
                           {plan.name ? plan.name.charAt(0) : "N"}
                         </div>
                         <div>
@@ -613,7 +611,7 @@ export default function MembershipManagementView({ theme, tenantId }: { theme: s
                         </div>
 
                         {/* Popular Toggles */}
-                        <div 
+                        <div
                           className="flex items-center justify-between p-4 rounded-2xl bg-surface/50 border border-outline/10 cursor-pointer select-none hover:bg-surface/80 transition-colors"
                           onClick={() => handleUpdatePlan(index, { popular: !plan.popular })}
                         >
@@ -629,11 +627,10 @@ export default function MembershipManagementView({ theme, tenantId }: { theme: s
                             <p className="text-[8px] font-bold opacity-40 mt-0.5">Displays a prominent "MOST POPULAR" badge on the client dashboard and enhances visual styles.</p>
                           </div>
                           <div className="flex items-center">
-                            <div className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all ${
-                              plan.popular 
-                                ? "bg-primary border-primary text-white" 
+                            <div className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all ${plan.popular
+                                ? "bg-primary border-primary text-white"
                                 : "border-outline/30 hover:border-outline/60 bg-transparent"
-                            }`}>
+                              }`}>
                               {plan.popular && (
                                 <span className="material-symbols-outlined text-sm font-black">check</span>
                               )}
@@ -678,9 +675,8 @@ export default function MembershipManagementView({ theme, tenantId }: { theme: s
                                 <button
                                   key={preset.name}
                                   onClick={() => handleUpdateThemeColor(index, "bgColor", preset.value)}
-                                  className={`w-5 h-5 rounded-full border transition-all hover:scale-115 cursor-pointer ${
-                                    activeBgColor === preset.value ? "ring-2 ring-primary scale-110" : "border-outline/15 hover:border-outline/30"
-                                  }`}
+                                  className={`w-5 h-5 rounded-full border transition-all hover:scale-115 cursor-pointer ${activeBgColor === preset.value ? "ring-2 ring-primary scale-110" : "border-outline/15 hover:border-outline/30"
+                                    }`}
                                   style={{ backgroundColor: preset.value }}
                                   title={preset.name}
                                 />
@@ -723,9 +719,8 @@ export default function MembershipManagementView({ theme, tenantId }: { theme: s
                                 <button
                                   key={preset.name}
                                   onClick={() => handleUpdateThemeColor(index, "textColor", preset.value)}
-                                  className={`w-5 h-5 rounded-full border transition-all hover:scale-115 cursor-pointer ${
-                                    activeTextColor === preset.value ? "ring-2 ring-primary scale-110" : "border-outline/15 hover:border-outline/30"
-                                  }`}
+                                  className={`w-5 h-5 rounded-full border transition-all hover:scale-115 cursor-pointer ${activeTextColor === preset.value ? "ring-2 ring-primary scale-110" : "border-outline/15 hover:border-outline/30"
+                                    }`}
                                   style={{ backgroundColor: preset.value }}
                                   title={preset.name}
                                 />
@@ -915,11 +910,10 @@ export default function MembershipManagementView({ theme, tenantId }: { theme: s
                     <button
                       key={t}
                       onClick={() => setPreviewTheme(t)}
-                      className={`px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${
-                        previewTheme === t
+                      className={`px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${previewTheme === t
                           ? "bg-primary text-on-primary shadow-md"
                           : "text-on-surface-variant hover:bg-surface-container-high"
-                      }`}
+                        }`}
                     >
                       {label}
                     </button>
@@ -929,15 +923,13 @@ export default function MembershipManagementView({ theme, tenantId }: { theme: s
             </div>
 
             {/* Simulated Device Screen Container */}
-            <div className={`flex-1 rounded-[2rem] p-8 transition-colors duration-500 overflow-y-auto min-h-[450px] flex flex-col justify-center theme-${previewTheme.toLowerCase()} bg-background text-on-background ${
-              previewTheme === "DARK"
+            <div className={`flex-1 rounded-[2rem] p-8 transition-colors duration-500 overflow-y-auto min-h-[450px] flex flex-col justify-center theme-${previewTheme.toLowerCase()} bg-background text-on-background ${previewTheme === "DARK"
                 ? "border border-stone-800"
                 : "border border-outline/10"
-            }`}>
+              }`}>
               <div className="space-y-8 max-w-md mx-auto w-full animate-in fade-in duration-300">
-                <h4 className={`text-2xl font-black tracking-tighter uppercase text-center ${
-                  previewTheme === "LIGHT" ? "text-[#4f6b28]" : "text-on-background"
-                }`} style={{ fontFamily: 'Lexend, sans-serif' }}>
+                <h4 className={`text-2xl font-black tracking-tighter uppercase text-center ${previewTheme === "LIGHT" ? "text-[#4f6b28]" : "text-on-background"
+                  }`} style={{ fontFamily: 'Lexend, sans-serif' }}>
                   MEMBERSHIP PLANS
                 </h4>
 
@@ -947,22 +939,20 @@ export default function MembershipManagementView({ theme, tenantId }: { theme: s
                     const buttonStyle = getPreviewButtonStyle(plan, previewTheme);
                     const customBgColor = plan.themeColors?.[previewTheme]?.bgColor || plan.bgColor;
                     const customTextColor = plan.themeColors?.[previewTheme]?.textColor || plan.textColor;
-                    
+
                     return (
                       <div
                         key={i}
-                        className={`${cardStyle} rounded-[30px] p-8 shadow-lg relative flex flex-col transition-all duration-300 ${
-                          activePlanIdx === i ? "ring-2 ring-primary scale-[1.02]" : "opacity-85"
-                        }`}
+                        className={`${cardStyle} rounded-[30px] p-8 shadow-lg relative flex flex-col transition-all duration-300 ${activePlanIdx === i ? "ring-2 ring-primary scale-[1.02]" : "opacity-85"
+                          }`}
                         style={{
                           backgroundColor: customBgColor || undefined,
                           color: customTextColor || undefined,
                         }}
                       >
                         {plan.popular && (
-                          <div className={`absolute -top-3.5 left-8 px-4 py-1.5 text-[8px] font-black tracking-[0.2em] rounded-full shadow transition-colors ${
-                            previewTheme === "DARK" ? "bg-white text-black" : previewTheme === "LIGHT" ? "bg-[#ccff00] text-black" : "bg-stone-900 text-white"
-                          }`}>
+                          <div className={`absolute -top-3.5 left-8 px-4 py-1.5 text-[8px] font-black tracking-[0.2em] rounded-full shadow transition-colors ${previewTheme === "DARK" ? "bg-white text-black" : previewTheme === "LIGHT" ? "bg-[#ccff00] text-black" : "bg-stone-900 text-white"
+                            }`}>
                             MOST POPULAR
                           </div>
                         )}
@@ -987,13 +977,13 @@ export default function MembershipManagementView({ theme, tenantId }: { theme: s
                             customTextColor || customBgColor
                               ? plan.popular
                                 ? {
-                                    backgroundColor: customTextColor || undefined,
-                                    color: customBgColor || undefined,
-                                  }
+                                  backgroundColor: customTextColor || undefined,
+                                  color: customBgColor || undefined,
+                                }
                                 : {
-                                    borderColor: customTextColor || undefined,
-                                    color: customTextColor || undefined,
-                                  }
+                                  borderColor: customTextColor || undefined,
+                                  color: customTextColor || undefined,
+                                }
                               : undefined
                           }
                         >
