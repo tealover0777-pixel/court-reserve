@@ -41,6 +41,7 @@ interface User {
   availability_to?: string;
   availability_enabled?: boolean;
   is_global?: boolean;
+  membership?: string;
 }
 
 const US_STATES = [
@@ -102,7 +103,8 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
     availability: {} as Record<string, string[]>,
     availability_from: "",
     availability_to: "",
-    availability_enabled: false
+    availability_enabled: false,
+    membership: "FREE"
   });
   const [isUploadingPortrait, setIsUploadingPortrait] = useState(false);
   const [showPortraitSelectorModal, setShowPortraitSelectorModal] = useState(false);
@@ -324,7 +326,8 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
       availability: user.availability || {},
       availability_from: user.availability_from || "",
       availability_to: user.availability_to || "",
-      availability_enabled: user.availability_enabled || false
+      availability_enabled: user.availability_enabled || false,
+      membership: user.membership || "FREE"
     });
     setShowEditModal(true);
   };
@@ -463,6 +466,7 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
         availability_from: formData.availability_from,
         availability_to: formData.availability_to,
         availability_enabled: formData.availability_enabled,
+        membership: formData.membership || "FREE",
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString()
       };
@@ -602,7 +606,8 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
       availability: {},
       availability_from: "",
       availability_to: "",
-      availability_enabled: false
+      availability_enabled: false,
+      membership: "FREE"
     });
   };
 
@@ -751,7 +756,44 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
             })}
           </div>
         );
-      },
+      }
+    }),
+    columnHelper.accessor("membership", {
+      header: "MEMBERSHIP",
+      size: 150,
+      cell: info => {
+        const raw = info.getValue() || "FREE";
+        const val = raw.toUpperCase();
+        let classes = "text-[9px] font-black px-3 py-1 rounded-full uppercase tracking-widest border transition-colors duration-500 inline-block ";
+
+        if (val === "FREE") {
+          classes += theme === "DARK"
+            ? "bg-[#ccff00]/10 text-[#ccff00] border-[#ccff00]/20"
+            : "bg-[#ccff00]/20 text-[#4f6b28] border-[#ccff00]/30 shadow-sm";
+        } else if (val === "SILVER") {
+          classes += theme === "DARK"
+            ? "bg-white/10 text-white border-white/20"
+            : "bg-white text-stone-900 border-stone-200 shadow-sm";
+        } else if (val === "GOLD") {
+          classes += theme === "DARK"
+            ? "bg-[#b8860b]/20 text-[#b8860b] border-[#b8860b]/30"
+            : "bg-[#b8860b] text-white border-transparent";
+        } else if (val === "PLATINUM") {
+          classes += theme === "DARK"
+            ? "bg-[#8a9597]/20 text-[#8a9597] border-[#8a9597]/30"
+            : "bg-[#8a9597] text-white border-transparent";
+        } else {
+          classes += theme === "DARK"
+            ? "bg-stone-850 text-stone-300 border-stone-700"
+            : "bg-stone-100 text-stone-700 border-stone-200 shadow-xs";
+        }
+
+        return (
+          <span className={classes}>
+            {raw}
+          </span>
+        );
+      }
     }),
     columnHelper.accessor("status", {
       header: "STATUS",
@@ -1403,6 +1445,15 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
                     )}
                   </select>
                 </div>
+                <div>
+                  <label className={labelCls}>Membership Plan</label>
+                  <select value={formData.membership} onChange={e => setFormData({ ...formData, membership: e.target.value })} className={`${inputCls} appearance-none cursor-pointer`}>
+                    <option value="FREE">FREE</option>
+                    <option value="SILVER">SILVER</option>
+                    <option value="GOLD">GOLD</option>
+                    <option value="PLATINUM">PLATINUM</option>
+                  </select>
+                </div>
 
                 {sectionDivider("Mailing Address")}
 
@@ -1886,6 +1937,17 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
                       }`}>Invite user (Send verification email)</span>
                     </label>
                   </div>
+
+                  <div>
+                    <label className={labelCls}>Membership Plan</label>
+                    <select value={formData.membership} onChange={e => setFormData({ ...formData, membership: e.target.value })} className={`${inputCls} appearance-none cursor-pointer`}>
+                      <option value="FREE">FREE</option>
+                      <option value="SILVER">SILVER</option>
+                      <option value="GOLD">GOLD</option>
+                      <option value="PLATINUM">PLATINUM</option>
+                    </select>
+                  </div>
+                  <div />
 
                   {sectionDivider("Mailing Address")}
                   

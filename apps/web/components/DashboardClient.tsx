@@ -27,6 +27,7 @@ import {
   orderBy,
   doc,
   updateDoc,
+  setDoc,
   deleteDoc,
   arrayRemove,
   serverTimestamp,
@@ -540,7 +541,7 @@ export default function DashboardClient({ params }: { params: { tenantId: string
           if (activeView === "COURT BOOKING") return <CourtBookingView theme={theme} isAdmin={hasPermission("ADMINISTRATION_VIEW")} tenantId={tenantId ?? undefined} />;
           if (activeView === "SCHEDULES") return <SchedulesAdminView theme={theme} />;
           if (activeView === "PROGRAMS") return <ProgramsView theme={theme} tenantId={tenantId} />;
-          if (activeView === "MEMBERSHIP") return <MembershipView theme={theme} tenantId={tenantId} />;
+          if (activeView === "MEMBERSHIP") return <MembershipView theme={theme} tenantId={tenantId} profile={profile} />;
           if (activeView === "SETTINGS") return <SettingsView theme={theme} />;
           if (activeView === "PROFILE") return <ProfileView theme={theme} profile={profile} roles={roles} />;
           if (activeView === "EVENTS_ADMIN") return <EventsAdminView theme={theme} tenantId={tenantId} allTenants={isGlobalUser ? allTenants : []} />;
@@ -2159,9 +2160,41 @@ function ProfileView({ theme, profile, roles }: { theme: "LIGHT" | "DARK" | "VIN
   );
 }
 
-function MembershipView({ theme, tenantId }: { theme: "LIGHT" | "DARK" | "VINTAGE"; tenantId: string }) {
+function MembershipView({ theme, tenantId, profile }: { theme: "LIGHT" | "DARK" | "VINTAGE"; tenantId: string; profile?: any }) {
   const [plans, setPlans] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const { showNotification } = useNotification();
+
+  const currentMembership = (profile?.membership || "FREE").toUpperCase();
+
+  const handleUpgrade = async (planName: string) => {
+    if (!profile?.id) {
+      showNotification("Error: You must be logged in to upgrade membership.", "error");
+      return;
+    }
+    
+    try {
+      const userRef = doc(db, "global_users", profile.id);
+      await setDoc(userRef, {
+        membership: planName,
+        updated_at: new Date().toISOString()
+      }, { merge: true });
+
+      // If tenant-scoped user document exists, sync it too
+      if (profile.tenant_id && profile.tenant_id !== "Global") {
+        const tenantUserRef = doc(db, "tenants", profile.tenant_id, "users", profile.id);
+        await setDoc(tenantUserRef, {
+          membership: planName,
+          updated_at: new Date().toISOString()
+        }, { merge: true });
+      }
+
+      showNotification(`Successfully upgraded to ${planName}!`, "success");
+    } catch (err: any) {
+      console.error("Failed to upgrade membership:", err);
+      showNotification(`Upgrade failed: ${err.message || "Unknown error"}`, "error");
+    }
+  };
 
   useEffect(() => {
     if (!tenantId) {
@@ -2366,13 +2399,21 @@ function MembershipView({ theme, tenantId }: { theme: "LIGHT" | "DARK" | "VINTAG
   };
 
   const getButtonColor = (plan: any) => {
+    const isCurrentPlan = plan.name?.toUpperCase() === currentMembership;
+    if (isCurrentPlan) {
+      return theme === "DARK"
+        ? "bg-[#ccff00] text-black font-black"
+        : theme === "VINTAGE"
+          ? "bg-black text-white font-black"
+          : "bg-[#4f6b28] text-white font-black shadow-lg shadow-[#4f6b28]/25";
+    }
     if (plan.popular) {
       return theme === "DARK"
         ? "bg-stone-100 text-white animate-pulse"
         : theme === "VINTAGE"
-          ? "bg-white text-black"
+          ? "bg-white text-black font-bold"
           : theme === "LIGHT"
-            ? "bg-[#ccff00] text-black"
+            ? "bg-[#ccff00] text-black font-bold"
             : "bg-white text-stone-900";
     }
     return "border-2 border-current hover:bg-current hover:text-white";
@@ -2399,6 +2440,7 @@ function MembershipView({ theme, tenantId }: { theme: "LIGHT" | "DARK" | "VINTAG
           const buttonColor = getButtonColor(plan);
           const customBgColor = plan.themeColors?.[theme]?.bgColor || plan.bgColor;
           const customTextColor = plan.themeColors?.[theme]?.textColor || plan.textColor;
+          const isCurrentPlan = plan.name?.toUpperCase() === currentMembership;
           return (
             <div
               key={i}
@@ -2409,7 +2451,7 @@ function MembershipView({ theme, tenantId }: { theme: "LIGHT" | "DARK" | "VINTAG
               }}
             >
               {plan.popular && (
-                <div className={`absolute -top-4 left-12 px-6 py-2 text-[10px] font-black tracking-[0.2em] rounded-full shadow-lg transition-colors ${theme === "DARK" ? "bg-white text-black" : theme === "LIGHT" ? "bg-[#ccff00] text-black" : "bg-stone-900 text-white"
+                <div className={`absolute -top-4 left-12 px-6 py-2 text-[10px] font-black tracking-[0.2em] rounded-full shadow-lg transition-colors ${theme === "DARK" ? "bg-white text-black" : theme === "LIGHT" ? "bg-[#ccff00] text-[#4f6b28]" : "bg-stone-900 text-white"
                   }`}>
                   MOST POPULAR
                 </div>
@@ -2430,22 +2472,34 @@ function MembershipView({ theme, tenantId }: { theme: "LIGHT" | "DARK" | "VINTAG
                 ))}
               </ul>
               <button
+                onClick={() => {
+                  if (isCurrentPlan) {
+                    showNotification(`You are already subscribed to the ${plan.name} plan!`, "info");
+                  } else {
+                    handleUpgrade(plan.name);
+                  }
+                }}
                 className={`mt-12 w-full py-5 rounded-2xl text-[10px] font-black tracking-widest transition-all uppercase ${buttonColor}`}
                 style={
                   customTextColor || customBgColor
-                    ? plan.popular
+                    ? isCurrentPlan
                       ? {
                           backgroundColor: customTextColor || undefined,
                           color: customBgColor || undefined,
                         }
-                      : {
-                          borderColor: customTextColor || undefined,
-                          color: customTextColor || undefined,
-                        }
+                      : plan.popular
+                        ? {
+                            backgroundColor: customTextColor || undefined,
+                            color: customBgColor || undefined,
+                          }
+                        : {
+                            borderColor: customTextColor || undefined,
+                            color: customTextColor || undefined,
+                          }
                     : undefined
                 }
               >
-                {plan.name?.toUpperCase() === "FREE" ? "CURRENT PLAN" : "UPGRADE NOW"}
+                {isCurrentPlan ? "CURRENT PLAN" : "UPGRADE NOW"}
               </button>
             </div>
           );
