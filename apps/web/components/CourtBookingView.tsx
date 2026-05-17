@@ -384,7 +384,7 @@ export default function CourtBookingView({ theme, isAdmin, tenantId: tenantIdPro
             b.date === selectedDate.toDateString() &&
             b.time === time
         );
-        if (b) setViewBooking(b);
+        if (b && (b.userId === user?.uid || isAdmin)) setViewBooking(b);
       }
     },
   };
@@ -1427,7 +1427,7 @@ function ScheduleGrid({ courts, bookings, selectedDate, theme, onSlotClick, onDr
                 
                 if (skipUntil !== null && currentMinutes < skipUntil) {
                   return (
-                    <div key={t} className={`h-12 border-b ${rowBorder} relative`} />
+                    <div key={t} className={`h-8 border-b ${rowBorder} relative`} />
                   );
                 }
 
@@ -1748,7 +1748,7 @@ function BookingDetails({ tenantId, booking, theme, user, isAdmin, canModify, on
             )}
           </div>
         </div>
-        {isOwner && !isEditing && (
+        {isOwner && !isEditing && canModify && (
           <button
             onClick={() => setIsEditing(true)}
             className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${
