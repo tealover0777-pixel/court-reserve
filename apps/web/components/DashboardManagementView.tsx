@@ -13,6 +13,11 @@ import {
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { format } from "date-fns";
 
+interface ThemeColors {
+  bgColor?: string;
+  textColor?: string;
+}
+
 interface DashboardConfig {
   heroHeadline: string;
   heroSubheadline: string;
@@ -43,6 +48,18 @@ interface DashboardConfig {
   upcomingBookingsTitle: string;
   recentActivityTitle: string;
   clubEventsTitle: string;
+
+  // Custom theme overrides
+  heroThemeColors?: {
+    LIGHT?: ThemeColors;
+    DARK?: ThemeColors;
+    VINTAGE?: ThemeColors;
+  };
+  featuredCardThemeColors?: {
+    LIGHT?: ThemeColors;
+    DARK?: ThemeColors;
+    VINTAGE?: ThemeColors;
+  };
 }
 
 const DEFAULT_CONFIG: DashboardConfig = {
@@ -72,14 +89,62 @@ const DEFAULT_CONFIG: DashboardConfig = {
   clubEventsTitle: "Club Events & News"
 };
 
+const PRESET_COLORS = [
+  { name: "Brand Green", value: "#4f6b28" },
+  { name: "Neon Lime", value: "#ccff00" },
+  { name: "Royal Gold", value: "#b8860b" },
+  { name: "Sleek Silver", value: "#8a9597" },
+  { name: "Charcoal Black", value: "#1c1917" },
+  { name: "Pure White", value: "#ffffff" },
+  { name: "Crimson Coral", value: "#e11d48" },
+  { name: "Midnight Navy", value: "#1e3a8a" },
+  { name: "Royal Violet", value: "#581c87" }
+];
+
 export default function DashboardManagementView({ theme, tenantId }: { theme: string; tenantId: string }) {
   const [config, setConfig] = useState<DashboardConfig>(DEFAULT_CONFIG);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState<string | null>(null);
+  const [activeTheme, setActiveTheme] = useState<"LIGHT" | "DARK" | "VINTAGE">("LIGHT");
   const { showNotification } = useNotification();
   const heroInputRef = useRef<HTMLInputElement>(null);
   const featuredInputRef = useRef<HTMLInputElement>(null);
+
+  const activeHeroBgColor = config.heroThemeColors?.[activeTheme]?.bgColor || "";
+  const activeHeroTextColor = config.heroThemeColors?.[activeTheme]?.textColor || "";
+  const activeFeaturedBgColor = config.featuredCardThemeColors?.[activeTheme]?.bgColor || "";
+  const activeFeaturedTextColor = config.featuredCardThemeColors?.[activeTheme]?.textColor || "";
+  const activeThemeName = activeTheme === "LIGHT" ? "Kinetic" : activeTheme === "VINTAGE" ? "Light" : "Dark";
+
+  const handleUpdateThemeColor = (
+    section: 'hero' | 'featured',
+    key: 'bgColor' | 'textColor',
+    value: string
+  ) => {
+    setConfig(prev => {
+      const themeColorsKey = section === 'hero' ? 'heroThemeColors' : 'featuredCardThemeColors';
+      const themeColors = { ...(prev[themeColorsKey] || {}) };
+      const currentThemeOverride = { ...(themeColors[activeTheme] || {}) };
+      
+      if (value === "") {
+        delete currentThemeOverride[key];
+      } else {
+        currentThemeOverride[key] = value;
+      }
+      
+      if (Object.keys(currentThemeOverride).length === 0) {
+        delete themeColors[activeTheme];
+      } else {
+        themeColors[activeTheme] = currentThemeOverride;
+      }
+      
+      return {
+        ...prev,
+        [themeColorsKey]: themeColors
+      };
+    });
+  };
 
   useEffect(() => {
     if (!tenantId) return;
@@ -165,6 +230,33 @@ export default function DashboardManagementView({ theme, tenantId }: { theme: st
         </button>
       </div>
 
+      {/* Dynamic Theme Selection Header */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-surface-container-low p-6 rounded-3xl border border-outline/10">
+        <div>
+          <h4 className="text-xs font-black uppercase tracking-wider text-on-surface">Configuration Color Theme Scope</h4>
+          <p className="text-[9px] font-bold opacity-50 uppercase tracking-widest mt-1">Select theme to customize specific background and font color overrides</p>
+        </div>
+        <div className="flex gap-2">
+          {[
+            { key: "LIGHT", label: "Kinetic" },
+            { key: "DARK", label: "Dark" },
+            { key: "VINTAGE", label: "Light" }
+          ].map((t) => (
+            <button
+              key={t.key}
+              onClick={() => setActiveTheme(t.key as any)}
+              className={`px-6 py-2.5 rounded-2xl text-[9px] font-black uppercase tracking-widest transition-all ${
+                activeTheme === t.key
+                  ? "bg-primary text-on-primary shadow-md hover:scale-102"
+                  : "bg-surface hover:bg-surface-container transition-all"
+              }`}
+            >
+              {t.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
       <div className="space-y-12">
         {/* 1. Hero Section Editor */}
         <div className="rounded-[2.5rem] p-10 border transition-colors bg-surface-container-low border-outline/10">
@@ -239,6 +331,99 @@ export default function DashboardManagementView({ theme, tenantId }: { theme: st
                 onChange={(e) => e.target.files?.[0] && handleImageUpload(e.target.files[0], 'hero')}
                 accept="image/*"
               />
+            </div>
+
+            {/* Custom Color Controls */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-surface/30 p-5 rounded-3xl border border-outline/10">
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <label className="text-[9px] font-black uppercase tracking-[0.2em] opacity-40 ml-1">
+                    Hero Background ({activeThemeName})
+                  </label>
+                  {activeHeroBgColor && (
+                    <button
+                      onClick={() => handleUpdateThemeColor("hero", "bgColor", "")}
+                      className="text-[8px] font-black uppercase text-error hover:underline"
+                    >
+                      Reset
+                    </button>
+                  )}
+                </div>
+                <div className="flex items-center gap-3 bg-surface p-2.5 rounded-2xl">
+                  <input
+                    type="color"
+                    value={activeHeroBgColor || "#ffffff"}
+                    onChange={(e) => handleUpdateThemeColor("hero", "bgColor", e.target.value)}
+                    className="w-8 h-8 rounded-xl border-0 cursor-pointer overflow-hidden bg-transparent"
+                  />
+                  <input
+                    type="text"
+                    placeholder="Auto Theme"
+                    value={activeHeroBgColor || ""}
+                    onChange={(e) => handleUpdateThemeColor("hero", "bgColor", e.target.value)}
+                    className="flex-1 bg-transparent border-none text-[11px] font-bold outline-none uppercase placeholder:text-stone-500 w-full"
+                  />
+                </div>
+                {/* Predefined Palette Swatches */}
+                <div className="flex flex-wrap gap-1.5 pt-2 ml-1">
+                  {PRESET_COLORS.map((preset) => (
+                    <button
+                      key={preset.name}
+                      onClick={() => handleUpdateThemeColor("hero", "bgColor", preset.value)}
+                      className={`w-5 h-5 rounded-full border transition-all hover:scale-115 cursor-pointer ${
+                        activeHeroBgColor === preset.value ? "ring-2 ring-primary scale-110" : "border-outline/15 hover:border-outline/30"
+                      }`}
+                      style={{ backgroundColor: preset.value }}
+                      title={preset.name}
+                    />
+                  ))}
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <label className="text-[9px] font-black uppercase tracking-[0.2em] opacity-40 ml-1">
+                    Hero Font Color ({activeThemeName})
+                  </label>
+                  {activeHeroTextColor && (
+                    <button
+                      onClick={() => handleUpdateThemeColor("hero", "textColor", "")}
+                      className="text-[8px] font-black uppercase text-error hover:underline"
+                    >
+                      Reset
+                    </button>
+                  )}
+                </div>
+                <div className="flex items-center gap-3 bg-surface p-2.5 rounded-2xl">
+                  <input
+                    type="color"
+                    value={activeHeroTextColor || "#000000"}
+                    onChange={(e) => handleUpdateThemeColor("hero", "textColor", e.target.value)}
+                    className="w-8 h-8 rounded-xl border-0 cursor-pointer overflow-hidden bg-transparent"
+                  />
+                  <input
+                    type="text"
+                    placeholder="Auto Theme"
+                    value={activeHeroTextColor || ""}
+                    onChange={(e) => handleUpdateThemeColor("hero", "textColor", e.target.value)}
+                    className="flex-1 bg-transparent border-none text-[11px] font-bold outline-none uppercase placeholder:text-stone-500 w-full"
+                  />
+                </div>
+                {/* Predefined Palette Swatches */}
+                <div className="flex flex-wrap gap-1.5 pt-2 ml-1">
+                  {PRESET_COLORS.map((preset) => (
+                    <button
+                      key={preset.name}
+                      onClick={() => handleUpdateThemeColor("hero", "textColor", preset.value)}
+                      className={`w-5 h-5 rounded-full border transition-all hover:scale-115 cursor-pointer ${
+                        activeHeroTextColor === preset.value ? "ring-2 ring-primary scale-110" : "border-outline/15 hover:border-outline/30"
+                      }`}
+                      style={{ backgroundColor: preset.value }}
+                      title={preset.name}
+                    />
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -371,6 +556,99 @@ export default function DashboardManagementView({ theme, tenantId }: { theme: st
                   )}
                 </div>
                 <input type="file" ref={featuredInputRef} className="hidden" onChange={(e) => e.target.files?.[0] && handleImageUpload(e.target.files[0], 'featured')} accept="image/*" />
+              </div>
+
+              {/* Custom Color Controls */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-surface/30 p-5 rounded-3xl border border-outline/10 mt-6">
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <label className="text-[9px] font-black uppercase tracking-[0.2em] opacity-40 ml-1">
+                      Featured Background ({activeThemeName})
+                    </label>
+                    {activeFeaturedBgColor && (
+                      <button
+                        onClick={() => handleUpdateThemeColor("featured", "bgColor", "")}
+                        className="text-[8px] font-black uppercase text-error hover:underline"
+                      >
+                        Reset
+                      </button>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-3 bg-surface p-2.5 rounded-2xl">
+                    <input
+                      type="color"
+                      value={activeFeaturedBgColor || "#ffffff"}
+                      onChange={(e) => handleUpdateThemeColor("featured", "bgColor", e.target.value)}
+                      className="w-8 h-8 rounded-xl border-0 cursor-pointer overflow-hidden bg-transparent"
+                    />
+                    <input
+                      type="text"
+                      placeholder="Auto Theme"
+                      value={activeFeaturedBgColor || ""}
+                      onChange={(e) => handleUpdateThemeColor("featured", "bgColor", e.target.value)}
+                      className="flex-1 bg-transparent border-none text-[11px] font-bold outline-none uppercase placeholder:text-stone-500 w-full"
+                    />
+                  </div>
+                  {/* Predefined Palette Swatches */}
+                  <div className="flex flex-wrap gap-1.5 pt-2 ml-1">
+                    {PRESET_COLORS.map((preset) => (
+                      <button
+                        key={preset.name}
+                        onClick={() => handleUpdateThemeColor("featured", "bgColor", preset.value)}
+                        className={`w-5 h-5 rounded-full border transition-all hover:scale-115 cursor-pointer ${
+                          activeFeaturedBgColor === preset.value ? "ring-2 ring-primary scale-110" : "border-outline/15 hover:border-outline/30"
+                        }`}
+                        style={{ backgroundColor: preset.value }}
+                        title={preset.name}
+                      />
+                    ))}
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <label className="text-[9px] font-black uppercase tracking-[0.2em] opacity-40 ml-1">
+                      Featured Font Color ({activeThemeName})
+                    </label>
+                    {activeFeaturedTextColor && (
+                      <button
+                        onClick={() => handleUpdateThemeColor("featured", "textColor", "")}
+                        className="text-[8px] font-black uppercase text-error hover:underline"
+                      >
+                        Reset
+                      </button>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-3 bg-surface p-2.5 rounded-2xl">
+                    <input
+                      type="color"
+                      value={activeFeaturedTextColor || "#000000"}
+                      onChange={(e) => handleUpdateThemeColor("featured", "textColor", e.target.value)}
+                      className="w-8 h-8 rounded-xl border-0 cursor-pointer overflow-hidden bg-transparent"
+                    />
+                    <input
+                      type="text"
+                      placeholder="Auto Theme"
+                      value={activeFeaturedTextColor || ""}
+                      onChange={(e) => handleUpdateThemeColor("featured", "textColor", e.target.value)}
+                      className="flex-1 bg-transparent border-none text-[11px] font-bold outline-none uppercase placeholder:text-stone-500 w-full"
+                    />
+                  </div>
+                  {/* Predefined Palette Swatches */}
+                  <div className="flex flex-wrap gap-1.5 pt-2 ml-1">
+                    {PRESET_COLORS.map((preset) => (
+                      <button
+                        key={preset.name}
+                        onClick={() => handleUpdateThemeColor("featured", "textColor", preset.value)}
+                        className={`w-5 h-5 rounded-full border transition-all hover:scale-115 cursor-pointer ${
+                          activeFeaturedTextColor === preset.value ? "ring-2 ring-primary scale-110" : "border-outline/15 hover:border-outline/30"
+                        }`}
+                        style={{ backgroundColor: preset.value }}
+                        title={preset.name}
+                      />
+                    ))}
+                  </div>
+                </div>
               </div>
             </div>
           </div>

@@ -11,6 +11,11 @@ import {
 } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
+interface ThemeColors {
+  bgColor?: string;
+  textColor?: string;
+}
+
 interface ProgramTrack {
   title: string;
   description: string;
@@ -19,6 +24,11 @@ interface ProgramTrack {
   priceValue: string;
   icon: string;
   tag?: string;
+  themeColors?: {
+    LIGHT?: ThemeColors;
+    DARK?: ThemeColors;
+    VINTAGE?: ThemeColors;
+  };
 }
 
 interface ProgramsConfig {
@@ -40,6 +50,18 @@ interface ProgramsConfig {
   showSidebar: boolean;
   showTracks: boolean;
   showBottom: boolean;
+
+  // Custom colors per theme
+  sidebarThemeColors?: {
+    LIGHT?: ThemeColors;
+    DARK?: ThemeColors;
+    VINTAGE?: ThemeColors;
+  };
+  bottomThemeColors?: {
+    LIGHT?: ThemeColors;
+    DARK?: ThemeColors;
+    VINTAGE?: ThemeColors;
+  };
 }
 
 const DEFAULT_CONFIG: ProgramsConfig = {
@@ -89,12 +111,95 @@ const DEFAULT_CONFIG: ProgramsConfig = {
   showBottom: true
 };
 
+const PRESET_COLORS = [
+  { name: "Brand Green", value: "#4f6b28" },
+  { name: "Neon Lime", value: "#ccff00" },
+  { name: "Royal Gold", value: "#b8860b" },
+  { name: "Sleek Silver", value: "#8a9597" },
+  { name: "Charcoal Black", value: "#1c1917" },
+  { name: "Pure White", value: "#ffffff" },
+  { name: "Crimson Coral", value: "#e11d48" },
+  { name: "Midnight Navy", value: "#1e3a8a" },
+  { name: "Royal Violet", value: "#581c87" }
+];
+
 export default function ProgramsManagementView({ theme, tenantId }: { theme: string; tenantId: string }) {
   const [config, setConfig] = useState<ProgramsConfig>(DEFAULT_CONFIG);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState<string | null>(null);
+  const [activeTheme, setActiveTheme] = useState<"LIGHT" | "DARK" | "VINTAGE">("LIGHT");
   const { showNotification } = useNotification();
+  
+  const activeSidebarBgColor = config.sidebarThemeColors?.[activeTheme]?.bgColor || "";
+  const activeSidebarTextColor = config.sidebarThemeColors?.[activeTheme]?.textColor || "";
+  const activeBottomBgColor = config.bottomThemeColors?.[activeTheme]?.bgColor || "";
+  const activeBottomTextColor = config.bottomThemeColors?.[activeTheme]?.textColor || "";
+  const activeThemeName = activeTheme === "LIGHT" ? "Kinetic" : activeTheme === "VINTAGE" ? "Light" : "Dark";
+
+  const handleUpdateThemeColor = (
+    section: 'sidebar' | 'bottom',
+    key: 'bgColor' | 'textColor',
+    value: string
+  ) => {
+    setConfig(prev => {
+      const themeColorsKey = section === 'sidebar' ? 'sidebarThemeColors' : 'bottomThemeColors';
+      const themeColors = { ...(prev[themeColorsKey] || {}) };
+      const currentThemeOverride = { ...(themeColors[activeTheme] || {}) };
+      
+      if (value === "") {
+        delete currentThemeOverride[key];
+      } else {
+        currentThemeOverride[key] = value;
+      }
+      
+      if (Object.keys(currentThemeOverride).length === 0) {
+        delete themeColors[activeTheme];
+      } else {
+        themeColors[activeTheme] = currentThemeOverride;
+      }
+      
+      return {
+        ...prev,
+        [themeColorsKey]: themeColors
+      };
+    });
+  };
+
+  const handleUpdateTrackThemeColor = (
+    trackIndex: number,
+    key: 'bgColor' | 'textColor',
+    value: string
+  ) => {
+    setConfig(prev => {
+      const updatedTracks = [...prev.tracks];
+      const originalTrack = updatedTracks[trackIndex];
+      if (!originalTrack) return prev;
+      const track = { ...originalTrack };
+      const trackThemeColors = { ...(track.themeColors || {}) };
+      const currentThemeOverride = { ...(trackThemeColors[activeTheme] || {}) };
+
+      if (value === "") {
+        delete currentThemeOverride[key];
+      } else {
+        currentThemeOverride[key] = value;
+      }
+
+      if (Object.keys(currentThemeOverride).length === 0) {
+        delete trackThemeColors[activeTheme];
+      } else {
+        trackThemeColors[activeTheme] = currentThemeOverride;
+      }
+
+      track.themeColors = trackThemeColors;
+      updatedTracks[trackIndex] = track;
+
+      return {
+        ...prev,
+        tracks: updatedTracks
+      };
+    });
+  };
   
   const heroInputRef = useRef<HTMLInputElement>(null);
   const bottomInputRef = useRef<HTMLInputElement>(null);
@@ -191,6 +296,33 @@ export default function ProgramsManagementView({ theme, tenantId }: { theme: str
         >
           {saving ? "Saving..." : "Save Changes"}
         </button>
+      </div>
+
+      {/* Dynamic Theme Selection Header */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-surface-container-low p-6 rounded-3xl border border-outline/10">
+        <div>
+          <h4 className="text-xs font-black uppercase tracking-wider text-on-surface">Configuration Color Theme Scope</h4>
+          <p className="text-[9px] font-bold opacity-50 uppercase tracking-widest mt-1">Select theme to customize specific background and font color overrides</p>
+        </div>
+        <div className="flex gap-2">
+          {[
+            { key: "LIGHT", label: "Kinetic" },
+            { key: "DARK", label: "Dark" },
+            { key: "VINTAGE", label: "Light" }
+          ].map((t) => (
+            <button
+              key={t.key}
+              onClick={() => setActiveTheme(t.key as any)}
+              className={`px-6 py-2.5 rounded-2xl text-[9px] font-black uppercase tracking-widest transition-all ${
+                activeTheme === t.key
+                  ? "bg-primary text-on-primary shadow-md hover:scale-102"
+                  : "bg-surface hover:bg-surface-container transition-all"
+              }`}
+            >
+              {t.label}
+            </button>
+          ))}
+        </div>
       </div>
 
       <div className="grid grid-cols-12 gap-8">
@@ -395,6 +527,97 @@ export default function ProgramsManagementView({ theme, tenantId }: { theme: str
                       </div>
                     </div>
                   </div>
+
+                  {/* Track Theme Custom Color Pickers */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-surface/30 p-4 rounded-2xl border border-outline/10 mt-4">
+                    <div className="space-y-1">
+                      <div className="flex items-center justify-between">
+                        <label className="text-[8px] font-black uppercase tracking-widest opacity-40">
+                          Background ({activeThemeName})
+                        </label>
+                        {track.themeColors?.[activeTheme]?.bgColor && (
+                          <button
+                            onClick={() => handleUpdateTrackThemeColor(idx, "bgColor", "")}
+                            className="text-[7px] font-black uppercase text-error hover:underline"
+                          >
+                            Reset
+                          </button>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-2 bg-surface px-2 py-1.5 rounded-xl">
+                        <input
+                          type="color"
+                          value={track.themeColors?.[activeTheme]?.bgColor || "#ffffff"}
+                          onChange={(e) => handleUpdateTrackThemeColor(idx, "bgColor", e.target.value)}
+                          className="w-6 h-6 rounded-lg border-0 cursor-pointer overflow-hidden bg-transparent"
+                        />
+                        <input
+                          type="text"
+                          placeholder="Auto"
+                          value={track.themeColors?.[activeTheme]?.bgColor || ""}
+                          onChange={(e) => handleUpdateTrackThemeColor(idx, "bgColor", e.target.value)}
+                          className="flex-1 bg-transparent border-none text-[9px] font-bold outline-none uppercase placeholder:text-stone-500 w-full"
+                        />
+                      </div>
+                      <div className="flex flex-wrap gap-1 pt-1">
+                        {PRESET_COLORS.map((preset) => (
+                          <button
+                            key={preset.name}
+                            onClick={() => handleUpdateTrackThemeColor(idx, "bgColor", preset.value)}
+                            className={`w-4 h-4 rounded-full border transition-all hover:scale-115 cursor-pointer ${
+                              track.themeColors?.[activeTheme]?.bgColor === preset.value ? "ring-1 ring-primary scale-110" : "border-outline/15 hover:border-outline/35"
+                            }`}
+                            style={{ backgroundColor: preset.value }}
+                            title={preset.name}
+                          />
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="space-y-1">
+                      <div className="flex items-center justify-between">
+                        <label className="text-[8px] font-black uppercase tracking-widest opacity-40">
+                          Font Color ({activeThemeName})
+                        </label>
+                        {track.themeColors?.[activeTheme]?.textColor && (
+                          <button
+                            onClick={() => handleUpdateTrackThemeColor(idx, "textColor", "")}
+                            className="text-[7px] font-black uppercase text-error hover:underline"
+                          >
+                            Reset
+                          </button>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-2 bg-surface px-2 py-1.5 rounded-xl">
+                        <input
+                          type="color"
+                          value={track.themeColors?.[activeTheme]?.textColor || "#000000"}
+                          onChange={(e) => handleUpdateTrackThemeColor(idx, "textColor", e.target.value)}
+                          className="w-6 h-6 rounded-lg border-0 cursor-pointer overflow-hidden bg-transparent"
+                        />
+                        <input
+                          type="text"
+                          placeholder="Auto"
+                          value={track.themeColors?.[activeTheme]?.textColor || ""}
+                          onChange={(e) => handleUpdateTrackThemeColor(idx, "textColor", e.target.value)}
+                          className="flex-1 bg-transparent border-none text-[9px] font-bold outline-none uppercase placeholder:text-stone-500 w-full"
+                        />
+                      </div>
+                      <div className="flex flex-wrap gap-1 pt-1">
+                        {PRESET_COLORS.map((preset) => (
+                          <button
+                            key={preset.name}
+                            onClick={() => handleUpdateTrackThemeColor(idx, "textColor", preset.value)}
+                            className={`w-4 h-4 rounded-full border transition-all hover:scale-115 cursor-pointer ${
+                              track.themeColors?.[activeTheme]?.textColor === preset.value ? "ring-1 ring-primary scale-110" : "border-outline/15 hover:border-outline/35"
+                            }`}
+                            style={{ backgroundColor: preset.value }}
+                            title={preset.name}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  </div>
                 </div>
               ))}
             </div>
@@ -441,10 +664,103 @@ export default function ProgramsManagementView({ theme, tenantId }: { theme: str
                 />
               </div>
             </div>
+
+              {/* Side Spotlight Custom Colors */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-surface/30 p-5 rounded-3xl border border-outline/10 mt-6">
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <label className="text-[9px] font-black uppercase tracking-[0.2em] opacity-40 ml-1">
+                      Background ({activeThemeName})
+                    </label>
+                    {activeSidebarBgColor && (
+                      <button
+                        onClick={() => handleUpdateThemeColor("sidebar", "bgColor", "")}
+                        className="text-[8px] font-black uppercase text-error hover:underline"
+                      >
+                        Reset
+                      </button>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-3 bg-surface p-2.5 rounded-2xl">
+                    <input
+                      type="color"
+                      value={activeSidebarBgColor || "#ffffff"}
+                      onChange={(e) => handleUpdateThemeColor("sidebar", "bgColor", e.target.value)}
+                      className="w-8 h-8 rounded-xl border-0 cursor-pointer overflow-hidden bg-transparent"
+                    />
+                    <input
+                      type="text"
+                      placeholder="Auto"
+                      value={activeSidebarBgColor || ""}
+                      onChange={(e) => handleUpdateThemeColor("sidebar", "bgColor", e.target.value)}
+                      className="flex-1 bg-transparent border-none text-[11px] font-bold outline-none uppercase placeholder:text-stone-500 w-full"
+                    />
+                  </div>
+                  {/* Predefined Swatches */}
+                  <div className="flex flex-wrap gap-1.5 pt-2 ml-1">
+                    {PRESET_COLORS.map((preset) => (
+                      <button
+                        key={preset.name}
+                        onClick={() => handleUpdateThemeColor("sidebar", "bgColor", preset.value)}
+                        className={`w-5 h-5 rounded-full border transition-all hover:scale-115 cursor-pointer ${
+                          activeSidebarBgColor === preset.value ? "ring-2 ring-primary scale-110" : "border-outline/15 hover:border-outline/35"
+                        }`}
+                        style={{ backgroundColor: preset.value }}
+                        title={preset.name}
+                      />
+                    ))}
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <label className="text-[9px] font-black uppercase tracking-[0.2em] opacity-40 ml-1">
+                      Font Color ({activeThemeName})
+                    </label>
+                    {activeSidebarTextColor && (
+                      <button
+                        onClick={() => handleUpdateThemeColor("sidebar", "textColor", "")}
+                        className="text-[8px] font-black uppercase text-error hover:underline"
+                      >
+                        Reset
+                      </button>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-3 bg-surface p-2.5 rounded-2xl">
+                    <input
+                      type="color"
+                      value={activeSidebarTextColor || "#000000"}
+                      onChange={(e) => handleUpdateThemeColor("sidebar", "textColor", e.target.value)}
+                      className="w-8 h-8 rounded-xl border-0 cursor-pointer overflow-hidden bg-transparent"
+                    />
+                    <input
+                      type="text"
+                      placeholder="Auto"
+                      value={activeSidebarTextColor || ""}
+                      onChange={(e) => handleUpdateThemeColor("sidebar", "textColor", e.target.value)}
+                      className="flex-1 bg-transparent border-none text-[11px] font-bold outline-none uppercase placeholder:text-stone-500 w-full"
+                    />
+                  </div>
+                  {/* Predefined Swatches */}
+                  <div className="flex flex-wrap gap-1.5 pt-2 ml-1">
+                    {PRESET_COLORS.map((preset) => (
+                      <button
+                        key={preset.name}
+                        onClick={() => handleUpdateThemeColor("sidebar", "textColor", preset.value)}
+                        className={`w-5 h-5 rounded-full border transition-all hover:scale-115 cursor-pointer ${
+                          activeSidebarTextColor === preset.value ? "ring-2 ring-primary scale-110" : "border-outline/15 hover:border-outline/35"
+                        }`}
+                        style={{ backgroundColor: preset.value }}
+                        title={preset.name}
+                      />
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
 
         </div>
-      </div>
 
       {/* Bottom Banner Editor */}
       <div className="rounded-[2.5rem] p-10 border transition-colors bg-surface-container-low border-outline/10">
@@ -504,7 +820,100 @@ export default function ProgramsManagementView({ theme, tenantId }: { theme: str
             <input type="file" ref={bottomInputRef} className="hidden" onChange={(e) => e.target.files?.[0] && handleImageUpload(e.target.files[0], 'bottom')} accept="image/*" />
           </div>
         </div>
+
+          {/* Bottom Banner Custom Colors */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-surface/30 p-5 rounded-3xl border border-outline/10 mt-6">
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <label className="text-[9px] font-black uppercase tracking-[0.2em] opacity-40 ml-1">
+                  Background ({activeThemeName})
+                </label>
+                {activeBottomBgColor && (
+                  <button
+                    onClick={() => handleUpdateThemeColor("bottom", "bgColor", "")}
+                    className="text-[8px] font-black uppercase text-error hover:underline"
+                  >
+                    Reset
+                  </button>
+                )}
+              </div>
+              <div className="flex items-center gap-3 bg-surface p-2.5 rounded-2xl">
+                <input
+                  type="color"
+                  value={activeBottomBgColor || "#ffffff"}
+                  onChange={(e) => handleUpdateThemeColor("bottom", "bgColor", e.target.value)}
+                  className="w-8 h-8 rounded-xl border-0 cursor-pointer overflow-hidden bg-transparent"
+                />
+                <input
+                  type="text"
+                  placeholder="Auto"
+                  value={activeBottomBgColor || ""}
+                  onChange={(e) => handleUpdateThemeColor("bottom", "bgColor", e.target.value)}
+                  className="flex-1 bg-transparent border-none text-[11px] font-bold outline-none uppercase placeholder:text-stone-500 w-full"
+                />
+              </div>
+              {/* Predefined Swatches */}
+              <div className="flex flex-wrap gap-1.5 pt-2 ml-1">
+                {PRESET_COLORS.map((preset) => (
+                  <button
+                    key={preset.name}
+                    onClick={() => handleUpdateThemeColor("bottom", "bgColor", preset.value)}
+                    className={`w-5 h-5 rounded-full border transition-all hover:scale-115 cursor-pointer ${
+                      activeBottomBgColor === preset.value ? "ring-2 ring-primary scale-110" : "border-outline/15 hover:border-outline/35"
+                    }`}
+                    style={{ backgroundColor: preset.value }}
+                    title={preset.name}
+                  />
+                ))}
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <label className="text-[9px] font-black uppercase tracking-[0.2em] opacity-40 ml-1">
+                  Font Color ({activeThemeName})
+                </label>
+                {activeBottomTextColor && (
+                  <button
+                    onClick={() => handleUpdateThemeColor("bottom", "textColor", "")}
+                    className="text-[8px] font-black uppercase text-error hover:underline"
+                  >
+                    Reset
+                  </button>
+                )}
+              </div>
+              <div className="flex items-center gap-3 bg-surface p-2.5 rounded-2xl">
+                <input
+                  type="color"
+                  value={activeBottomTextColor || "#000000"}
+                  onChange={(e) => handleUpdateThemeColor("bottom", "textColor", e.target.value)}
+                  className="w-8 h-8 rounded-xl border-0 cursor-pointer overflow-hidden bg-transparent"
+                />
+                <input
+                  type="text"
+                  placeholder="Auto"
+                  value={activeBottomTextColor || ""}
+                  onChange={(e) => handleUpdateThemeColor("bottom", "textColor", e.target.value)}
+                  className="flex-1 bg-transparent border-none text-[11px] font-bold outline-none uppercase placeholder:text-stone-500 w-full"
+                />
+              </div>
+              {/* Predefined Swatches */}
+              <div className="flex flex-wrap gap-1.5 pt-2 ml-1">
+                {PRESET_COLORS.map((preset) => (
+                  <button
+                    key={preset.name}
+                    onClick={() => handleUpdateThemeColor("bottom", "textColor", preset.value)}
+                    className={`w-5 h-5 rounded-full border transition-all hover:scale-115 cursor-pointer ${
+                      activeBottomTextColor === preset.value ? "ring-2 ring-primary scale-110" : "border-outline/15 hover:border-outline/35"
+                    }`}
+                    style={{ backgroundColor: preset.value }}
+                    title={preset.name}
+                  />
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
-    </div>
   );
 }

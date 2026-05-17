@@ -6,11 +6,11 @@
 ▲ Next.js 16.2.0 (Turbopack)
 
   Creating an optimized production build ...
-✓ Compiled successfully in 3.6s
-  Finished TypeScript in 4.0s    ✓ Finished TypeScript in 4.0s 
-  Collecting page data using 7 workers in 291ms    ✓ Collecting page data using 7 workers in 291ms 
-✓ Generating static pages using 7 workers (6/6) in 433ms
-  Finalizing page optimization in 526ms    ✓ Finalizing page optimization in 526ms 
+✓ Compiled successfully in 4.0s
+  Finished TypeScript in 4.3s    ✓ Finished TypeScript in 4.3s 
+  Collecting page data using 7 workers in 310ms    ✓ Collecting page data using 7 workers in 310ms 
+✓ Generating static pages using 7 workers (6/6) in 455ms
+  Finalizing page optimization in 525ms    ✓ Finalizing page optimization in 525ms 
 
 Route (app)
 ┌ ○ /

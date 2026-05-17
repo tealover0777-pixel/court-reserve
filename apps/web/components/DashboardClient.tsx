@@ -844,25 +844,57 @@ function DashboardHome({ theme, profile, tenantId, authUser, userSchedule, onRem
   const recentActivityTitle = config?.recentActivityTitle || "Recent Activity";
   const clubEventsTitle = config?.clubEventsTitle || "Club Events & News";
 
+  // Dynamic Theme Colors
+  const customHeroBgColor = config?.heroThemeColors?.[theme]?.bgColor;
+  const customHeroTextColor = config?.heroThemeColors?.[theme]?.textColor;
+  const customFeaturedBgColor = config?.featuredCardThemeColors?.[theme]?.bgColor;
+  const customFeaturedTextColor = config?.featuredCardThemeColors?.[theme]?.textColor;
+
   return (
     <>
       {/* Welcome Hero */}
       {showHeroSection && (
-        <section className="mb-12 relative overflow-hidden rounded-[2.5rem] p-16 flex items-end min-h-[400px] shadow-sm transition-colors duration-500 bg-surface-container-low">
+        <section 
+          className="mb-12 relative overflow-hidden rounded-[2.5rem] p-16 flex items-end min-h-[400px] shadow-sm transition-colors duration-500 bg-surface-container-low"
+          style={{
+            backgroundColor: customHeroBgColor || undefined,
+          }}
+        >
           <div className="absolute inset-0 z-0">
             <img
               src={heroImageUrl}
               alt="Hero Background"
               className="w-full h-full object-cover opacity-90 scale-105"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-surface to-transparent"></div>
+            {customHeroBgColor ? (
+              <div 
+                className="absolute inset-0"
+                style={{
+                  background: `linear-gradient(to top, ${customHeroBgColor}e6, transparent)`
+                }}
+              ></div>
+            ) : (
+              <div className="absolute inset-0 bg-gradient-to-t from-surface to-transparent"></div>
+            )}
           </div>
           <div className="relative z-10 w-full">
-            <span className={`font-black tracking-[0.2em] text-[11px] uppercase mb-4 block transition-colors text-primary`}>
+            <span 
+              className={`font-black tracking-[0.2em] text-[11px] uppercase mb-4 block transition-colors ${customHeroTextColor ? '' : 'text-primary'}`}
+              style={customHeroTextColor ? { color: customHeroTextColor, opacity: 0.8 } : undefined}
+            >
               {heroSubheadline}, {profile?.first_name || authUser?.displayName?.split(' ')[0] || "User"}
             </span>
-            <h3 className={`text-7xl font-black tracking-tighter leading-tight max-w-2xl transition-colors ${theme === "DARK" ? "text-white" : "text-on-surface"
-              }`} style={{ fontFamily: 'Lexend, sans-serif' }}>{heroHeadline}</h3>
+            <h3 
+              className={`text-7xl font-black tracking-tighter leading-tight max-w-2xl transition-colors ${
+                customHeroTextColor ? '' : theme === "DARK" ? "text-white" : "text-on-surface"
+              }`} 
+              style={{ 
+                fontFamily: 'Lexend, sans-serif',
+                color: customHeroTextColor || undefined
+              }}
+            >
+              {heroHeadline}
+            </h3>
           </div>
         </section>
       )}
@@ -880,18 +912,47 @@ function DashboardHome({ theme, profile, tenantId, authUser, userSchedule, onRem
 
           {/* Featured Card */}
           {showFeaturedCard && (
-            <div className="rounded-[2.5rem] p-12 relative overflow-hidden group cursor-pointer shadow-xl transition-all hover:scale-[1.01] bg-primary">
+            <div 
+              className="rounded-[2.5rem] p-12 relative overflow-hidden group cursor-pointer shadow-xl transition-all hover:scale-[1.01] bg-primary"
+              style={{
+                backgroundColor: customFeaturedBgColor || undefined,
+              }}
+            >
               <div 
                 className="absolute inset-0 opacity-30 bg-cover bg-center mix-blend-overlay"
                 style={{ backgroundImage: `url(${featuredCard.imageUrl || "/images/clay_court.png"})` }}
               ></div>
               <div className="relative z-10 flex justify-between items-center">
                 <div>
-                  <span className="px-4 py-1.5 rounded-full text-[10px] font-black tracking-widest uppercase bg-white/20 text-white mb-4 inline-block">{featuredCard.tag}</span>
-                  <h4 className="text-5xl font-black text-white tracking-tighter uppercase" style={{ fontFamily: 'Lexend, sans-serif' }}>{featuredCard.title}</h4>
-                  <p className="text-white/80 text-xl font-medium tracking-wide mt-2">{featuredCard.subtitle}</p>
+                  <span 
+                    className="px-4 py-1.5 rounded-full text-[10px] font-black tracking-widest uppercase mb-4 inline-block bg-white/20 text-white"
+                    style={customFeaturedTextColor ? { backgroundColor: `${customFeaturedTextColor}22`, color: customFeaturedTextColor } : undefined}
+                  >
+                    {featuredCard.tag}
+                  </span>
+                  <h4 
+                    className="text-5xl font-black text-white tracking-tighter uppercase" 
+                    style={{ 
+                      fontFamily: 'Lexend, sans-serif',
+                      color: customFeaturedTextColor || 'white'
+                    }}
+                  >
+                    {featuredCard.title}
+                  </h4>
+                  <p 
+                    className="text-white/80 text-xl font-medium tracking-wide mt-2"
+                    style={customFeaturedTextColor ? { color: customFeaturedTextColor, opacity: 0.8 } : undefined}
+                  >
+                    {featuredCard.subtitle}
+                  </p>
                 </div>
-                <button className="px-8 py-4 rounded-full font-black text-[13px] uppercase tracking-widest transition-all bg-white text-primary hover:bg-stone-100 shadow-lg">
+                <button 
+                  className="px-8 py-4 rounded-full font-black text-[13px] uppercase tracking-widest transition-all bg-white text-primary hover:bg-stone-100 shadow-lg"
+                  style={{
+                    backgroundColor: customFeaturedTextColor || 'white',
+                    color: customFeaturedBgColor || 'var(--md-sys-color-primary)'
+                  }}
+                >
                   {featuredCard.buttonText}
                 </button>
               </div>
@@ -1275,6 +1336,12 @@ function ProgramsView({ theme, tenantId }: { theme: "LIGHT" | "DARK" | "VINTAGE"
   const showTracks = config?.showTracks !== undefined ? config.showTracks : true;
   const showBottom = config?.showBottom !== undefined ? config.showBottom : true;
 
+  const customSidebarBgColor = config?.sidebarThemeColors?.[theme]?.bgColor;
+  const customSidebarTextColor = config?.sidebarThemeColors?.[theme]?.textColor;
+
+  const customBottomBgColor = config?.bottomThemeColors?.[theme]?.bgColor;
+  const customBottomTextColor = config?.bottomThemeColors?.[theme]?.textColor;
+
   return (
     <div className="space-y-16 animate-in fade-in slide-in-from-bottom-4 duration-700">
       {/* Header Section */}
@@ -1315,16 +1382,34 @@ function ProgramsView({ theme, tenantId }: { theme: "LIGHT" | "DARK" | "VINTAGE"
           )}
 
           {showSidebar && (
-            <div className={`${showHero ? 'col-span-12 lg:col-span-4' : 'col-span-12'} rounded-[40px] p-10 flex flex-col justify-between shadow-xl transition-colors border bg-surface-container-low border-outline/10`}>
+            <div 
+              className={`${showHero ? 'col-span-12 lg:col-span-4' : 'col-span-12'} rounded-[40px] p-10 flex flex-col justify-between shadow-xl transition-colors border bg-surface-container-low border-outline/10`}
+              style={{
+                backgroundColor: customSidebarBgColor || undefined,
+              }}
+            >
               <div>
-                <h4 className="text-3xl font-black leading-tight mb-4 uppercase transition-colors text-primary">
+                <h4 
+                  className={`text-3xl font-black leading-tight mb-4 uppercase transition-colors ${customSidebarTextColor ? '' : 'text-primary'}`}
+                  style={customSidebarTextColor ? { color: customSidebarTextColor } : undefined}
+                >
                   {sidebarHeadline}
                 </h4>
-                <p className="font-medium leading-relaxed transition-colors text-on-surface-variant">
+                <p 
+                  className={`font-medium leading-relaxed transition-colors ${customSidebarTextColor ? '' : 'text-on-surface-variant'}`}
+                  style={customSidebarTextColor ? { color: customSidebarTextColor, opacity: 0.8 } : undefined}
+                >
                   {sidebarDescription}
                 </p>
               </div>
-              <button className="w-full py-4 border-2 rounded-full text-[10px] font-black tracking-[0.2em] transition-all uppercase border-primary text-primary hover:bg-primary hover:text-on-primary">
+              <button 
+                className="w-full py-4 border-2 rounded-full text-[10px] font-black tracking-[0.2em] transition-all uppercase border-primary text-primary hover:bg-primary hover:text-on-primary"
+                style={customSidebarTextColor ? {
+                  borderColor: customSidebarTextColor,
+                  color: customSidebarTextColor,
+                  backgroundColor: 'transparent'
+                } : undefined}
+              >
                 {sidebarButtonText}
               </button>
             </div>
@@ -1349,65 +1434,138 @@ function ProgramsView({ theme, tenantId }: { theme: "LIGHT" | "DARK" | "VINTAGE"
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {tracks.map((track: any, idx: number) => (
-              <div key={idx} className="rounded-[40px] overflow-hidden flex flex-col group shadow-lg transition-colors border bg-surface-container-low border-outline/10">
-                <div className="h-64 overflow-hidden relative">
-                  <img src={track.imageUrl} alt={track.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
-                  {track.tag && (
-                    <div className="absolute top-6 left-6 px-4 py-1 backdrop-blur rounded-full text-[8px] font-black tracking-widest uppercase bg-surface/90 text-primary">
-                      {track.tag}
-                    </div>
-                  )}
-                </div>
-                <div className="p-10 flex-1 relative">
-                  <div className="absolute right-10 top-10 w-12 h-12 rounded-full flex items-center justify-center shadow-md transition-colors bg-surface-container-highest text-primary">
-                    <span className="material-symbols-outlined">{track.icon}</span>
+            {tracks.map((track: any, idx: number) => {
+              const trackCustomBgColor = track.themeColors?.[theme]?.bgColor;
+              const trackCustomTextColor = track.themeColors?.[theme]?.textColor;
+              return (
+                <div 
+                  key={idx} 
+                  className="rounded-[40px] overflow-hidden flex flex-col group shadow-lg transition-colors border bg-surface-container-low border-outline/10"
+                  style={{
+                    backgroundColor: trackCustomBgColor || undefined,
+                  }}
+                >
+                  <div className="h-64 overflow-hidden relative">
+                    <img src={track.imageUrl} alt={track.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                    {track.tag && (
+                      <div className="absolute top-6 left-6 px-4 py-1 backdrop-blur rounded-full text-[8px] font-black tracking-widest uppercase bg-surface/90 text-primary">
+                        {track.tag}
+                      </div>
+                    )}
                   </div>
-                  <h4 className="text-3xl font-black mb-4 uppercase transition-colors text-primary leading-tight">{track.title}</h4>
-                  <p className="text-sm font-medium leading-relaxed mb-8 transition-colors text-on-surface-variant">
-                    {track.description}
-                  </p>
-                  <div className="flex justify-between items-center mt-auto">
-                    <div>
-                      <div className="text-[10px] font-black uppercase tracking-widest text-on-surface-variant/60">{track.priceLabel}</div>
-                      <div className="text-2xl font-black text-on-surface uppercase">{track.priceValue}</div>
+                  <div className="p-10 flex-1 relative">
+                    <div 
+                      className="absolute right-10 top-10 w-12 h-12 rounded-full flex items-center justify-center shadow-md transition-colors bg-surface-container-highest text-primary"
+                      style={trackCustomBgColor ? {
+                        backgroundColor: `${trackCustomTextColor || '#ffffff'}22`,
+                        color: trackCustomTextColor || undefined
+                      } : undefined}
+                    >
+                      <span className="material-symbols-outlined">{track.icon}</span>
                     </div>
-                    <button className="w-14 h-14 rounded-full flex items-center justify-center hover:scale-110 transition-transform shadow-lg bg-primary text-on-primary">
-                      <span className="material-symbols-outlined">arrow_forward</span>
-                    </button>
+                    <h4 
+                      className={`text-3xl font-black mb-4 uppercase transition-colors leading-tight ${trackCustomTextColor ? '' : 'text-primary'}`}
+                      style={trackCustomTextColor ? { color: trackCustomTextColor } : undefined}
+                    >
+                      {track.title}
+                    </h4>
+                    <p 
+                      className={`text-sm font-medium leading-relaxed mb-8 transition-colors ${trackCustomTextColor ? '' : 'text-on-surface-variant'}`}
+                      style={trackCustomTextColor ? { color: trackCustomTextColor, opacity: 0.8 } : undefined}
+                    >
+                      {track.description}
+                    </p>
+                    <div className="flex justify-between items-center mt-auto">
+                      <div>
+                        <div 
+                          className="text-[10px] font-black uppercase tracking-widest text-on-surface-variant/60"
+                          style={trackCustomTextColor ? { color: trackCustomTextColor, opacity: 0.6 } : undefined}
+                        >
+                          {track.priceLabel}
+                        </div>
+                        <div 
+                          className={`text-2xl font-black uppercase ${trackCustomTextColor ? '' : 'text-on-surface'}`}
+                          style={trackCustomTextColor ? { color: trackCustomTextColor } : undefined}
+                        >
+                          {track.priceValue}
+                        </div>
+                      </div>
+                      <button 
+                        className="w-14 h-14 rounded-full flex items-center justify-center hover:scale-110 transition-transform shadow-lg bg-primary text-on-primary"
+                        style={trackCustomBgColor ? {
+                          backgroundColor: trackCustomTextColor || '#ffffff',
+                          color: trackCustomBgColor || 'var(--md-sys-color-primary)'
+                        } : undefined}
+                      >
+                        <span className="material-symbols-outlined">arrow_forward</span>
+                      </button>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </section>
       )}
 
       {showBottom && (
-        <section className="rounded-[40px] p-16 grid grid-cols-12 gap-12 transition-colors border bg-surface-container-low border-outline/10 shadow-sm relative overflow-hidden">
+        <section 
+          className="rounded-[40px] p-16 grid grid-cols-12 gap-12 transition-colors border bg-surface-container-low border-outline/10 shadow-sm relative overflow-hidden"
+          style={{
+            backgroundColor: customBottomBgColor || undefined,
+          }}
+        >
           <div className="absolute inset-0 z-0">
              <img src={bottomImageUrl} alt={bottomHeadline} className="w-full h-full object-cover opacity-10" />
-             <div className="absolute inset-0 bg-gradient-to-r from-surface-container-low via-transparent to-transparent"></div>
+             {customBottomBgColor ? (
+               <div className="absolute inset-0" style={{ background: `linear-gradient(to right, ${customBottomBgColor}f2, transparent)` }}></div>
+             ) : (
+               <div className="absolute inset-0 bg-gradient-to-r from-surface-container-low via-transparent to-transparent"></div>
+             )}
           </div>
           <div className="col-span-12 lg:col-span-5 space-y-8 relative z-10">
             <div className="space-y-4">
-              <h3 className="text-6xl font-black tracking-tighter uppercase leading-none transition-colors text-on-surface">
+              <h3 
+                className="text-6xl font-black tracking-tighter uppercase leading-none transition-colors text-on-surface"
+                style={customBottomTextColor ? { color: customBottomTextColor } : undefined}
+              >
                 {bottomHeadline}
               </h3>
-              <p className="text-on-surface-variant text-lg font-medium leading-relaxed">
+              <p 
+                className={`text-lg font-medium leading-relaxed ${customBottomTextColor ? '' : 'text-on-surface-variant'}`}
+                style={customBottomTextColor ? { color: customBottomTextColor, opacity: 0.8 } : undefined}
+              >
                 {bottomDescription}
               </p>
             </div>
             
             <div className="space-y-4 pt-4">
-              <div className="flex items-center gap-4 transition-colors text-primary">
-                <div className="w-6 h-6 rounded-md flex items-center justify-center transition-colors bg-primary text-on-primary">
+              <div 
+                className={`flex items-center gap-4 transition-colors ${customBottomTextColor ? '' : 'text-primary'}`}
+                style={customBottomTextColor ? { color: customBottomTextColor } : undefined}
+              >
+                <div 
+                  className="w-6 h-6 rounded-md flex items-center justify-center transition-colors bg-primary text-on-primary"
+                  style={customBottomBgColor ? {
+                    backgroundColor: customBottomTextColor || '#ffffff',
+                    color: customBottomBgColor || 'var(--md-sys-color-primary)'
+                  } : undefined}
+                >
                   <span className="material-symbols-outlined text-sm">schedule</span>
                 </div>
                 <span className="text-[10px] font-black tracking-widest uppercase">24/7 ELITE ACCESS</span>
               </div>
-              <div className="flex items-center gap-4 transition-colors text-primary">
-                <div className="w-6 h-6 rounded-md flex items-center justify-center transition-colors bg-primary text-on-primary">
+              <div 
+                className={`flex items-center gap-4 transition-colors ${customBottomTextColor ? '' : 'text-primary'}`}
+                style={customBottomTextColor ? { color: customBottomTextColor } : undefined}
+              >
+                <div 
+                  className="w-6 h-6 rounded-md flex items-center justify-center transition-colors bg-primary text-on-primary"
+                  style={customBottomBgColor ? {
+                    backgroundColor: customBottomTextColor || '#ffffff',
+                    color: customBottomBgColor || 'var(--md-sys-color-primary)'
+                  } : undefined}
+                >
                   <span className="material-symbols-outlined text-sm">check</span>
                 </div>
                 <span className="text-[10px] font-black tracking-widest uppercase">ITF GOLD STANDARDS</span>
