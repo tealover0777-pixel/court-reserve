@@ -14,6 +14,8 @@ interface MembershipPlan {
   price: string;
   popular?: boolean;
   features: string[];
+  bgColor?: string;
+  textColor?: string;
 }
 
 interface MembershipsConfig {
@@ -152,7 +154,7 @@ export default function MembershipManagementView({ theme, tenantId }: { theme: s
   };
 
   // Helper styles to emulate real dashboard cards in preview mode
-  const getPreviewCardStyle = (plan: MembershipPlan, themeSelected: string) => {
+  const getPreviewCardStyle = (plan: MembershipPlan, themeSelected: string, index: number, total: number) => {
     const isDark = themeSelected === "DARK";
     const isVintage = themeSelected === "VINTAGE";
     const isLight = themeSelected === "LIGHT";
@@ -162,17 +164,26 @@ export default function MembershipManagementView({ theme, tenantId }: { theme: s
         ? "bg-stone-100 text-white border border-[#ccff00]/30 shadow-[#ccff00]/5"
         : isVintage
           ? "bg-black text-white"
-          : "bg-[#4f6b28] text-white shadow-[#4f6b28]/20";
-    } else {
-      // Platinum-style / Standard gray look
+          : "bg-[#b8860b] text-white shadow-xl shadow-[#b8860b]/20";
+    }
+    
+    if (index === total - 1 && total > 1) {
       return isDark
         ? "bg-stone-50 text-white border border-stone-200"
         : isVintage
-          ? "bg-white text-black border border-stone-50"
+          ? "bg-white text-black border-2 border-black"
           : isLight
-            ? "bg-white text-[#4f6b28] border-2 border-[#4f6b28]/10"
-            : "bg-stone-50 text-stone-900";
+            ? "bg-[#8a9597] text-white shadow-xl shadow-[#8a9597]/20"
+            : "bg-stone-900 text-white";
     }
+
+    return isDark
+      ? "bg-stone-100 text-white"
+      : isVintage
+        ? "bg-white text-black border border-stone-50"
+        : isLight
+          ? "bg-white text-[#4f6b28] border-2 border-[#4f6b28]/10"
+          : "bg-stone-50 text-stone-900";
   };
 
   const getPreviewButtonStyle = (plan: MembershipPlan, themeSelected: string) => {
@@ -336,6 +347,67 @@ export default function MembershipManagementView({ theme, tenantId }: { theme: s
                           </button>
                         </div>
 
+                        {/* Custom Color Controls */}
+                        <div className="grid grid-cols-2 gap-4 bg-surface/30 p-5 rounded-3xl border border-outline/10">
+                          <div className="space-y-2">
+                            <div className="flex items-center justify-between">
+                              <label className="text-[9px] font-black uppercase tracking-[0.2em] opacity-40 ml-1">Custom Background</label>
+                              {plan.bgColor && (
+                                <button
+                                  onClick={() => handleUpdatePlan(index, { bgColor: "" })}
+                                  className="text-[8px] font-black uppercase text-error hover:underline"
+                                >
+                                  Reset
+                                </button>
+                              )}
+                            </div>
+                            <div className="flex items-center gap-3 bg-surface p-2.5 rounded-2xl">
+                              <input
+                                type="color"
+                                value={plan.bgColor || "#ffffff"}
+                                onChange={(e) => handleUpdatePlan(index, { bgColor: e.target.value })}
+                                className="w-8 h-8 rounded-xl border-0 cursor-pointer overflow-hidden bg-transparent"
+                              />
+                              <input
+                                type="text"
+                                placeholder="Auto Theme"
+                                value={plan.bgColor || ""}
+                                onChange={(e) => handleUpdatePlan(index, { bgColor: e.target.value })}
+                                className="flex-1 bg-transparent border-none text-[11px] font-bold outline-none uppercase placeholder:text-stone-500 w-full"
+                              />
+                            </div>
+                          </div>
+
+                          <div className="space-y-2">
+                            <div className="flex items-center justify-between">
+                              <label className="text-[9px] font-black uppercase tracking-[0.2em] opacity-40 ml-1">Custom Font Color</label>
+                              {plan.textColor && (
+                                <button
+                                  onClick={() => handleUpdatePlan(index, { textColor: "" })}
+                                  className="text-[8px] font-black uppercase text-error hover:underline"
+                                >
+                                  Reset
+                                </button>
+                              )}
+                            </div>
+                            <div className="flex items-center gap-3 bg-surface p-2.5 rounded-2xl">
+                              <input
+                                type="color"
+                                value={plan.textColor || "#000000"}
+                                onChange={(e) => handleUpdatePlan(index, { textColor: e.target.value })}
+                                className="w-8 h-8 rounded-xl border-0 cursor-pointer overflow-hidden bg-transparent"
+                              />
+                              <input
+                                type="text"
+                                placeholder="Auto Theme"
+                                value={plan.textColor || ""}
+                                onChange={(e) => handleUpdatePlan(index, { textColor: e.target.value })}
+                                className="flex-1 bg-transparent border-none text-[11px] font-bold outline-none uppercase placeholder:text-stone-500 w-full"
+                              />
+                            </div>
+                          </div>
+                        </div>
+
                         {/* Benefits Editor */}
                         <div className="space-y-4">
                           <div className="flex items-center justify-between ml-1">
@@ -424,7 +496,7 @@ export default function MembershipManagementView({ theme, tenantId }: { theme: s
 
                 <div className="space-y-6">
                   {plans.map((plan, i) => {
-                    const cardStyle = getPreviewCardStyle(plan, previewTheme);
+                    const cardStyle = getPreviewCardStyle(plan, previewTheme, i, plans.length);
                     const buttonStyle = getPreviewButtonStyle(plan, previewTheme);
                     
                     return (
@@ -433,6 +505,10 @@ export default function MembershipManagementView({ theme, tenantId }: { theme: s
                         className={`${cardStyle} rounded-[30px] p-8 shadow-lg relative flex flex-col transition-all duration-300 ${
                           activePlanIdx === i ? "ring-2 ring-primary scale-[1.02]" : "opacity-85"
                         }`}
+                        style={{
+                          backgroundColor: plan.bgColor || undefined,
+                          color: plan.textColor || undefined,
+                        }}
                       >
                         {plan.popular && (
                           <div className={`absolute -top-3.5 left-8 px-4 py-1.5 text-[8px] font-black tracking-[0.2em] rounded-full shadow transition-colors ${
@@ -456,7 +532,22 @@ export default function MembershipManagementView({ theme, tenantId }: { theme: s
                             </li>
                           ))}
                         </ul>
-                        <button className={`mt-8 w-full py-4 rounded-xl text-[9px] font-black tracking-widest uppercase transition-all ${buttonStyle}`}>
+                        <button
+                          className={`mt-8 w-full py-4 rounded-xl text-[9px] font-black tracking-widest uppercase transition-all ${buttonStyle}`}
+                          style={
+                            plan.textColor || plan.bgColor
+                              ? plan.popular
+                                ? {
+                                    backgroundColor: plan.textColor || undefined,
+                                    color: plan.bgColor || undefined,
+                                  }
+                                : {
+                                    borderColor: plan.textColor || undefined,
+                                    color: plan.textColor || undefined,
+                                  }
+                              : undefined
+                          }
+                        >
                           {plan.popular ? "CURRENT PLAN" : "UPGRADE NOW"}
                         </button>
                       </div>

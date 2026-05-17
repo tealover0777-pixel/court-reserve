@@ -1903,7 +1903,7 @@ function MembershipView({ theme, tenantId }: { theme: "LIGHT" | "DARK" | "VINTAG
         : theme === "VINTAGE"
           ? "bg-black text-white"
           : theme === "LIGHT"
-            ? "bg-[#4f6b28] text-white shadow-[#4f6b28]/20"
+            ? "bg-[#b8860b] text-white shadow-xl shadow-[#b8860b]/20"
             : "bg-stone-900 text-white";
     }
     
@@ -1913,7 +1913,7 @@ function MembershipView({ theme, tenantId }: { theme: "LIGHT" | "DARK" | "VINTAG
         : theme === "VINTAGE"
           ? "bg-white text-black border-2 border-black"
           : theme === "LIGHT"
-            ? "bg-[#4f6b28] text-white"
+            ? "bg-[#8a9597] text-white shadow-xl shadow-[#8a9597]/20"
             : "bg-stone-900 text-white";
     }
 
@@ -1959,7 +1959,14 @@ function MembershipView({ theme, tenantId }: { theme: "LIGHT" | "DARK" | "VINTAG
           const cardColor = getCardColor(plan, i, plans.length);
           const buttonColor = getButtonColor(plan);
           return (
-            <div key={i} className={`${cardColor} rounded-[40px] p-12 shadow-2xl relative flex flex-col transition-all hover:scale-105 duration-300`}>
+            <div
+              key={i}
+              className={`${cardColor} rounded-[40px] p-12 shadow-2xl relative flex flex-col transition-all hover:scale-105 duration-300`}
+              style={{
+                backgroundColor: plan.bgColor || undefined,
+                color: plan.textColor || undefined,
+              }}
+            >
               {plan.popular && (
                 <div className={`absolute -top-4 left-12 px-6 py-2 text-[10px] font-black tracking-[0.2em] rounded-full shadow-lg transition-colors ${theme === "DARK" ? "bg-white text-black" : theme === "LIGHT" ? "bg-[#ccff00] text-black" : "bg-stone-900 text-white"
                   }`}>
@@ -1981,7 +1988,22 @@ function MembershipView({ theme, tenantId }: { theme: "LIGHT" | "DARK" | "VINTAG
                   </li>
                 ))}
               </ul>
-              <button className={`mt-12 w-full py-5 rounded-2xl text-[10px] font-black tracking-widest transition-all uppercase ${buttonColor}`}>
+              <button
+                className={`mt-12 w-full py-5 rounded-2xl text-[10px] font-black tracking-widest transition-all uppercase ${buttonColor}`}
+                style={
+                  plan.textColor || plan.bgColor
+                    ? plan.popular
+                      ? {
+                          backgroundColor: plan.textColor || undefined,
+                          color: plan.bgColor || undefined,
+                        }
+                      : {
+                          borderColor: plan.textColor || undefined,
+                          color: plan.textColor || undefined,
+                        }
+                    : undefined
+                }
+              >
                 {plan.popular ? "CURRENT PLAN" : "UPGRADE NOW"}
               </button>
             </div>
