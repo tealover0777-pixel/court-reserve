@@ -364,6 +364,7 @@ export default function DashboardClient({ params }: { params: { tenantId: string
         tenantId={tenantId}
         allTenants={allTenants}
         globalTenant={globalTenant}
+        roles={roles}
       />
 
       {/* TopAppBar Component */}
@@ -584,7 +585,11 @@ export default function DashboardClient({ params }: { params: { tenantId: string
   );
 }
 
-function Sidebar({ activeView, setActiveView, platformAdminOpen, setPlatformAdminOpen, administrationOpen, setAdministrationOpen, isGlobalUser, hasPermission, profile, onLogout, theme, tenantId, allTenants, globalTenant }: any) {
+function Sidebar({ activeView, setActiveView, platformAdminOpen, setPlatformAdminOpen, administrationOpen, setAdministrationOpen, isGlobalUser, hasPermission, profile, onLogout, theme, tenantId, allTenants, globalTenant, roles }: any) {
+  const currentTenantInfo = tenantId === "consolidated" ? { name: "CONSOLIDATED" } : allTenants?.find((t: any) => t.tenant_id === tenantId || t.id === tenantId);
+  const companyName = currentTenantInfo?.name || (tenantId ? "COURT RESERVE" : "VANTAGE HUB");
+  const logoUrl = currentTenantInfo?.logo_url;
+
   return (
     <aside className="w-[320px] h-screen flex flex-col transition-all duration-700 ease-in-out z-30 fixed left-0 top-0 bg-surface">
       {/* Brand Header */}
@@ -594,14 +599,18 @@ function Sidebar({ activeView, setActiveView, platformAdminOpen, setPlatformAdmi
             <span className="material-symbols-outlined text-xl font-black">sports_tennis</span>
           </div>
           <div>
-            <h1 className="text-xl font-black italic tracking-tighter leading-none transition-colors text-primary font-headline">
-              {tenantId === "consolidated" ? "CONSOLIDATED" :
-                (allTenants?.find((t: any) => t.tenant_id === tenantId || t.id === tenantId)?.name ||
-                  (tenantId ? "COURT RESERVE" : "VANTAGE HUB"))}
-            </h1>
-            <p className="text-[8px] font-black uppercase tracking-[0.3em] mt-1 transition-colors text-on-surface/40 font-body">
-              {tenantId ? `TENANT: ${tenantId.toUpperCase()}` : "PLATFORM ADMINISTRATION"}
-            </p>
+            {logoUrl ? (
+              <img src={logoUrl} alt={companyName} className="h-10 w-auto object-contain" />
+            ) : (
+              <h1 className="text-xl font-black italic tracking-tighter leading-none transition-colors text-primary font-headline">
+                {companyName}
+              </h1>
+            )}
+            {isGlobalUser && (
+              <p className="text-[8px] font-black uppercase tracking-[0.3em] mt-1 transition-colors text-on-surface/40 font-body">
+                {tenantId ? `TENANT: ${tenantId.toUpperCase()}` : "PLATFORM ADMINISTRATION"}
+              </p>
+            )}
           </div>
         </div>
       </div>
@@ -744,7 +753,7 @@ function Sidebar({ activeView, setActiveView, platformAdminOpen, setPlatformAdmi
               {profile?.first_name || 'Player'} {profile?.last_name || ''}
             </p>
             <p className="text-[8px] font-black uppercase tracking-widest transition-colors text-primary truncate opacity-70">
-              {profile?.role || 'Member'}
+              {roles?.find((r: any) => r.role_id === profile?.role || r.id === profile?.role)?.name || profile?.role || 'Member'}
             </p>
           </div>
           <button
