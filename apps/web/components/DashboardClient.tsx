@@ -16,6 +16,7 @@ import SchedulesAdminView from "./SchedulesAdminView";
 import MemberAdminView from "./MemberAdminView";
 import DashboardManagementView from "./DashboardManagementView";
 import ProgramsManagementView from "./ProgramsManagementView";
+import MembershipManagementView from "./MembershipManagementView";
 import { useNotification } from "../context/NotificationContext";
 import { Modal } from "@repo/ui/modal";
 import { useAuth } from "../context/AuthContext";
@@ -52,7 +53,7 @@ export default function DashboardClient({ params }: { params: { tenantId: string
   const searchParams = useSearchParams();
   const pathname = usePathname();
 
-  const [activeView, setActiveView] = React.useState<"DASHBOARD" | "COURT BOOKING" | "PROGRAMS" | "MEMBERSHIP" | "SETTINGS" | "PROFILE" | "AI_ADMIN" | "DIMENSIONS" | "ROLE_TYPES" | "USER_ADMIN" | "PLATFORM_TENANT_ADMIN" | "COMPANY" | "PLATFORM_COMPANY" | "TENANT_USER_ADMIN" | "MEMBER_ADMIN" | "PLATFORM_ROLE_TYPES" | "SCHEDULES" | "EVENTS_ADMIN" | "DASHBOARD_MANAGEMENT" | "PROGRAMS_MANAGEMENT">("DASHBOARD");
+  const [activeView, setActiveView] = React.useState<"DASHBOARD" | "COURT BOOKING" | "PROGRAMS" | "MEMBERSHIP" | "SETTINGS" | "PROFILE" | "AI_ADMIN" | "DIMENSIONS" | "ROLE_TYPES" | "USER_ADMIN" | "PLATFORM_TENANT_ADMIN" | "COMPANY" | "PLATFORM_COMPANY" | "TENANT_USER_ADMIN" | "MEMBER_ADMIN" | "PLATFORM_ROLE_TYPES" | "SCHEDULES" | "EVENTS_ADMIN" | "DASHBOARD_MANAGEMENT" | "PROGRAMS_MANAGEMENT" | "MEMBERSHIP_MANAGEMENT">("DASHBOARD");
   const [platformAdminOpen, setPlatformAdminOpen] = React.useState(false);
   const [administrationOpen, setAdministrationOpen] = React.useState(false);
   const [theme, setTheme] = React.useState<"LIGHT" | "DARK" | "VINTAGE">("LIGHT");
@@ -150,6 +151,7 @@ export default function DashboardClient({ params }: { params: { tenantId: string
     "EVENTS_ADMIN": "ADMINISTRATION_VIEW",
     "DASHBOARD_MANAGEMENT": "ADMINISTRATION_VIEW",
     "PROGRAMS_MANAGEMENT": "ADMINISTRATION_VIEW",
+    "MEMBERSHIP_MANAGEMENT": "ADMINISTRATION_VIEW",
   };
 
   // Sync state with History API for clean URL + Back/Forward support
@@ -381,7 +383,7 @@ export default function DashboardClient({ params }: { params: { tenantId: string
           <div className="flex items-center gap-2">
             <span className="text-[10px] font-black tracking-widest uppercase opacity-70 text-on-background">
               {activeView === "DASHBOARD" || activeView === "PROGRAMS" || activeView === "MEMBERSHIP" || activeView.includes("PLATFORM") || activeView === "USER_ADMIN" || activeView === "AI_ADMIN" || activeView === "DIMENSIONS" ? "PLATFORM" :
-                activeView === "ROLE_TYPES" || activeView === "COMPANY" || activeView === "TENANT_USER_ADMIN" || activeView === "SCHEDULES" || activeView === "PROGRAMS_MANAGEMENT" ? "ADMINISTRATION" : "MANAGEMENT"}
+                activeView === "ROLE_TYPES" || activeView === "COMPANY" || activeView === "TENANT_USER_ADMIN" || activeView === "SCHEDULES" || activeView === "PROGRAMS_MANAGEMENT" || activeView === "MEMBERSHIP_MANAGEMENT" ? "ADMINISTRATION" : "MANAGEMENT"}
             </span>
             <span className="text-outline/20">/</span>
             <span className="text-xs font-black tracking-widest uppercase text-on-background">
@@ -538,12 +540,13 @@ export default function DashboardClient({ params }: { params: { tenantId: string
           if (activeView === "COURT BOOKING") return <CourtBookingView theme={theme} isAdmin={hasPermission("ADMINISTRATION_VIEW")} tenantId={tenantId ?? undefined} />;
           if (activeView === "SCHEDULES") return <SchedulesAdminView theme={theme} />;
           if (activeView === "PROGRAMS") return <ProgramsView theme={theme} tenantId={tenantId} />;
-          if (activeView === "MEMBERSHIP") return <MembershipView theme={theme} />;
+          if (activeView === "MEMBERSHIP") return <MembershipView theme={theme} tenantId={tenantId} />;
           if (activeView === "SETTINGS") return <SettingsView theme={theme} />;
           if (activeView === "PROFILE") return <ProfileView theme={theme} profile={profile} roles={roles} />;
           if (activeView === "EVENTS_ADMIN") return <EventsAdminView theme={theme} tenantId={tenantId} allTenants={isGlobalUser ? allTenants : []} />;
           if (activeView === "DASHBOARD_MANAGEMENT") return <DashboardManagementView theme={theme} tenantId={tenantId} />;
           if (activeView === "PROGRAMS_MANAGEMENT") return <ProgramsManagementView theme={theme} tenantId={tenantId} />;
+          if (activeView === "MEMBERSHIP_MANAGEMENT") return <MembershipManagementView theme={theme} tenantId={tenantId} />;
           return (
             <div className={`flex flex-col items-center justify-center min-h-[60vh] ${theme === "DARK" ? "text-white" : theme === "LIGHT" ? "text-[#4f6b28]" : "text-stone-900"}`}>
               <span className="material-symbols-outlined text-6xl mb-4">construction</span>
@@ -682,6 +685,9 @@ function Sidebar({ activeView, setActiveView, platformAdminOpen, setPlatformAdmi
                 )}
                 {(hasPermission('ADMINISTRATION_VIEW') || profile?.role?.includes('R10005')) && (
                   <SubNavItem label="Programs Mgmt" active={activeView === "PROGRAMS_MANAGEMENT"} onClick={() => setActiveView("PROGRAMS_MANAGEMENT")} theme={theme} />
+                )}
+                {(hasPermission('ADMINISTRATION_VIEW') || profile?.role?.includes('R10005')) && (
+                  <SubNavItem label="Membership Mgmt" active={activeView === "MEMBERSHIP_MANAGEMENT"} onClick={() => setActiveView("MEMBERSHIP_MANAGEMENT")} theme={theme} />
                 )}
                 {(hasPermission('USER_ADMIN_VIEW') || profile?.role?.includes('R10005')) && (
                   <SubNavItem label="User Admin" active={activeView === "TENANT_USER_ADMIN"} onClick={() => setActiveView("TENANT_USER_ADMIN")} theme={theme} />
@@ -1849,7 +1855,97 @@ function ProfileView({ theme, profile, roles }: { theme: "LIGHT" | "DARK" | "VIN
   );
 }
 
-function MembershipView({ theme }: { theme: "LIGHT" | "DARK" | "VINTAGE" }) {
+function MembershipView({ theme, tenantId }: { theme: "LIGHT" | "DARK" | "VINTAGE"; tenantId: string }) {
+  const [plans, setPlans] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!tenantId) {
+      setPlans([
+        { name: "SILVER", price: "99", popular: false, features: ["2 Bookings/Week", "Standard Access", "Social Mixers"] },
+        { name: "GOLD", price: "199", popular: true, features: ["Unlimited Bookings", "Priority Courts", "Guest Passes (4)", "Pro Discounts"] },
+        { name: "PLATINUM", price: "299", popular: false, features: ["24/7 Access", "Personal Locker", "Free Stringing", "Pro Clinic Access"] }
+      ]);
+      setLoading(false);
+      return;
+    }
+
+    const configRef = doc(db, "tenants", tenantId, "config", "memberships");
+    const unsubscribe = onSnapshot(configRef, (docSnap) => {
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        if (data.plans && Array.isArray(data.plans)) {
+          setPlans(data.plans);
+        } else {
+          setPlans([
+            { name: "SILVER", price: "99", popular: false, features: ["2 Bookings/Week", "Standard Access", "Social Mixers"] },
+            { name: "GOLD", price: "199", popular: true, features: ["Unlimited Bookings", "Priority Courts", "Guest Passes (4)", "Pro Discounts"] },
+            { name: "PLATINUM", price: "299", popular: false, features: ["24/7 Access", "Personal Locker", "Free Stringing", "Pro Clinic Access"] }
+          ]);
+        }
+      } else {
+        setPlans([
+          { name: "SILVER", price: "99", popular: false, features: ["2 Bookings/Week", "Standard Access", "Social Mixers"] },
+          { name: "GOLD", price: "199", popular: true, features: ["Unlimited Bookings", "Priority Courts", "Guest Passes (4)", "Pro Discounts"] },
+          { name: "PLATINUM", price: "299", popular: false, features: ["24/7 Access", "Personal Locker", "Free Stringing", "Pro Clinic Access"] }
+        ]);
+      }
+      setLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, [tenantId]);
+
+  const getCardColor = (plan: any, index: number, total: number) => {
+    if (plan.popular) {
+      return theme === "DARK"
+        ? "bg-stone-100 text-white border border-[#ccff00]/30 shadow-[#ccff00]/5"
+        : theme === "VINTAGE"
+          ? "bg-black text-white"
+          : theme === "LIGHT"
+            ? "bg-[#4f6b28] text-white shadow-[#4f6b28]/20"
+            : "bg-stone-900 text-white";
+    }
+    
+    if (index === total - 1 && total > 1) {
+      return theme === "DARK"
+        ? "bg-stone-50 text-white border border-stone-200"
+        : theme === "VINTAGE"
+          ? "bg-white text-black border-2 border-black"
+          : theme === "LIGHT"
+            ? "bg-[#4f6b28] text-white"
+            : "bg-stone-900 text-white";
+    }
+
+    return theme === "DARK"
+      ? "bg-stone-100 text-white"
+      : theme === "VINTAGE"
+        ? "bg-white text-black border border-stone-50"
+        : theme === "LIGHT"
+          ? "bg-white text-[#4f6b28] border-2 border-[#4f6b28]/10"
+          : "bg-stone-50 text-stone-900";
+  };
+
+  const getButtonColor = (plan: any) => {
+    if (plan.popular) {
+      return theme === "DARK"
+        ? "bg-stone-100 text-white animate-pulse"
+        : theme === "VINTAGE"
+          ? "bg-white text-black"
+          : theme === "LIGHT"
+            ? "bg-[#ccff00] text-black"
+            : "bg-white text-stone-900";
+    }
+    return "border-2 border-current hover:bg-current hover:text-white";
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-16 animate-in fade-in slide-in-from-bottom-4 duration-700">
@@ -1859,40 +1955,38 @@ function MembershipView({ theme }: { theme: "LIGHT" | "DARK" | "VINTAGE" }) {
       </h2>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-        {[
-          { name: "SILVER", price: "99", color: theme === "DARK" ? "bg-stone-100 text-white" : theme === "VINTAGE" ? "bg-white text-black border border-stone-50" : theme === "LIGHT" ? "bg-white text-[#4f6b28] border-2 border-[#4f6b28]/10" : "bg-stone-50 text-stone-900", features: ["2 Bookings/Week", "Standard Access", "Social Mixers"] },
-          { name: "GOLD", price: "199", popular: true, color: theme === "DARK" ? "bg-stone-100 text-white border border-[#ccff00]/30" : theme === "VINTAGE" ? "bg-black text-white" : theme === "LIGHT" ? "bg-[#4f6b28] text-white shadow-[#4f6b28]/20" : "bg-stone-900 text-white", features: ["Unlimited Bookings", "Priority Courts", "Guest Passes (4)", "Pro Discounts"] },
-          { name: "PLATINUM", price: "299", color: theme === "DARK" ? "bg-stone-50 text-white border border-stone-200" : theme === "VINTAGE" ? "bg-white text-black border-2 border-black" : theme === "LIGHT" ? "bg-[#4f6b28] text-white" : "bg-stone-900 text-white", features: ["24/7 Access", "Personal Locker", "Free Stringing", "Pro Clinic Access"] }
-        ].map((plan, i) => (
-          <div key={i} className={`${plan.color} rounded-[40px] p-12 shadow-2xl relative flex flex-col transition-all hover:scale-105`}>
-            {plan.popular && (
-              <div className={`absolute -top-4 left-12 px-6 py-2 text-[10px] font-black tracking-[0.2em] rounded-full shadow-lg transition-colors ${theme === "DARK" ? "bg-white text-black" : theme === "LIGHT" ? "bg-[#ccff00] text-[#4f6b28]" : "bg-stone-900 text-white"
-                }`}>
-                MOST POPULAR
+        {plans.map((plan, i) => {
+          const cardColor = getCardColor(plan, i, plans.length);
+          const buttonColor = getButtonColor(plan);
+          return (
+            <div key={i} className={`${cardColor} rounded-[40px] p-12 shadow-2xl relative flex flex-col transition-all hover:scale-105 duration-300`}>
+              {plan.popular && (
+                <div className={`absolute -top-4 left-12 px-6 py-2 text-[10px] font-black tracking-[0.2em] rounded-full shadow-lg transition-colors ${theme === "DARK" ? "bg-white text-black" : theme === "LIGHT" ? "bg-[#ccff00] text-black" : "bg-stone-900 text-white"
+                  }`}>
+                  MOST POPULAR
+                </div>
+              )}
+              <div className="mb-12">
+                <h3 className="text-2xl font-black tracking-widest uppercase opacity-60 mb-2">{plan.name}</h3>
+                <div className="flex items-baseline">
+                  <span className="text-5xl font-black">${plan.price}</span>
+                  <span className="text-sm font-bold opacity-40 ml-2">/MO</span>
+                </div>
               </div>
-            )}
-            <div className="mb-12">
-              <h3 className="text-2xl font-black tracking-widest uppercase opacity-60 mb-2">{plan.name}</h3>
-              <div className="flex items-baseline">
-                <span className="text-5xl font-black">${plan.price}</span>
-                <span className="text-sm font-bold opacity-40 ml-2">/MO</span>
-              </div>
+              <ul className="space-y-6 flex-1">
+                {plan.features && plan.features.map((f: string, j: number) => (
+                  <li key={j} className="flex items-center gap-4">
+                    <span className="material-symbols-outlined text-sm">check_circle</span>
+                    <span className="text-sm font-bold">{f}</span>
+                  </li>
+                ))}
+              </ul>
+              <button className={`mt-12 w-full py-5 rounded-2xl text-[10px] font-black tracking-widest transition-all uppercase ${buttonColor}`}>
+                {plan.popular ? "CURRENT PLAN" : "UPGRADE NOW"}
+              </button>
             </div>
-            <ul className="space-y-6 flex-1">
-              {plan.features.map((f, j) => (
-                <li key={j} className="flex items-center gap-4">
-                  <span className="material-symbols-outlined text-sm">check_circle</span>
-                  <span className="text-sm font-bold">{f}</span>
-                </li>
-              ))}
-            </ul>
-            <button className={`mt-12 w-full py-5 rounded-2xl text-[10px] font-black tracking-widest transition-all uppercase ${plan.popular ? (theme === "DARK" ? "bg-stone-100 text-white" : theme === "VINTAGE" ? "bg-white text-black" : theme === "LIGHT" ? "bg-[#ccff00] text-[#4f6b28]" : "bg-white text-stone-900") :
-              "border-2 border-current hover:bg-current hover:text-white"
-              }`}>
-              {plan.popular ? "CURRENT PLAN" : "UPGRADE NOW"}
-            </button>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );
