@@ -183,10 +183,20 @@ export default function MembershipManagementView({ theme, tenantId }: { theme: s
 
   const handleUpdatePlan = (index: number, updatedFields: Partial<MembershipPlan>) => {
     setPlans(prev => {
-      const updated = [...prev];
+      let updated = [...prev];
       const target = updated[index];
       if (!target) return prev;
-      updated[index] = { ...target, ...updatedFields };
+      
+      if (updatedFields.popular === true) {
+        updated = updated.map((plan, idx) => {
+          if (idx === index) {
+            return { ...plan, ...updatedFields };
+          }
+          return { ...plan, popular: false };
+        });
+      } else {
+        updated[index] = { ...target, ...updatedFields };
+      }
       return updated;
     });
   };
