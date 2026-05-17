@@ -31,10 +31,18 @@ interface ProgramTrack {
   };
 }
 
+interface FeaturedProgramItem {
+  headline: string;
+  description: string;
+  imageUrl: string;
+}
+
 interface ProgramsConfig {
   heroHeadline: string;
   heroDescription: string;
   heroImageUrl: string;
+  
+  featuredPrograms?: FeaturedProgramItem[];
   
   sidebarHeadline: string;
   sidebarDescription: string;
@@ -68,6 +76,14 @@ const DEFAULT_CONFIG: ProgramsConfig = {
   heroHeadline: "CHAMPIONSHIP CLINIC 2024",
   heroDescription: "Intensive technical refinement for competitive players. Lead by ITF-certified master professionals.",
   heroImageUrl: "/images/programs_hero.png",
+  
+  featuredPrograms: [
+    {
+      headline: "CHAMPIONSHIP CLINIC 2024",
+      description: "Intensive technical refinement for competitive players. Lead by ITF-certified master professionals.",
+      imageUrl: "/images/programs_hero.png"
+    }
+  ],
   
   sidebarHeadline: "PRO-FOCUS WEEKEND",
   sidebarDescription: "Join Coach Marcus for a 48-hour immersion into strategy and bio-mechanics. Limited to 8 participants.",
@@ -128,8 +144,15 @@ export default function ProgramsManagementView({ theme, tenantId }: { theme: str
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState<string | null>(null);
+  const [uploadTarget, setUploadTarget] = useState<{ type: string; index?: number } | null>(null);
   const [activeTheme, setActiveTheme] = useState<"LIGHT" | "DARK" | "VINTAGE">("LIGHT");
   const { showNotification } = useNotification();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const triggerImageUpload = (type: string, index?: number) => {
+    setUploadTarget({ type, index });
+    fileInputRef.current?.click();
+  };
   
   const activeSidebarBgColor = config.sidebarThemeColors?.[activeTheme]?.bgColor || "";
   const activeSidebarTextColor = config.sidebarThemeColors?.[activeTheme]?.textColor || "";
@@ -203,7 +226,6 @@ export default function ProgramsManagementView({ theme, tenantId }: { theme: str
   
   const heroInputRef = useRef<HTMLInputElement>(null);
   const bottomInputRef = useRef<HTMLInputElement>(null);
-  const trackRefs = [useRef<HTMLInputElement>(null), useRef<HTMLInputElement>(null), useRef<HTMLInputElement>(null)];
 
   useEffect(() => {
     if (!tenantId) return;
@@ -211,7 +233,15 @@ export default function ProgramsManagementView({ theme, tenantId }: { theme: str
     const configRef = doc(db, "tenants", tenantId, "config", "programs");
     const unsubscribe = onSnapshot(configRef, (docSnap) => {
       if (docSnap.exists()) {
-        setConfig({ ...DEFAULT_CONFIG, ...docSnap.data() });
+        const data = docSnap.data() as ProgramsConfig;
+        const featuredPrograms = data.featuredPrograms || [
+          {
+            headline: data.heroHeadline || "CHAMPIONSHIP CLINIC 2024",
+            description: data.heroDescription || "Intensive technical refinement for competitive players. Lead by ITF-certified master professionals.",
+            imageUrl: data.heroImageUrl || "/images/programs_hero.png"
+          }
+        ];
+        setConfig({ ...DEFAULT_CONFIG, ...data, featuredPrograms });
       } else {
         setConfig(DEFAULT_CONFIG);
       }
@@ -253,6 +283,14 @@ export default function ProgramsManagementView({ theme, tenantId }: { theme: str
         setConfig(prev => ({ ...prev, heroImageUrl: url }));
       } else if (type === 'bottom') {
         setConfig(prev => ({ ...prev, bottomImageUrl: url }));
+      } else if (type === 'featured' && index !== undefined) {
+        setConfig(prev => {
+          const featured = [...(prev.featuredPrograms || [])];
+          if (featured[index]) {
+            featured[index] = { ...featured[index], imageUrl: url };
+          }
+          return { ...prev, featuredPrograms: featured };
+        });
       } else if (type === 'track' && index !== undefined) {
         setConfig(prev => {
           const newTracks = [...prev.tracks];
@@ -327,12 +365,12 @@ export default function ProgramsManagementView({ theme, tenantId }: { theme: str
 
       <div className="grid grid-cols-12 gap-8">
         <div className="col-span-12 lg:col-span-8 space-y-6">
-          {/* Hero Program Editor */}
-          <div className="rounded-[2.5rem] p-10 border transition-colors bg-surface-container-low border-outline/10">
-            <div className="flex items-center justify-between mb-8">
+          {/* Featured Programs Editor */}
+          <div className="rounded-[2.5rem] p-10 border transition-colors bg-surface-container-low border-outline/10 space-y-8">
+            <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <span className="material-symbols-outlined text-primary">workspace_premium</span>
-                <h3 className="text-xl font-black uppercase tracking-widest">Featured Program (Hero)</h3>
+                <h3 className="text-xl font-black uppercase tracking-widest">Featured Programs</h3>
               </div>
               <div className="flex items-center gap-2">
                 <span className="text-[9px] font-black uppercase tracking-widest opacity-40">Display</span>
@@ -345,53 +383,106 @@ export default function ProgramsManagementView({ theme, tenantId }: { theme: str
               </div>
             </div>
             
-            <div className="space-y-6">
-              <div className="space-y-2">
-                <label className="text-[10px] font-black uppercase tracking-[0.2em] opacity-50 ml-1">Headline</label>
-                <input
-                  type="text"
-                  value={config.heroHeadline}
-                  onChange={(e) => setConfig({ ...config, heroHeadline: e.target.value })}
-                  className="w-full px-6 py-4 rounded-2xl bg-surface-container border-none focus:ring-2 focus:ring-primary text-sm font-bold transition-all"
-                />
-              </div>
-              <div className="space-y-2">
-                <label className="text-[10px] font-black uppercase tracking-[0.2em] opacity-50 ml-1">Description</label>
-                <textarea
-                  value={config.heroDescription}
-                  onChange={(e) => setConfig({ ...config, heroDescription: e.target.value })}
-                  className="w-full px-6 py-4 rounded-2xl bg-surface-container border-none focus:ring-2 focus:ring-primary text-sm font-bold transition-all min-h-[100px]"
-                />
-              </div>
+            <div className="space-y-10">
+              {config.featuredPrograms?.map((item, idx) => (
+                <div key={idx} className="p-8 rounded-[2rem] bg-surface-container space-y-6 relative overflow-hidden">
+                  <div className="flex justify-between items-center">
+                    <span className="px-4 py-1 rounded-full text-[8px] font-black uppercase tracking-widest bg-primary/10 text-primary">
+                      Featured Program 0{idx + 1}
+                    </span>
+                    {config.featuredPrograms && config.featuredPrograms.length > 1 && (
+                      <button
+                        onClick={() => {
+                          setConfig(prev => {
+                            const newFeatured = [...(prev.featuredPrograms || [])];
+                            newFeatured.splice(idx, 1);
+                            return { ...prev, featuredPrograms: newFeatured };
+                          });
+                        }}
+                        className="flex items-center gap-1 text-[8px] font-black uppercase tracking-widest text-error hover:underline transition-all"
+                      >
+                        <span className="material-symbols-outlined text-sm">delete</span>
+                        Remove
+                      </button>
+                    )}
+                  </div>
 
-              <div className="space-y-2">
-                <label className="text-[10px] font-black uppercase tracking-[0.2em] opacity-50 ml-1">Hero Image</label>
-                <div 
-                  onClick={() => heroInputRef.current?.click()}
-                  className="group relative h-48 rounded-[2rem] overflow-hidden cursor-pointer border-2 border-dashed border-outline/20 hover:border-primary/50 transition-all flex items-center justify-center bg-surface-container/50"
-                >
-                  {config.heroImageUrl ? (
-                    <>
-                      <img src={config.heroImageUrl} className="absolute inset-0 w-full h-full object-cover opacity-40 group-hover:scale-105 transition-all duration-700" alt="Hero" />
-                      <div className="relative z-10 flex flex-col items-center gap-2">
-                        <span className="material-symbols-outlined text-4xl text-white">cloud_upload</span>
-                        <span className="text-[10px] font-black uppercase tracking-widest text-white">Change Image</span>
+                  <div className="space-y-4">
+                    <div className="space-y-1">
+                      <label className="text-[9px] font-black uppercase tracking-widest opacity-40">Headline</label>
+                      <input
+                        type="text"
+                        value={item.headline}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          setConfig(prev => {
+                            const newFeatured = [...(prev.featuredPrograms || [])];
+                            if (newFeatured[idx]) {
+                              newFeatured[idx] = { ...newFeatured[idx], headline: val };
+                            }
+                            return { ...prev, featuredPrograms: newFeatured };
+                          });
+                        }}
+                        className="w-full px-4 py-3 rounded-xl bg-surface border-none text-[10px] font-bold"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-[9px] font-black uppercase tracking-widest opacity-40">Description</label>
+                      <textarea
+                        value={item.description}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          setConfig(prev => {
+                            const newFeatured = [...(prev.featuredPrograms || [])];
+                            if (newFeatured[idx]) {
+                              newFeatured[idx] = { ...newFeatured[idx], description: val };
+                            }
+                            return { ...prev, featuredPrograms: newFeatured };
+                          });
+                        }}
+                        className="w-full px-4 py-3 rounded-xl bg-surface border-none text-[10px] font-bold min-h-[80px]"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-[9px] font-black uppercase tracking-widest opacity-40">Program Image</label>
+                      <div 
+                        onClick={() => triggerImageUpload('featured', idx)}
+                        className="group relative h-28 rounded-xl overflow-hidden cursor-pointer border-2 border-dashed border-outline/10 hover:border-primary/50 transition-all flex items-center justify-center bg-surface"
+                      >
+                        {item.imageUrl ? (
+                          <>
+                            <img src={item.imageUrl} className="absolute inset-0 w-full h-full object-cover opacity-30" alt="Featured" />
+                            <span className="relative z-10 material-symbols-outlined text-xl text-primary">image</span>
+                          </>
+                        ) : (
+                          <span className="material-symbols-outlined text-xl opacity-20">add_photo_alternate</span>
+                        )}
+                        {uploading === `featured_${idx}` && (
+                          <div className="absolute inset-0 bg-black/60 flex items-center justify-center z-20">
+                            <div className="w-4 h-4 border border-white border-t-transparent rounded-full animate-spin"></div>
+                          </div>
+                        )}
                       </div>
-                    </>
-                  ) : (
-                    <div className="flex flex-col items-center gap-2 opacity-40">
-                      <span className="material-symbols-outlined text-4xl">add_photo_alternate</span>
-                      <span className="text-[10px] font-black uppercase tracking-widest">Upload Image</span>
                     </div>
-                  )}
-                  {uploading === 'hero' && (
-                    <div className="absolute inset-0 bg-black/60 flex items-center justify-center z-20">
-                      <div className="w-8 h-8 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                    </div>
-                  )}
+                  </div>
                 </div>
-                <input type="file" ref={heroInputRef} className="hidden" onChange={(e) => e.target.files?.[0] && handleImageUpload(e.target.files[0], 'hero')} accept="image/*" />
-              </div>
+              ))}
+
+              <button
+                onClick={() => {
+                  setConfig(prev => ({
+                    ...prev,
+                    featuredPrograms: [
+                      ...(prev.featuredPrograms || []),
+                      { headline: "CHAMPIONSHIP CLINIC 2024", description: "Intensive technical refinement for competitive players.", imageUrl: "" }
+                    ]
+                  }));
+                }}
+                className="w-full py-4 border-2 border-dashed border-primary/30 rounded-2xl text-[10px] font-black tracking-widest text-primary hover:border-primary hover:bg-primary/5 transition-all uppercase flex items-center justify-center gap-2"
+              >
+                <span className="material-symbols-outlined text-lg">add</span>
+                Add Featured Program
+              </button>
             </div>
           </div>
 
@@ -418,6 +509,21 @@ export default function ProgramsManagementView({ theme, tenantId }: { theme: str
                 <div key={idx} className="p-8 rounded-[2rem] bg-surface-container space-y-6 relative overflow-hidden">
                   <div className="flex justify-between items-center mb-2">
                     <span className="px-4 py-1 rounded-full text-[8px] font-black uppercase tracking-widest bg-primary/10 text-primary">Track 0{idx + 1}</span>
+                    {config.tracks.length > 1 && (
+                      <button
+                        onClick={() => {
+                          setConfig(prev => {
+                            const newTracks = [...prev.tracks];
+                            newTracks.splice(idx, 1);
+                            return { ...prev, tracks: newTracks };
+                          });
+                        }}
+                        className="flex items-center gap-1 text-[8px] font-black uppercase tracking-widest text-error hover:underline transition-all"
+                      >
+                        <span className="material-symbols-outlined text-sm">delete</span>
+                        Remove Track
+                      </button>
+                    )}
                   </div>
                   
                   <div className="grid grid-cols-2 gap-6">
@@ -431,9 +537,9 @@ export default function ProgramsManagementView({ theme, tenantId }: { theme: str
                             const val = e.target.value;
                             setConfig(prev => {
                               const newTracks = [...prev.tracks];
-                              const track = newTracks[idx];
-                              if (track) {
-                                newTracks[idx] = { ...track, title: val };
+                              const trackObj = newTracks[idx];
+                              if (trackObj) {
+                                newTracks[idx] = { ...trackObj, title: val };
                               }
                               return { ...prev, tracks: newTracks };
                             });
@@ -449,9 +555,9 @@ export default function ProgramsManagementView({ theme, tenantId }: { theme: str
                             const val = e.target.value;
                             setConfig(prev => {
                               const newTracks = [...prev.tracks];
-                              const track = newTracks[idx];
-                              if (track) {
-                                newTracks[idx] = { ...track, description: val };
+                              const trackObj = newTracks[idx];
+                              if (trackObj) {
+                                newTracks[idx] = { ...trackObj, description: val };
                               }
                               return { ...prev, tracks: newTracks };
                             });
@@ -472,9 +578,9 @@ export default function ProgramsManagementView({ theme, tenantId }: { theme: str
                               const val = e.target.value;
                               setConfig(prev => {
                                 const newTracks = [...prev.tracks];
-                                const track = newTracks[idx];
-                                if (track) {
-                                  newTracks[idx] = { ...track, priceLabel: val };
+                                const trackObj = newTracks[idx];
+                                if (trackObj) {
+                                  newTracks[idx] = { ...trackObj, priceLabel: val };
                                 }
                                 return { ...prev, tracks: newTracks };
                               });
@@ -491,9 +597,9 @@ export default function ProgramsManagementView({ theme, tenantId }: { theme: str
                               const val = e.target.value;
                               setConfig(prev => {
                                 const newTracks = [...prev.tracks];
-                                const track = newTracks[idx];
-                                if (track) {
-                                  newTracks[idx] = { ...track, priceValue: val };
+                                const trackObj = newTracks[idx];
+                                if (trackObj) {
+                                  newTracks[idx] = { ...trackObj, priceValue: val };
                                 }
                                 return { ...prev, tracks: newTracks };
                               });
@@ -506,7 +612,7 @@ export default function ProgramsManagementView({ theme, tenantId }: { theme: str
                       <div className="space-y-1">
                         <label className="text-[9px] font-black uppercase tracking-widest opacity-40">Track Image</label>
                         <div 
-                          onClick={() => trackRefs[idx]?.current?.click()}
+                          onClick={() => triggerImageUpload('track', idx)}
                           className="group relative h-24 rounded-xl overflow-hidden cursor-pointer border-2 border-dashed border-outline/10 hover:border-primary/50 transition-all flex items-center justify-center bg-surface"
                         >
                           {track.imageUrl ? (
@@ -523,7 +629,6 @@ export default function ProgramsManagementView({ theme, tenantId }: { theme: str
                             </div>
                           )}
                         </div>
-                        <input type="file" ref={trackRefs[idx]} className="hidden" onChange={(e) => e.target.files?.[0] && handleImageUpload(e.target.files[0], 'track', idx)} accept="image/*" />
                       </div>
                     </div>
                   </div>
@@ -620,6 +725,29 @@ export default function ProgramsManagementView({ theme, tenantId }: { theme: str
                   </div>
                 </div>
               ))}
+
+              <button
+                onClick={() => {
+                  setConfig(prev => ({
+                    ...prev,
+                    tracks: [
+                      ...prev.tracks,
+                      { 
+                        title: "NEW TRAINING TRACK", 
+                        description: "Track details and scheduling information...", 
+                        imageUrl: "",
+                        priceLabel: "STARTS AT",
+                        priceValue: "$50/HR",
+                        icon: "fitness_center"
+                      }
+                    ]
+                  }));
+                }}
+                className="w-full py-4 border-2 border-dashed border-primary/30 rounded-2xl text-[10px] font-black tracking-widest text-primary hover:border-primary hover:bg-primary/5 transition-all uppercase flex items-center justify-center gap-2"
+              >
+                <span className="material-symbols-outlined text-lg">add</span>
+                Add Training Track
+              </button>
             </div>
           </div>
         </div>
@@ -914,6 +1042,20 @@ export default function ProgramsManagementView({ theme, tenantId }: { theme: str
             </div>
           </div>
         </div>
+
+        {/* Unified hidden file input for dynamic list uploads */}
+        <input 
+          type="file" 
+          ref={fileInputRef} 
+          className="hidden" 
+          onChange={(e) => {
+            const file = e.target.files?.[0];
+            if (file && uploadTarget) {
+              handleImageUpload(file, uploadTarget.type, uploadTarget.index);
+            }
+          }}
+          accept="image/*" 
+        />
       </div>
   );
 }

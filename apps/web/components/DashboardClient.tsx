@@ -1291,9 +1291,13 @@ function ProgramsView({ theme, tenantId }: { theme: "LIGHT" | "DARK" | "VINTAGE"
     return () => unsubscribe();
   }, [tenantId]);
 
-  const heroHeadline = config?.heroHeadline || "CHAMPIONSHIP CLINIC 2024";
-  const heroDescription = config?.heroDescription || "Intensive technical refinement for competitive players. Lead by ITF-certified master professionals.";
-  const heroImageUrl = config?.heroImageUrl || "/images/programs_hero.png";
+  const featuredPrograms = config?.featuredPrograms || [
+    {
+      headline: config?.heroHeadline || "CHAMPIONSHIP CLINIC 2024",
+      description: config?.heroDescription || "Intensive technical refinement for competitive players. Lead by ITF-certified master professionals.",
+      imageUrl: config?.heroImageUrl || "/images/programs_hero.png"
+    }
+  ];
   
   const sidebarHeadline = config?.sidebarHeadline || "PRO-FOCUS WEEKEND";
   const sidebarDescription = config?.sidebarDescription || "Join Coach Marcus for a 48-hour immersion into strategy and bio-mechanics. Limited to 8 participants.";
@@ -1363,21 +1367,25 @@ function ProgramsView({ theme, tenantId }: { theme: "LIGHT" | "DARK" | "VINTAGE"
       {(showHero || showSidebar) && (
         <div className="grid grid-cols-12 gap-8">
           {showHero && (
-            <div className={`${showSidebar ? 'col-span-12 lg:col-span-8' : 'col-span-12'} group relative h-[450px] overflow-hidden rounded-[40px] shadow-2xl border border-outline/10`}>
-              <img
-                src={heroImageUrl}
-                alt={heroHeadline}
-                className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105"
-              />
-              <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent"></div>
-              <div className="absolute inset-0 p-12 flex flex-col justify-end max-w-2xl">
-                <h3 className="text-7xl font-black text-white leading-[0.9] tracking-tighter mb-6 uppercase">
-                  {heroHeadline}
-                </h3>
-                <p className="text-white/80 text-lg font-medium leading-relaxed">
-                  {heroDescription}
-                </p>
-              </div>
+            <div className={`${showSidebar ? 'col-span-12 lg:col-span-8' : 'col-span-12'} flex flex-col gap-6`}>
+              {featuredPrograms.map((prog: any, idx: number) => (
+                <div key={idx} className="group relative h-[450px] overflow-hidden rounded-[40px] shadow-2xl border border-outline/10">
+                  <img
+                    src={prog.imageUrl || "/images/programs_hero.png"}
+                    alt={prog.headline}
+                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent"></div>
+                  <div className="absolute inset-0 p-12 flex flex-col justify-end max-w-2xl">
+                    <h3 className="text-5xl sm:text-6xl lg:text-7xl font-black text-white leading-[0.9] tracking-tighter mb-6 uppercase">
+                      {prog.headline}
+                    </h3>
+                    <p className="text-white/80 text-lg font-medium leading-relaxed">
+                      {prog.description}
+                    </p>
+                  </div>
+                </div>
+              ))}
             </div>
           )}
 
@@ -1433,14 +1441,14 @@ function ProgramsView({ theme, tenantId }: { theme: "LIGHT" | "DARK" | "VINTAGE"
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="flex overflow-x-auto gap-8 pb-6 snap-x snap-mandatory w-full scrollbar-thin scrollbar-thumb-primary/20 scrollbar-track-transparent">
             {tracks.map((track: any, idx: number) => {
               const trackCustomBgColor = track.themeColors?.[theme]?.bgColor;
               const trackCustomTextColor = track.themeColors?.[theme]?.textColor;
               return (
                 <div 
                   key={idx} 
-                  className="rounded-[40px] overflow-hidden flex flex-col group shadow-lg transition-colors border bg-surface-container-low border-outline/10"
+                  className="w-[350px] sm:w-[400px] shrink-0 snap-start rounded-[40px] overflow-hidden flex flex-col group shadow-lg transition-colors border bg-surface-container-low border-outline/10"
                   style={{
                     backgroundColor: trackCustomBgColor || undefined,
                   }}
