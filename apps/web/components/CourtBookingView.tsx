@@ -881,8 +881,6 @@ function MonthView({ baseDate, selectedDate, allUserBookings, theme, onDayClick,
           const cellBase = `min-h-[90px] rounded-2xl p-2 cursor-pointer transition-all group relative ${
             isToday
               ? accentBg + " shadow-lg"
-              : isSelected
-              ? isDark ? "bg-stone-800 ring-2 ring-stone-600" : "bg-stone-900 text-white ring-2 ring-stone-900"
               : isCurrentMonth
               ? isDark
                 ? "bg-stone-900/40 hover:bg-stone-900"
@@ -893,8 +891,8 @@ function MonthView({ baseDate, selectedDate, allUserBookings, theme, onDayClick,
           }`;
 
           const dayNumCls = `text-[11px] font-black leading-none mb-1.5 ${
-            isToday || isSelected
-              ? (isToday || isSelected ? "opacity-100" : (isDark ? "text-white" : "text-stone-700"))
+            isToday
+              ? "opacity-100"
               : (isDark ? "text-white" : "text-stone-800")
           }`;
 
@@ -909,7 +907,7 @@ function MonthView({ baseDate, selectedDate, allUserBookings, theme, onDayClick,
                     <div
                       key={i}
                       className={`rounded-lg px-1.5 py-0.5 flex items-center gap-1 overflow-hidden ${
-                        isToday || isSelected
+                        isToday
                           ? "bg-white/20"
                           : bPast
                           ? isDark ? "bg-stone-700/40" : "bg-stone-200/60"
@@ -918,7 +916,7 @@ function MonthView({ baseDate, selectedDate, allUserBookings, theme, onDayClick,
                     >
                       <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${bPast ? "bg-stone-400" : "bg-emerald-500"}`} />
                       <span className={`text-[7px] font-black truncate ${
-                        isToday || isSelected
+                        isToday
                           ? "text-white/80"
                           : bPast
                           ? "text-stone-300"
@@ -931,7 +929,7 @@ function MonthView({ baseDate, selectedDate, allUserBookings, theme, onDayClick,
                 })}
                 {dayBookings.length > 2 && (
                   <p className={`text-[7px] font-black pl-1 ${
-                    isToday || isSelected ? "text-white/60" : (isDark ? "text-white" : "text-stone-950")
+                    isToday ? "text-white/60" : (isDark ? "text-white" : "text-stone-950")
                   }`}>
                     +{dayBookings.length - 2} more
                   </p>
