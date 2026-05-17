@@ -372,6 +372,7 @@ export default function CourtBookingView({ theme, isAdmin, tenantId: tenantIdPro
     theme,
     user,
     onDrop: handleDragDrop,
+    canModifyFn: canModifyBooking,
     onSlotClick: (court: any, time: string) => {
       const status = getSlotStatus(court, time, bookings, selectedDate);
       if (status === "AVAILABLE") {
@@ -1181,7 +1182,7 @@ const getInitials = (name: string): string => {
 
 // ─── Slot Cell ───────────────────────────────────────────────────────────────
 
-function SlotCell({ status, theme, booking, user, onDragStart }: { status: SlotStatus; theme: string; booking?: any; user?: any; onDragStart?: (e: any) => void }) {
+function SlotCell({ status, theme, booking, user, canModify, onDragStart }: { status: SlotStatus; theme: string; booking?: any; user?: any; canModify?: boolean; onDragStart?: (e: any) => void }) {
   const isDark = theme === "DARK";
 
   if (status === "NOT_AVAILABLE") {
@@ -1223,26 +1224,43 @@ function SlotCell({ status, theme, booking, user, onDragStart }: { status: SlotS
     const duration = booking?.duration || 1;
     const isOwner = user?.uid === booking?.userId;
     
-    // Check if it's in the past to disable drag
+    // Check if it's in the past
     const now = new Date();
     const bDate = new Date(booking.date);
     const [h, m] = booking.time.split(':').map(Number);
     bDate.setHours(h || 0, m || 0, 0, 0);
     const isPast = now > bDate;
 
-    // Past bookings: muted stone palette, no drag
-    // Personal vs others active colors
-    const borderCls  = isPast ? (isDark ? "border-stone-800" : "border-stone-400") : (isOwner ? "border-emerald-500" : "border-indigo-500");
-    const bgCls      = isPast ? (isDark ? "bg-stone-900/50" : "bg-stone-400/10") : (isOwner ? "bg-emerald-500/15" : "bg-indigo-500/15");
-    const bgHoverCls = isPast ? ""                   : (isOwner ? "hover:bg-emerald-500/25" : "hover:bg-indigo-500/25");
-    const avatarCls  = isPast ? (isDark ? "bg-stone-800" : "bg-stone-400") : (isOwner ? "bg-emerald-500" : "bg-indigo-500");
-    const nameCls    = isPast ? (isDark ? "text-stone-500" : "text-stone-300") : (isOwner ? (isDark ? "text-emerald-400" : "text-emerald-700") : (isDark ? "text-indigo-400" : "text-indigo-700"));
-    const subCls     = isPast ? (isDark ? "text-stone-600" : "text-stone-300/60") : (isOwner ? (isDark ? "text-emerald-500/80" : "text-emerald-600/70") : (isDark ? "text-indigo-500/80" : "text-indigo-600/70"));
-    const dragCls    = isOwner && !isPast ? "cursor-grab active:cursor-grabbing hover:scale-[1.02]" : "cursor-default";
+    let borderCls, bgCls, bgHoverCls, avatarCls, nameCls, subCls;
+    if (isOwner) {
+      if (!isPast) {
+        borderCls = "border-emerald-600";
+        bgCls = isDark ? "bg-emerald-600" : "bg-emerald-500";
+        bgHoverCls = isDark ? "hover:bg-emerald-500" : "hover:bg-emerald-600";
+        avatarCls = isDark ? "bg-emerald-800" : "bg-emerald-700";
+        nameCls = "text-white";
+        subCls = "text-emerald-100";
+      } else {
+        borderCls = isDark ? "border-emerald-700" : "border-emerald-300";
+        bgCls = isDark ? "bg-emerald-900" : "bg-emerald-200";
+        bgHoverCls = isDark ? "hover:bg-emerald-800" : "hover:bg-emerald-300";
+        avatarCls = isDark ? "bg-emerald-800" : "bg-emerald-300";
+        nameCls = isDark ? "text-emerald-100" : "text-emerald-900";
+        subCls = isDark ? "text-emerald-200/70" : "text-emerald-800/80";
+      }
+    } else {
+      borderCls = isDark ? "border-stone-700" : "border-stone-300";
+      bgCls = isDark ? "bg-stone-800" : "bg-stone-200";
+      bgHoverCls = "";
+      avatarCls = isDark ? "bg-stone-700" : "bg-stone-300";
+      nameCls = isDark ? "text-stone-300" : "text-stone-600";
+      subCls = isDark ? "text-stone-400" : "text-stone-500";
+    }
+    const dragCls = isOwner && canModify ? "cursor-grab active:cursor-grabbing hover:scale-[1.02]" : "cursor-default";
 
     return (
       <div
-        draggable={isOwner && !isPast}
+        draggable={isOwner && canModify}
         onDragStart={(e) => { e.stopPropagation(); onDragStart?.(e); }}
         className={`absolute inset-0 m-0.5 rounded-xl border-l-[4px] ${borderCls} ${bgCls} ${bgHoverCls} flex flex-col justify-center gap-1 px-3 overflow-hidden z-20 shadow-sm transition-all ${dragCls}`}
         style={{ height: `calc(${duration * 200}% - 4px)` }}
@@ -1380,7 +1398,7 @@ function CourtHeader({ court, theme }: { court: any; theme: string }) {
 
 // ─── Grid (shared layout) ─────────────────────────────────────────────────────
 
-function ScheduleGrid({ courts, bookings, selectedDate, theme, onSlotClick, onDrop, user, timeLabelColor, borderColor, rowBorder, times }: any) {
+function ScheduleGrid({ courts, bookings, selectedDate, theme, onSlotClick, onDrop, user, timeLabelColor, borderColor, rowBorder, times, canModifyFn }: any) {
   return (
     <div className="overflow-x-auto pb-4">
       <div className="inline-flex min-w-full gap-3">
@@ -1457,6 +1475,7 @@ function ScheduleGrid({ courts, bookings, selectedDate, theme, onSlotClick, onDr
                         theme={theme} 
                         booking={booking} 
                         user={user}
+                        canModify={booking && canModifyFn ? canModifyFn(booking) : false}
                         onDragStart={(e: any) => {
                           if (booking) {
                             e.dataTransfer.setData("bookingId", booking.id);
