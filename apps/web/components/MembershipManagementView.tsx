@@ -997,7 +997,7 @@ export default function MembershipManagementView({ theme, tenantId }: { theme: s
                               : undefined
                           }
                         >
-                          {plan.popular ? "CURRENT PLAN" : "UPGRADE NOW"}
+                          {plan.name?.toUpperCase() === "FREE" ? "CURRENT PLAN" : "UPGRADE NOW"}
                         </button>
                       </div>
                     );

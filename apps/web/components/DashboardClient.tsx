@@ -2445,7 +2445,7 @@ function MembershipView({ theme, tenantId }: { theme: "LIGHT" | "DARK" | "VINTAG
                     : undefined
                 }
               >
-                {plan.popular ? "CURRENT PLAN" : "UPGRADE NOW"}
+                {plan.name?.toUpperCase() === "FREE" ? "CURRENT PLAN" : "UPGRADE NOW"}
               </button>
             </div>
           );
