@@ -646,6 +646,8 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
         address_city: user.address_city,
         address_state: user.address_state,
         address_zip: user.address_zip,
+        tenantId: user.tenant_id,
+        useTenantUserDoc: !!user.tenant_id,
         inviteUser: true
       });
 
