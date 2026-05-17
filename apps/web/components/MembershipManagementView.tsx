@@ -117,6 +117,7 @@ export default function MembershipManagementView({ theme, tenantId }: { theme: s
   const [editingCustomNameIdx, setEditingCustomNameIdx] = useState<number | null>(null);
   const [editingCustomNameVal, setEditingCustomNameVal] = useState("");
 
+  const [showResetConfirm, setShowResetConfirm] = useState(false);
   const { showNotification } = useNotification();
 
   useEffect(() => {
@@ -469,13 +470,7 @@ export default function MembershipManagementView({ theme, tenantId }: { theme: s
             Add New Tier
           </button>
           <button
-            onClick={() => {
-              if (window.confirm("Are you sure you want to reset all plans to standard system defaults? This will overwrite your current configuration with the FREE, SILVER, GOLD, and PLATINUM plan defaults.")) {
-                setPlans(DEFAULT_PLANS);
-                setActivePlanIdx(0);
-                showNotification("Plans reset to system defaults. Please click 'Save Changes' to permanently apply them.");
-              }
-            }}
+            onClick={() => setShowResetConfirm(true)}
             className="flex-1 md:flex-none px-6 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all bg-surface-container border border-outline/20 text-[#e11d48] hover:bg-red-500/10 active:scale-95 flex items-center justify-center gap-2"
           >
             <span className="material-symbols-outlined text-sm">restart_alt</span>
@@ -998,6 +993,65 @@ export default function MembershipManagementView({ theme, tenantId }: { theme: s
           </div>
         </div>
       </div>
+
+      {showResetConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div 
+            className="absolute inset-0 bg-stone-950/60 backdrop-blur-md animate-in fade-in duration-300"
+            onClick={() => setShowResetConfirm(false)}
+          />
+          <div 
+            className={`relative w-full max-w-md rounded-[32px] p-8 shadow-2xl border transition-all duration-300 animate-in fade-in zoom-in-95 duration-300 ${
+              theme === "DARK"
+                ? "bg-stone-900 border-stone-800 text-white"
+                : theme === "VINTAGE"
+                  ? "bg-[#f4efe6] border-[#e4dcd0] text-stone-950"
+                  : "bg-white border-outline/10 text-on-surface"
+            }`}
+          >
+            <div className="flex flex-col items-center text-center gap-6">
+              <div className="w-16 h-16 rounded-full bg-red-500/10 flex items-center justify-center text-[#e11d48] animate-pulse">
+                <span className="material-symbols-outlined text-3xl font-black">warning</span>
+              </div>
+              
+              <div className="space-y-3">
+                <h3 className="text-2xl font-black tracking-tight uppercase" style={{ fontFamily: 'Lexend, sans-serif' }}>
+                  Reset Defaults?
+                </h3>
+                <p className="text-sm opacity-60 font-medium leading-relaxed">
+                  Are you sure you want to reset all plans to standard system defaults? This will overwrite your current configuration with the FREE, SILVER, GOLD, and PLATINUM plan defaults.
+                </p>
+              </div>
+              
+              <div className="flex items-center gap-4 w-full mt-4">
+                <button
+                  onClick={() => setShowResetConfirm(false)}
+                  className={`flex-1 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all border ${
+                    theme === "DARK"
+                      ? "bg-transparent border-stone-850 text-stone-400 hover:bg-stone-800"
+                      : theme === "VINTAGE"
+                        ? "bg-transparent border-stone-300 text-stone-700 hover:bg-stone-200/50"
+                        : "bg-transparent border-outline/10 text-on-surface-variant hover:bg-surface-container"
+                  }`}
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => {
+                    setPlans(DEFAULT_PLANS);
+                    setActivePlanIdx(0);
+                    setShowResetConfirm(false);
+                    showNotification("Plans reset to system defaults. Please click 'Save Changes' to permanently apply them.");
+                  }}
+                  className="flex-1 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all bg-[#e11d48] text-white hover:scale-105 hover:bg-red-600 active:scale-95 shadow-lg shadow-red-500/20"
+                >
+                  Reset Plans
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
