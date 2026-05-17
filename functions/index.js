@@ -351,7 +351,14 @@ exports.seedFreeMemberships = functions.https.onRequest(async (req, res) => {
         name: "SILVER",
         price: "99",
         popular: true,
-        features: ["2 Bookings/Week", "Standard Access", "Social Mixers"]
+        features: ["2 Bookings/Week", "Standard Access", "Social Mixers"],
+        bgColor: "#ffffff",
+        textColor: "#000000",
+        themeColors: {
+          LIGHT: { bgColor: "#ffffff", textColor: "#000000" },
+          DARK: { bgColor: "#ffffff", textColor: "#000000" },
+          VINTAGE: { bgColor: "#ffffff", textColor: "#000000" }
+        }
       },
       {
         name: "GOLD",

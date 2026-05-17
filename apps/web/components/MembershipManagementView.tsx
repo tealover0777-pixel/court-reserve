@@ -48,7 +48,19 @@ const DEFAULT_PLANS: MembershipPlan[] = [
       VINTAGE: { bgColor: "#ccff00", textColor: "#000000" }
     }
   },
-  { name: "SILVER", price: "99", popular: true, features: ["2 Bookings/Week", "Standard Access", "Social Mixers"] },
+  {
+    name: "SILVER",
+    price: "99",
+    popular: true,
+    features: ["2 Bookings/Week", "Standard Access", "Social Mixers"],
+    bgColor: "#ffffff",
+    textColor: "#000000",
+    themeColors: {
+      LIGHT: { bgColor: "#ffffff", textColor: "#000000" },
+      DARK: { bgColor: "#ffffff", textColor: "#000000" },
+      VINTAGE: { bgColor: "#ffffff", textColor: "#000000" }
+    }
+  },
   {
     name: "GOLD",
     price: "199",
