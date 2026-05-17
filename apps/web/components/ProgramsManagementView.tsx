@@ -70,6 +70,9 @@ interface ProgramsConfig {
   showTracks: boolean;
   showBottom: boolean;
 
+  bottomFeatures?: { icon: string; label: string }[];
+  bottomCards?: { date: string; title: string; badge: string }[];
+
   // Custom colors per theme
   sidebarThemeColors?: {
     LIGHT?: ThemeColors;
@@ -148,7 +151,18 @@ const DEFAULT_CONFIG: ProgramsConfig = {
   showHero: true,
   showSidebar: true,
   showTracks: true,
-  showBottom: true
+  showBottom: true,
+
+  bottomFeatures: [
+    { icon: "schedule", label: "24/7 ELITE ACCESS" },
+    { icon: "check", label: "ITF GOLD STANDARDS" }
+  ],
+  bottomCards: [
+    { date: "MARCH 12-14", title: "SERVE VELOCITY CLINIC", badge: "2 SLOTS LEFT" },
+    { date: "APRIL 05", title: "DOUBLES MASTERCLASS", badge: "OPENING SOON" },
+    { date: "WEEKLY SAT", title: "CARDIO TENNIS LADDER", badge: "RECURRING" },
+    { date: "MONTHLY", title: "VIDEO ANALYSIS LAB", badge: "MEMBER EXCLUSIVE" }
+  ]
 };
 
 const PRESET_COLORS = [
@@ -319,7 +333,9 @@ export default function ProgramsManagementView({ theme, tenantId }: { theme: str
           ...track,
           clickDetails: track.clickDetails || ""
         }));
-        setConfig({ ...DEFAULT_CONFIG, ...data, featuredPrograms, tracks });
+        const bottomFeatures = data.bottomFeatures || DEFAULT_CONFIG.bottomFeatures;
+        const bottomCards = data.bottomCards || DEFAULT_CONFIG.bottomCards;
+        setConfig({ ...DEFAULT_CONFIG, ...data, featuredPrograms, tracks, bottomFeatures, bottomCards });
       } else {
         setConfig(DEFAULT_CONFIG);
       }
@@ -1115,6 +1131,223 @@ export default function ProgramsManagementView({ theme, tenantId }: { theme: str
               )}
             </div>
             <input type="file" ref={bottomInputRef} className="hidden" onChange={(e) => e.target.files?.[0] && handleImageUpload(e.target.files[0], 'bottom')} accept="image/*" />
+          </div>
+
+          {/* Bottom Banner Feature Bullets Configuration */}
+          <div className="p-6 rounded-3xl bg-surface/40 border border-outline/10 space-y-4 mt-6">
+            <h4 className="text-[10px] font-black uppercase tracking-widest text-primary">Feature Bullet Points</h4>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {(config.bottomFeatures || [
+                { icon: "schedule", label: "24/7 ELITE ACCESS" },
+                { icon: "check", label: "ITF GOLD STANDARDS" }
+              ]).map((feat, idx) => (
+                <div key={idx} className="space-y-3 bg-surface p-4 rounded-2xl border border-outline/5 relative">
+                  <div className="flex justify-between items-center">
+                    <span className="text-[8px] font-black uppercase tracking-widest bg-primary/10 text-primary px-2.5 py-0.5 rounded-full">Feature {idx + 1}</span>
+                    {((config.bottomFeatures || []).length > 0) && (
+                      <button
+                        onClick={() => {
+                          const newFeats = [...(config.bottomFeatures || [])];
+                          newFeats.splice(idx, 1);
+                          setConfig({ ...config, bottomFeatures: newFeats });
+                        }}
+                        className="text-[7px] font-black uppercase tracking-widest text-error hover:underline"
+                      >
+                        Remove
+                      </button>
+                    )}
+                  </div>
+                  <div className="grid grid-cols-3 gap-3">
+                    <div className="col-span-1 space-y-1">
+                      <label className="text-[8px] font-black uppercase tracking-widest opacity-40">Icon</label>
+                      <input
+                        type="text"
+                        value={feat.icon}
+                        placeholder="Icon name"
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          const newFeats = [...(config.bottomFeatures || [
+                            { icon: "schedule", label: "24/7 ELITE ACCESS" },
+                            { icon: "check", label: "ITF GOLD STANDARDS" }
+                          ])];
+                          newFeats[idx] = { icon: val, label: feat.label || "" };
+                          setConfig({ ...config, bottomFeatures: newFeats });
+                        }}
+                        className="w-full px-3 py-2.5 rounded-xl bg-surface-container border-none text-[10px] font-bold"
+                      />
+                    </div>
+                    <div className="col-span-2 space-y-1">
+                      <label className="text-[8px] font-black uppercase tracking-widest opacity-40">Label Text</label>
+                      <input
+                        type="text"
+                        value={feat.label}
+                        placeholder="Feature label"
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          const newFeats = [...(config.bottomFeatures || [
+                            { icon: "schedule", label: "24/7 ELITE ACCESS" },
+                            { icon: "check", label: "ITF GOLD STANDARDS" }
+                          ])];
+                          newFeats[idx] = { icon: feat.icon || "", label: val };
+                          setConfig({ ...config, bottomFeatures: newFeats });
+                        }}
+                        className="w-full px-3 py-2.5 rounded-xl bg-surface-container border-none text-[10px] font-bold"
+                      />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+            {(!config.bottomFeatures || config.bottomFeatures.length < 4) && (
+              <button
+                onClick={() => {
+                  const currentFeats = config.bottomFeatures || [
+                    { icon: "schedule", label: "24/7 ELITE ACCESS" },
+                    { icon: "check", label: "ITF GOLD STANDARDS" }
+                  ];
+                  setConfig({
+                    ...config,
+                    bottomFeatures: [
+                      ...currentFeats,
+                      { icon: "check_circle", label: "NEW PLATFORM HIGHLIGHT" }
+                    ]
+                  });
+                }}
+                className="py-2.5 px-4 border border-dashed border-primary/20 rounded-xl text-[8px] font-black tracking-widest text-primary hover:border-primary hover:bg-primary/5 transition-all uppercase flex items-center gap-1.5"
+              >
+                <span className="material-symbols-outlined text-sm">add</span>
+                Add Feature Bullet
+              </button>
+            )}
+          </div>
+
+          {/* Bottom Banner Cards Configuration */}
+          <div className="p-6 rounded-3xl bg-surface/40 border border-outline/10 space-y-4 mt-6">
+            <div className="flex justify-between items-center">
+              <h4 className="text-[10px] font-black uppercase tracking-widest text-primary">Banner Cards (0 to 4 Maximum)</h4>
+              <span className="text-[8px] font-black opacity-40 uppercase tracking-widest">{(config.bottomCards || []).length} of 4 Cards Active</span>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {(config.bottomCards || [
+                { date: "MARCH 12-14", title: "SERVE VELOCITY CLINIC", badge: "2 SLOTS LEFT" },
+                { date: "APRIL 05", title: "DOUBLES MASTERCLASS", badge: "OPENING SOON" },
+                { date: "WEEKLY SAT", title: "CARDIO TENNIS LADDER", badge: "RECURRING" },
+                { date: "MONTHLY", title: "VIDEO ANALYSIS LAB", badge: "MEMBER EXCLUSIVE" }
+              ]).map((card, idx) => (
+                <div key={idx} className="space-y-3 bg-surface p-5 rounded-2xl border border-outline/5 relative">
+                  <div className="flex justify-between items-center">
+                    <span className="text-[8px] font-black uppercase tracking-widest bg-primary/10 text-primary px-2.5 py-0.5 rounded-full">Card {idx + 1}</span>
+                    <button
+                      onClick={() => {
+                        const newCards = [...(config.bottomCards || [
+                          { date: "MARCH 12-14", title: "SERVE VELOCITY CLINIC", badge: "2 SLOTS LEFT" },
+                          { date: "APRIL 05", title: "DOUBLES MASTERCLASS", badge: "OPENING SOON" },
+                          { date: "WEEKLY SAT", title: "CARDIO TENNIS LADDER", badge: "RECURRING" },
+                          { date: "MONTHLY", title: "VIDEO ANALYSIS LAB", badge: "MEMBER EXCLUSIVE" }
+                        ])];
+                        newCards.splice(idx, 1);
+                        setConfig({ ...config, bottomCards: newCards });
+                      }}
+                      className="text-[7px] font-black uppercase tracking-widest text-error hover:underline flex items-center gap-0.5"
+                    >
+                      <span className="material-symbols-outlined text-xs">delete</span>
+                      Remove
+                    </button>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <div className="space-y-1">
+                      <label className="text-[8px] font-black uppercase tracking-widest opacity-40">Card Title</label>
+                      <input
+                        type="text"
+                        value={card.title}
+                        placeholder="Card title text"
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          const newCards = [...(config.bottomCards || [
+                            { date: "MARCH 12-14", title: "SERVE VELOCITY CLINIC", badge: "2 SLOTS LEFT" },
+                            { date: "APRIL 05", title: "DOUBLES MASTERCLASS", badge: "OPENING SOON" },
+                            { date: "WEEKLY SAT", title: "CARDIO TENNIS LADDER", badge: "RECURRING" },
+                            { date: "MONTHLY", title: "VIDEO ANALYSIS LAB", badge: "MEMBER EXCLUSIVE" }
+                          ])];
+                          newCards[idx] = { title: val, date: card.date || "", badge: card.badge || "" };
+                          setConfig({ ...config, bottomCards: newCards });
+                        }}
+                        className="w-full px-3 py-2 rounded-xl bg-surface-container border-none text-[10px] font-bold"
+                      />
+                    </div>
+                    
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-1">
+                        <label className="text-[8px] font-black uppercase tracking-widest opacity-40">Date / Info Label</label>
+                        <input
+                          type="text"
+                          value={card.date}
+                          placeholder="e.g. MARCH 12-14"
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            const newCards = [...(config.bottomCards || [
+                              { date: "MARCH 12-14", title: "SERVE VELOCITY CLINIC", badge: "2 SLOTS LEFT" },
+                              { date: "APRIL 05", title: "DOUBLES MASTERCLASS", badge: "OPENING SOON" },
+                              { date: "WEEKLY SAT", title: "CARDIO TENNIS LADDER", badge: "RECURRING" },
+                              { date: "MONTHLY", title: "VIDEO ANALYSIS LAB", badge: "MEMBER EXCLUSIVE" }
+                            ])];
+                            newCards[idx] = { title: card.title || "", date: val, badge: card.badge || "" };
+                            setConfig({ ...config, bottomCards: newCards });
+                          }}
+                          className="w-full px-3 py-2 rounded-xl bg-surface-container border-none text-[10px] font-bold"
+                        />
+                      </div>
+                      
+                      <div className="space-y-1">
+                        <label className="text-[8px] font-black uppercase tracking-widest opacity-40">Badge Text</label>
+                        <input
+                          type="text"
+                          value={card.badge}
+                          placeholder="e.g. 2 SLOTS LEFT"
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            const newCards = [...(config.bottomCards || [
+                              { date: "MARCH 12-14", title: "SERVE VELOCITY CLINIC", badge: "2 SLOTS LEFT" },
+                              { date: "APRIL 05", title: "DOUBLES MASTERCLASS", badge: "OPENING SOON" },
+                              { date: "WEEKLY SAT", title: "CARDIO TENNIS LADDER", badge: "RECURRING" },
+                              { date: "MONTHLY", title: "VIDEO ANALYSIS LAB", badge: "MEMBER EXCLUSIVE" }
+                            ])];
+                            newCards[idx] = { title: card.title || "", date: card.date || "", badge: val };
+                            setConfig({ ...config, bottomCards: newCards });
+                          }}
+                          className="w-full px-3 py-2 rounded-xl bg-surface-container border-none text-[10px] font-bold"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+            
+            {(!config.bottomCards || config.bottomCards.length < 4) && (
+              <button
+                onClick={() => {
+                  const currentCards = config.bottomCards || [
+                    { date: "MARCH 12-14", title: "SERVE VELOCITY CLINIC", badge: "2 SLOTS LEFT" },
+                    { date: "APRIL 05", title: "DOUBLES MASTERCLASS", badge: "OPENING SOON" },
+                    { date: "WEEKLY SAT", title: "CARDIO TENNIS LADDER", badge: "RECURRING" },
+                    { date: "MONTHLY", title: "VIDEO ANALYSIS LAB", badge: "MEMBER EXCLUSIVE" }
+                  ];
+                  setConfig({
+                    ...config,
+                    bottomCards: [
+                      ...currentCards,
+                      { date: "WEEKEND", title: "NEW HIGHLIGHT CLINIC", badge: "REGISTER NOW" }
+                    ]
+                  });
+                }}
+                className="py-3 px-4 border border-dashed border-primary/20 rounded-xl text-[8px] font-black tracking-widest text-primary hover:border-primary hover:bg-primary/5 transition-all uppercase flex items-center justify-center gap-1.5 w-full mt-4"
+              >
+                <span className="material-symbols-outlined text-sm">add</span>
+                Add Banner Card
+              </button>
+            )}
           </div>
         </div>
 

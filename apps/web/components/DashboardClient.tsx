@@ -1360,6 +1360,18 @@ function ProgramsView({ theme, tenantId }: { theme: "LIGHT" | "DARK" | "VINTAGE"
   const bottomDescription = config?.bottomDescription || "Our most comprehensive training cycle yet. Registration now open for all skill levels.";
   const bottomImageUrl = config?.bottomImageUrl || "/images/spring_session.png";
 
+  const bottomFeatures = config?.bottomFeatures || [
+    { icon: "schedule", label: "24/7 ELITE ACCESS" },
+    { icon: "check", label: "ITF GOLD STANDARDS" }
+  ];
+
+  const bottomCards = config?.bottomCards || [
+    { date: "MARCH 12-14", title: "SERVE VELOCITY CLINIC", badge: "2 SLOTS LEFT" },
+    { date: "APRIL 05", title: "DOUBLES MASTERCLASS", badge: "OPENING SOON" },
+    { date: "WEEKLY SAT", title: "CARDIO TENNIS LADDER", badge: "RECURRING" },
+    { date: "MONTHLY", title: "VIDEO ANALYSIS LAB", badge: "MEMBER EXCLUSIVE" }
+  ];
+
   const showHero = config?.showHero !== undefined ? config.showHero : true;
   const showSidebar = config?.showSidebar !== undefined ? config.showSidebar : true;
   const showTracks = config?.showTracks !== undefined ? config.showTracks : true;
@@ -1625,7 +1637,7 @@ function ProgramsView({ theme, tenantId }: { theme: "LIGHT" | "DARK" | "VINTAGE"
                <div className="absolute inset-0 bg-gradient-to-r from-surface-container-low via-transparent to-transparent"></div>
              )}
           </div>
-          <div className="col-span-12 lg:col-span-5 space-y-8 relative z-10">
+          <div className={`${bottomCards.length > 0 ? 'col-span-12 lg:col-span-5' : 'col-span-12'} space-y-8 relative z-10`}>
             <div className="space-y-4">
               <h3 
                 className="text-6xl font-black tracking-tighter uppercase leading-none transition-colors text-on-surface"
@@ -1641,58 +1653,49 @@ function ProgramsView({ theme, tenantId }: { theme: "LIGHT" | "DARK" | "VINTAGE"
               </p>
             </div>
             
-            <div className="space-y-4 pt-4">
-              <div 
-                className={`flex items-center gap-4 transition-colors ${customBottomTextColor ? '' : 'text-primary'}`}
-                style={customBottomTextColor ? { color: customBottomTextColor } : undefined}
-              >
-                <div 
-                  className="w-6 h-6 rounded-md flex items-center justify-center transition-colors bg-primary text-on-primary"
-                  style={customBottomBgColor ? {
-                    backgroundColor: customBottomTextColor || '#ffffff',
-                    color: customBottomBgColor || 'var(--md-sys-color-primary)'
-                  } : undefined}
-                >
-                  <span className="material-symbols-outlined text-sm">schedule</span>
-                </div>
-                <span className="text-[10px] font-black tracking-widest uppercase">24/7 ELITE ACCESS</span>
+            {bottomFeatures.length > 0 && (
+              <div className="space-y-4 pt-4">
+                {bottomFeatures.map((feat: any, idx: number) => (
+                  <div 
+                    key={idx}
+                    className={`flex items-center gap-4 transition-colors ${customBottomTextColor ? '' : 'text-primary'}`}
+                    style={customBottomTextColor ? { color: customBottomTextColor } : undefined}
+                  >
+                    {feat.icon && (
+                      <div 
+                        className="w-6 h-6 rounded-md flex items-center justify-center transition-colors bg-primary text-on-primary"
+                        style={customBottomBgColor ? {
+                          backgroundColor: customBottomTextColor || '#ffffff',
+                          color: customBottomBgColor || 'var(--md-sys-color-primary)'
+                        } : undefined}
+                      >
+                        <span className="material-symbols-outlined text-sm">{feat.icon}</span>
+                      </div>
+                    )}
+                    <span className="text-[10px] font-black tracking-widest uppercase">{feat.label}</span>
+                  </div>
+                ))}
               </div>
-              <div 
-                className={`flex items-center gap-4 transition-colors ${customBottomTextColor ? '' : 'text-primary'}`}
-                style={customBottomTextColor ? { color: customBottomTextColor } : undefined}
-              >
-                <div 
-                  className="w-6 h-6 rounded-md flex items-center justify-center transition-colors bg-primary text-on-primary"
-                  style={customBottomBgColor ? {
-                    backgroundColor: customBottomTextColor || '#ffffff',
-                    color: customBottomBgColor || 'var(--md-sys-color-primary)'
-                  } : undefined}
-                >
-                  <span className="material-symbols-outlined text-sm">check</span>
-                </div>
-                <span className="text-[10px] font-black tracking-widest uppercase">ITF GOLD STANDARDS</span>
-              </div>
-            </div>
+            )}
           </div>
 
-          <div className="col-span-12 lg:col-span-7 grid grid-cols-1 md:grid-cols-2 gap-6 relative z-10">
-            {[
-              { date: "MARCH 12-14", title: "SERVE VELOCITY CLINIC", badge: "2 SLOTS LEFT" },
-              { date: "APRIL 05", title: "DOUBLES MASTERCLASS", badge: "OPENING SOON" },
-              { date: "WEEKLY SAT", title: "CARDIO TENNIS LADDER", badge: "RECURRING" },
-              { date: "MONTHLY", title: "VIDEO ANALYSIS LAB", badge: "MEMBER EXCLUSIVE" }
-            ].map((item, i) => (
-              <div key={i} className="p-8 rounded-3xl group cursor-pointer hover:shadow-xl transition-all border bg-surface border-outline/10 hover:border-primary/50">
-                <div className="flex justify-between items-start mb-4">
-                  <span className="text-[10px] font-black opacity-40 uppercase tracking-[0.2em]">{item.date}</span>
-                  <span className="px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest bg-primary/10 text-primary">
-                    {item.badge}
-                  </span>
+          {bottomCards.length > 0 && (
+            <div className="col-span-12 lg:col-span-7 grid grid-cols-1 md:grid-cols-2 gap-6 relative z-10">
+              {bottomCards.map((item: any, i: number) => (
+                <div key={i} className="p-8 rounded-3xl group cursor-pointer hover:shadow-xl transition-all border bg-surface border-outline/10 hover:border-primary/50">
+                  <div className="flex justify-between items-start mb-4">
+                    <span className="text-[10px] font-black opacity-40 uppercase tracking-[0.2em]">{item.date}</span>
+                    {item.badge && (
+                      <span className="px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest bg-primary/10 text-primary">
+                        {item.badge}
+                      </span>
+                    )}
+                  </div>
+                  <h5 className="text-xl font-black uppercase transition-colors group-hover:text-primary leading-tight">{item.title}</h5>
                 </div>
-                <h5 className="text-xl font-black uppercase transition-colors group-hover:text-primary leading-tight">{item.title}</h5>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </section>
       )}
 
