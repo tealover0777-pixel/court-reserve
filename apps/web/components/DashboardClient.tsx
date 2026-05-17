@@ -1861,7 +1861,7 @@ function MembershipView({ theme }: { theme: "LIGHT" | "DARK" | "VINTAGE" }) {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         {[
           { name: "SILVER", price: "99", color: theme === "DARK" ? "bg-stone-100 text-white" : theme === "VINTAGE" ? "bg-white text-black border border-stone-50" : theme === "LIGHT" ? "bg-white text-[#4f6b28] border-2 border-[#4f6b28]/10" : "bg-stone-50 text-stone-900", features: ["2 Bookings/Week", "Standard Access", "Social Mixers"] },
-          { name: "GOLD", price: "199", popular: true, color: theme === "DARK" ? "bg-[#ccff00] text-stone-950" : theme === "VINTAGE" ? "bg-black text-white" : theme === "LIGHT" ? "bg-[#4f6b28] text-white shadow-[#4f6b28]/20" : "bg-stone-900 text-white", features: ["Unlimited Bookings", "Priority Courts", "Guest Passes (4)", "Pro Discounts"] },
+          { name: "GOLD", price: "199", popular: true, color: theme === "DARK" ? "bg-stone-100 text-white border border-[#ccff00]/30" : theme === "VINTAGE" ? "bg-black text-white" : theme === "LIGHT" ? "bg-[#4f6b28] text-white shadow-[#4f6b28]/20" : "bg-stone-900 text-white", features: ["Unlimited Bookings", "Priority Courts", "Guest Passes (4)", "Pro Discounts"] },
           { name: "PLATINUM", price: "299", color: theme === "DARK" ? "bg-stone-50 text-white border border-stone-200" : theme === "VINTAGE" ? "bg-white text-black border-2 border-black" : theme === "LIGHT" ? "bg-[#4f6b28] text-white" : "bg-stone-900 text-white", features: ["24/7 Access", "Personal Locker", "Free Stringing", "Pro Clinic Access"] }
         ].map((plan, i) => (
           <div key={i} className={`${plan.color} rounded-[40px] p-12 shadow-2xl relative flex flex-col transition-all hover:scale-105`}>
