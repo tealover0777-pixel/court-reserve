@@ -33,13 +33,13 @@ export default function AIAdminView({ theme = "LIGHT" }: { theme?: "LIGHT" | "DA
 
       <div className="grid grid-cols-3 gap-8">
         <div className={`col-span-2 border rounded-3xl p-12 shadow-sm transition-colors duration-500 ${
-          theme === "DARK" ? "bg-stone-950 border-stone-800" : 
+          theme === "DARK" ? "bg-stone-50 border-stone-200" : 
           theme === "VINTAGE" ? "bg-white border-transparent shadow-md" :
           "bg-white border-stone-200"
         }`}>
           <div className="flex items-center gap-6 mb-10">
             <div className={`w-16 h-16 rounded-2xl flex items-center justify-center transition-colors ${
-              theme === "DARK" ? "bg-stone-900 text-[#ccff00]" : 
+              theme === "DARK" ? "bg-stone-100 text-[#ccff00]" : 
               theme === "VINTAGE" ? "bg-[#f7f9fb] text-black" :
               "bg-stone-50 text-[#4f6b28]"
             }`}>
@@ -57,7 +57,7 @@ export default function AIAdminView({ theme = "LIGHT" }: { theme?: "LIGHT" | "DA
           
           <div className="space-y-8">
             <div className={`flex items-center justify-between p-6 rounded-2xl border transition-colors ${
-              theme === "DARK" ? "bg-stone-900/40 border-stone-800" : 
+              theme === "DARK" ? "bg-stone-100/40 border-stone-200" : 
               theme === "VINTAGE" ? "bg-white border-stone-100 shadow-sm" :
               "bg-stone-50 border-stone-100"
             }`}>
@@ -84,7 +84,7 @@ export default function AIAdminView({ theme = "LIGHT" }: { theme?: "LIGHT" | "DA
             </div>
 
             <div className={`flex items-center justify-between p-6 rounded-2xl border transition-colors ${
-              theme === "DARK" ? "bg-stone-900/40 border-stone-800" : 
+              theme === "DARK" ? "bg-stone-100/40 border-stone-200" : 
               theme === "VINTAGE" ? "bg-white border-stone-100 shadow-sm" :
               "bg-stone-50 border-stone-100"
             }`}>
@@ -106,7 +106,7 @@ export default function AIAdminView({ theme = "LIGHT" }: { theme?: "LIGHT" | "DA
         </div>
 
         <div className={`rounded-3xl p-12 text-white shadow-xl flex flex-col justify-between transition-colors duration-500 ${
-          theme === "DARK" ? "bg-stone-900 shadow-black/20" : 
+          theme === "DARK" ? "bg-stone-100 shadow-black/20" : 
           theme === "VINTAGE" ? "bg-black shadow-md" :
           "bg-[#4f6b28] shadow-[#4f6b28]/20"
         }`}>

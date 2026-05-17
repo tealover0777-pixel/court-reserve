@@ -255,7 +255,7 @@ export default function RoleTypesView({ theme = "LIGHT", userRoleId, readOnly = 
                 <div
                   style={{ top: menuPos.top, right: menuPos.right }}
                   className={`fixed border rounded-xl shadow-xl py-2 w-32 z-50 animate-in fade-in zoom-in-95 duration-200 transition-colors ${
-                  theme === "DARK" ? "bg-stone-900 border-stone-800" :
+                  theme === "DARK" ? "bg-stone-100 border-stone-200" :
                   theme === "VINTAGE" ? "bg-white border-stone-100 shadow-xl" :
                   "bg-white border-stone-100"
                 }`}>
@@ -383,14 +383,14 @@ export default function RoleTypesView({ theme = "LIGHT", userRoleId, readOnly = 
       </div>
 
       <div className={`border rounded-xl shadow-sm transition-colors duration-500 ${
-        theme === "DARK" ? "bg-stone-950 border-stone-800" : 
+        theme === "DARK" ? "bg-stone-50 border-stone-200" : 
         theme === "VINTAGE" ? "bg-white border-transparent shadow-md" :
         "bg-white border-stone-200"
       }`}>
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead className={`sticky top-0 z-10 border-b transition-colors duration-500 ${
-              theme === "DARK" ? "bg-stone-900 border-stone-800" : 
+              theme === "DARK" ? "bg-stone-100 border-stone-200" : 
               theme === "VINTAGE" ? "bg-white border-stone-100" :
               "bg-stone-100 border-stone-900"
             }`}>
@@ -400,7 +400,7 @@ export default function RoleTypesView({ theme = "LIGHT", userRoleId, readOnly = 
                     <th 
                       key={header.id} 
                       className={`px-6 py-4 text-[10px] font-black uppercase tracking-widest relative border-r last:border-r-0 transition-colors duration-500 ${
-                        theme === "DARK" ? "text-[#ccff00] border-stone-800" : 
+                        theme === "DARK" ? "text-[#ccff00] border-stone-200" : 
                         theme === "VINTAGE" ? "text-black border-stone-100" :
                         "text-black border-stone-900"
                       }`}
@@ -476,7 +476,7 @@ export default function RoleTypesView({ theme = "LIGHT", userRoleId, readOnly = 
                     <td 
                       key={cell.id} 
                       className={`px-6 py-3 text-sm font-medium border-r last:border-r-0 transition-colors duration-500 ${
-                        theme === "DARK" ? "text-stone-300 border-stone-800" : 
+                        theme === "DARK" ? "text-stone-300 border-stone-200" : 
                         theme === "VINTAGE" ? "text-black border-stone-100" :
                         "text-stone-900 border-stone-900"
                       }`}
@@ -512,7 +512,7 @@ export default function RoleTypesView({ theme = "LIGHT", userRoleId, readOnly = 
             <button 
               onClick={() => setShowRoleModal(false)}
               className={`flex-1 py-4 border-2 rounded-2xl text-[10px] font-black tracking-widest transition-all uppercase ${
-                theme === "DARK" ? "border-stone-800 text-stone-400 hover:bg-stone-900" : 
+                theme === "DARK" ? "border-stone-200 text-stone-400 hover:bg-stone-100" : 
                 theme === "VINTAGE" ? "border-stone-100 text-black hover:bg-stone-50" :
                 "border-stone-200 text-stone-900 hover:bg-stone-50"
               }`}
@@ -538,7 +538,7 @@ export default function RoleTypesView({ theme = "LIGHT", userRoleId, readOnly = 
               theme === "DARK" ? "text-stone-400" : "text-stone-900"
             }`}>Role ID</label>
             <div className={`w-full border-none rounded-2xl px-6 py-4 text-sm font-mono font-bold select-none transition-colors ${
-              theme === "DARK" ? "bg-stone-900 text-white" : 
+              theme === "DARK" ? "bg-stone-100 text-white" : 
               theme === "VINTAGE" ? "bg-[#f7f9fb] text-black" :
               "bg-stone-100 text-stone-900"
             }`}>
@@ -570,7 +570,7 @@ export default function RoleTypesView({ theme = "LIGHT", userRoleId, readOnly = 
               className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all ${
                 isGlobal 
                   ? (theme === "DARK" ? "bg-[#ccff00] border-[#ccff00] text-stone-950" : theme === "VINTAGE" ? "bg-black border-black text-white" : "bg-[#4f6b28] border-[#4f6b28] text-white")
-                  : (theme === "DARK" ? "border-stone-800 bg-stone-900" : "border-stone-200 bg-white")
+                  : (theme === "DARK" ? "border-stone-200 bg-stone-100" : "border-stone-200 bg-white")
               }`}
               onClick={() => setIsGlobal(!isGlobal)}
             >
@@ -627,7 +627,7 @@ export default function RoleTypesView({ theme = "LIGHT", userRoleId, readOnly = 
             </div>
           </div>
           <div className={`rounded-[32px] p-6 max-h-64 overflow-y-auto border flex flex-wrap gap-2 transition-colors ${
-            theme === "DARK" ? "bg-stone-900 border-stone-800" : 
+            theme === "DARK" ? "bg-stone-100 border-stone-200" : 
             theme === "VINTAGE" ? "bg-[#f7f9fb] border-stone-100" :
             "bg-stone-100 border-stone-200"
           }`}>
@@ -674,7 +674,7 @@ export default function RoleTypesView({ theme = "LIGHT", userRoleId, readOnly = 
               </div>
             </div>
             <div className={`rounded-[32px] p-6 max-h-48 overflow-y-auto border flex flex-wrap gap-2 transition-colors ${
-              theme === "DARK" ? "bg-stone-900 border-stone-800" : 
+              theme === "DARK" ? "bg-stone-100 border-stone-200" : 
               theme === "VINTAGE" ? "bg-amber-50/30 border-amber-100" :
               "bg-amber-100/30 border-amber-200"
             }`}>
@@ -711,7 +711,7 @@ export default function RoleTypesView({ theme = "LIGHT", userRoleId, readOnly = 
             <button 
               onClick={() => setConfirmDelete(null)}
               className={`flex-1 py-4 border-2 rounded-2xl text-[10px] font-black tracking-widest transition-all uppercase ${
-                theme === "DARK" ? "border-stone-800 text-stone-400 hover:bg-stone-900" : 
+                theme === "DARK" ? "border-stone-200 text-stone-400 hover:bg-stone-100" : 
                 theme === "VINTAGE" ? "border-stone-100 text-black hover:bg-stone-50" :
                 "border-stone-100 text-stone-400 hover:bg-stone-50"
               }`}

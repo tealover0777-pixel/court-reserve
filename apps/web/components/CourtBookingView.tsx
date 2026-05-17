@@ -582,7 +582,7 @@ function BookingForm({
   }`;
   const labelCls = `text-[9px] font-black uppercase tracking-widest mb-2 block ${isDark ? "text-white" : "text-stone-950"}`;
   const readonlyCls = `px-4 py-3 rounded-2xl text-sm font-bold border ${
-    isDark ? "bg-stone-900 border-stone-800 text-white" : "bg-stone-50 border-stone-100 text-stone-900"
+    isDark ? "bg-stone-100 border-stone-200 text-white" : "bg-stone-50 border-stone-100 text-stone-900"
   }`;
   const btnBase = `flex-1 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all border`;
   const btnActive =
@@ -594,13 +594,13 @@ function BookingForm({
   const btnInactive = `bg-transparent border-stone-200 ${isDark ? "text-white hover:text-white hover:border-stone-600" : "text-stone-950 hover:text-stone-900 hover:border-stone-400"}`;
 
   const stepperBtn = `w-10 h-10 rounded-xl flex items-center justify-center text-lg font-black transition-all border ${
-    isDark ? "border-stone-800 text-white hover:border-stone-600" : "border-stone-200 text-stone-900 hover:border-stone-400"
+    isDark ? "border-stone-200 text-white hover:border-stone-600" : "border-stone-200 text-stone-900 hover:border-stone-400"
   }`;
 
   return (
     <div className="space-y-5">
       {/* Court info */}
-      <div className={`p-4 rounded-2xl flex items-center gap-3 ${isDark ? "bg-stone-900" : "bg-stone-50"}`}>
+      <div className={`p-4 rounded-2xl flex items-center gap-3 ${isDark ? "bg-stone-100" : "bg-stone-50"}`}>
         <span className={`material-symbols-outlined text-2xl opacity-30 ${isDark ? "text-white" : "text-stone-900"}`}>
           sports_tennis
         </span>
@@ -777,7 +777,7 @@ function MonthView({ baseDate, selectedDate, allUserBookings, theme, onDayClick,
                         "bg-stone-900 text-white";
 
   const navBtn = `p-2 rounded-xl transition-all ${
-    isDark ? "bg-stone-900 text-white hover:bg-stone-800" : "bg-stone-200 text-stone-800 hover:bg-stone-300"
+    isDark ? "bg-stone-100 text-white hover:bg-stone-800" : "bg-stone-200 text-stone-800 hover:bg-stone-300"
   }`;
 
   const cardCls = isDark
@@ -809,7 +809,7 @@ function MonthView({ baseDate, selectedDate, allUserBookings, theme, onDayClick,
             <button
               onClick={() => { setPickerYear(year); setShowPicker(v => !v); }}
               className={`flex items-center gap-1 px-4 py-2 rounded-xl text-sm font-black uppercase tracking-widest transition-all ${
-                isDark ? "bg-stone-900 text-white hover:bg-stone-800" : "bg-stone-50 text-stone-900 hover:bg-stone-100"
+                isDark ? "bg-stone-100 text-white hover:bg-stone-800" : "bg-stone-50 text-stone-900 hover:bg-stone-100"
               }`}
             >
               {MONTHS[month]} {year}
@@ -817,7 +817,7 @@ function MonthView({ baseDate, selectedDate, allUserBookings, theme, onDayClick,
             </button>
             {showPicker && (
               <div className={`absolute top-full left-0 mt-2 z-50 rounded-2xl border shadow-2xl p-4 w-60 ${
-                isDark ? "bg-stone-950 border-stone-800" : "bg-white border-stone-100"
+                isDark ? "bg-stone-50 border-stone-200" : "bg-white border-stone-100"
               }`}>
                 <div className="flex items-center justify-between mb-3">
                   <button onClick={() => setPickerYear(y => y - 1)} className={`p-1 rounded-lg ${isDark ? "text-stone-300 hover:text-white" : "text-stone-950 hover:text-stone-950"}`}>
@@ -968,14 +968,14 @@ function MoveConfirmDialog({ booking, targetCourt, targetTime, theme, isMoving, 
     theme === "DARK"  ? "bg-[#00E5FF] text-stone-950" :
                         "bg-stone-900 text-white";
   const rowCls = `px-4 py-3 rounded-2xl text-sm font-bold border ${
-    isDark ? "bg-stone-900 border-stone-800 text-white" : "bg-stone-50 border-stone-100 text-stone-900"
+    isDark ? "bg-stone-100 border-stone-200 text-white" : "bg-stone-50 border-stone-100 text-stone-900"
   }`;
 
   return (
     <div className="space-y-6">
       {/* Icon */}
       <div className={`w-16 h-16 rounded-3xl flex items-center justify-center mx-auto ${
-        isDark ? "bg-stone-900" : "bg-stone-100"
+        isDark ? "bg-stone-100" : "bg-stone-100"
       }`}>
         <span className="material-symbols-outlined text-3xl opacity-60">drag_pan</span>
       </div>
@@ -1017,7 +1017,7 @@ function MoveConfirmDialog({ booking, targetCourt, targetTime, theme, isMoving, 
           onClick={onCancel}
           disabled={isMoving}
           className={`flex-1 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest border transition-all disabled:opacity-50 ${
-            isDark ? "border-stone-800 text-white hover:bg-stone-900" : "border-stone-200 text-stone-900 hover:bg-stone-50"
+            isDark ? "border-stone-200 text-white hover:bg-stone-100" : "border-stone-200 text-stone-900 hover:bg-stone-50"
           }`}
         >
           Cancel
@@ -1064,7 +1064,7 @@ function ScheduleNavigation({
     : "bg-stone-900 text-white border-stone-900";
 
   const navBtn = `p-2 rounded-xl transition-all ${
-    isDark ? "bg-stone-900 text-white hover:bg-stone-800" : "bg-stone-100 text-stone-900 hover:bg-stone-200"
+    isDark ? "bg-stone-100 text-white hover:bg-stone-800" : "bg-stone-100 text-stone-900 hover:bg-stone-200"
   }`;
 
   return (
@@ -1096,7 +1096,7 @@ function ScheduleNavigation({
                 setShowMonthPicker((v) => !v);
               }}
               className={`flex items-center gap-1 px-4 py-2 rounded-xl text-[11px] font-black uppercase tracking-widest transition-all ${
-                isDark ? "bg-stone-900 text-white hover:bg-stone-800" : "bg-stone-50 text-stone-900 hover:bg-stone-100"
+                isDark ? "bg-stone-100 text-white hover:bg-stone-800" : "bg-stone-50 text-stone-900 hover:bg-stone-100"
               }`}
             >
               {MONTHS[pivotDate.getMonth()]} {pivotDate.getFullYear()}
@@ -1105,7 +1105,7 @@ function ScheduleNavigation({
 
             {showMonthPicker && (
               <div className={`absolute top-full left-0 mt-2 z-50 rounded-2xl border shadow-2xl p-4 w-60 ${
-                isDark ? "bg-stone-950 border-stone-800" : "bg-white border-stone-100"
+                isDark ? "bg-stone-50 border-stone-200" : "bg-white border-stone-100"
               }`}>
                 {/* Year navigation */}
                 <div className="flex items-center justify-between mb-3">
@@ -1154,7 +1154,7 @@ function ScheduleNavigation({
         </div>
 
         {/* Week range label */}
-        <div className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest flex-shrink-0 ${isDark ? "bg-stone-900 text-white" : "bg-stone-900/5 text-stone-950"}`}>
+        <div className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest flex-shrink-0 ${isDark ? "bg-stone-100 text-white" : "bg-stone-900/5 text-stone-950"}`}>
           {weekDates[0].toLocaleDateString("en-US", { month: "short", day: "numeric" })}
           {" – "}
           {weekDates[6].toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
@@ -1181,7 +1181,7 @@ function ScheduleNavigation({
                       : theme === "DARK"
                       ? "bg-[#00E5FF] text-stone-950 scale-110"
                       : "bg-stone-900 text-white scale-110"
-                    : `${isDark ? "bg-stone-900/50 text-white hover:bg-stone-900 hover:text-[#00E5FF]" : "bg-stone-50 text-stone-950 hover:bg-stone-100 hover:text-black"}`
+                    : `${isDark ? "bg-stone-100/50 text-white hover:bg-stone-100 hover:text-[#00E5FF]" : "bg-stone-50 text-stone-950 hover:bg-stone-100 hover:text-black"}`
                 }`}
               >
                 {isToday && !isSelected && (
@@ -1224,7 +1224,7 @@ function SlotCell({ status, theme, booking, user, canModify, onDragStart }: { st
   if (status === "NOT_AVAILABLE") {
     return (
       <div className={`absolute inset-0 m-0.5 rounded-xl flex items-center justify-center ${
-        isDark ? "bg-stone-900" : "bg-stone-100"
+        isDark ? "bg-stone-100" : "bg-stone-100"
       }`}>
         <span className={`text-[7px] font-black uppercase tracking-widest ${isDark ? "text-stone-700" : "text-stone-300"}`}>
           N / A
@@ -1237,7 +1237,7 @@ function SlotCell({ status, theme, booking, user, canModify, onDragStart }: { st
     return (
       <div
         className={`absolute inset-0 m-0.5 rounded-xl flex items-center justify-center ${
-          isDark ? "bg-stone-950/80" : "bg-stone-50"
+          isDark ? "bg-stone-50/80" : "bg-stone-50"
         }`}
         style={{
           backgroundImage: isDark
@@ -1398,7 +1398,7 @@ function CourtHeader({ court, theme }: { court: any; theme: string }) {
   return (
     <div className="flex flex-col h-full py-2">
       {court.image_url ? (
-        <div className={`flex-1 mb-3 rounded-2xl overflow-hidden border transition-all duration-500 shadow-sm ${isDark ? "border-stone-800 bg-stone-900" : "border-stone-100 bg-stone-50"}`}>
+        <div className={`flex-1 mb-3 rounded-2xl overflow-hidden border transition-all duration-500 shadow-sm ${isDark ? "border-stone-200 bg-stone-100" : "border-stone-100 bg-stone-50"}`}>
           <img 
             src={court.image_url} 
             className={`w-full h-full object-cover transition-all duration-700 hover:scale-110 ${isDark ? "opacity-70 hover:opacity-100" : "opacity-90 hover:opacity-100"}`} 
@@ -1406,7 +1406,7 @@ function CourtHeader({ court, theme }: { court: any; theme: string }) {
           />
         </div>
       ) : (
-        <div className={`flex-1 mb-3 rounded-2xl flex items-center justify-center border border-dashed transition-all ${isDark ? "bg-stone-900/50 border-stone-800 text-stone-700" : "bg-stone-50 border-stone-200 text-stone-300"}`}>
+        <div className={`flex-1 mb-3 rounded-2xl flex items-center justify-center border border-dashed transition-all ${isDark ? "bg-stone-100/50 border-stone-200 text-stone-700" : "bg-stone-50 border-stone-200 text-stone-300"}`}>
           <span className="material-symbols-outlined text-4xl">sports_tennis</span>
         </div>
       )}
@@ -1716,10 +1716,10 @@ function BookingDetails({ tenantId, booking, theme, user, isAdmin, canModify, on
 
   const labelCls = `text-[9px] font-black uppercase tracking-widest mb-2 block ${isDark ? "text-white" : "text-stone-950"}`;
   const infoCls = `px-4 py-3 rounded-2xl text-sm font-bold border transition-all ${
-    isDark ? "bg-stone-900 border-stone-800 text-white" : "bg-stone-50 border-stone-100 text-stone-900"
+    isDark ? "bg-stone-100 border-stone-200 text-white" : "bg-stone-50 border-stone-100 text-stone-900"
   }`;
   const inputCls = `${infoCls} w-full focus:outline-none focus:ring-2 ${
-    isDark ? "focus:ring-[#00E5FF]/20 border-stone-800" : "focus:ring-stone-200 border-stone-100"
+    isDark ? "focus:ring-[#00E5FF]/20 border-stone-200" : "focus:ring-stone-200 border-stone-100"
   }`;
 
   if (isCancelling) {
@@ -1738,7 +1738,7 @@ function BookingDetails({ tenantId, booking, theme, user, isAdmin, canModify, on
           <button
             onClick={() => setIsCancelling(false)}
             className={`flex-1 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest border transition-all ${
-              isDark ? "border-stone-800 text-white hover:bg-stone-900" : "border-stone-200 text-stone-900 hover:bg-stone-50"
+              isDark ? "border-stone-200 text-white hover:bg-stone-100" : "border-stone-200 text-stone-900 hover:bg-stone-50"
             }`}
           >
             Go Back
@@ -1757,9 +1757,9 @@ function BookingDetails({ tenantId, booking, theme, user, isAdmin, canModify, on
   return (
     <div className="space-y-6">
       {/* Court Header */}
-      <div className={`p-5 rounded-2xl flex items-center justify-between ${isDark ? "bg-stone-900" : "bg-stone-50"}`}>
+      <div className={`p-5 rounded-2xl flex items-center justify-between ${isDark ? "bg-stone-100" : "bg-stone-50"}`}>
         <div className="flex items-center gap-4 flex-1">
-          <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${isDark ? "bg-stone-950" : "bg-white shadow-sm"}`}>
+          <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${isDark ? "bg-stone-50" : "bg-white shadow-sm"}`}>
             <span className="material-symbols-outlined text-2xl opacity-40">sports_tennis</span>
           </div>
           <div className="flex-1 min-w-0">
@@ -1880,7 +1880,7 @@ function BookingDetails({ tenantId, booking, theme, user, isAdmin, canModify, on
       {/* QR Code Section */}
       {!isEditing && (
         <div className={`p-6 rounded-[2rem] flex flex-col items-center justify-center border-2 border-dashed transition-all animate-in fade-in zoom-in duration-500 ${
-          isDark ? "bg-stone-900/50 border-stone-800" : "bg-stone-50 border-stone-200"
+          isDark ? "bg-stone-100/50 border-stone-200" : "bg-stone-50 border-stone-200"
         }`}>
           <div className="mb-4 p-4 rounded-3xl bg-white shadow-xl shadow-black/5 ring-1 ring-black/5">
             <img 
@@ -1914,7 +1914,7 @@ function BookingDetails({ tenantId, booking, theme, user, isAdmin, canModify, on
             <button
               onClick={() => setIsEditing(false)}
               className={`flex-1 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest border transition-all ${
-                isDark ? "border-stone-800 text-white hover:bg-stone-900" : "border-stone-200 text-stone-900 hover:bg-stone-50"
+                isDark ? "border-stone-200 text-white hover:bg-stone-100" : "border-stone-200 text-stone-900 hover:bg-stone-50"
               }`}
             >
               Cancel
@@ -1938,7 +1938,7 @@ function BookingDetails({ tenantId, booking, theme, user, isAdmin, canModify, on
                   Cancel Reservation
                 </button>
               ) : (
-                <div className={`py-4 px-6 rounded-2xl text-[9px] font-bold text-center border border-dashed ${isDark ? "border-stone-800 text-white" : "border-stone-100 text-stone-950"}`}>
+                <div className={`py-4 px-6 rounded-2xl text-[9px] font-bold text-center border border-dashed ${isDark ? "border-stone-200 text-white" : "border-stone-100 text-stone-950"}`}>
                   This session is locked according to the company's schedule policy.
                 </div>
               )}

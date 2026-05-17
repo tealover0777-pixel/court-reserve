@@ -184,7 +184,7 @@ export default function EventDetailsModal({ event, theme, profile, tenantId, onC
           </div>
 
           <div className="col-span-12 md:col-span-4">
-            <div className={`p-6 rounded-2xl border transition-colors ${theme === "DARK" ? "bg-stone-900 border-stone-800" : "bg-stone-50 border-stone-100"}`}>
+            <div className={`p-6 rounded-2xl border transition-colors ${theme === "DARK" ? "bg-stone-100 border-stone-200" : "bg-stone-50 border-stone-100"}`}>
               <h4 className="text-[10px] font-black tracking-widest uppercase opacity-50 mb-6 text-center">Status</h4>
               
               {isSignedUp ? (

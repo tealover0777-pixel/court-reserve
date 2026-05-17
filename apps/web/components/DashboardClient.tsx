@@ -1591,7 +1591,7 @@ function ProfileView({ theme, profile, roles }: { theme: "LIGHT" | "DARK" | "VIN
     <div className="max-w-4xl space-y-16 animate-in fade-in slide-in-from-bottom-4 duration-700">
 
       <div className="flex items-center gap-10">
-        <div className={`w-40 h-40 rounded-[40px] overflow-hidden border-4 shadow-2xl transition-all relative group ${theme === "DARK" ? "border-stone-800" : "border-white"
+        <div className={`w-40 h-40 rounded-[40px] overflow-hidden border-4 shadow-2xl transition-all relative group ${theme === "DARK" ? "border-stone-200" : "border-white"
           }`}>
           <img
             src={profile?.portrait_url || "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=2574&auto=format&fit=crop"}
@@ -1658,7 +1658,7 @@ function ProfileView({ theme, profile, roles }: { theme: "LIGHT" | "DARK" | "VIN
       </div>
 
       <div className="grid grid-cols-12 gap-8">
-        <div className={`col-span-12 rounded-[40px] p-12 shadow-xl space-y-10 transition-colors border ${theme === "DARK" ? "bg-stone-900 border-stone-800" :
+        <div className={`col-span-12 rounded-[40px] p-12 shadow-xl space-y-10 transition-colors border ${theme === "DARK" ? "bg-stone-100 border-stone-200" :
           theme === "VINTAGE" ? "bg-white border-stone-50" :
             "bg-stone-50 border-stone-100"
           }`}>
@@ -1688,7 +1688,7 @@ function ProfileView({ theme, profile, roles }: { theme: "LIGHT" | "DARK" | "VIN
             </button>
             <button
               onClick={handleChangePassword}
-              className={`flex-1 py-4 border-2 rounded-2xl text-[10px] font-black tracking-widest uppercase transition-colors ${theme === "DARK" ? "border-stone-800 text-white hover:bg-stone-800" : theme === "VINTAGE" ? "border-black text-black hover:bg-black hover:text-white" : "border-[#4f6b28] text-[#4f6b28] hover:bg-[#4f6b28] hover:text-white"
+              className={`flex-1 py-4 border-2 rounded-2xl text-[10px] font-black tracking-widest uppercase transition-colors ${theme === "DARK" ? "border-stone-200 text-white hover:bg-stone-800" : theme === "VINTAGE" ? "border-black text-black hover:bg-black hover:text-white" : "border-[#4f6b28] text-[#4f6b28] hover:bg-[#4f6b28] hover:text-white"
                 }`}>
               CHANGE PASSWORD
             </button>
@@ -1705,7 +1705,7 @@ function ProfileView({ theme, profile, roles }: { theme: "LIGHT" | "DARK" | "VIN
             <div className="flex gap-4">
               <button
                 onClick={() => setShowEditModal(false)}
-                className={`flex-1 py-5 rounded-2xl text-[10px] font-black tracking-widest uppercase transition-colors border ${theme === "DARK" ? "border-stone-800 text-white hover:bg-stone-800" : "border-stone-200 text-stone-900 hover:bg-stone-50"}`}
+                className={`flex-1 py-5 rounded-2xl text-[10px] font-black tracking-widest uppercase transition-colors border ${theme === "DARK" ? "border-stone-200 text-white hover:bg-stone-800" : "border-stone-200 text-stone-900 hover:bg-stone-50"}`}
               >
                 CANCEL
               </button>
@@ -1731,7 +1731,7 @@ function ProfileView({ theme, profile, roles }: { theme: "LIGHT" | "DARK" | "VIN
                 <input
                   value={formData.first_name}
                   onChange={e => setFormData({ ...formData, first_name: e.target.value })}
-                  className={`w-full bg-transparent border-b-2 py-4 text-lg font-bold outline-none transition-colors placeholder:text-stone-200 ${theme === "DARK" ? "border-stone-800 focus:border-[#ccff00] text-white" : theme === "LIGHT" ? "border-stone-200 focus:border-[#4f6b28] text-[#4f6b28]" : "border-stone-100 focus:border-stone-900 text-stone-900"}`}
+                  className={`w-full bg-transparent border-b-2 py-4 text-lg font-bold outline-none transition-colors placeholder:text-stone-200 ${theme === "DARK" ? "border-stone-200 focus:border-[#ccff00] text-white" : theme === "LIGHT" ? "border-stone-200 focus:border-[#4f6b28] text-[#4f6b28]" : "border-stone-100 focus:border-stone-900 text-stone-900"}`}
                 />
               </div>
               <div>
@@ -1739,7 +1739,7 @@ function ProfileView({ theme, profile, roles }: { theme: "LIGHT" | "DARK" | "VIN
                 <input
                   value={formData.last_name}
                   onChange={e => setFormData({ ...formData, last_name: e.target.value })}
-                  className={`w-full bg-transparent border-b-2 py-4 text-lg font-bold outline-none transition-colors placeholder:text-stone-200 ${theme === "DARK" ? "border-stone-800 focus:border-[#ccff00] text-white" : theme === "LIGHT" ? "border-stone-200 focus:border-[#4f6b28] text-[#4f6b28]" : "border-stone-100 focus:border-stone-900 text-stone-900"}`}
+                  className={`w-full bg-transparent border-b-2 py-4 text-lg font-bold outline-none transition-colors placeholder:text-stone-200 ${theme === "DARK" ? "border-stone-200 focus:border-[#ccff00] text-white" : theme === "LIGHT" ? "border-stone-200 focus:border-[#4f6b28] text-[#4f6b28]" : "border-stone-100 focus:border-stone-900 text-stone-900"}`}
                 />
               </div>
             </div>
@@ -1750,7 +1750,7 @@ function ProfileView({ theme, profile, roles }: { theme: "LIGHT" | "DARK" | "VIN
                   value={formData.address_street_1}
                   onChange={e => setFormData({ ...formData, address_street_1: e.target.value })}
                   placeholder="123 Tennis Court Lane"
-                  className={`w-full bg-transparent border-b-2 py-4 text-lg font-bold outline-none transition-colors placeholder:text-stone-200 ${theme === "DARK" ? "border-stone-800 focus:border-[#ccff00] text-white" : theme === "LIGHT" ? "border-stone-200 focus:border-[#4f6b28] text-[#4f6b28]" : "border-stone-100 focus:border-stone-900 text-stone-900"}`}
+                  className={`w-full bg-transparent border-b-2 py-4 text-lg font-bold outline-none transition-colors placeholder:text-stone-200 ${theme === "DARK" ? "border-stone-200 focus:border-[#ccff00] text-white" : theme === "LIGHT" ? "border-stone-200 focus:border-[#4f6b28] text-[#4f6b28]" : "border-stone-100 focus:border-stone-900 text-stone-900"}`}
                 />
               </div>
               <div>
@@ -1759,7 +1759,7 @@ function ProfileView({ theme, profile, roles }: { theme: "LIGHT" | "DARK" | "VIN
                   value={formData.address_street_2}
                   onChange={e => setFormData({ ...formData, address_street_2: e.target.value })}
                   placeholder="Apt 4B"
-                  className={`w-full bg-transparent border-b-2 py-4 text-lg font-bold outline-none transition-colors placeholder:text-stone-200 ${theme === "DARK" ? "border-stone-800 focus:border-[#ccff00] text-white" : theme === "LIGHT" ? "border-stone-200 focus:border-[#4f6b28] text-[#4f6b28]" : "border-stone-100 focus:border-stone-900 text-stone-900"}`}
+                  className={`w-full bg-transparent border-b-2 py-4 text-lg font-bold outline-none transition-colors placeholder:text-stone-200 ${theme === "DARK" ? "border-stone-200 focus:border-[#ccff00] text-white" : theme === "LIGHT" ? "border-stone-200 focus:border-[#4f6b28] text-[#4f6b28]" : "border-stone-100 focus:border-stone-900 text-stone-900"}`}
                 />
               </div>
             </div>
@@ -1769,7 +1769,7 @@ function ProfileView({ theme, profile, roles }: { theme: "LIGHT" | "DARK" | "VIN
                 value={formData.phone}
                 onChange={e => setFormData({ ...formData, phone: e.target.value })}
                 placeholder="+1 (555) 000-0000"
-                className={`w-full bg-transparent border-b-2 py-4 text-lg font-bold outline-none transition-colors placeholder:text-stone-200 ${theme === "DARK" ? "border-stone-800 focus:border-[#ccff00] text-white" : theme === "LIGHT" ? "border-stone-200 focus:border-[#4f6b28] text-[#4f6b28]" : "border-stone-100 focus:border-stone-900 text-stone-900"}`}
+                className={`w-full bg-transparent border-b-2 py-4 text-lg font-bold outline-none transition-colors placeholder:text-stone-200 ${theme === "DARK" ? "border-stone-200 focus:border-[#ccff00] text-white" : theme === "LIGHT" ? "border-stone-200 focus:border-[#4f6b28] text-[#4f6b28]" : "border-stone-100 focus:border-stone-900 text-stone-900"}`}
               />
             </div>
             <div className="grid grid-cols-3 gap-8">
@@ -1779,7 +1779,7 @@ function ProfileView({ theme, profile, roles }: { theme: "LIGHT" | "DARK" | "VIN
                   value={formData.address_city}
                   onChange={e => setFormData({ ...formData, address_city: e.target.value })}
                   placeholder="Wimbledon"
-                  className={`w-full bg-transparent border-b-2 py-4 text-lg font-bold outline-none transition-colors placeholder:text-stone-200 ${theme === "DARK" ? "border-stone-800 focus:border-[#ccff00] text-white" : theme === "LIGHT" ? "border-stone-200 focus:border-[#4f6b28] text-[#4f6b28]" : "border-stone-100 focus:border-stone-900 text-stone-900"}`}
+                  className={`w-full bg-transparent border-b-2 py-4 text-lg font-bold outline-none transition-colors placeholder:text-stone-200 ${theme === "DARK" ? "border-stone-200 focus:border-[#ccff00] text-white" : theme === "LIGHT" ? "border-stone-200 focus:border-[#4f6b28] text-[#4f6b28]" : "border-stone-100 focus:border-stone-900 text-stone-900"}`}
                 />
               </div>
               <div className="col-span-1">
@@ -1787,11 +1787,11 @@ function ProfileView({ theme, profile, roles }: { theme: "LIGHT" | "DARK" | "VIN
                 <select
                   value={formData.address_state}
                   onChange={e => setFormData({ ...formData, address_state: e.target.value })}
-                  className={`w-full bg-transparent border-b-2 py-4 text-lg font-bold outline-none transition-colors appearance-none ${!formData.address_state ? '!text-stone-200' : ''} ${theme === "DARK" ? "border-stone-800 focus:border-[#ccff00] text-white" : theme === "LIGHT" ? "border-stone-200 focus:border-[#4f6b28] text-[#4f6b28]" : "border-stone-100 focus:border-stone-900 text-stone-900"}`}
+                  className={`w-full bg-transparent border-b-2 py-4 text-lg font-bold outline-none transition-colors appearance-none ${!formData.address_state ? '!text-stone-200' : ''} ${theme === "DARK" ? "border-stone-200 focus:border-[#ccff00] text-white" : theme === "LIGHT" ? "border-stone-200 focus:border-[#4f6b28] text-[#4f6b28]" : "border-stone-100 focus:border-stone-900 text-stone-900"}`}
                 >
-                  <option value="" className={theme === "DARK" ? "bg-stone-900" : "bg-white"}>Select State</option>
+                  <option value="" className={theme === "DARK" ? "bg-stone-100" : "bg-white"}>Select State</option>
                   {US_STATES.map(state => (
-                    <option key={state} value={state} className={theme === "DARK" ? "bg-stone-900" : "bg-white"}>{state}</option>
+                    <option key={state} value={state} className={theme === "DARK" ? "bg-stone-100" : "bg-white"}>{state}</option>
                   ))}
                 </select>
               </div>
@@ -1801,7 +1801,7 @@ function ProfileView({ theme, profile, roles }: { theme: "LIGHT" | "DARK" | "VIN
                   value={formData.address_zip}
                   onChange={e => setFormData({ ...formData, address_zip: e.target.value })}
                   placeholder="SW19"
-                  className={`w-full bg-transparent border-b-2 py-4 text-lg font-bold outline-none transition-colors placeholder:text-stone-200 ${theme === "DARK" ? "border-stone-800 focus:border-[#ccff00] text-white" : theme === "LIGHT" ? "border-stone-200 focus:border-[#4f6b28] text-[#4f6b28]" : "border-stone-100 focus:border-stone-900 text-stone-900"}`}
+                  className={`w-full bg-transparent border-b-2 py-4 text-lg font-bold outline-none transition-colors placeholder:text-stone-200 ${theme === "DARK" ? "border-stone-200 focus:border-[#ccff00] text-white" : theme === "LIGHT" ? "border-stone-200 focus:border-[#4f6b28] text-[#4f6b28]" : "border-stone-100 focus:border-stone-900 text-stone-900"}`}
                 />
               </div>
             </div>
@@ -1822,7 +1822,7 @@ function ProfileView({ theme, profile, roles }: { theme: "LIGHT" | "DARK" | "VIN
                 <button
                   key={portrait.id}
                   onClick={() => handlePortraitSelect(portrait.url)}
-                  className={`group relative aspect-square rounded-3xl overflow-hidden border-2 transition-all hover:scale-105 ${theme === "DARK" ? "border-stone-800 hover:border-[#ccff00]" : theme === "LIGHT" ? "border-stone-100 hover:border-[#4f6b28]" : "border-stone-100 hover:border-stone-900"
+                  className={`group relative aspect-square rounded-3xl overflow-hidden border-2 transition-all hover:scale-105 ${theme === "DARK" ? "border-stone-200 hover:border-[#ccff00]" : theme === "LIGHT" ? "border-stone-100 hover:border-[#4f6b28]" : "border-stone-100 hover:border-stone-900"
                     }`}
                 >
                   <img
@@ -1860,9 +1860,9 @@ function MembershipView({ theme }: { theme: "LIGHT" | "DARK" | "VINTAGE" }) {
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         {[
-          { name: "SILVER", price: "99", color: theme === "DARK" ? "bg-stone-900 text-white" : theme === "VINTAGE" ? "bg-white text-black border border-stone-50" : theme === "LIGHT" ? "bg-white text-[#4f6b28] border-2 border-[#4f6b28]/10" : "bg-stone-50 text-stone-900", features: ["2 Bookings/Week", "Standard Access", "Social Mixers"] },
+          { name: "SILVER", price: "99", color: theme === "DARK" ? "bg-stone-100 text-white" : theme === "VINTAGE" ? "bg-white text-black border border-stone-50" : theme === "LIGHT" ? "bg-white text-[#4f6b28] border-2 border-[#4f6b28]/10" : "bg-stone-50 text-stone-900", features: ["2 Bookings/Week", "Standard Access", "Social Mixers"] },
           { name: "GOLD", price: "199", popular: true, color: theme === "DARK" ? "bg-[#ccff00] text-stone-950" : theme === "VINTAGE" ? "bg-black text-white" : theme === "LIGHT" ? "bg-[#4f6b28] text-white shadow-[#4f6b28]/20" : "bg-stone-900 text-white", features: ["Unlimited Bookings", "Priority Courts", "Guest Passes (4)", "Pro Discounts"] },
-          { name: "PLATINUM", price: "299", color: theme === "DARK" ? "bg-stone-950 text-white border border-stone-800" : theme === "VINTAGE" ? "bg-white text-black border-2 border-black" : theme === "LIGHT" ? "bg-[#4f6b28] text-white" : "bg-stone-900 text-white", features: ["24/7 Access", "Personal Locker", "Free Stringing", "Pro Clinic Access"] }
+          { name: "PLATINUM", price: "299", color: theme === "DARK" ? "bg-stone-50 text-white border border-stone-200" : theme === "VINTAGE" ? "bg-white text-black border-2 border-black" : theme === "LIGHT" ? "bg-[#4f6b28] text-white" : "bg-stone-900 text-white", features: ["24/7 Access", "Personal Locker", "Free Stringing", "Pro Clinic Access"] }
         ].map((plan, i) => (
           <div key={i} className={`${plan.color} rounded-[40px] p-12 shadow-2xl relative flex flex-col transition-all hover:scale-105`}>
             {plan.popular && (
@@ -1886,7 +1886,7 @@ function MembershipView({ theme }: { theme: "LIGHT" | "DARK" | "VINTAGE" }) {
                 </li>
               ))}
             </ul>
-            <button className={`mt-12 w-full py-5 rounded-2xl text-[10px] font-black tracking-widest transition-all uppercase ${plan.popular ? (theme === "DARK" ? "bg-stone-900 text-white" : theme === "VINTAGE" ? "bg-white text-black" : theme === "LIGHT" ? "bg-[#ccff00] text-[#4f6b28]" : "bg-white text-stone-900") :
+            <button className={`mt-12 w-full py-5 rounded-2xl text-[10px] font-black tracking-widest transition-all uppercase ${plan.popular ? (theme === "DARK" ? "bg-stone-100 text-white" : theme === "VINTAGE" ? "bg-white text-black" : theme === "LIGHT" ? "bg-[#ccff00] text-[#4f6b28]" : "bg-white text-stone-900") :
               "border-2 border-current hover:bg-current hover:text-white"
               }`}>
               {plan.popular ? "CURRENT PLAN" : "UPGRADE NOW"}
@@ -1915,7 +1915,7 @@ function SettingsView({ theme }: { theme: "LIGHT" | "DARK" | "VINTAGE" }) {
           { icon: "history", title: "ACTIVITY HISTORY", desc: "Log match results and training progress", active: false },
           { icon: "mail", title: "NEWSLETTER", desc: "Weekly club updates and clinic openings", active: true }
         ].map((opt, i) => (
-          <div key={i} className={`flex items-center justify-between p-10 rounded-[2.5rem] border transition-all duration-300 hover:shadow-xl hover:scale-[1.01] ${theme === "DARK" ? "bg-stone-900 border-stone-800" :
+          <div key={i} className={`flex items-center justify-between p-10 rounded-[2.5rem] border transition-all duration-300 hover:shadow-xl hover:scale-[1.01] ${theme === "DARK" ? "bg-stone-100 border-stone-200" :
             theme === "VINTAGE" ? "bg-white border-stone-50" :
               "bg-white border-outline/5 shadow-sm"
             }`}>

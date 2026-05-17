@@ -149,7 +149,7 @@ export default function EventsAdminView({ theme = "LIGHT", tenantId, allTenants 
   const [categories, setCategories] = useState<string[]>([]);
 
   // Common UI classes
-  const inputCls = `w-full border rounded-2xl px-5 py-3.5 text-sm font-bold outline-none transition-all ${theme === "DARK" ? "bg-stone-950 text-white border-stone-800 focus:border-[#ccff00]" : "bg-white text-stone-900 border-stone-200 focus:border-stone-400 shadow-sm"
+  const inputCls = `w-full border rounded-2xl px-5 py-3.5 text-sm font-bold outline-none transition-all ${theme === "DARK" ? "bg-stone-50 text-white border-stone-200 focus:border-[#ccff00]" : "bg-white text-stone-900 border-stone-200 focus:border-stone-400 shadow-sm"
     }`;
   const labelCls = `text-[10px] font-black tracking-widest uppercase mb-2 block ${theme === "DARK" ? "text-stone-200" : "text-stone-950"
     }`;
@@ -609,13 +609,13 @@ export default function EventsAdminView({ theme = "LIGHT", tenantId, allTenants 
 
         {/* Data Table */}
         <div className={`rounded-[2.5rem] border overflow-hidden transition-all duration-500 ${
-          theme === "DARK" ? "bg-stone-950 border-stone-800 shadow-2xl" : "bg-white border-stone-200 shadow-xl"
+          theme === "DARK" ? "bg-stone-50 border-stone-200 shadow-2xl" : "bg-white border-stone-200 shadow-xl"
         }`}>
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
                 {table.getHeaderGroups().map(headerGroup => (
-                  <tr key={headerGroup.id} className={`${theme === "DARK" ? "bg-stone-900/30" : "bg-stone-50/50"}`}>
+                  <tr key={headerGroup.id} className={`${theme === "DARK" ? "bg-stone-100/30" : "bg-stone-50/50"}`}>
                     {headerGroup.headers.map(header => (
                       <th 
                         key={header.id} 
@@ -654,7 +654,7 @@ export default function EventsAdminView({ theme = "LIGHT", tenantId, allTenants 
 
           {events.length === 0 && (
             <div className="py-32 flex flex-col items-center justify-center gap-6">
-              <div className={`w-24 h-24 rounded-full flex items-center justify-center ${theme === "DARK" ? "bg-stone-900" : "bg-stone-50"}`}>
+              <div className={`w-24 h-24 rounded-full flex items-center justify-center ${theme === "DARK" ? "bg-stone-100" : "bg-stone-50"}`}>
                 <span className="material-symbols-outlined text-4xl opacity-20">event_busy</span>
               </div>
               <div className="text-center space-y-2">
@@ -685,7 +685,7 @@ export default function EventsAdminView({ theme = "LIGHT", tenantId, allTenants 
                 setShowEditModal(false);
                 setEditingEvent(null);
               }}
-              className={`flex-1 py-4 rounded-2xl text-[10px] font-black tracking-widest uppercase transition-colors border ${theme === "DARK" ? "border-stone-800 text-white hover:bg-stone-800" : "border-stone-200 text-stone-900 hover:bg-stone-50"
+              className={`flex-1 py-4 rounded-2xl text-[10px] font-black tracking-widest uppercase transition-colors border ${theme === "DARK" ? "border-stone-200 text-white hover:bg-stone-800" : "border-stone-200 text-stone-900 hover:bg-stone-50"
                 }`}
             >
               CANCEL
@@ -916,7 +916,7 @@ export default function EventsAdminView({ theme = "LIGHT", tenantId, allTenants 
 
           <div className="col-span-2">
             <label className={labelCls}>Event Leaders</label>
-            <div className={`mt-2 p-4 rounded-2xl border flex flex-wrap gap-2 ${theme === "DARK" ? "bg-stone-950 border-stone-800" : "bg-stone-50 border-stone-200"
+            <div className={`mt-2 p-4 rounded-2xl border flex flex-wrap gap-2 ${theme === "DARK" ? "bg-stone-50 border-stone-200" : "bg-stone-50 border-stone-200"
               }`}>
               {tenantUsers.map(user => {
                 const isSelected = formData.event_leaders.includes(user.id);
@@ -932,7 +932,7 @@ export default function EventsAdminView({ theme = "LIGHT", tenantId, allTenants 
                     }}
                     className={`flex items-center gap-2 px-3 py-1.5 rounded-xl transition-all border ${isSelected
                         ? (theme === "DARK" ? "bg-[#ccff00] border-[#ccff00] text-stone-900" : "bg-stone-900 border-stone-900 text-white")
-                        : (theme === "DARK" ? "bg-stone-900 border-stone-800 text-stone-400" : "bg-white border-stone-200 text-stone-600")
+                        : (theme === "DARK" ? "bg-stone-100 border-stone-200 text-stone-400" : "bg-white border-stone-200 text-stone-600")
                       }`}
                   >
                     {user.portrait_url ? (
@@ -978,7 +978,7 @@ export default function EventsAdminView({ theme = "LIGHT", tenantId, allTenants 
           <div className="col-span-2">
             <label className={labelCls}>Event Image</label>
             <div className="flex gap-6 items-start">
-              <div className={`w-40 h-40 rounded-3xl border-2 border-dashed flex flex-col items-center justify-center gap-2 overflow-hidden relative group transition-colors ${theme === "DARK" ? "border-stone-800 bg-stone-950/50" : "border-stone-200 bg-stone-50"
+              <div className={`w-40 h-40 rounded-3xl border-2 border-dashed flex flex-col items-center justify-center gap-2 overflow-hidden relative group transition-colors ${theme === "DARK" ? "border-stone-200 bg-stone-50/50" : "border-stone-200 bg-stone-50"
                 }`}>
                 {formData.image_url ? (
                   <>
@@ -1037,7 +1037,7 @@ export default function EventsAdminView({ theme = "LIGHT", tenantId, allTenants 
           <div className="flex gap-4">
             <button
               onClick={() => setConfirmDelete(null)}
-              className={`flex-1 py-4 rounded-xl text-[10px] font-black tracking-widest uppercase border ${theme === "DARK" ? "border-stone-800 text-white" : "border-stone-200 text-stone-900"
+              className={`flex-1 py-4 rounded-xl text-[10px] font-black tracking-widest uppercase border ${theme === "DARK" ? "border-stone-200 text-white" : "border-stone-200 text-stone-900"
                 }`}
             >
               CANCEL
@@ -1067,7 +1067,7 @@ export default function EventsAdminView({ theme = "LIGHT", tenantId, allTenants 
           <div className="flex gap-4">
             <button
               onClick={() => setShowConflictModal(false)}
-              className={`flex-1 py-4 rounded-xl text-[10px] font-black tracking-widest uppercase border ${theme === "DARK" ? "border-stone-800 text-white" : "border-stone-200 text-stone-900"
+              className={`flex-1 py-4 rounded-xl text-[10px] font-black tracking-widest uppercase border ${theme === "DARK" ? "border-stone-200 text-white" : "border-stone-200 text-stone-900"
                 }`}
             >
               CANCEL
@@ -1085,10 +1085,10 @@ export default function EventsAdminView({ theme = "LIGHT", tenantId, allTenants 
           <p className={`text-sm font-medium ${theme === "DARK" ? "text-stone-300" : "text-stone-600"}`}>
             The following bookings overlap with this event. Saving will cancel these bookings and notify the users.
           </p>
-          <div className={`rounded-2xl border overflow-hidden ${theme === "DARK" ? "bg-stone-950 border-stone-800" : "bg-stone-50 border-stone-200"
+          <div className={`rounded-2xl border overflow-hidden ${theme === "DARK" ? "bg-stone-50 border-stone-200" : "bg-stone-50 border-stone-200"
             }`}>
             {conflicts.map((c, i) => (
-              <div key={i} className={`p-4 flex justify-between items-center ${i !== 0 ? (theme === "DARK" ? "border-t border-stone-800" : "border-t border-stone-200") : ""
+              <div key={i} className={`p-4 flex justify-between items-center ${i !== 0 ? (theme === "DARK" ? "border-t border-stone-200" : "border-t border-stone-200") : ""
                 }`}>
                 <div>
                   <p className="text-[10px] font-black uppercase tracking-tight">{c.userName || "Unknown Player"}</p>
@@ -1110,7 +1110,7 @@ function TimePicker({ value, onChange, theme }: { value: string; onChange: (val:
   const isDark = theme === "DARK";
   
   const containerCls = `flex items-center gap-2 border rounded-2xl px-4 py-3.5 transition-all ${
-    isDark ? "bg-stone-950 border-stone-800 text-white" : "bg-white border-stone-200 text-stone-900 shadow-sm"
+    isDark ? "bg-stone-50 border-stone-200 text-white" : "bg-white border-stone-200 text-stone-900 shadow-sm"
   }`;
   const selectCls = `bg-transparent outline-none font-bold text-sm cursor-pointer appearance-none w-full transition-colors ${
     isDark 
@@ -1136,7 +1136,7 @@ function TimePicker({ value, onChange, theme }: { value: string; onChange: (val:
             key={t} 
             value={t} 
             className={
-              isDark ? "bg-stone-900 text-white" : "bg-white text-stone-900"
+              isDark ? "bg-stone-100 text-white" : "bg-white text-stone-900"
             }
           >
             {t}
@@ -1168,7 +1168,7 @@ function PremiumDateTimePicker({ value, onChange, theme, placeholder }: {
   };
 
   const containerCls = `flex items-center gap-2 border rounded-2xl px-4 py-2 transition-all ${
-    isDark ? "bg-stone-950 border-stone-800 text-white" : "bg-white border-stone-200 text-stone-900 shadow-sm"
+    isDark ? "bg-stone-50 border-stone-200 text-white" : "bg-white border-stone-200 text-stone-900 shadow-sm"
   }`;
 
   const selectCls = `bg-transparent outline-none font-bold text-sm cursor-pointer appearance-none px-2 py-1 rounded-lg transition-colors ${
@@ -1204,7 +1204,7 @@ function PremiumDateTimePicker({ value, onChange, theme, placeholder }: {
                 key={t} 
                 value={t} 
                 className={
-                  isDark ? "bg-stone-900 text-white" : "bg-white text-stone-900"
+                  isDark ? "bg-stone-100 text-white" : "bg-white text-stone-900"
                 }
               >
                 {t}

@@ -111,15 +111,15 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
   const [notification, setNotification] = useState<{ message: string; type: "SUCCESS" | "ERROR" | "INFO" } | null>(null);
 
   // Common UI classes
-  const inputCls = `w-full border rounded-2xl px-5 py-3.5 text-sm font-bold outline-none transition-all placeholder:text-stone-200 ${theme === "DARK" ? "bg-stone-950 text-white border-stone-800 focus:border-[#ccff00]" : "bg-white text-stone-900 border-stone-200 focus:border-stone-400 shadow-sm"
+  const inputCls = `w-full border rounded-2xl px-5 py-3.5 text-sm font-bold outline-none transition-all placeholder:text-stone-200 ${theme === "DARK" ? "bg-stone-50 text-white border-stone-200 focus:border-[#ccff00]" : "bg-white text-stone-900 border-stone-200 focus:border-stone-400 shadow-sm"
     }`;
-  const readonlyCls = `w-full border rounded-2xl px-5 py-3.5 text-sm font-bold transition-colors ${theme === "DARK" ? "bg-stone-900 text-stone-400 border-stone-800" : "bg-stone-50 text-stone-500 border-stone-100"
+  const readonlyCls = `w-full border rounded-2xl px-5 py-3.5 text-sm font-bold transition-colors ${theme === "DARK" ? "bg-stone-100 text-stone-400 border-stone-200" : "bg-stone-50 text-stone-500 border-stone-100"
     }`;
   const labelCls = `text-[10px] font-black tracking-widest uppercase mb-2 block ${theme === "DARK" ? "text-stone-300" : "text-stone-800"
     }`;
 
   const sectionDivider = (title: string) => (
-    <div className={`col-span-2 pt-2 pb-1 border-b flex items-center gap-3 transition-colors ${theme === "DARK" ? "border-stone-800" : "border-stone-100"}`}>
+    <div className={`col-span-2 pt-2 pb-1 border-b flex items-center gap-3 transition-colors ${theme === "DARK" ? "border-stone-200" : "border-stone-100"}`}>
       <span className={`text-[10px] font-black uppercase tracking-[0.2em] ${theme === "DARK" ? "text-stone-300" : "text-stone-800"
         }`}>{title}</span>
     </div>
@@ -708,12 +708,12 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
         const url = info.getValue();
         return (
           <div className="flex justify-center">
-            <div className={`w-10 h-10 rounded-full overflow-hidden border-2 transition-colors ${theme === "DARK" ? "border-stone-800" : "border-stone-100"
+            <div className={`w-10 h-10 rounded-full overflow-hidden border-2 transition-colors ${theme === "DARK" ? "border-stone-200" : "border-stone-100"
               }`}>
               {url ? (
                 <img src={url} alt="User" className="w-full h-full object-cover" />
               ) : (
-                <div className={`w-full h-full flex items-center justify-center ${theme === "DARK" ? "bg-stone-900 text-stone-700" : "bg-stone-50 text-stone-300"
+                <div className={`w-full h-full flex items-center justify-center ${theme === "DARK" ? "bg-stone-100 text-stone-700" : "bg-stone-50 text-stone-300"
                   }`}>
                   <span className="material-symbols-outlined text-xl">person</span>
                 </div>
@@ -819,7 +819,7 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
             {allRoleIds.map(rid => {
               const roleMatch = roles.find(r => r.role_id === rid || r.id === rid);
               if (!roleMatch) return (
-                <span key={rid} className={`text-[9px] font-mono px-2 py-0.5 rounded-full border ${theme === "DARK" ? "border-stone-800 text-stone-300" : "border-stone-200 text-stone-800"
+                <span key={rid} className={`text-[9px] font-mono px-2 py-0.5 rounded-full border ${theme === "DARK" ? "border-stone-200 text-stone-300" : "border-stone-200 text-stone-800"
                   }`}>{rid}</span>
               );
 
@@ -895,7 +895,7 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
                 <div className="fixed inset-0 z-40" onClick={() => setShowMenu(false)}></div>
                 <div
                   style={{ top: menuPos.top, right: menuPos.right }}
-                  className={`fixed border rounded-xl shadow-xl py-2 w-32 z-50 animate-in fade-in zoom-in-95 duration-200 transition-colors ${theme === "DARK" ? "bg-stone-900 border-stone-800" :
+                  className={`fixed border rounded-xl shadow-xl py-2 w-32 z-50 animate-in fade-in zoom-in-95 duration-200 transition-colors ${theme === "DARK" ? "bg-stone-100 border-stone-200" :
                       theme === "VINTAGE" ? "bg-white border-stone-100" :
                         "bg-white border-stone-100"
                     }`}>
@@ -1020,13 +1020,13 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
         </div>
       </div>
 
-      <div className={`border rounded-xl shadow-sm transition-colors duration-500 ${theme === "DARK" ? "bg-stone-950 border-stone-800" :
+      <div className={`border rounded-xl shadow-sm transition-colors duration-500 ${theme === "DARK" ? "bg-stone-50 border-stone-200" :
           theme === "VINTAGE" ? "bg-white border-transparent shadow-md" :
             "bg-white border-stone-200"
         }`}>
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
-            <thead className={`sticky top-0 z-10 border-b transition-colors duration-500 ${theme === "DARK" ? "bg-stone-900 border-stone-800" :
+            <thead className={`sticky top-0 z-10 border-b transition-colors duration-500 ${theme === "DARK" ? "bg-stone-100 border-stone-200" :
                 theme === "VINTAGE" ? "bg-white border-stone-100" :
                   "bg-stone-100 border-stone-900"
               }`}>
@@ -1035,7 +1035,7 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
                   {headerGroup.headers.map(header => (
                     <th
                       key={header.id}
-                      className={`px-6 py-4 text-[10px] font-black uppercase tracking-widest relative border-r last:border-r-0 transition-colors duration-500 ${theme === "DARK" ? "text-[#ccff00] border-stone-800" :
+                      className={`px-6 py-4 text-[10px] font-black uppercase tracking-widest relative border-r last:border-r-0 transition-colors duration-500 ${theme === "DARK" ? "text-[#ccff00] border-stone-200" :
                           theme === "VINTAGE" ? "text-black border-stone-100" :
                             "text-black border-stone-900"
                         }`}
@@ -1083,7 +1083,7 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
                   {row.getVisibleCells().map(cell => (
                     <td
                       key={cell.id}
-                      className={`px-6 py-3 text-sm font-medium border-r last:border-r-0 transition-colors duration-500 ${theme === "DARK" ? "text-stone-300 border-stone-800" :
+                      className={`px-6 py-3 text-sm font-medium border-r last:border-r-0 transition-colors duration-500 ${theme === "DARK" ? "text-stone-300 border-stone-200" :
                           theme === "VINTAGE" ? "text-black border-stone-100" :
                             "text-stone-900 border-stone-900"
                         }`}
@@ -1111,7 +1111,7 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
           <div className="flex gap-4">
             <button
               onClick={() => setConfirmDelete(null)}
-              className={`flex-1 py-4 border-2 rounded-2xl text-[10px] font-black tracking-widest transition-all uppercase ${theme === "DARK" ? "border-stone-800 text-stone-300 hover:bg-stone-900" :
+              className={`flex-1 py-4 border-2 rounded-2xl text-[10px] font-black tracking-widest transition-all uppercase ${theme === "DARK" ? "border-stone-200 text-stone-300 hover:bg-stone-100" :
                   theme === "VINTAGE" ? "border-stone-100 text-stone-900 hover:bg-stone-50" :
                     "border-stone-100 text-stone-800 hover:bg-stone-50"
                 }`}
@@ -1170,12 +1170,12 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
             </p>
           </div>
 
-          <div className={`p-6 rounded-2xl border text-left space-y-4 ${theme === "DARK" ? "bg-stone-900 border-stone-800" : "bg-stone-50 border-stone-100"
+          <div className={`p-6 rounded-2xl border text-left space-y-4 ${theme === "DARK" ? "bg-stone-100 border-stone-200" : "bg-stone-50 border-stone-100"
             }`}>
             <div className={`text-[10px] font-black uppercase tracking-widest ${theme === "DARK" ? "text-stone-500" : "text-stone-400"}`}>
               Direct Password Setup Link
             </div>
-            <div className={`p-4 rounded-xl font-mono text-[10px] break-all border transition-colors ${theme === "DARK" ? "bg-stone-950 border-stone-800 text-[#ccff00]" : "bg-white border-stone-200 text-blue-600"
+            <div className={`p-4 rounded-xl font-mono text-[10px] break-all border transition-colors ${theme === "DARK" ? "bg-stone-50 border-stone-200 text-[#ccff00]" : "bg-white border-stone-200 text-blue-600"
               }`}>
               {invitationLink}
             </div>
@@ -1211,7 +1211,7 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
                 setEditingUser(null);
               }}
               disabled={isSaving}
-              className={`flex-1 py-4 border rounded-2xl text-[10px] font-black tracking-widest transition-all uppercase ${theme === "DARK" ? "border-stone-800 text-stone-400 hover:bg-stone-900" :
+              className={`flex-1 py-4 border rounded-2xl text-[10px] font-black tracking-widest transition-all uppercase ${theme === "DARK" ? "border-stone-200 text-stone-400 hover:bg-stone-100" :
                   "bg-white border-stone-200 text-stone-900 hover:bg-stone-50 shadow-sm"
                 } ${isSaving ? "opacity-30 cursor-not-allowed" : ""}`}
             >
@@ -1237,13 +1237,13 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
       >
         {(() => {
           const isCoach = (formData.roles || []).includes("R10002") || formData.role === "R10002";
-          const inputCls = `w-full border rounded-2xl px-5 py-3.5 text-sm font-bold outline-none transition-colors ${theme === "DARK" ? "bg-stone-950 text-white border-stone-800 focus:border-[#ccff00]" : "bg-white text-stone-900 border-stone-200 focus:border-stone-400"
+          const inputCls = `w-full border rounded-2xl px-5 py-3.5 text-sm font-bold outline-none transition-colors ${theme === "DARK" ? "bg-stone-50 text-white border-stone-200 focus:border-[#ccff00]" : "bg-white text-stone-900 border-stone-200 focus:border-stone-400"
             }`;
-          const readonlyCls = `w-full border rounded-2xl px-5 py-3.5 text-sm font-bold transition-colors ${theme === "DARK" ? "bg-stone-900 text-stone-400 border-stone-800" : "bg-stone-50 text-stone-500 border-stone-100"
+          const readonlyCls = `w-full border rounded-2xl px-5 py-3.5 text-sm font-bold transition-colors ${theme === "DARK" ? "bg-stone-100 text-stone-400 border-stone-200" : "bg-stone-50 text-stone-500 border-stone-100"
             }`;
           const labelCls = `text-[10px] font-black tracking-widest uppercase mb-2 block ${theme === "DARK" ? "text-stone-500" : "text-stone-400"}`;
           const sectionDivider = (title: string) => (
-            <div className={`col-span-2 pt-2 pb-1 border-b flex items-center gap-3 transition-colors ${theme === "DARK" ? "border-stone-800" : "border-stone-100"}`}>
+            <div className={`col-span-2 pt-2 pb-1 border-b flex items-center gap-3 transition-colors ${theme === "DARK" ? "border-stone-200" : "border-stone-100"}`}>
               <span className={`text-[10px] font-black uppercase tracking-[0.2em] ${theme === "DARK" ? "text-stone-500" : "text-stone-400"}`}>{title}</span>
             </div>
           );
@@ -1265,7 +1265,7 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
               {/* Portrait — centered above grid */}
               <div className="flex flex-col items-center gap-4">
                 <div className="relative group">
-                  <div className={`w-32 h-32 rounded-full overflow-hidden flex items-center justify-center border-4 shadow-2xl transition-all relative ${theme === "DARK" ? "border-stone-800 bg-stone-900" : "border-stone-100 bg-stone-50"
+                  <div className={`w-32 h-32 rounded-full overflow-hidden flex items-center justify-center border-4 shadow-2xl transition-all relative ${theme === "DARK" ? "border-stone-200 bg-stone-100" : "border-stone-100 bg-stone-50"
                     }`}>
                     {formData.portrait_url ? (
                       <img
@@ -1428,7 +1428,7 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
                           }}
                           className={`px-4 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest border-2 transition-all flex items-center gap-2 ${active
                               ? (theme === "DARK" ? "bg-[#ccff00] text-stone-950 border-[#ccff00]" : "bg-[#6348eb] text-white border-[#6348eb]")
-                              : (theme === "DARK" ? "border-stone-800 text-stone-400 hover:border-stone-600" : "border-stone-200 text-stone-500 hover:border-stone-400")
+                              : (theme === "DARK" ? "border-stone-200 text-stone-400 hover:border-stone-600" : "border-stone-200 text-stone-500 hover:border-stone-400")
                             }`}
                         >
                           <span className="material-symbols-outlined text-sm">
@@ -1497,7 +1497,7 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
                 </div>
 
                 {/* Coach Details — toggled by role */}
-                <div className={`col-span-2 pt-2 pb-1 border-b flex items-center justify-between transition-colors ${theme === "DARK" ? "border-stone-800" : "border-stone-100"}`}>
+                <div className={`col-span-2 pt-2 pb-1 border-b flex items-center justify-between transition-colors ${theme === "DARK" ? "border-stone-200" : "border-stone-100"}`}>
                   <div className="flex items-center gap-3">
                     <span className={`text-[10px] font-black uppercase tracking-[0.2em] ${theme === "DARK" ? "text-stone-500" : "text-stone-400"}`}>Coach Details</span>
                     {isCoach && (
@@ -1553,7 +1553,7 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
                             onClick={() => setFormData({ ...formData, tennis_hand: hand })}
                             className={`flex-1 py-3.5 rounded-2xl text-xs font-black uppercase tracking-widest border-2 transition-all ${formData.tennis_hand === hand
                                 ? (theme === "DARK" ? "bg-[#ccff00] text-stone-950 border-[#ccff00]" : "bg-[#6348eb] text-white border-[#6348eb]")
-                                : (theme === "DARK" ? "border-stone-800 text-stone-400 hover:border-stone-600" : "border-stone-200 text-stone-500 hover:border-stone-400")
+                                : (theme === "DARK" ? "border-stone-200 text-stone-400 hover:border-stone-600" : "border-stone-200 text-stone-500 hover:border-stone-400")
                               }`}
                           >
                             <span className="material-symbols-outlined text-sm mr-1" style={{ verticalAlign: "middle" }}>
@@ -1577,7 +1577,7 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
                               onClick={() => toggleCoachingFor(group)}
                               className={`px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest border-2 transition-all ${active
                                   ? (theme === "DARK" ? "bg-[#ccff00] text-stone-950 border-[#ccff00]" : "bg-[#6348eb] text-white border-[#6348eb]")
-                                  : (theme === "DARK" ? "border-stone-800 text-stone-400 hover:border-stone-600" : "border-stone-200 text-stone-500 hover:border-stone-400")
+                                  : (theme === "DARK" ? "border-stone-200 text-stone-400 hover:border-stone-600" : "border-stone-200 text-stone-500 hover:border-stone-400")
                                 }`}
                             >
                               {group}
@@ -1593,7 +1593,7 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
                         <label className="flex items-center gap-2 cursor-pointer group">
                           <div className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-all ${formData.availability_enabled
                               ? (theme === "DARK" ? "bg-[#ccff00] border-[#ccff00]" : "bg-[#6348eb] border-[#6348eb]")
-                              : (theme === "DARK" ? "border-stone-800" : "border-stone-200")
+                              : (theme === "DARK" ? "border-stone-200" : "border-stone-200")
                             }`}>
                             {formData.availability_enabled && <span className={`material-symbols-outlined text-sm ${theme === "DARK" ? "text-stone-950" : "text-white"}`}>check</span>}
                           </div>
@@ -1636,9 +1636,9 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
                       </div>
 
                       {/* Grid — always enabled */}
-                      <div className={`rounded-2xl border overflow-hidden mt-1 ${theme === "DARK" ? "border-stone-800" : "border-stone-200"}`}>
+                      <div className={`rounded-2xl border overflow-hidden mt-1 ${theme === "DARK" ? "border-stone-200" : "border-stone-200"}`}>
                         {/* Header row */}
-                        <div className={`grid border-b ${theme === "DARK" ? "border-stone-800 bg-stone-900" : "border-stone-100 bg-stone-50"}`} style={{ gridTemplateColumns: "80px repeat(7, 1fr)" }}>
+                        <div className={`grid border-b ${theme === "DARK" ? "border-stone-200 bg-stone-100" : "border-stone-100 bg-stone-50"}`} style={{ gridTemplateColumns: "80px repeat(7, 1fr)" }}>
                           <div className={`px-3 py-2 text-[9px] font-black uppercase tracking-widest ${theme === "DARK" ? "text-stone-600" : "text-stone-400"}`}></div>
                           {DAYS.map(d => (
                             <div key={d} className={`px-2 py-2 text-center text-[9px] font-black uppercase tracking-widest ${theme === "DARK" ? "text-stone-400" : "text-stone-600"}`}>{d}</div>
@@ -1648,10 +1648,10 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
                         {SLOTS.map((slot, si) => (
                           <div
                             key={slot}
-                            className={`grid ${si < SLOTS.length - 1 ? `border-b ${theme === "DARK" ? "border-stone-800" : "border-stone-100"}` : ""}`}
+                            className={`grid ${si < SLOTS.length - 1 ? `border-b ${theme === "DARK" ? "border-stone-200" : "border-stone-100"}` : ""}`}
                             style={{ gridTemplateColumns: "80px repeat(7, 1fr)" }}
                           >
-                            <div className={`px-3 py-3 text-[9px] font-black uppercase tracking-widest flex items-center ${theme === "DARK" ? "text-stone-500 bg-stone-900/50" : "text-stone-400 bg-stone-50/50"}`}>
+                            <div className={`px-3 py-3 text-[9px] font-black uppercase tracking-widest flex items-center ${theme === "DARK" ? "text-stone-500 bg-stone-100/50" : "text-stone-400 bg-stone-50/50"}`}>
                               {slot}
                             </div>
                             {DAYS.map(day => {
@@ -1702,7 +1702,7 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
                 resetForm();
               }}
               disabled={isSaving}
-              className={`flex-1 py-4 border rounded-2xl text-[10px] font-black tracking-widest transition-all uppercase ${theme === "DARK" ? "border-stone-800 text-stone-400 hover:bg-stone-900" :
+              className={`flex-1 py-4 border rounded-2xl text-[10px] font-black tracking-widest transition-all uppercase ${theme === "DARK" ? "border-stone-200 text-stone-400 hover:bg-stone-100" :
                   "bg-white border-stone-200 text-stone-900 hover:bg-stone-50 shadow-sm"
                 } ${isSaving ? "opacity-30 cursor-not-allowed" : ""}`}
             >
@@ -1740,7 +1740,7 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
                 {/* Portrait — centered above grid */}
                 <div className="flex flex-col items-center gap-4">
                   <div className="relative group">
-                    <div className={`w-32 h-32 rounded-full overflow-hidden flex items-center justify-center border-4 shadow-2xl transition-all relative ${theme === "DARK" ? "border-stone-800 bg-stone-900" : "border-stone-100 bg-stone-50"
+                    <div className={`w-32 h-32 rounded-full overflow-hidden flex items-center justify-center border-4 shadow-2xl transition-all relative ${theme === "DARK" ? "border-stone-200 bg-stone-100" : "border-stone-100 bg-stone-50"
                       }`}>
                       {formData.portrait_url ? (
                         <img
@@ -1892,7 +1892,7 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
                             }}
                             className={`px-4 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest border-2 transition-all flex items-center gap-2 ${active
                                 ? (theme === "DARK" ? "bg-[#ccff00] text-stone-950 border-[#ccff00]" : "bg-[#6348eb] text-white border-[#6348eb]")
-                                : (theme === "DARK" ? "border-stone-800 text-stone-400 hover:border-stone-600" : "border-stone-200 text-stone-500 hover:border-stone-400")
+                                : (theme === "DARK" ? "border-stone-200 text-stone-400 hover:border-stone-600" : "border-stone-200 text-stone-500 hover:border-stone-400")
                               }`}
                           >
                             <span className="material-symbols-outlined text-sm">
@@ -1910,7 +1910,7 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
                     <label className="flex items-center gap-4 cursor-pointer group mt-2">
                       <div className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all ${formData.invite_user
                           ? (theme === "DARK" ? "bg-[#ccff00] border-[#ccff00]" : "bg-[#6348eb] border-[#6348eb]")
-                          : (theme === "DARK" ? "border-stone-800" : "border-stone-200 shadow-sm")
+                          : (theme === "DARK" ? "border-stone-200" : "border-stone-200 shadow-sm")
                         }`}>
                         {formData.invite_user && <span className={`material-symbols-outlined text-lg ${theme === "DARK" ? "text-stone-950" : "text-white"}`}>check</span>}
                       </div>
@@ -1967,7 +1967,7 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
                   </div>
 
                   {/* Coach Details — toggled by role */}
-                  <div className={`col-span-2 pt-2 pb-1 border-b flex items-center justify-between transition-colors ${theme === "DARK" ? "border-stone-800" : "border-stone-100"}`}>
+                  <div className={`col-span-2 pt-2 pb-1 border-b flex items-center justify-between transition-colors ${theme === "DARK" ? "border-stone-200" : "border-stone-100"}`}>
                     <div className="flex items-center gap-3">
                       <span className={`text-[10px] font-black uppercase tracking-[0.2em] ${theme === "DARK" ? "text-stone-500" : "text-stone-400"}`}>Coach Details</span>
                       {isCoach && (
@@ -2023,7 +2023,7 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
                               onClick={() => setFormData({ ...formData, tennis_hand: hand })}
                               className={`flex-1 py-3.5 rounded-2xl text-xs font-black uppercase tracking-widest border-2 transition-all ${formData.tennis_hand === hand
                                   ? (theme === "DARK" ? "bg-[#ccff00] text-stone-950 border-[#ccff00]" : "bg-[#6348eb] text-white border-[#6348eb]")
-                                  : (theme === "DARK" ? "border-stone-800 text-stone-400 hover:border-stone-600" : "border-stone-200 text-stone-500 hover:border-stone-400")
+                                  : (theme === "DARK" ? "border-stone-200 text-stone-400 hover:border-stone-600" : "border-stone-200 text-stone-500 hover:border-stone-400")
                                 }`}
                             >
                               <span className="material-symbols-outlined text-sm mr-1" style={{ verticalAlign: "middle" }}>
@@ -2047,7 +2047,7 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
                                 onClick={() => toggleCoachingFor(group)}
                                 className={`px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest border-2 transition-all ${active
                                     ? (theme === "DARK" ? "bg-[#ccff00] text-stone-950 border-[#ccff00]" : "bg-[#6348eb] text-white border-[#6348eb]")
-                                    : (theme === "DARK" ? "border-stone-800 text-stone-400 hover:border-stone-600" : "border-stone-200 text-stone-500 hover:border-stone-400")
+                                    : (theme === "DARK" ? "border-stone-200 text-stone-400 hover:border-stone-600" : "border-stone-200 text-stone-500 hover:border-stone-400")
                                   }`}
                               >
                                 {group}
@@ -2063,7 +2063,7 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
                           <label className="flex items-center gap-2 cursor-pointer group">
                             <div className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-all ${formData.availability_enabled
                                 ? (theme === "DARK" ? "bg-[#ccff00] border-[#ccff00]" : "bg-[#6348eb] border-[#6348eb]")
-                                : (theme === "DARK" ? "border-stone-800" : "border-stone-200")
+                                : (theme === "DARK" ? "border-stone-200" : "border-stone-200")
                               }`}>
                               {formData.availability_enabled && <span className={`material-symbols-outlined text-sm ${theme === "DARK" ? "text-stone-950" : "text-white"}`}>check</span>}
                             </div>
@@ -2106,8 +2106,8 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
                         </div>
 
                         {/* Grid — always enabled */}
-                        <div className={`rounded-2xl border overflow-hidden mt-1 ${theme === "DARK" ? "border-stone-800" : "border-stone-200"}`}>
-                          <div className={`grid border-b ${theme === "DARK" ? "border-stone-800 bg-stone-900" : "border-stone-100 bg-stone-50"}`} style={{ gridTemplateColumns: "80px repeat(7, 1fr)" }}>
+                        <div className={`rounded-2xl border overflow-hidden mt-1 ${theme === "DARK" ? "border-stone-200" : "border-stone-200"}`}>
+                          <div className={`grid border-b ${theme === "DARK" ? "border-stone-200 bg-stone-100" : "border-stone-100 bg-stone-50"}`} style={{ gridTemplateColumns: "80px repeat(7, 1fr)" }}>
                             <div className={`px-3 py-2 text-[9px] font-black uppercase tracking-widest ${theme === "DARK" ? "text-stone-600" : "text-stone-400"}`}></div>
                             {DAYS.map(d => (
                               <div key={d} className={`px-2 py-2 text-center text-[9px] font-black uppercase tracking-widest ${theme === "DARK" ? "text-stone-400" : "text-stone-600"}`}>{d}</div>
@@ -2116,10 +2116,10 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
                           {SLOTS.map((slot, si) => (
                             <div
                               key={slot}
-                              className={`grid ${si < SLOTS.length - 1 ? `border-b ${theme === "DARK" ? "border-stone-800" : "border-stone-100"}` : ""}`}
+                              className={`grid ${si < SLOTS.length - 1 ? `border-b ${theme === "DARK" ? "border-stone-200" : "border-stone-100"}` : ""}`}
                               style={{ gridTemplateColumns: "80px repeat(7, 1fr)" }}
                             >
-                              <div className={`px-3 py-3 text-[9px] font-black uppercase tracking-widest flex items-center ${theme === "DARK" ? "text-stone-500 bg-stone-900/50" : "text-stone-400 bg-stone-50/50"}`}>
+                              <div className={`px-3 py-3 text-[9px] font-black uppercase tracking-widest flex items-center ${theme === "DARK" ? "text-stone-500 bg-stone-100/50" : "text-stone-400 bg-stone-50/50"}`}>
                                 {slot}
                               </div>
                               {DAYS.map(day => {
@@ -2220,7 +2220,7 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
               </button>
             ))}
             {defaultPortraits.length === 0 && (
-              <div className={`col-span-4 py-20 text-center rounded-[40px] border-2 border-dashed ${theme === "DARK" ? "border-stone-800 text-stone-500" : "border-stone-100 text-stone-400"
+              <div className={`col-span-4 py-20 text-center rounded-[40px] border-2 border-dashed ${theme === "DARK" ? "border-stone-200 text-stone-500" : "border-stone-100 text-stone-400"
                 }`}>
                 <span className="material-symbols-outlined text-5xl mb-4 opacity-20">face</span>
                 <p className="text-xs font-black uppercase tracking-widest">No portraits available in the library</p>
@@ -2229,7 +2229,7 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
             )}
           </div>
 
-          <div className={`p-8 rounded-[40px] flex items-center justify-between gap-6 transition-colors ${theme === "DARK" ? "bg-stone-900/50" : "bg-stone-50"
+          <div className={`p-8 rounded-[40px] flex items-center justify-between gap-6 transition-colors ${theme === "DARK" ? "bg-stone-100/50" : "bg-stone-50"
             }`}>
             <div className="flex items-center gap-4">
               <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${theme === "DARK" ? "bg-stone-800 text-[#ccff00]" : "bg-white text-[#6348eb] shadow-sm"

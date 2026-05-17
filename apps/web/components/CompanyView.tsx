@@ -143,7 +143,7 @@ export default function CompanyView({ theme, tenantId: tenantIdProp }: CompanyVi
       </div>
 
       {/* Tab Content */}
-      <div className={`p-12 rounded-[40px] border transition-all duration-500 ${isDark ? "bg-stone-950 border-stone-800" : "bg-white border-stone-100 shadow-xl shadow-stone-200/50"
+      <div className={`p-12 rounded-[40px] border transition-all duration-500 ${isDark ? "bg-stone-50 border-stone-200" : "bg-white border-stone-100 shadow-xl shadow-stone-200/50"
         }`}>
         {activeTab === "INFO" && <InfoTab data={tenantData} onSave={(d: any) => handleSave(d, "branding")} isSaving={isSaving} theme={theme} isGlobalView={isGlobalView} />}
         {activeTab === "BRANDING" && <BrandingTab data={tenantData} onSave={(d: any) => handleSave(d, "branding")} isSaving={isSaving} theme={theme} tenantId={tenantId} isGlobalView={isGlobalView} />}
@@ -193,7 +193,7 @@ function InfoTab({ data, onSave, isSaving, theme }: any) {
     if (data) setFormData(data);
   }, [data]);
 
-  const inputClasses = `w-full border rounded-2xl px-6 py-4 text-sm font-bold outline-none transition-all ${isDark ? "bg-stone-900 border-stone-800 text-white focus:border-[#ccff00]" : "bg-stone-50 border-stone-100 text-stone-900 focus:border-stone-400"
+  const inputClasses = `w-full border rounded-2xl px-6 py-4 text-sm font-bold outline-none transition-all ${isDark ? "bg-stone-100 border-stone-200 text-white focus:border-[#ccff00]" : "bg-stone-50 border-stone-100 text-stone-900 focus:border-stone-400"
     }`;
 
   return (
@@ -209,7 +209,7 @@ function InfoTab({ data, onSave, isSaving, theme }: any) {
             />
           </FormField>
           <FormField label="Company ID" theme={theme}>
-            <div className={`px-6 py-4 rounded-2xl font-mono text-sm ${isDark ? "bg-stone-900 text-stone-300" : "bg-stone-100 text-stone-700"}`}>
+            <div className={`px-6 py-4 rounded-2xl font-mono text-sm ${isDark ? "bg-stone-100 text-stone-300" : "bg-stone-100 text-stone-700"}`}>
               {formData.tenant_id}
             </div>
           </FormField>
@@ -392,7 +392,7 @@ function BrandingTab({ data, onSave, isSaving, theme, tenantId, isGlobalView }: 
             <input
               value={formData.name || ""}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              className={`w-full border rounded-2xl px-6 py-4 text-sm font-bold outline-none transition-all ${isDark ? "bg-stone-900 border-stone-800 text-white focus:border-[#ccff00]" : "bg-stone-50 border-stone-100 text-stone-900 focus:border-stone-400"
+              className={`w-full border rounded-2xl px-6 py-4 text-sm font-bold outline-none transition-all ${isDark ? "bg-stone-100 border-stone-200 text-white focus:border-[#ccff00]" : "bg-stone-50 border-stone-100 text-stone-900 focus:border-stone-400"
                 }`}
               placeholder="Enter company name"
             />
@@ -415,7 +415,7 @@ function BrandingTab({ data, onSave, isSaving, theme, tenantId, isGlobalView }: 
               onDrop={handleDrop}
               className={`h-64 rounded-[40px] border-2 border-dashed flex flex-col items-center justify-center gap-6 transition-all cursor-pointer relative overflow-hidden group max-w-2xl ${isDragging
                   ? (isDark ? "border-[#ccff00] bg-[#ccff00]/10 scale-[1.02]" : "border-stone-900 bg-stone-100 scale-[1.02]")
-                  : (isDark ? "border-stone-800 hover:border-[#ccff00]/50 bg-stone-900/50" : "border-stone-200 hover:border-stone-400 bg-stone-50/50")
+                  : (isDark ? "border-stone-200 hover:border-[#ccff00]/50 bg-stone-100/50" : "border-stone-200 hover:border-stone-400 bg-stone-50/50")
                 }`}
             >
               {formData.logo_url ? (
@@ -455,7 +455,7 @@ function BrandingTab({ data, onSave, isSaving, theme, tenantId, isGlobalView }: 
 
         <button
           onClick={() => fileInputRef.current?.click()}
-          className={`px-10 py-5 rounded-2xl text-xs font-black tracking-[0.2em] uppercase transition-all border ${isDark ? "border-stone-800 text-stone-200 hover:text-white" : "border-stone-200 text-stone-950 hover:text-stone-900"}`}
+          className={`px-10 py-5 rounded-2xl text-xs font-black tracking-[0.2em] uppercase transition-all border ${isDark ? "border-stone-200 text-stone-200 hover:text-white" : "border-stone-200 text-stone-950 hover:text-stone-900"}`}
         >
           Replace LOGO
         </button>
@@ -562,7 +562,7 @@ function EmailTab({ data, onSave, isSaving, theme, tenantId, isGlobalView }: any
     }
   };
 
-  const inputClasses = `w-full border rounded-2xl px-6 py-4 text-sm font-bold outline-none transition-all ${isDark ? "bg-stone-900 border-stone-800 text-white focus:border-[#ccff00]" : "bg-stone-50 border-stone-100 text-stone-900 focus:border-stone-400"
+  const inputClasses = `w-full border rounded-2xl px-6 py-4 text-sm font-bold outline-none transition-all ${isDark ? "bg-stone-100 border-stone-200 text-white focus:border-[#ccff00]" : "bg-stone-50 border-stone-100 text-stone-900 focus:border-stone-400"
     }`;
 
   return (
@@ -574,7 +574,7 @@ function EmailTab({ data, onSave, isSaving, theme, tenantId, isGlobalView }: any
         </div>
 
         {!isGlobalView && tenantId !== null && (
-          <div className={`p-6 px-8 rounded-3xl border transition-all flex items-center gap-6 min-w-[320px] ${isDark ? "bg-stone-900/50 border-stone-800" : "bg-stone-50 border-stone-100"
+          <div className={`p-6 px-8 rounded-3xl border transition-all flex items-center gap-6 min-w-[320px] ${isDark ? "bg-stone-100/50 border-stone-200" : "bg-stone-50 border-stone-100"
             }`}>
             <div className="flex-1 space-y-1">
               <h4 className={`text-[10px] font-black uppercase tracking-widest ${isDark ? "text-white" : "text-stone-900"}`}>Use Platform Email Service</h4>
@@ -645,7 +645,7 @@ function EmailTab({ data, onSave, isSaving, theme, tenantId, isGlobalView }: any
             </div>
           </div>
 
-          <div className={`p-10 rounded-[40px] space-y-6 transition-all ${isDark ? "bg-stone-900/30 border border-stone-800" : "bg-stone-100/50 border border-stone-200"}`}>
+          <div className={`p-10 rounded-[40px] space-y-6 transition-all ${isDark ? "bg-stone-100/30 border border-stone-200" : "bg-stone-100/50 border border-stone-200"}`}>
             <div className="flex gap-4">
               <div className={`w-10 h-10 rounded-full flex items-center justify-center ${isDark ? "bg-[#ccff00]/10 text-[#ccff00]" : "bg-green-100 text-green-700"}`}>
                 <span className="material-symbols-outlined text-xl">send</span>
@@ -872,7 +872,7 @@ function PaymentTab({ data, onSave, isSaving, theme }: any) {
     <div className="space-y-12">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
         <div className="space-y-6">
-          <div className={`p-8 rounded-[32px] border ${isDark ? "bg-stone-900/50 border-stone-800" : "bg-stone-50 border-stone-100"}`}>
+          <div className={`p-8 rounded-[32px] border ${isDark ? "bg-stone-100/50 border-stone-200" : "bg-stone-50 border-stone-100"}`}>
             <div className="flex items-center justify-between mb-8">
               <span className="material-symbols-outlined text-3xl opacity-20">credit_card</span>
               <span className={`px-4 py-1.5 rounded-full text-[10px] font-black tracking-widest uppercase ${isDark ? "bg-[#ccff00]/10 text-[#ccff00]" : "bg-green-100 text-green-700"}`}>Connected</span>
@@ -882,11 +882,11 @@ function PaymentTab({ data, onSave, isSaving, theme }: any) {
               <p className={`text-[10px] font-medium uppercase tracking-widest ${isDark ? "text-stone-300" : "text-stone-950"}`}>Expires 12/26</p>
             </div>
           </div>
-          <button className={`w-full py-5 rounded-2xl text-[10px] font-black tracking-widest uppercase transition-all border ${isDark ? "border-stone-800 text-stone-200 hover:text-white" : "border-stone-200 text-stone-950 hover:text-stone-900"}`}>Update Payment Method</button>
+          <button className={`w-full py-5 rounded-2xl text-[10px] font-black tracking-widest uppercase transition-all border ${isDark ? "border-stone-200 text-stone-200 hover:text-white" : "border-stone-200 text-stone-950 hover:text-stone-900"}`}>Update Payment Method</button>
         </div>
         <div className="space-y-8">
           <FormField label="Currency" theme={theme}>
-            <select className={`w-full border rounded-2xl px-6 py-4 text-sm font-bold outline-none transition-all appearance-none ${isDark ? "bg-stone-900 border-stone-800 text-white focus:border-[#ccff00]" : "bg-stone-50 border-stone-100 text-stone-900 focus:border-stone-400 shadow-sm"
+            <select className={`w-full border rounded-2xl px-6 py-4 text-sm font-bold outline-none transition-all appearance-none ${isDark ? "bg-stone-100 border-stone-200 text-white focus:border-[#ccff00]" : "bg-stone-50 border-stone-100 text-stone-900 focus:border-stone-400 shadow-sm"
               }`}>
               <option>USD ($) - US Dollar</option>
               <option>EUR (€) - Euro</option>
@@ -1109,13 +1109,13 @@ function CourtTab({ data, onSave, isSaving, theme, dimensions, tenantId }: any) 
     onSave({ ...data, courts });
   };
 
-  const inputClasses = `w-full border rounded-2xl px-6 py-4 text-sm font-bold outline-none transition-all ${isDark ? "bg-stone-900 border-stone-800 text-white focus:border-[#ccff00]" : "bg-stone-50 border-stone-100 text-stone-900 focus:border-stone-400"
+  const inputClasses = `w-full border rounded-2xl px-6 py-4 text-sm font-bold outline-none transition-all ${isDark ? "bg-stone-100 border-stone-200 text-white focus:border-[#ccff00]" : "bg-stone-50 border-stone-100 text-stone-900 focus:border-stone-400"
     }`;
 
   return (
     <div className="space-y-10">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-stretch">
-        <div className={`p-8 rounded-[32px] border space-y-6 h-full ${isDark ? "bg-stone-900/40 border-stone-800" : "bg-stone-50 border-stone-100"}`}>
+        <div className={`p-8 rounded-[32px] border space-y-6 h-full ${isDark ? "bg-stone-100/40 border-stone-200" : "bg-stone-50 border-stone-100"}`}>
           <h4 className={`text-[10px] font-black tracking-[0.2em] uppercase opacity-50 ${isDark ? "text-white" : "text-stone-900"}`}>
             {editingCourtId
               ? (tenantId === "Global" ? "Edit Default Court" : "Edit Court")
@@ -1146,13 +1146,13 @@ function CourtTab({ data, onSave, isSaving, theme, dimensions, tenantId }: any) 
                         );
                         if (statusMatch) setCourtStatus(statusMatch);
                       }}
-                      className={`flex items-center gap-3 p-3 rounded-2xl border transition-all text-left group ${isDark ? "bg-stone-800/40 border-stone-800 hover:border-[#ccff00]/50" : "bg-white border-stone-100 hover:border-stone-400 shadow-sm"
+                      className={`flex items-center gap-3 p-3 rounded-2xl border transition-all text-left group ${isDark ? "bg-stone-800/40 border-stone-200 hover:border-[#ccff00]/50" : "bg-white border-stone-100 hover:border-stone-400 shadow-sm"
                         }`}
                     >
                       {(dc.url || dc.image_url) ? (
                         <img src={dc.url || dc.image_url} className="w-10 h-10 rounded-xl object-cover flex-shrink-0" alt={dc.name || dc.label} />
                       ) : (
-                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${isDark ? "bg-stone-900" : "bg-stone-50"}`}>
+                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${isDark ? "bg-stone-100" : "bg-stone-50"}`}>
                           <span className="material-symbols-outlined text-sm opacity-20">sports_tennis</span>
                         </div>
                       )}
@@ -1222,7 +1222,7 @@ function CourtTab({ data, onSave, isSaving, theme, dimensions, tenantId }: any) 
               onDrop={onPhotoDrop}
               className={`h-48 rounded-2xl border-2 border-dashed flex flex-col items-center justify-center gap-4 transition-all cursor-pointer overflow-hidden group relative ${isDraggingPhoto
                   ? (isDark ? "border-[#ccff00] bg-[#ccff00]/10 scale-[1.02]" : "border-stone-900 bg-stone-100 scale-[1.02]")
-                  : (isDark ? "border-stone-800 bg-stone-900/50 hover:border-[#ccff00]/50" : "border-stone-200 bg-stone-50/50 hover:border-stone-400")
+                  : (isDark ? "border-stone-200 bg-stone-100/50 hover:border-[#ccff00]/50" : "border-stone-200 bg-stone-50/50 hover:border-stone-400")
                 }`}
             >
               {courtImageUrl ? (
@@ -1253,7 +1253,7 @@ function CourtTab({ data, onSave, isSaving, theme, dimensions, tenantId }: any) 
                   e.stopPropagation();
                   courtFileRef.current?.click();
                 }}
-                className={`mt-3 flex-1 py-4 rounded-xl text-[9px] font-black tracking-[0.2em] uppercase border transition-all ${isDark ? "border-stone-800 text-stone-400 hover:text-white" : "border-stone-200 text-stone-600 hover:text-stone-900"
+                className={`mt-3 flex-1 py-4 rounded-xl text-[9px] font-black tracking-[0.2em] uppercase border transition-all ${isDark ? "border-stone-200 text-stone-400 hover:text-white" : "border-stone-200 text-stone-600 hover:text-stone-900"
                   }`}
               >
                 Load from Directory
@@ -1356,13 +1356,13 @@ function CourtTab({ data, onSave, isSaving, theme, dimensions, tenantId }: any) 
           </div>
         </div>
 
-        <div className={`p-8 rounded-[32px] border flex flex-col h-full ${isDark ? "bg-stone-900/20 border-stone-800" : "bg-white border-stone-100"}`}>
+        <div className={`p-8 rounded-[32px] border flex flex-col h-full ${isDark ? "bg-stone-100/20 border-stone-200" : "bg-white border-stone-100"}`}>
           <h4 className={`text-[10px] font-black tracking-[0.2em] uppercase mb-6 opacity-50 ${isDark ? "text-white" : "text-stone-900"}`}>
             {tenantId === "Global" ? "Registered Default Courts" : "Registered Courts"} ({courts.length})
           </h4>
           <div className="space-y-4 flex-1 overflow-y-auto pr-2 min-h-[400px]">
             {courts.length === 0 && (
-              <div className={`rounded-2xl border border-dashed px-6 py-8 text-center text-[10px] font-black uppercase tracking-widest ${isDark ? "border-stone-800 text-stone-300" : "border-stone-200 text-stone-950"}`}>
+              <div className={`rounded-2xl border border-dashed px-6 py-8 text-center text-[10px] font-black uppercase tracking-widest ${isDark ? "border-stone-200 text-stone-300" : "border-stone-200 text-stone-950"}`}>
                 No courts registered yet
               </div>
             )}
@@ -1375,7 +1375,7 @@ function CourtTab({ data, onSave, isSaving, theme, dimensions, tenantId }: any) 
               const isAvailable = (court.status || "Available") === "Available";
 
               return (
-                <div key={court.id} className={`rounded-2xl border transition-all overflow-hidden ${isDark ? "bg-stone-900 border-stone-800 hover:border-stone-700" : "bg-white border-stone-150 hover:border-stone-300 shadow-sm hover:shadow-md"}`}>
+                <div key={court.id} className={`rounded-2xl border transition-all overflow-hidden ${isDark ? "bg-stone-100 border-stone-200 hover:border-stone-700" : "bg-white border-stone-150 hover:border-stone-300 shadow-sm hover:shadow-md"}`}>
                   <div className="flex gap-0 items-stretch">
                     {/* Court photo strip */}
                     {court.image_url ? (
@@ -1499,7 +1499,7 @@ function DefaultCourtsTab({ theme, setNotification }: { theme: string; setNotifi
   };
 
   const inputCls = `w-full border rounded-2xl px-6 py-4 text-sm font-bold outline-none transition-all ${
-    isDark ? "bg-stone-950 border-stone-800 text-white focus:border-[#ccff00]" : "bg-white border-stone-100 text-stone-900 focus:border-[#4f6b28]"
+    isDark ? "bg-stone-50 border-stone-200 text-white focus:border-[#ccff00]" : "bg-white border-stone-100 text-stone-900 focus:border-[#4f6b28]"
   }`;
 
   return (
@@ -1518,7 +1518,7 @@ function DefaultCourtsTab({ theme, setNotification }: { theme: string; setNotifi
               <div 
                 key={court.id} 
                 className={`group relative aspect-square rounded-[32px] overflow-hidden border transition-all ${
-                  isDark ? "bg-stone-900 border-stone-800 hover:border-[#ccff00]/50" : "bg-white border-stone-100 hover:border-stone-300 shadow-sm"
+                  isDark ? "bg-stone-100 border-stone-200 hover:border-[#ccff00]/50" : "bg-white border-stone-100 hover:border-stone-300 shadow-sm"
                 }`}
               >
                 <img src={court.url} alt={court.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
@@ -1538,7 +1538,7 @@ function DefaultCourtsTab({ theme, setNotification }: { theme: string; setNotifi
             
             {courts.length === 0 && (
               <div className={`col-span-full h-64 rounded-[32px] border-2 border-dashed flex flex-col items-center justify-center gap-4 ${
-                isDark ? "border-stone-800 bg-stone-950/30" : "border-stone-100 bg-stone-50/30"
+                isDark ? "border-stone-200 bg-stone-50/30" : "border-stone-100 bg-stone-50/30"
               }`}>
                 <span className="material-symbols-outlined text-4xl opacity-20">inventory_2</span>
                 <p className="text-[10px] font-black uppercase tracking-widest opacity-40">No default courts yet</p>
@@ -1549,7 +1549,7 @@ function DefaultCourtsTab({ theme, setNotification }: { theme: string; setNotifi
 
         <div className="relative">
           <div className={`sticky top-8 p-8 rounded-[40px] border space-y-8 ${
-            isDark ? "bg-stone-900/40 border-stone-800" : "bg-stone-50 border-stone-100"
+            isDark ? "bg-stone-100/40 border-stone-200" : "bg-stone-50 border-stone-100"
           }`}>
             <div className="space-y-6">
               <div className="flex items-center gap-3">
@@ -1651,7 +1651,7 @@ function DefaultCourtsTab({ theme, setNotification }: { theme: string; setNotifi
                     }
                   }}
                   className={`group cursor-pointer border-2 border-dashed rounded-3xl p-12 flex flex-col items-center justify-center gap-4 transition-all ${
-                    isDark ? "border-stone-800 bg-stone-950/50 hover:bg-stone-900" : "border-stone-200 bg-white hover:bg-stone-50"
+                    isDark ? "border-stone-200 bg-stone-50/50 hover:bg-stone-100" : "border-stone-200 bg-white hover:bg-stone-50"
                   }`}
                 >
                   {isUploading ? (
@@ -1661,7 +1661,7 @@ function DefaultCourtsTab({ theme, setNotification }: { theme: string; setNotifi
                   ) : (
                     <>
                       <div className={`w-16 h-16 rounded-2xl flex items-center justify-center transition-all ${
-                        isDark ? "bg-stone-900 text-stone-700 group-hover:text-[#ccff00]" : "bg-stone-100 text-stone-400 group-hover:text-[#4f6b28]"
+                        isDark ? "bg-stone-100 text-stone-700 group-hover:text-[#ccff00]" : "bg-stone-100 text-stone-400 group-hover:text-[#4f6b28]"
                       }`}>
                         <span className="material-symbols-outlined text-4xl">cloud_upload</span>
                       </div>
@@ -1690,7 +1690,7 @@ function DefaultCourtsTab({ theme, setNotification }: { theme: string; setNotifi
             <button 
               onClick={() => setConfirmDeleteId(null)}
               className={`flex-1 py-4 border-2 rounded-2xl text-[10px] font-black tracking-widest transition-all uppercase ${
-                isDark ? "border-stone-800 text-stone-400 hover:bg-stone-900" : 
+                isDark ? "border-stone-200 text-stone-400 hover:bg-stone-100" : 
                 "border-stone-100 text-stone-400 hover:bg-stone-50"
               }`}
             >
@@ -1752,7 +1752,7 @@ function PhotosTab({ theme, setNotification }: { theme: "LIGHT" | "DARK" | "VINT
   };
 
   const inputCls = `w-full border rounded-2xl px-6 py-4 text-sm font-bold outline-none transition-all ${
-    isDark ? "bg-stone-900 border-stone-800 text-white focus:border-[#ccff00]" : "bg-stone-50 border-stone-100 text-stone-900 focus:border-stone-400"
+    isDark ? "bg-stone-100 border-stone-200 text-white focus:border-[#ccff00]" : "bg-stone-50 border-stone-100 text-stone-900 focus:border-stone-400"
   }`;
 
   return (
@@ -1766,7 +1766,7 @@ function PhotosTab({ theme, setNotification }: { theme: "LIGHT" | "DARK" | "VINT
 
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-12">
         {/* Left: Library Grid */}
-        <div className={`p-8 rounded-[32px] border flex flex-col min-h-[500px] ${isDark ? "bg-stone-900/20 border-stone-800" : "bg-white border-stone-100"}`}>
+        <div className={`p-8 rounded-[32px] border flex flex-col min-h-[500px] ${isDark ? "bg-stone-100/20 border-stone-200" : "bg-white border-stone-100"}`}>
           <h4 className={`text-[10px] font-black tracking-[0.2em] uppercase mb-6 opacity-50 ${isDark ? "text-white" : "text-stone-900"}`}>
             Stored Portraits ({defaultPortraits.length})
           </h4>
@@ -1776,7 +1776,7 @@ function PhotosTab({ theme, setNotification }: { theme: "LIGHT" | "DARK" | "VINT
               <div 
                 key={avatar.id} 
                 className={`p-4 rounded-3xl border flex items-center gap-4 transition-all group ${
-                  isDark ? "bg-stone-900 border-stone-800 hover:border-stone-700" : "bg-stone-50 border-stone-100 hover:bg-stone-100/50"
+                  isDark ? "bg-stone-100 border-stone-200 hover:border-stone-700" : "bg-stone-50 border-stone-100 hover:bg-stone-100/50"
                 }`}
               >
                 <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-white shadow-md flex-shrink-0">
@@ -1894,7 +1894,7 @@ function PhotosTab({ theme, setNotification }: { theme: "LIGHT" | "DARK" | "VINT
                   }
                 }}
                 className={`group cursor-pointer border-2 border-dashed rounded-3xl p-12 flex flex-col items-center justify-center gap-4 transition-all ${
-                  isDark ? "border-stone-800 bg-stone-950/50 hover:bg-stone-900" : "border-stone-200 bg-white hover:bg-stone-50"
+                  isDark ? "border-stone-200 bg-stone-50/50 hover:bg-stone-100" : "border-stone-200 bg-white hover:bg-stone-50"
                 }`}
               >
                 {isUploading ? (
@@ -1904,7 +1904,7 @@ function PhotosTab({ theme, setNotification }: { theme: "LIGHT" | "DARK" | "VINT
                 ) : (
                   <>
                     <div className={`w-16 h-16 rounded-2xl flex items-center justify-center transition-all ${
-                      isDark ? "bg-stone-900 text-stone-700 group-hover:text-[#ccff00]" : "bg-stone-100 text-stone-400 group-hover:text-[#4f6b28]"
+                      isDark ? "bg-stone-100 text-stone-700 group-hover:text-[#ccff00]" : "bg-stone-100 text-stone-400 group-hover:text-[#4f6b28]"
                     }`}>
                       <span className="material-symbols-outlined text-4xl">cloud_upload</span>
                     </div>
@@ -1932,7 +1932,7 @@ function PhotosTab({ theme, setNotification }: { theme: "LIGHT" | "DARK" | "VINT
             <button 
               onClick={() => setConfirmDeleteId(null)}
               className={`flex-1 py-4 border-2 rounded-2xl text-[10px] font-black tracking-widest transition-all uppercase ${
-                isDark ? "border-stone-800 text-stone-400 hover:bg-stone-900" : 
+                isDark ? "border-stone-200 text-stone-400 hover:bg-stone-100" : 
                 "border-stone-100 text-stone-400 hover:bg-stone-50"
               }`}
             >

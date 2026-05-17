@@ -257,8 +257,8 @@ export default function SchedulesAdminView({ theme }: { theme: "LIGHT" | "DARK" 
     setRowSelection({});
   };
 
-  const borderColor = isDark ? "border-stone-800" : "border-stone-200";
-  const headerBg = isDark ? "bg-stone-900" : "bg-stone-50";
+  const borderColor = isDark ? "border-stone-200" : "border-stone-200";
+  const headerBg = isDark ? "bg-stone-100" : "bg-stone-50";
 
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
@@ -275,7 +275,7 @@ export default function SchedulesAdminView({ theme }: { theme: "LIGHT" | "DARK" 
             className={`px-4 h-10 rounded-2xl flex items-center gap-2 border transition-all ${
               hidePast 
                 ? (isDark ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-500" : "bg-emerald-50 border-emerald-100 text-emerald-600")
-                : (isDark ? "border-stone-800 bg-stone-900 text-stone-400 hover:text-white" : "border-stone-200 bg-stone-50 text-stone-500 hover:text-stone-900 shadow-sm")
+                : (isDark ? "border-stone-200 bg-stone-100 text-stone-400 hover:text-white" : "border-stone-200 bg-stone-50 text-stone-500 hover:text-stone-900 shadow-sm")
             }`}
           >
             <span className="material-symbols-outlined text-lg">{hidePast ? "visibility_off" : "visibility"}</span>
@@ -285,13 +285,13 @@ export default function SchedulesAdminView({ theme }: { theme: "LIGHT" | "DARK" 
           <button
             onClick={() => setShowSettings(true)}
             className={`px-4 h-10 rounded-2xl flex items-center gap-2 border transition-all ${
-              isDark ? "border-stone-800 bg-stone-900 text-stone-400 hover:text-white" : "border-stone-200 bg-stone-50 text-stone-500 hover:text-stone-900 shadow-sm"
+              isDark ? "border-stone-200 bg-stone-100 text-stone-400 hover:text-white" : "border-stone-200 bg-stone-50 text-stone-500 hover:text-stone-900 shadow-sm"
             }`}
           >
             <span className="material-symbols-outlined text-lg">settings</span>
             <span className="text-[10px] font-black uppercase tracking-widest">Schedule Policy</span>
           </button>
-          <div className={`px-4 py-2 rounded-2xl border text-[10px] font-black uppercase tracking-widest ${isDark ? "border-stone-800 bg-stone-900 text-stone-500" : "border-stone-200 bg-stone-50 text-stone-400"}`}>
+          <div className={`px-4 py-2 rounded-2xl border text-[10px] font-black uppercase tracking-widest ${isDark ? "border-stone-200 bg-stone-100 text-stone-500" : "border-stone-200 bg-stone-50 text-stone-400"}`}>
             {table.getFilteredRowModel().rows.length} {hidePast ? "Upcoming" : "Total"} Bookings
           </div>
         </div>
@@ -312,14 +312,14 @@ export default function SchedulesAdminView({ theme }: { theme: "LIGHT" | "DARK" 
       )}
 
       <div className={`border rounded-xl shadow-sm transition-colors duration-500 ${
-        isDark ? "bg-stone-950 border-stone-800" : 
+        isDark ? "bg-stone-50 border-stone-200" : 
         theme === "VINTAGE" ? "bg-white border-transparent shadow-md" :
         "bg-white border-stone-200"
       }`}>
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead className={`sticky top-0 z-10 border-b transition-colors duration-500 ${
-              isDark ? "bg-stone-900 border-stone-800" : 
+              isDark ? "bg-stone-100 border-stone-200" : 
               theme === "VINTAGE" ? "bg-white border-stone-100" :
               "bg-stone-100 border-stone-900"
             }`}>
@@ -329,7 +329,7 @@ export default function SchedulesAdminView({ theme }: { theme: "LIGHT" | "DARK" 
                     <th 
                       key={header.id} 
                       className={`px-6 py-4 text-[10px] font-black uppercase tracking-widest relative border-r last:border-r-0 transition-colors duration-500 ${
-                        isDark ? "text-[#ccff00] border-stone-800 bg-stone-900" : 
+                        isDark ? "text-[#ccff00] border-stone-200 bg-stone-100" : 
                         theme === "VINTAGE" ? "text-black border-stone-100 bg-white" :
                         "text-black border-stone-900 bg-stone-100"
                       }`}
@@ -395,7 +395,7 @@ export default function SchedulesAdminView({ theme }: { theme: "LIGHT" | "DARK" 
                     <td 
                       key={cell.id} 
                       className={`px-6 py-3 text-sm font-medium border-r last:border-r-0 transition-colors duration-500 ${
-                        isDark ? "text-stone-300 border-stone-800" : 
+                        isDark ? "text-stone-300 border-stone-200" : 
                         theme === "VINTAGE" ? "text-black border-stone-100" :
                         "text-stone-900 border-stone-900"
                       }`}
@@ -413,7 +413,7 @@ export default function SchedulesAdminView({ theme }: { theme: "LIGHT" | "DARK" 
         </div>
         {bookings.length === 0 && (
           <div className="py-20 text-center space-y-4">
-            <div className={`w-16 h-16 rounded-3xl flex items-center justify-center mx-auto ${isDark ? "bg-stone-900 text-stone-700" : "bg-stone-50 text-stone-200"}`}>
+            <div className={`w-16 h-16 rounded-3xl flex items-center justify-center mx-auto ${isDark ? "bg-stone-100 text-stone-700" : "bg-stone-50 text-stone-200"}`}>
               <span className="material-symbols-outlined text-3xl">event_busy</span>
             </div>
             <p className={`text-sm font-bold ${isDark ? "text-stone-500" : "text-stone-400"}`}>No reservations found.</p>
@@ -482,7 +482,7 @@ function ScheduleSettings({ config, tenantId, theme, onClose }: any) {
 
   const labelCls = `text-[10px] font-black uppercase tracking-widest mb-2 block ${isDark ? "text-stone-500" : "text-stone-400"}`;
   const inputCls = `w-full px-4 py-3 rounded-2xl text-sm font-bold border transition-all focus:outline-none ${
-    isDark ? "bg-stone-900 border-stone-800 text-white focus:border-[#00E5FF]" : "bg-stone-50 border-stone-100 text-stone-900 focus:border-stone-900"
+    isDark ? "bg-stone-100 border-stone-200 text-white focus:border-[#00E5FF]" : "bg-stone-50 border-stone-100 text-stone-900 focus:border-stone-900"
   }`;
 
   return (
@@ -579,7 +579,7 @@ function AdminBookingEdit({ tenantId, booking, courts, theme, onClose }: { tenan
 
   const labelCls = `text-[9px] font-black uppercase tracking-widest mb-2 block ${isDark ? "text-stone-500" : "text-stone-400"}`;
   const inputCls = `w-full px-4 py-3 rounded-2xl text-sm font-bold border transition-all focus:outline-none focus:ring-2 ${
-    isDark ? "bg-stone-900 border-stone-800 text-white focus:ring-[#00E5FF]/20" : "bg-stone-50 border-stone-100 text-stone-900 focus:ring-stone-200"
+    isDark ? "bg-stone-100 border-stone-200 text-white focus:ring-[#00E5FF]/20" : "bg-stone-50 border-stone-100 text-stone-900 focus:ring-stone-200"
   }`;
 
   return (
@@ -632,7 +632,7 @@ function AdminBookingEdit({ tenantId, booking, courts, theme, onClose }: { tenan
         <button
           onClick={onClose}
           className={`flex-1 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest border transition-all ${
-            isDark ? "border-stone-800 text-white hover:bg-stone-900" : "border-stone-200 text-stone-900 hover:bg-stone-50"
+            isDark ? "border-stone-200 text-white hover:bg-stone-100" : "border-stone-200 text-stone-900 hover:bg-stone-50"
           }`}
         >
           Cancel
@@ -648,7 +648,7 @@ function AdminBookingEdit({ tenantId, booking, courts, theme, onClose }: { tenan
 
       {/* QR Code Section */}
       <div className={`mt-8 p-6 rounded-[2rem] flex flex-col items-center justify-center border-2 border-dashed transition-all animate-in fade-in zoom-in duration-500 ${
-        isDark ? "bg-stone-900/50 border-stone-800" : "bg-stone-50 border-stone-200"
+        isDark ? "bg-stone-100/50 border-stone-200" : "bg-stone-50 border-stone-200"
       }`}>
         <div className="mb-4 p-4 rounded-3xl bg-white shadow-xl shadow-black/5 ring-1 ring-black/5">
           <img 
