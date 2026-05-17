@@ -1279,6 +1279,7 @@ function NewsItem({ title, subtitle, tag, theme, onClick }: { title: string; sub
 
 function ProgramsView({ theme, tenantId }: { theme: "LIGHT" | "DARK" | "VINTAGE", tenantId: string }) {
   const [config, setConfig] = useState<any>(null);
+  const [activeModalData, setActiveModalData] = useState<{ title: string; content: string } | null>(null);
 
   useEffect(() => {
     if (!tenantId) return;
@@ -1299,7 +1300,9 @@ function ProgramsView({ theme, tenantId }: { theme: "LIGHT" | "DARK" | "VINTAGE"
       sidebarHeadline: config?.sidebarHeadline || "PRO-FOCUS WEEKEND",
       sidebarDescription: config?.sidebarDescription || "Join Coach Marcus for a 48-hour immersion into strategy and bio-mechanics. Limited to 8 participants.",
       sidebarButtonText: config?.sidebarButtonText || "VIEW COACH BIO",
-      sidebarThemeColors: config?.sidebarThemeColors || {}
+      sidebarThemeColors: config?.sidebarThemeColors || {},
+      imageClickDetails: "",
+      buttonClickDetails: ""
     }
   ];
 
@@ -1308,7 +1311,9 @@ function ProgramsView({ theme, tenantId }: { theme: "LIGHT" | "DARK" | "VINTAGE"
     sidebarHeadline: item.sidebarHeadline || config?.sidebarHeadline || "PRO-FOCUS WEEKEND",
     sidebarDescription: item.sidebarDescription || config?.sidebarDescription || "Join Coach Marcus for a 48-hour immersion into strategy and bio-mechanics. Limited to 8 participants.",
     sidebarButtonText: item.sidebarButtonText || config?.sidebarButtonText || "VIEW COACH BIO",
-    sidebarThemeColors: item.sidebarThemeColors || config?.sidebarThemeColors || {}
+    sidebarThemeColors: item.sidebarThemeColors || config?.sidebarThemeColors || {},
+    imageClickDetails: item.imageClickDetails || "",
+    buttonClickDetails: item.buttonClickDetails || ""
   }));
   
   const sidebarHeadline = config?.sidebarHeadline || "PRO-FOCUS WEEKEND";
@@ -1390,7 +1395,17 @@ function ProgramsView({ theme, tenantId }: { theme: "LIGHT" | "DARK" | "VINTAGE"
               <div key={idx} className="grid grid-cols-12 gap-8">
                 {hasHero && (
                   <div className={`${hasSidebar ? 'col-span-12 lg:col-span-8' : 'col-span-12'} flex flex-col`}>
-                    <div className="group relative h-[450px] overflow-hidden rounded-[40px] shadow-2xl border border-outline/10 flex-1">
+                    <div 
+                      onClick={() => {
+                        if (prog.imageClickDetails) {
+                          setActiveModalData({
+                            title: prog.headline,
+                            content: prog.imageClickDetails
+                          });
+                        }
+                      }}
+                      className={`group relative h-[450px] overflow-hidden rounded-[40px] shadow-2xl border border-outline/10 flex-1 ${prog.imageClickDetails ? 'cursor-pointer hover:shadow-primary/10 transition-all hover:scale-[1.01] duration-500' : ''}`}
+                    >
                       <img
                         src={prog.imageUrl || "/images/programs_hero.png"}
                         alt={prog.headline}
@@ -1404,6 +1419,12 @@ function ProgramsView({ theme, tenantId }: { theme: "LIGHT" | "DARK" | "VINTAGE"
                         <p className="text-white/80 text-lg font-medium leading-relaxed">
                           {prog.description}
                         </p>
+                        {prog.imageClickDetails && (
+                          <div className="mt-4 flex items-center gap-1.5 text-[9px] font-black tracking-widest text-primary uppercase bg-primary/10 w-fit px-3.5 py-1.5 rounded-full border border-primary/20 transition-all group-hover:bg-primary/20">
+                            <span className="material-symbols-outlined text-[12px]">info</span>
+                            Click for Details
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -1431,7 +1452,15 @@ function ProgramsView({ theme, tenantId }: { theme: "LIGHT" | "DARK" | "VINTAGE"
                       </p>
                     </div>
                     <button 
-                      className="w-full py-4 border-2 rounded-full text-[10px] font-black tracking-[0.2em] transition-all uppercase border-primary text-primary hover:bg-primary hover:text-on-primary"
+                      onClick={() => {
+                        if (prog.buttonClickDetails) {
+                          setActiveModalData({
+                            title: prog.sidebarHeadline,
+                            content: prog.buttonClickDetails
+                          });
+                        }
+                      }}
+                      className={`w-full py-4 border-2 rounded-full text-[10px] font-black tracking-[0.2em] transition-all uppercase border-primary text-primary hover:bg-primary hover:text-on-primary ${prog.buttonClickDetails ? 'cursor-pointer hover:scale-[1.02]' : ''}`}
                       style={sidebarText ? {
                         borderColor: sidebarText,
                         color: sidebarText,
@@ -1623,6 +1652,47 @@ function ProgramsView({ theme, tenantId }: { theme: "LIGHT" | "DARK" | "VINTAGE"
             ))}
           </div>
         </section>
+      )}
+
+      {/* Detail Modal Overlay */}
+      {activeModalData && (
+        <div 
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-md animate-in fade-in duration-300"
+          onClick={() => setActiveModalData(null)}
+        >
+          <div 
+            className="w-full max-w-lg bg-surface-container-high border border-outline/10 rounded-[30px] p-8 shadow-2xl relative animate-in zoom-in-95 slide-in-from-bottom-8 duration-300"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Close button */}
+            <button 
+              onClick={() => setActiveModalData(null)}
+              className="absolute top-6 right-6 w-8 h-8 rounded-full flex items-center justify-center bg-surface-container hover:bg-surface-container-highest border border-outline/10 transition-colors text-on-surface-variant cursor-pointer"
+            >
+              <span className="material-symbols-outlined text-lg">close</span>
+            </button>
+
+            {/* Modal Content */}
+            <div className="space-y-6">
+              <div className="space-y-2">
+                <span className="text-[10px] font-black tracking-widest text-primary uppercase">Program Information</span>
+                <h3 className="text-3xl font-black uppercase tracking-tight leading-tight text-on-surface">
+                  {activeModalData.title}
+                </h3>
+              </div>
+              <div className="h-px bg-outline/10 w-full"></div>
+              <p className="text-on-surface-variant leading-relaxed text-sm font-medium whitespace-pre-wrap">
+                {activeModalData.content}
+              </p>
+              <button
+                onClick={() => setActiveModalData(null)}
+                className="w-full py-3.5 bg-primary text-on-primary rounded-xl text-[10px] font-black tracking-widest uppercase hover:bg-primary/95 transition-all shadow-md active:scale-95 cursor-pointer mt-4"
+              >
+                Close Details
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

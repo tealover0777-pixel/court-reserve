@@ -43,6 +43,8 @@ interface FeaturedProgramItem {
     DARK?: ThemeColors;
     VINTAGE?: ThemeColors;
   };
+  imageClickDetails?: string;
+  buttonClickDetails?: string;
 }
 
 interface ProgramsConfig {
@@ -97,7 +99,9 @@ const DEFAULT_CONFIG: ProgramsConfig = {
         LIGHT: { bgColor: "", textColor: "" },
         DARK: { bgColor: "", textColor: "" },
         VINTAGE: { bgColor: "", textColor: "" }
-      }
+      },
+      imageClickDetails: "",
+      buttonClickDetails: ""
     }
   ],
   
@@ -293,7 +297,9 @@ export default function ProgramsManagementView({ theme, tenantId }: { theme: str
             sidebarHeadline: data.sidebarHeadline || "PRO-FOCUS WEEKEND",
             sidebarDescription: data.sidebarDescription || "Join Coach Marcus for a 48-hour immersion into strategy and bio-mechanics. Limited to 8 participants.",
             sidebarButtonText: data.sidebarButtonText || "VIEW COACH BIO",
-            sidebarThemeColors: data.sidebarThemeColors || {}
+            sidebarThemeColors: data.sidebarThemeColors || {},
+            imageClickDetails: "",
+            buttonClickDetails: ""
           }
         ];
         const featuredPrograms = rawFeatured.map((item: any) => ({
@@ -301,7 +307,9 @@ export default function ProgramsManagementView({ theme, tenantId }: { theme: str
           sidebarHeadline: item.sidebarHeadline || data.sidebarHeadline || "PRO-FOCUS WEEKEND",
           sidebarDescription: item.sidebarDescription || data.sidebarDescription || "Join Coach Marcus for a 48-hour immersion into strategy and bio-mechanics. Limited to 8 participants.",
           sidebarButtonText: item.sidebarButtonText || data.sidebarButtonText || "VIEW COACH BIO",
-          sidebarThemeColors: item.sidebarThemeColors || data.sidebarThemeColors || {}
+          sidebarThemeColors: item.sidebarThemeColors || data.sidebarThemeColors || {},
+          imageClickDetails: item.imageClickDetails || "",
+          buttonClickDetails: item.buttonClickDetails || ""
         }));
         setConfig({ ...DEFAULT_CONFIG, ...data, featuredPrograms });
       } else {
@@ -539,6 +547,22 @@ export default function ProgramsManagementView({ theme, tenantId }: { theme: str
                         )}
                       </div>
                     </div>
+                    <div className="space-y-1">
+                      <label className="text-[9px] font-black uppercase tracking-widest opacity-40">Program Image Click Details (Modal Pop-up)</label>
+                      <textarea
+                        value={item.imageClickDetails || ""}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          setConfig(prev => {
+                            const newFeatured = [...(prev.featuredPrograms || [])];
+                            if (newFeatured[idx]) newFeatured[idx] = { ...newFeatured[idx], imageClickDetails: val };
+                            return { ...prev, featuredPrograms: newFeatured };
+                          });
+                        }}
+                        className="w-full px-4 py-3 rounded-xl bg-surface border-none text-[10px] font-bold min-h-[60px]"
+                        placeholder="Detail information displayed in a pop-up when the program image/card is clicked..."
+                      />
+                    </div>
                   </div>
 
                   {/* Right Column: Side Spotlight */}
@@ -596,6 +620,22 @@ export default function ProgramsManagementView({ theme, tenantId }: { theme: str
                         }}
                         className="w-full px-4 py-3 rounded-xl bg-surface border-none text-[10px] font-bold"
                         placeholder="e.g. VIEW COACH BIO"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-[9px] font-black uppercase tracking-widest opacity-40">Button Click Details (Modal Pop-up)</label>
+                      <textarea
+                        value={item.buttonClickDetails || ""}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          setConfig(prev => {
+                            const newFeatured = [...(prev.featuredPrograms || [])];
+                            if (newFeatured[idx]) newFeatured[idx] = { ...newFeatured[idx], buttonClickDetails: val };
+                            return { ...prev, featuredPrograms: newFeatured };
+                          });
+                        }}
+                        className="w-full px-4 py-3 rounded-xl bg-surface border-none text-[10px] font-bold min-h-[60px]"
+                        placeholder="Detail information displayed in a pop-up when the spotlight button is clicked..."
                       />
                     </div>
 
@@ -709,7 +749,9 @@ export default function ProgramsManagementView({ theme, tenantId }: { theme: str
                         LIGHT: { bgColor: "", textColor: "" },
                         DARK: { bgColor: "", textColor: "" },
                         VINTAGE: { bgColor: "", textColor: "" }
-                      }
+                      },
+                      imageClickDetails: "",
+                      buttonClickDetails: ""
                     }
                   ]
                 }));
