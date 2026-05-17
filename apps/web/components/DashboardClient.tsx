@@ -545,7 +545,7 @@ export default function DashboardClient({ params }: { params: { tenantId: string
           if (activeView === "DASHBOARD_MANAGEMENT") return <DashboardManagementView theme={theme} tenantId={tenantId} />;
           if (activeView === "PROGRAMS_MANAGEMENT") return <ProgramsManagementView theme={theme} tenantId={tenantId} />;
           return (
-            <div className={`flex flex-col items-center justify-center min-h-[60vh] ${theme === "DARK" ? "text-white" : theme === "LIGHT" ? "text-[#4f6b28]" : "text-stone-900"}`}>
+            <div className={`flex flex-col items-center justify-center min-h-[60vh] ${theme === "DARK" ? "text-white" : theme === "LIGHT" ? "text-[#d97706]" : "text-stone-900"}`}>
               <span className="material-symbols-outlined text-6xl mb-4">construction</span>
               <h3 className="text-2xl font-black uppercase tracking-widest">{activeView} UNDER CONSTRUCTION</h3>
               <p className="mt-2">We're building something elite for you.</p>
@@ -1643,7 +1643,7 @@ function ProfileView({ theme, profile, roles }: { theme: "LIGHT" | "DARK" | "VIN
 
               if (userRoles.length > 0) {
                 return userRoles.map(r => (
-                  <span key={r.role_id || r.id} className={`px-5 py-2 rounded-full text-[10px] font-black tracking-widest uppercase transition-colors ${theme === "DARK" ? "bg-stone-800 text-[#ccff00]" : theme === "VINTAGE" ? "bg-black text-white" : "bg-stone-900 text-white"
+                  <span key={r.role_id || r.id} className={`px-5 py-2 rounded-full text-[10px] font-black tracking-widest uppercase transition-colors ${theme === "DARK" ? "bg-stone-800 text-[#fcd34d]" : theme === "VINTAGE" ? "bg-black text-white" : "bg-stone-900 text-white"
                     }`}>
                     {r.role_name}
                   </span>
@@ -1651,7 +1651,7 @@ function ProfileView({ theme, profile, roles }: { theme: "LIGHT" | "DARK" | "VIN
               }
 
               return (
-                <span className={`px-5 py-2 rounded-full text-[10px] font-black tracking-widest uppercase transition-colors ${theme === "DARK" ? "bg-stone-800 text-[#ccff00]" : theme === "VINTAGE" ? "bg-black text-white" : "bg-stone-900 text-white"
+                <span className={`px-5 py-2 rounded-full text-[10px] font-black tracking-widest uppercase transition-colors ${theme === "DARK" ? "bg-stone-800 text-[#fcd34d]" : theme === "VINTAGE" ? "bg-black text-white" : "bg-stone-900 text-white"
                   }`}>
                   {profile?.role || "GUEST"}
                 </span>
@@ -1666,7 +1666,7 @@ function ProfileView({ theme, profile, roles }: { theme: "LIGHT" | "DARK" | "VIN
           theme === "VINTAGE" ? "bg-white border-stone-50" :
             "bg-stone-50 border-stone-100"
           }`}>
-          <h3 className={`text-3xl font-black tracking-tighter uppercase transition-colors ${theme === "DARK" ? "text-[#ccff00]" : "text-black"
+          <h3 className={`text-3xl font-black tracking-tighter uppercase transition-colors ${theme === "DARK" ? "text-[#fcd34d]" : "text-black"
             }`}>Account Security</h3>
           <div className="grid grid-cols-2 gap-10">
             {[
@@ -1686,13 +1686,13 @@ function ProfileView({ theme, profile, roles }: { theme: "LIGHT" | "DARK" | "VIN
           <div className="pt-8 flex gap-4">
             <button
               onClick={() => setShowEditModal(true)}
-              className={`flex-1 py-4 rounded-2xl text-[10px] font-black tracking-widest uppercase transition-colors ${theme === "DARK" ? "bg-stone-800 text-[#ccff00]" : theme === "VINTAGE" ? "bg-black text-white" : "bg-[#4f6b28] text-white"
+              className={`flex-1 py-4 rounded-2xl text-[10px] font-black tracking-widest uppercase transition-colors ${theme === "DARK" ? "bg-stone-800 text-[#fcd34d]" : theme === "VINTAGE" ? "bg-black text-stone-950" : "bg-[#fbbf24] text-stone-950"
                 }`}>
               EDIT INFORMATION
             </button>
             <button
               onClick={handleChangePassword}
-              className={`flex-1 py-4 border-2 rounded-2xl text-[10px] font-black tracking-widest uppercase transition-colors ${theme === "DARK" ? "border-stone-800 text-white hover:bg-stone-800" : theme === "VINTAGE" ? "border-black text-black hover:bg-black hover:text-white" : "border-[#4f6b28] text-[#4f6b28] hover:bg-[#4f6b28] hover:text-white"
+              className={`flex-1 py-4 border-2 rounded-2xl text-[10px] font-black tracking-widest uppercase transition-colors ${theme === "DARK" ? "border-stone-800 text-stone-950 hover:bg-stone-800" : theme === "VINTAGE" ? "border-black text-black hover:bg-black hover:text-stone-950" : "border-[#fbbf24] text-[#d97706] hover:bg-[#fbbf24] hover:text-stone-950"
                 }`}>
               CHANGE PASSWORD
             </button>
@@ -1716,7 +1716,7 @@ function ProfileView({ theme, profile, roles }: { theme: "LIGHT" | "DARK" | "VIN
               <button
                 onClick={handleSaveProfile}
                 disabled={isSaving}
-                className={`flex-1 py-5 rounded-2xl text-[10px] font-black tracking-widest uppercase transition-all shadow-xl flex items-center justify-center gap-3 ${theme === "DARK" ? "bg-[#ccff00] text-stone-950 shadow-[#ccff00]/20" : theme === "LIGHT" ? "bg-[#4f6b28] text-white shadow-[#4f6b28]/20" : "bg-stone-900 text-white shadow-stone-900/20"}`}
+                className={`flex-1 py-5 rounded-2xl text-[10px] font-black tracking-widest uppercase transition-all shadow-xl flex items-center justify-center gap-3 ${theme === "DARK" ? "bg-[#fcd34d] text-stone-950 shadow-[#fcd34d]/20" : theme === "LIGHT" ? "bg-[#fbbf24] text-stone-950 shadow-[#fbbf24]/20" : "bg-stone-900 text-stone-950 shadow-stone-900/20"}`}
               >
                 {isSaving ? (
                   <>
@@ -1731,67 +1731,67 @@ function ProfileView({ theme, profile, roles }: { theme: "LIGHT" | "DARK" | "VIN
           <div className="space-y-8">
             <div className="grid grid-cols-2 gap-8">
               <div>
-                <label className={`text-[10px] font-black uppercase tracking-widest mb-3 block ${theme === "DARK" ? "text-white" : theme === "LIGHT" ? "text-[#4f6b28]/60" : "text-stone-600"}`}>First Name</label>
+                <label className={`text-[10px] font-black uppercase tracking-widest mb-3 block ${theme === "DARK" ? "text-white" : theme === "LIGHT" ? "text-[#d97706]/60" : "text-stone-600"}`}>First Name</label>
                 <input
                   value={formData.first_name}
                   onChange={e => setFormData({ ...formData, first_name: e.target.value })}
-                  className={`w-full bg-transparent border-b-2 py-4 text-lg font-bold outline-none transition-colors placeholder:text-stone-200 ${theme === "DARK" ? "border-stone-800 focus:border-[#ccff00] text-white" : theme === "LIGHT" ? "border-stone-200 focus:border-[#4f6b28] text-[#4f6b28]" : "border-stone-100 focus:border-stone-900 text-stone-900"}`}
+                  className={`w-full bg-transparent border-b-2 py-4 text-lg font-bold outline-none transition-colors placeholder:text-stone-200 ${theme === "DARK" ? "border-stone-800 focus:border-[#fcd34d] text-white" : theme === "LIGHT" ? "border-stone-200 focus:border-[#fbbf24] text-[#d97706]" : "border-stone-100 focus:border-stone-900 text-stone-900"}`}
                 />
               </div>
               <div>
-                <label className={`text-[10px] font-black uppercase tracking-widest mb-3 block ${theme === "DARK" ? "text-white" : theme === "LIGHT" ? "text-[#4f6b28]/60" : "text-stone-600"}`}>Last Name</label>
+                <label className={`text-[10px] font-black uppercase tracking-widest mb-3 block ${theme === "DARK" ? "text-white" : theme === "LIGHT" ? "text-[#d97706]/60" : "text-stone-600"}`}>Last Name</label>
                 <input
                   value={formData.last_name}
                   onChange={e => setFormData({ ...formData, last_name: e.target.value })}
-                  className={`w-full bg-transparent border-b-2 py-4 text-lg font-bold outline-none transition-colors placeholder:text-stone-200 ${theme === "DARK" ? "border-stone-800 focus:border-[#ccff00] text-white" : theme === "LIGHT" ? "border-stone-200 focus:border-[#4f6b28] text-[#4f6b28]" : "border-stone-100 focus:border-stone-900 text-stone-900"}`}
+                  className={`w-full bg-transparent border-b-2 py-4 text-lg font-bold outline-none transition-colors placeholder:text-stone-200 ${theme === "DARK" ? "border-stone-800 focus:border-[#fcd34d] text-white" : theme === "LIGHT" ? "border-stone-200 focus:border-[#fbbf24] text-[#d97706]" : "border-stone-100 focus:border-stone-900 text-stone-900"}`}
                 />
               </div>
             </div>
             <div className="grid grid-cols-2 gap-8">
               <div>
-                <label className={`text-[10px] font-black uppercase tracking-widest mb-3 block ${theme === "DARK" ? "text-white" : theme === "LIGHT" ? "text-[#4f6b28]/60" : "text-stone-600"}`}>Street Address 1</label>
+                <label className={`text-[10px] font-black uppercase tracking-widest mb-3 block ${theme === "DARK" ? "text-white" : theme === "LIGHT" ? "text-[#d97706]/60" : "text-stone-600"}`}>Street Address 1</label>
                 <input
                   value={formData.address_street_1}
                   onChange={e => setFormData({ ...formData, address_street_1: e.target.value })}
                   placeholder="123 Tennis Court Lane"
-                  className={`w-full bg-transparent border-b-2 py-4 text-lg font-bold outline-none transition-colors placeholder:text-stone-200 ${theme === "DARK" ? "border-stone-800 focus:border-[#ccff00] text-white" : theme === "LIGHT" ? "border-stone-200 focus:border-[#4f6b28] text-[#4f6b28]" : "border-stone-100 focus:border-stone-900 text-stone-900"}`}
+                  className={`w-full bg-transparent border-b-2 py-4 text-lg font-bold outline-none transition-colors placeholder:text-stone-200 ${theme === "DARK" ? "border-stone-800 focus:border-[#fcd34d] text-white" : theme === "LIGHT" ? "border-stone-200 focus:border-[#fbbf24] text-[#d97706]" : "border-stone-100 focus:border-stone-900 text-stone-900"}`}
                 />
               </div>
               <div>
-                <label className={`text-[10px] font-black uppercase tracking-widest mb-3 block ${theme === "DARK" ? "text-white" : theme === "LIGHT" ? "text-[#4f6b28]/60" : "text-stone-600"}`}>Street Address 2</label>
+                <label className={`text-[10px] font-black uppercase tracking-widest mb-3 block ${theme === "DARK" ? "text-white" : theme === "LIGHT" ? "text-[#d97706]/60" : "text-stone-600"}`}>Street Address 2</label>
                 <input
                   value={formData.address_street_2}
                   onChange={e => setFormData({ ...formData, address_street_2: e.target.value })}
                   placeholder="Apt 4B"
-                  className={`w-full bg-transparent border-b-2 py-4 text-lg font-bold outline-none transition-colors placeholder:text-stone-200 ${theme === "DARK" ? "border-stone-800 focus:border-[#ccff00] text-white" : theme === "LIGHT" ? "border-stone-200 focus:border-[#4f6b28] text-[#4f6b28]" : "border-stone-100 focus:border-stone-900 text-stone-900"}`}
+                  className={`w-full bg-transparent border-b-2 py-4 text-lg font-bold outline-none transition-colors placeholder:text-stone-200 ${theme === "DARK" ? "border-stone-800 focus:border-[#fcd34d] text-white" : theme === "LIGHT" ? "border-stone-200 focus:border-[#fbbf24] text-[#d97706]" : "border-stone-100 focus:border-stone-900 text-stone-900"}`}
                 />
               </div>
             </div>
             <div>
-              <label className={`text-[10px] font-black uppercase tracking-widest mb-3 block ${theme === "DARK" ? "text-white" : theme === "LIGHT" ? "text-[#4f6b28]/60" : "text-stone-600"}`}>Phone Number</label>
+              <label className={`text-[10px] font-black uppercase tracking-widest mb-3 block ${theme === "DARK" ? "text-white" : theme === "LIGHT" ? "text-[#d97706]/60" : "text-stone-600"}`}>Phone Number</label>
               <input
                 value={formData.phone}
                 onChange={e => setFormData({ ...formData, phone: e.target.value })}
                 placeholder="+1 (555) 000-0000"
-                className={`w-full bg-transparent border-b-2 py-4 text-lg font-bold outline-none transition-colors placeholder:text-stone-200 ${theme === "DARK" ? "border-stone-800 focus:border-[#ccff00] text-white" : theme === "LIGHT" ? "border-stone-200 focus:border-[#4f6b28] text-[#4f6b28]" : "border-stone-100 focus:border-stone-900 text-stone-900"}`}
+                className={`w-full bg-transparent border-b-2 py-4 text-lg font-bold outline-none transition-colors placeholder:text-stone-200 ${theme === "DARK" ? "border-stone-800 focus:border-[#fcd34d] text-white" : theme === "LIGHT" ? "border-stone-200 focus:border-[#fbbf24] text-[#d97706]" : "border-stone-100 focus:border-stone-900 text-stone-900"}`}
               />
             </div>
             <div className="grid grid-cols-3 gap-8">
               <div className="col-span-1">
-                <label className={`text-[10px] font-black uppercase tracking-widest mb-3 block ${theme === "DARK" ? "text-white" : theme === "LIGHT" ? "text-[#4f6b28]/60" : "text-stone-600"}`}>City</label>
+                <label className={`text-[10px] font-black uppercase tracking-widest mb-3 block ${theme === "DARK" ? "text-white" : theme === "LIGHT" ? "text-[#d97706]/60" : "text-stone-600"}`}>City</label>
                 <input
                   value={formData.address_city}
                   onChange={e => setFormData({ ...formData, address_city: e.target.value })}
                   placeholder="Wimbledon"
-                  className={`w-full bg-transparent border-b-2 py-4 text-lg font-bold outline-none transition-colors placeholder:text-stone-200 ${theme === "DARK" ? "border-stone-800 focus:border-[#ccff00] text-white" : theme === "LIGHT" ? "border-stone-200 focus:border-[#4f6b28] text-[#4f6b28]" : "border-stone-100 focus:border-stone-900 text-stone-900"}`}
+                  className={`w-full bg-transparent border-b-2 py-4 text-lg font-bold outline-none transition-colors placeholder:text-stone-200 ${theme === "DARK" ? "border-stone-800 focus:border-[#fcd34d] text-white" : theme === "LIGHT" ? "border-stone-200 focus:border-[#fbbf24] text-[#d97706]" : "border-stone-100 focus:border-stone-900 text-stone-900"}`}
                 />
               </div>
               <div className="col-span-1">
-                <label className={`text-[10px] font-black uppercase tracking-widest mb-3 block ${theme === "DARK" ? "text-white" : theme === "LIGHT" ? "text-[#4f6b28]/60" : "text-stone-600"}`}>State</label>
+                <label className={`text-[10px] font-black uppercase tracking-widest mb-3 block ${theme === "DARK" ? "text-white" : theme === "LIGHT" ? "text-[#d97706]/60" : "text-stone-600"}`}>State</label>
                 <select
                   value={formData.address_state}
                   onChange={e => setFormData({ ...formData, address_state: e.target.value })}
-                  className={`w-full bg-transparent border-b-2 py-4 text-lg font-bold outline-none transition-colors appearance-none ${!formData.address_state ? '!text-stone-200' : ''} ${theme === "DARK" ? "border-stone-800 focus:border-[#ccff00] text-white" : theme === "LIGHT" ? "border-stone-200 focus:border-[#4f6b28] text-[#4f6b28]" : "border-stone-100 focus:border-stone-900 text-stone-900"}`}
+                  className={`w-full bg-transparent border-b-2 py-4 text-lg font-bold outline-none transition-colors appearance-none ${!formData.address_state ? '!text-stone-200' : ''} ${theme === "DARK" ? "border-stone-800 focus:border-[#fcd34d] text-white" : theme === "LIGHT" ? "border-stone-200 focus:border-[#fbbf24] text-[#d97706]" : "border-stone-100 focus:border-stone-900 text-stone-900"}`}
                 >
                   <option value="" className={theme === "DARK" ? "bg-stone-900" : "bg-white"}>Select State</option>
                   {US_STATES.map(state => (
@@ -1800,12 +1800,12 @@ function ProfileView({ theme, profile, roles }: { theme: "LIGHT" | "DARK" | "VIN
                 </select>
               </div>
               <div className="col-span-1">
-                <label className={`text-[10px] font-black uppercase tracking-widest mb-3 block ${theme === "DARK" ? "text-white" : theme === "LIGHT" ? "text-[#4f6b28]/60" : "text-stone-600"}`}>Zip Code</label>
+                <label className={`text-[10px] font-black uppercase tracking-widest mb-3 block ${theme === "DARK" ? "text-white" : theme === "LIGHT" ? "text-[#d97706]/60" : "text-stone-600"}`}>Zip Code</label>
                 <input
                   value={formData.address_zip}
                   onChange={e => setFormData({ ...formData, address_zip: e.target.value })}
                   placeholder="SW19"
-                  className={`w-full bg-transparent border-b-2 py-4 text-lg font-bold outline-none transition-colors placeholder:text-stone-200 ${theme === "DARK" ? "border-stone-800 focus:border-[#ccff00] text-white" : theme === "LIGHT" ? "border-stone-200 focus:border-[#4f6b28] text-[#4f6b28]" : "border-stone-100 focus:border-stone-900 text-stone-900"}`}
+                  className={`w-full bg-transparent border-b-2 py-4 text-lg font-bold outline-none transition-colors placeholder:text-stone-200 ${theme === "DARK" ? "border-stone-800 focus:border-[#fcd34d] text-white" : theme === "LIGHT" ? "border-stone-200 focus:border-[#fbbf24] text-[#d97706]" : "border-stone-100 focus:border-stone-900 text-stone-900"}`}
                 />
               </div>
             </div>
@@ -1826,7 +1826,7 @@ function ProfileView({ theme, profile, roles }: { theme: "LIGHT" | "DARK" | "VIN
                 <button
                   key={portrait.id}
                   onClick={() => handlePortraitSelect(portrait.url)}
-                  className={`group relative aspect-square rounded-3xl overflow-hidden border-2 transition-all hover:scale-105 ${theme === "DARK" ? "border-stone-800 hover:border-[#ccff00]" : theme === "LIGHT" ? "border-stone-100 hover:border-[#4f6b28]" : "border-stone-100 hover:border-stone-900"
+                  className={`group relative aspect-square rounded-3xl overflow-hidden border-2 transition-all hover:scale-105 ${theme === "DARK" ? "border-stone-800 hover:border-[#fcd34d]" : theme === "LIGHT" ? "border-stone-100 hover:border-[#fbbf24]" : "border-stone-100 hover:border-stone-900"
                     }`}
                 >
                   <img
@@ -1857,20 +1857,20 @@ function MembershipView({ theme }: { theme: "LIGHT" | "DARK" | "VINTAGE" }) {
 
   return (
     <div className="space-y-16 animate-in fade-in slide-in-from-bottom-4 duration-700">
-      <h2 className={`text-5xl font-black tracking-tighter uppercase transition-colors ${theme === "DARK" ? "text-white" : theme === "LIGHT" ? "text-[#4f6b28]" : "text-black"
+      <h2 className={`text-5xl font-black tracking-tighter uppercase transition-colors ${theme === "DARK" ? "text-white" : theme === "LIGHT" ? "text-[#d97706]" : "text-black"
         }`} style={{ fontFamily: 'Lexend, sans-serif' }}>
         MEMBERSHIP PLANS
       </h2>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         {[
-          { name: "SILVER", price: "99", color: theme === "DARK" ? "bg-stone-900 text-white" : theme === "VINTAGE" ? "bg-white text-black border border-stone-50" : theme === "LIGHT" ? "bg-white text-[#4f6b28] border-2 border-[#4f6b28]/10" : "bg-stone-50 text-stone-900", features: ["2 Bookings/Week", "Standard Access", "Social Mixers"] },
-          { name: "GOLD", price: "199", popular: true, color: theme === "DARK" ? "bg-[#ccff00] text-stone-950" : theme === "VINTAGE" ? "bg-black text-white" : theme === "LIGHT" ? "bg-[#4f6b28] text-white shadow-[#4f6b28]/20" : "bg-stone-900 text-white", features: ["Unlimited Bookings", "Priority Courts", "Guest Passes (4)", "Pro Discounts"] },
-          { name: "PLATINUM", price: "299", color: theme === "DARK" ? "bg-stone-950 text-white border border-stone-800" : theme === "VINTAGE" ? "bg-white text-black border-2 border-black" : theme === "LIGHT" ? "bg-[#4f6b28] text-white" : "bg-stone-900 text-white", features: ["24/7 Access", "Personal Locker", "Free Stringing", "Pro Clinic Access"] }
+          { name: "SILVER", price: "99", color: theme === "DARK" ? "bg-stone-900 text-white" : theme === "VINTAGE" ? "bg-white text-black border border-stone-50" : theme === "LIGHT" ? "bg-white text-[#d97706] border-2 border-[#fbbf24]/10" : "bg-stone-50 text-stone-900", features: ["2 Bookings/Week", "Standard Access", "Social Mixers"] },
+          { name: "GOLD", price: "199", popular: true, color: theme === "DARK" ? "bg-[#fcd34d] text-stone-950" : theme === "VINTAGE" ? "bg-black text-stone-950" : theme === "LIGHT" ? "bg-[#fbbf24] text-stone-950 shadow-[#fbbf24]/20" : "bg-stone-900 text-stone-950", features: ["Unlimited Bookings", "Priority Courts", "Guest Passes (4)", "Pro Discounts"] },
+          { name: "PLATINUM", price: "299", color: theme === "DARK" ? "bg-stone-950 text-stone-950 border border-stone-800" : theme === "VINTAGE" ? "bg-white text-black border-2 border-black" : theme === "LIGHT" ? "bg-[#fbbf24] text-stone-950" : "bg-stone-900 text-stone-950", features: ["24/7 Access", "Personal Locker", "Free Stringing", "Pro Clinic Access"] }
         ].map((plan, i) => (
           <div key={i} className={`${plan.color} rounded-[40px] p-12 shadow-2xl relative flex flex-col transition-all hover:scale-105`}>
             {plan.popular && (
-              <div className={`absolute -top-4 left-12 px-6 py-2 text-[10px] font-black tracking-[0.2em] rounded-full shadow-lg transition-colors ${theme === "DARK" ? "bg-white text-black" : theme === "LIGHT" ? "bg-[#ccff00] text-[#4f6b28]" : "bg-stone-900 text-white"
+              <div className={`absolute -top-4 left-12 px-6 py-2 text-[10px] font-black tracking-[0.2em] rounded-full shadow-lg transition-colors ${theme === "DARK" ? "bg-white text-black" : theme === "LIGHT" ? "bg-[#fcd34d] text-[#d97706]" : "bg-stone-900 text-white"
                 }`}>
                 MOST POPULAR
               </div>
@@ -1890,7 +1890,7 @@ function MembershipView({ theme }: { theme: "LIGHT" | "DARK" | "VINTAGE" }) {
                 </li>
               ))}
             </ul>
-            <button className={`mt-12 w-full py-5 rounded-2xl text-[10px] font-black tracking-widest transition-all uppercase ${plan.popular ? (theme === "DARK" ? "bg-stone-900 text-white" : theme === "VINTAGE" ? "bg-white text-black" : theme === "LIGHT" ? "bg-[#ccff00] text-[#4f6b28]" : "bg-white text-stone-900") :
+            <button className={`mt-12 w-full py-5 rounded-2xl text-[10px] font-black tracking-widest transition-all uppercase ${plan.popular ? (theme === "DARK" ? "bg-stone-900 text-white" : theme === "VINTAGE" ? "bg-white text-black" : theme === "LIGHT" ? "bg-[#fcd34d] text-[#d97706]" : "bg-white text-stone-900") :
               "border-2 border-current hover:bg-current hover:text-white"
               }`}>
               {plan.popular ? "CURRENT PLAN" : "UPGRADE NOW"}

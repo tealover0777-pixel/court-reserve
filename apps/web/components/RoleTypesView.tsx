@@ -313,9 +313,9 @@ export default function RoleTypesView({ theme = "LIGHT", userRoleId, readOnly = 
     return (
       <div className="flex h-64 items-center justify-center">
         <div className={`h-8 w-8 animate-spin rounded-full border-4 border-t-transparent ${
-          theme === "DARK" ? "border-[#ccff00]" : 
+          theme === "DARK" ? "border-[#fcd34d]" : 
           theme === "VINTAGE" ? "border-black" :
-          "border-[#4f6b28]"
+          "border-[#fbbf24]"
         }`}></div>
       </div>
     );
@@ -326,9 +326,9 @@ export default function RoleTypesView({ theme = "LIGHT", userRoleId, readOnly = 
       <div className="flex justify-between items-end mb-10">
         <div>
           <h2 className={`text-5xl font-black italic tracking-tighter uppercase transition-colors duration-500 ${
-            theme === "DARK" ? "text-[#ccff00]" : 
+            theme === "DARK" ? "text-[#fcd34d]" : 
             theme === "VINTAGE" ? "text-black" :
-            "text-[#4f6b28]"
+            "text-[#d97706]"
           }`} style={{ fontFamily: 'Lexend, sans-serif' }}>
             Role Types
           </h2>
@@ -338,13 +338,13 @@ export default function RoleTypesView({ theme = "LIGHT", userRoleId, readOnly = 
             "text-stone-900"
           }`}>
             System Administration · <span className={
-              theme === "DARK" ? "text-[#ccff00]" : 
+              theme === "DARK" ? "text-[#fcd34d]" : 
               theme === "VINTAGE" ? "text-black" :
-              "text-[#4f6b28]"
+              "text-[#d97706]"
             }>{roles.length}</span> Roles · <span className={
-              theme === "DARK" ? "text-[#ccff00]" : 
+              theme === "DARK" ? "text-[#fcd34d]" : 
               theme === "VINTAGE" ? "text-black" :
-              "text-[#4f6b28]"
+              "text-[#d97706]"
             }>{permissions.length + globalPermissions.length}</span> Permissions
           </p>
         </div>
@@ -356,10 +356,10 @@ export default function RoleTypesView({ theme = "LIGHT", userRoleId, readOnly = 
               placeholder="Search roles..."
               className={`w-full border rounded-full pl-12 pr-6 py-3 text-sm font-medium outline-none transition-all shadow-sm ${
                 theme === "DARK" 
-                  ? "bg-stone-900 border-stone-800 text-white focus:border-[#ccff00]" 
+                  ? "bg-stone-900 border-stone-800 text-white focus:border-[#fcd34d]" 
                   : theme === "VINTAGE"
                     ? "bg-white border-stone-100 text-black focus:border-black shadow-md"
-                    : "bg-white border-stone-200 text-stone-900 focus:border-[#4f6b28]"
+                    : "bg-white border-stone-200 text-stone-900 focus:border-[#fbbf24]"
               }`}
               onChange={(e) => table.setGlobalFilter(e.target.value)}
             />
@@ -369,10 +369,10 @@ export default function RoleTypesView({ theme = "LIGHT", userRoleId, readOnly = 
               onClick={handleOpenAdd}
               className={`px-8 py-3 rounded-full font-black text-xs tracking-widest transition-all uppercase shadow-lg flex items-center gap-2 ${
                 theme === "DARK"
-                  ? "bg-[#ccff00] text-stone-950 shadow-[#ccff00]/10 hover:opacity-90"
+                  ? "bg-[#fcd34d] text-stone-950 shadow-[#fcd34d]/10 hover:opacity-90"
                   : theme === "VINTAGE"
                     ? "bg-black text-white shadow-black/10 hover:opacity-90"
-                    : "bg-[#4f6b28] text-white shadow-[#4f6b28]/20 hover:opacity-90"
+                    : "bg-[#fbbf24] text-stone-950 shadow-[#fbbf24]/20 hover:opacity-90"
               }`}
             >
               <span className="material-symbols-outlined text-sm">add</span>
@@ -400,7 +400,7 @@ export default function RoleTypesView({ theme = "LIGHT", userRoleId, readOnly = 
                     <th 
                       key={header.id} 
                       className={`px-6 py-4 text-[10px] font-black uppercase tracking-widest relative border-r last:border-r-0 transition-colors duration-500 ${
-                        theme === "DARK" ? "text-[#ccff00] border-stone-800" : 
+                        theme === "DARK" ? "text-[#fcd34d] border-stone-800" : 
                         theme === "VINTAGE" ? "text-black border-stone-100" :
                         "text-black border-stone-900"
                       }`}
@@ -432,7 +432,7 @@ export default function RoleTypesView({ theme = "LIGHT", userRoleId, readOnly = 
                                 placeholder="..."
                                 className={`w-full border rounded-md px-3 py-1.5 text-xs font-medium outline-none transition-all ${
                                   theme === "DARK" 
-                                    ? "bg-stone-950 border-stone-800 text-white focus:border-[#ccff00]" 
+                                    ? "bg-stone-950 border-stone-800 text-white focus:border-[#fcd34d]" 
                                     : theme === "VINTAGE"
                                       ? "bg-[#f7f9fb] border-transparent text-black focus:border-stone-200"
                                       : "bg-white border-stone-100 text-stone-900 focus:border-stone-400"
@@ -448,8 +448,8 @@ export default function RoleTypesView({ theme = "LIGHT", userRoleId, readOnly = 
                             {...{
                               onMouseDown: header.getResizeHandler(),
                               onTouchStart: header.getResizeHandler(),
-                              className: `absolute right-0 top-0 h-full w-1 cursor-col-resize select-none touch-none hover:bg-[#ccff00]/30 transition-colors ${
-                                header.column.getIsResizing() ? 'bg-[#ccff00] w-1' : ''
+                              className: `absolute right-0 top-0 h-full w-1 cursor-col-resize select-none touch-none hover:bg-[#fcd34d]/30 transition-colors ${
+                                header.column.getIsResizing() ? 'bg-[#fcd34d] w-1' : ''
                               }`,
                             }}
                           />
@@ -522,9 +522,9 @@ export default function RoleTypesView({ theme = "LIGHT", userRoleId, readOnly = 
             <button 
               onClick={handleSaveRole}
               className={`flex-1 py-4 rounded-2xl text-[10px] font-black tracking-widest transition-all uppercase shadow-lg ${
-                theme === "DARK" ? "bg-[#ccff00] text-stone-950 shadow-[#ccff00]/20" : 
+                theme === "DARK" ? "bg-[#fcd34d] text-stone-950 shadow-[#fcd34d]/20" : 
                 theme === "VINTAGE" ? "bg-black text-white shadow-black/20" :
-                "bg-[#4f6b28] text-white shadow-[#4f6b28]/20"
+                "bg-[#fbbf24] text-stone-950 shadow-[#fbbf24]/20"
               } hover:opacity-90`}
             >
               {editingRole ? 'Update Role' : 'Create Role'}
@@ -555,10 +555,10 @@ export default function RoleTypesView({ theme = "LIGHT", userRoleId, readOnly = 
               placeholder="e.g. Club Manager, Instructor..."
               className={`w-full border-none rounded-2xl px-6 py-4 text-sm font-bold placeholder:text-stone-400 outline-none transition-colors ${
                 theme === "DARK" 
-                  ? "bg-stone-900 text-white focus:ring-2 focus:ring-[#ccff00]" 
+                  ? "bg-stone-900 text-white focus:ring-2 focus:ring-[#fcd34d]" 
                   : theme === "VINTAGE"
                     ? "bg-[#f7f9fb] text-black focus:ring-2 focus:ring-black"
-                    : "bg-stone-100 text-stone-900 focus:ring-2 focus:ring-[#4f6b28]"
+                    : "bg-stone-100 text-stone-900 focus:ring-2 focus:ring-[#fbbf24]"
               }`}
             />
           </div>
@@ -569,7 +569,7 @@ export default function RoleTypesView({ theme = "LIGHT", userRoleId, readOnly = 
             <div 
               className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all ${
                 isGlobal 
-                  ? (theme === "DARK" ? "bg-[#ccff00] border-[#ccff00] text-stone-950" : theme === "VINTAGE" ? "bg-black border-black text-white" : "bg-[#4f6b28] border-[#4f6b28] text-white")
+                  ? (theme === "DARK" ? "bg-[#fcd34d] border-[#fcd34d] text-stone-950" : theme === "VINTAGE" ? "bg-black border-black text-stone-950" : "bg-[#fbbf24] border-[#fbbf24] text-stone-950")
                   : (theme === "DARK" ? "border-stone-800 bg-stone-900" : "border-stone-200 bg-white")
               }`}
               onClick={() => setIsGlobal(!isGlobal)}
@@ -591,10 +591,10 @@ export default function RoleTypesView({ theme = "LIGHT", userRoleId, readOnly = 
             value=""
             className={`w-full border-none rounded-2xl px-6 py-4 text-sm font-bold outline-none transition-colors appearance-none cursor-pointer ${
               theme === "DARK" 
-                ? "bg-stone-900 text-white focus:ring-2 focus:ring-[#ccff00]" 
+                ? "bg-stone-900 text-white focus:ring-2 focus:ring-[#fcd34d]" 
                 : theme === "VINTAGE"
                   ? "bg-[#f7f9fb] text-black focus:ring-2 focus:ring-black shadow-sm"
-                  : "bg-stone-100 text-stone-900 focus:ring-2 focus:ring-[#4f6b28]"
+                  : "bg-stone-100 text-stone-900 focus:ring-2 focus:ring-[#fbbf24]"
             }`}
           >
             <option value="" disabled>Select a role to copy permissions from...</option>
@@ -613,7 +613,7 @@ export default function RoleTypesView({ theme = "LIGHT", userRoleId, readOnly = 
               <button 
                 onClick={() => handleSelectAll(permissions)}
                 className={`text-[9px] font-black uppercase tracking-widest hover:underline transition-colors ${
-                  theme === "DARK" ? "text-[#ccff00]" : theme === "VINTAGE" ? "text-stone-900" : "text-[#4f6b28]"
+                  theme === "DARK" ? "text-[#fcd34d]" : theme === "VINTAGE" ? "text-stone-900" : "text-[#d97706]"
                 }`}
               >
                 Select All
@@ -640,8 +640,8 @@ export default function RoleTypesView({ theme = "LIGHT", userRoleId, readOnly = 
                 }}
                 className={`px-4 py-2 rounded-full text-[10px] font-black tracking-tight transition-all uppercase ${
                   selectedPerms.includes(p) 
-                    ? (theme === "DARK" ? "bg-[#ccff00] text-stone-950 shadow-md shadow-[#ccff00]/20" : theme === "VINTAGE" ? "bg-black text-white shadow-md shadow-black/20" : "bg-[#4f6b28] text-white shadow-md shadow-[#4f6b28]/20")
-                    : (theme === "DARK" ? "bg-stone-800 text-stone-400 border border-stone-700 hover:border-[#ccff00]/30" : "bg-white text-stone-900 border border-stone-200 hover:border-[#4f6b28]/30")
+                    ? (theme === "DARK" ? "bg-[#fcd34d] text-stone-950 shadow-md shadow-[#fcd34d]/20" : theme === "VINTAGE" ? "bg-black text-stone-950 shadow-md shadow-black/20" : "bg-[#fbbf24] text-stone-950 shadow-md shadow-[#fbbf24]/20")
+                    : (theme === "DARK" ? "bg-stone-800 text-stone-400 border border-stone-700 hover:border-[#fcd34d]/30" : "bg-white text-stone-900 border border-stone-200 hover:border-[#fbbf24]/30")
                 }`}
               >
                 {p}
@@ -660,7 +660,7 @@ export default function RoleTypesView({ theme = "LIGHT", userRoleId, readOnly = 
                 <button 
                   onClick={() => handleSelectAll(globalPermissions)}
                   className={`text-[9px] font-black uppercase tracking-widest hover:underline transition-colors ${
-                    theme === "DARK" ? "text-[#ccff00]" : theme === "VINTAGE" ? "text-stone-900" : "text-[#4f6b28]"
+                    theme === "DARK" ? "text-[#fcd34d]" : theme === "VINTAGE" ? "text-stone-900" : "text-[#d97706]"
                   }`}
                 >
                   Select All

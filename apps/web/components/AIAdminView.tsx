@@ -7,9 +7,9 @@ export default function AIAdminView({ theme = "LIGHT" }: { theme?: "LIGHT" | "DA
       <div className="flex justify-between items-end mb-10">
         <div>
           <h2 className={`text-5xl font-black italic tracking-tighter uppercase transition-colors duration-500 ${
-            theme === "DARK" ? "text-[#ccff00]" : 
+            theme === "DARK" ? "text-[#fcd34d]" : 
             theme === "VINTAGE" ? "text-black" :
-            "text-[#4f6b28]"
+            "text-[#d97706]"
           }`} style={{ fontFamily: 'Lexend, sans-serif' }}>
             AI Admin
           </h2>
@@ -19,13 +19,13 @@ export default function AIAdminView({ theme = "LIGHT" }: { theme?: "LIGHT" | "DA
             "text-stone-900"
           }`}>
             Intelligence Engine · <span className={
-              theme === "DARK" ? "text-[#ccff00]" : 
+              theme === "DARK" ? "text-[#fcd34d]" : 
               theme === "VINTAGE" ? "text-black" :
-              "text-[#4f6b28]"
+              "text-[#d97706]"
             }>Active</span> Status · <span className={
-              theme === "DARK" ? "text-[#ccff00]" : 
+              theme === "DARK" ? "text-[#fcd34d]" : 
               theme === "VINTAGE" ? "text-black" :
-              "text-[#4f6b28]"
+              "text-[#d97706]"
             }>v2.4.1</span>
           </p>
         </div>
@@ -39,9 +39,9 @@ export default function AIAdminView({ theme = "LIGHT" }: { theme?: "LIGHT" | "DA
         }`}>
           <div className="flex items-center gap-6 mb-10">
             <div className={`w-16 h-16 rounded-2xl flex items-center justify-center transition-colors ${
-              theme === "DARK" ? "bg-stone-900 text-[#ccff00]" : 
+              theme === "DARK" ? "bg-stone-900 text-[#fcd34d]" : 
               theme === "VINTAGE" ? "bg-[#f7f9fb] text-black" :
-              "bg-stone-50 text-[#4f6b28]"
+              "bg-stone-50 text-[#d97706]"
             }`}>
               <span className="material-symbols-outlined text-4xl">psychology</span>
             </div>
@@ -71,14 +71,14 @@ export default function AIAdminView({ theme = "LIGHT" }: { theme?: "LIGHT" | "DA
               </div>
               <div className="w-48 h-2 bg-stone-200 rounded-full relative">
                 <div className={`absolute left-0 top-0 h-full w-[70%] rounded-full ${
-                  theme === "DARK" ? "bg-[#ccff00]" : 
+                  theme === "DARK" ? "bg-[#fcd34d]" : 
                   theme === "VINTAGE" ? "bg-black" :
-                  "bg-[#4f6b28]"
+                  "bg-[#fbbf24]"
                 }`}></div>
                 <div className={`absolute left-[70%] top-1/2 -translate-y-1/2 -translate-x-1/2 w-4 h-4 bg-white border-2 rounded-full shadow-md cursor-pointer ${
-                  theme === "DARK" ? "border-[#ccff00]" : 
+                  theme === "DARK" ? "border-[#fcd34d]" : 
                   theme === "VINTAGE" ? "border-black" :
-                  "border-[#4f6b28]"
+                  "border-[#fbbf24]"
                 }`}></div>
               </div>
             </div>
@@ -97,9 +97,9 @@ export default function AIAdminView({ theme = "LIGHT" }: { theme?: "LIGHT" | "DA
                 <p className="text-[10px] text-stone-400 font-bold uppercase tracking-widest">Max tokens per interaction</p>
               </div>
               <span className={`text-sm font-black transition-colors ${
-                theme === "DARK" ? "text-[#ccff00]" : 
+                theme === "DARK" ? "text-[#fcd34d]" : 
                 theme === "VINTAGE" ? "text-black" :
-                "text-[#4f6b28]"
+                "text-[#d97706]"
               }`}>32,768 TOKENS</span>
             </div>
           </div>
@@ -108,11 +108,11 @@ export default function AIAdminView({ theme = "LIGHT" }: { theme?: "LIGHT" | "DA
         <div className={`rounded-3xl p-12 text-white shadow-xl flex flex-col justify-between transition-colors duration-500 ${
           theme === "DARK" ? "bg-stone-900 shadow-black/20" : 
           theme === "VINTAGE" ? "bg-black shadow-md" :
-          "bg-[#4f6b28] shadow-[#4f6b28]/20"
+          "bg-[#fbbf24] shadow-[#fbbf24]/20"
         }`}>
           <div>
             <span className={`material-symbols-outlined text-5xl mb-6 transition-colors ${
-              theme === "DARK" ? "text-[#ccff00]" : 
+              theme === "DARK" ? "text-[#fcd34d]" : 
               theme === "VINTAGE" ? "text-white" :
               "text-white"
             }`}>bolt</span>
@@ -120,9 +120,9 @@ export default function AIAdminView({ theme = "LIGHT" }: { theme?: "LIGHT" | "DA
             <p className="text-white/60 text-xs font-bold uppercase tracking-widest leading-loose">The engine is currently running at peak efficiency with sub-100ms latency.</p>
           </div>
           <button className={`w-full py-4 rounded-2xl text-[10px] font-black tracking-widest transition-all uppercase mt-12 ${
-            theme === "DARK" ? "bg-[#ccff00] text-stone-950 hover:opacity-90" : 
+            theme === "DARK" ? "bg-[#fcd34d] text-stone-950 hover:opacity-90" : 
             theme === "VINTAGE" ? "bg-white text-black hover:bg-stone-50" :
-            "bg-white text-[#4f6b28] hover:bg-stone-50"
+            "bg-white text-[#d97706] hover:bg-stone-50"
           }`}>
             Run Diagnostics
           </button>

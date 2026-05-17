@@ -122,7 +122,7 @@ export default function EventDetailsModal({ event, theme, profile, tenantId, onC
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
           <div className="absolute bottom-6 left-6">
-            <span className={`px-3 py-1 rounded-full text-[10px] font-black tracking-widest uppercase mb-3 inline-block ${theme === "DARK" ? "bg-[#ccff00] text-stone-950" : "bg-white text-black"}`}>
+            <span className={`px-3 py-1 rounded-full text-[10px] font-black tracking-widest uppercase mb-3 inline-block ${theme === "DARK" ? "bg-[#fcd34d] text-stone-950" : "bg-white text-black"}`}>
               {event.tag}
             </span>
             <h2 className="text-4xl font-black tracking-tighter uppercase text-white">{event.title}</h2>
@@ -232,7 +232,7 @@ export default function EventDetailsModal({ event, theme, profile, tenantId, onC
                     onClick={handleJoin}
                     disabled={loading}
                     className={`w-full py-4 rounded-xl text-xs font-black tracking-widest uppercase transition-all shadow-lg ${
-                      theme === "DARK" ? "bg-[#ccff00] text-stone-950 shadow-[#ccff00]/10" : "bg-[#4f6b28] text-white shadow-[#4f6b28]/10"
+                      theme === "DARK" ? "bg-[#fcd34d] text-stone-950 shadow-[#fcd34d]/10" : "bg-[#fbbf24] text-stone-950 shadow-[#fbbf24]/10"
                     } hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-2`}
                   >
                     <span className="material-symbols-outlined text-sm">calendar_add_on</span>
