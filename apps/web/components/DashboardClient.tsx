@@ -1103,8 +1103,11 @@ function StatCard({ label, value, trend, icon, theme, active = false, variant }:
   const isYellow = variant === 'yellow';
   const isPale = variant === 'primary' || variant === 'default';
 
+  // Note: The stone color scale is inverted in Dark Mode within globals.css.
+  // stone-100 = #1c1917 (Very dark gray)
+  // stone-200 = #292524 (Dark gray)
   const bgCls = theme === "DARK"
-    ? (isYellow ? "bg-[#fcd34d]" : variant === 'primary' ? "bg-stone-900" : "bg-stone-800") 
+    ? (isYellow ? "bg-[#fcd34d]" : variant === 'primary' ? "bg-stone-100" : "bg-stone-200") 
     : (isYellow ? "bg-[#fce138]" : isPale ? "bg-[#eefa9a]" : "bg-surface-container-low");
 
   const textCls = theme === "DARK"
