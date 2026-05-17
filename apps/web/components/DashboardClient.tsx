@@ -1025,27 +1025,27 @@ function ThemeSelector({ theme, setTheme }: { theme: "LIGHT" | "DARK" | "VINTAGE
     <div className="flex items-center gap-1 p-1 rounded-full border transition-colors duration-500 bg-surface-container-low border-outline/10">
       <div className="px-4 py-1.5 flex items-center gap-2 border-r mr-1 transition-colors border-outline/10">
         <span className="text-[10px] font-black uppercase tracking-widest text-on-surface">
-          {theme === "VINTAGE" ? "Vintage" : theme === "DARK" ? "Vantage Noir" : "Vantage Sport"}
+          {theme === "VINTAGE" ? "Light" : theme === "DARK" ? "Dark" : "Kinetic"}
         </span>
       </div>
       <button
         onClick={() => setTheme("LIGHT")}
         className={`p-1.5 rounded-full transition-all flex items-center justify-center ${theme === "LIGHT" ? "bg-surface shadow-sm ring-1 ring-outline/10 text-primary" : "text-on-surface/40 hover:bg-surface-container-high hover:text-on-surface"}`}
-        title="Light Mode"
+        title="Kinetic"
       >
         <span className="material-symbols-outlined text-sm">sports_tennis</span>
       </button>
       <button
         onClick={() => setTheme("DARK")}
         className={`p-1.5 rounded-full transition-all flex items-center justify-center ${theme === "DARK" ? "bg-surface-container-highest shadow-sm text-primary" : "text-on-surface/40 hover:bg-surface-container-high hover:text-on-surface"}`}
-        title="Dark Mode"
+        title="Dark"
       >
         <span className="material-symbols-outlined text-sm">dark_mode</span>
       </button>
       <button
         onClick={() => setTheme("VINTAGE")}
         className={`p-1.5 rounded-full transition-all flex items-center justify-center ${theme === "VINTAGE" ? "bg-surface shadow-sm text-primary" : "text-on-surface/40 hover:bg-surface-container-high hover:text-on-surface"}`}
-        title="Vintage Mode"
+        title="Light"
       >
         <span className="material-symbols-outlined text-sm">light_mode</span>
       </button>
