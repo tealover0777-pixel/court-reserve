@@ -159,6 +159,7 @@ export default function EventsAdminView({ theme = "LIGHT", tenantId, allTenants 
       ? collection(db, "tenants", tenantId, "events")
       : collectionGroup(db, "events");
 
+    let unsubFallback = () => {};
     const q = query(eventsRef, orderBy("date", "desc"));
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const eventData = snapshot.docs.map(doc => ({
@@ -172,7 +173,7 @@ export default function EventsAdminView({ theme = "LIGHT", tenantId, allTenants 
       // Fallback if collectionGroup index is missing
       if (!tenantId) {
         const fallbackQ = query(eventsRef);
-        onSnapshot(fallbackQ, (snap) => {
+        unsubFallback = onSnapshot(fallbackQ, (snap) => {
            setEvents(snap.docs.map(d => ({ id: d.id, ...d.data() })) as Event[]);
            setLoading(false);
         });
@@ -226,6 +227,7 @@ export default function EventsAdminView({ theme = "LIGHT", tenantId, allTenants 
     return () => {
       unsubscribe();
       unsubTenant();
+      unsubFallback();
     };
   }, [tenantId, formData.tenant_id]);
 

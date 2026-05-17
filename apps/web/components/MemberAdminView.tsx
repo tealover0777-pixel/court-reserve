@@ -185,17 +185,28 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
     } else {
       // Specific tenant view: filtered both
       qGlobal = query(collection(db, "global_users"), where("tenant_id", "==", tenantId), orderBy("user_id", "asc"));
-      qTenantScoped = query(collectionGroup(db, "users"), where("tenant_id", "==", tenantId), orderBy("user_id", "asc"));
+      qTenantScoped = query(collection(db, "tenants", tenantId, "users"), orderBy("user_id", "asc"));
     }
 
     const unsubGlobal = onSnapshot(qGlobal, (snap: any) => {
       setGlobalUsers(snap.docs.map((d: any) => ({ id: d.id, ...d.data() } as User)));
+    }, (error) => {
+      console.error("Error fetching global users:", error);
     });
 
     let unsubTenant = () => {};
     if (qTenantScoped) {
       unsubTenant = onSnapshot(qTenantScoped, (snap: any) => {
         setScopedUsers(snap.docs.map((d: any) => ({ id: d.id, ...d.data() } as User)));
+      }, (error) => {
+        console.warn("Snapshot error in MemberAdminView (likely missing index for collectionGroup orderBy):", error);
+        // Fallback to un-ordered query for consolidated view
+        if (tenantId === "consolidated") {
+          const fallbackQ = query(collectionGroup(db, "users"));
+          unsubTenant = onSnapshot(fallbackQ, (snap: any) => {
+            setScopedUsers(snap.docs.map((d: any) => ({ id: d.id, ...d.data() } as User)));
+          });
+        }
       });
     } else {
       setScopedUsers([]);
