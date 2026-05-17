@@ -204,6 +204,23 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
             tenant_id: data.tenant_id || d.ref.parent.parent.id 
           } as User;
         }));
+      }, (error) => {
+        console.warn("Snapshot error (likely missing index for collectionGroup orderBy):", error);
+        // Fallback to un-ordered query
+        if (tenantId === "" || tenantId === "consolidated" || tenantId === "Global") {
+          const fallbackQ = query(collectionGroup(db, "users"));
+          unsubTenant = onSnapshot(fallbackQ, (snap: any) => {
+            setScopedUsers(snap.docs.map((d: any) => {
+              const data = d.data();
+              return { 
+                id: d.id, 
+                ...data, 
+                is_global: false,
+                tenant_id: data.tenant_id || d.ref.parent.parent?.id 
+              } as User;
+            }));
+          });
+        }
       });
     } else {
       setScopedUsers([]);
@@ -661,7 +678,7 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
       notes: "",
       company_user_id: "",
       portrait_url: "",
-      tenant_id: tenantId || "",
+      tenant_id: tenantId && tenantId !== "consolidated" && tenantId !== "Global" ? tenantId : "",
       invite_user: true,
       address_street_1: "",
       address_street_2: "",
@@ -1345,17 +1362,21 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
                   <input value={formData.company_user_id} onChange={e => setFormData({ ...formData, company_user_id: e.target.value })} placeholder="e.g. EMP-0042" className={inputCls} />
                 </div>
 
-                {!tenantId ? (
+                {!tenantId || tenantId === "consolidated" || tenantId === "Global" ? (
                   <>
                     <div>
-                      <label className={labelCls}>Tenant ID</label>
-                      <input
+                      <label className={labelCls}>Tenant</label>
+                      <select
                         value={formData.tenant_id}
                         onChange={e => setFormData({ ...formData, tenant_id: e.target.value })}
-                        readOnly={!!editingUser}
-                        placeholder="e.g. T10001"
+                        disabled={!!editingUser}
                         className={editingUser ? readonlyCls : inputCls}
-                      />
+                      >
+                        <option value="">Platform Admin (Global)</option>
+                        {tenants.map(t => (
+                          <option key={t.id} value={t.tenant_id}>{t.name} ({t.tenant_id})</option>
+                        ))}
+                      </select>
                     </div>
                     <div>
                       <label className={labelCls}>Auth UID (Firebase)</label>

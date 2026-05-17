@@ -365,6 +365,7 @@ export default function DashboardClient({ params }: { params: { tenantId: string
         allTenants={allTenants}
         globalTenant={globalTenant}
         roles={roles}
+        userRoles={userRoles}
       />
 
       {/* TopAppBar Component */}
@@ -585,7 +586,7 @@ export default function DashboardClient({ params }: { params: { tenantId: string
   );
 }
 
-function Sidebar({ activeView, setActiveView, platformAdminOpen, setPlatformAdminOpen, administrationOpen, setAdministrationOpen, isGlobalUser, hasPermission, profile, onLogout, theme, tenantId, allTenants, globalTenant, roles }: any) {
+function Sidebar({ activeView, setActiveView, platformAdminOpen, setPlatformAdminOpen, administrationOpen, setAdministrationOpen, isGlobalUser, hasPermission, profile, onLogout, theme, tenantId, allTenants, globalTenant, roles, userRoles }: any) {
   const currentTenantInfo = tenantId === "consolidated" ? { name: "CONSOLIDATED" } : allTenants?.find((t: any) => t.tenant_id === tenantId || t.id === tenantId);
   const companyName = currentTenantInfo?.name || (tenantId ? "COURT RESERVE" : "VANTAGE HUB");
   const logoUrl = currentTenantInfo?.logo_url;
@@ -683,7 +684,7 @@ function Sidebar({ activeView, setActiveView, platformAdminOpen, setPlatformAdmi
                   <SubNavItem label="Programs Mgmt" active={activeView === "PROGRAMS_MANAGEMENT"} onClick={() => setActiveView("PROGRAMS_MANAGEMENT")} theme={theme} />
                 )}
                 {(hasPermission('USER_ADMIN_VIEW') || profile?.role?.includes('R10005')) && (
-                  <SubNavItem label="Staff" active={activeView === "TENANT_USER_ADMIN"} onClick={() => setActiveView("TENANT_USER_ADMIN")} theme={theme} />
+                  <SubNavItem label="User Admin" active={activeView === "TENANT_USER_ADMIN"} onClick={() => setActiveView("TENANT_USER_ADMIN")} theme={theme} />
                 )}
                 {(hasPermission('MEMBER_ADMIN_VIEW') || profile?.role?.includes('R10005')) && (
                   <SubNavItem label="Members" active={activeView === "MEMBER_ADMIN"} onClick={() => setActiveView("MEMBER_ADMIN")} theme={theme} />
@@ -755,7 +756,9 @@ function Sidebar({ activeView, setActiveView, platformAdminOpen, setPlatformAdmi
               {profile?.first_name || 'Player'} {profile?.last_name || ''}
             </p>
             <p className="text-[8px] font-black uppercase tracking-widest transition-colors text-primary truncate opacity-70">
-              {roles?.find((r: any) => r.role_id === profile?.role || r.id === profile?.role)?.role_name || profile?.role || 'Member'}
+              {userRoles && userRoles.length > 0 
+                ? userRoles.map((r: any) => r.role_name).join(", ")
+                : (profile?.role || 'Member')}
             </p>
           </div>
           <button
