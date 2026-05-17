@@ -132,7 +132,7 @@ export default function CompanyView({ theme, tenantId: tenantIdProp }: CompanyVi
             key={tab.id}
             onClick={() => setActiveTab(tab.id as any)}
             className={`flex items-center gap-2 px-6 py-3 rounded-xl text-[10px] font-black tracking-widest uppercase transition-all ${activeTab === tab.id
-                ? (isDark ? "bg-[#fcd34d] text-stone-950 shadow-lg shadow-[#fcd34d]/20" : "bg-white text-stone-950 shadow-sm")
+                ? (isDark ? "bg-[#ccff00] text-stone-950 shadow-lg shadow-[#ccff00]/20" : "bg-white text-stone-950 shadow-sm")
                 : (isDark ? "text-stone-300 hover:text-white" : "text-stone-950 hover:text-stone-900")
               }`}
           >
@@ -161,7 +161,7 @@ export default function CompanyView({ theme, tenantId: tenantIdProp }: CompanyVi
       {notification && (
         <div className="fixed bottom-12 left-1/2 -translate-x-1/2 z-50 animate-in slide-in-from-bottom-4">
           <div className={`px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-4 ${notification.type === "SUCCESS"
-              ? (isDark ? "bg-[#fcd34d] text-stone-950" : "bg-stone-900 text-white")
+              ? (isDark ? "bg-[#ccff00] text-stone-950" : "bg-stone-900 text-white")
               : "bg-red-500 text-white"
             }`}>
             <span className="material-symbols-outlined">
@@ -193,7 +193,7 @@ function InfoTab({ data, onSave, isSaving, theme }: any) {
     if (data) setFormData(data);
   }, [data]);
 
-  const inputClasses = `w-full border rounded-2xl px-6 py-4 text-sm font-bold outline-none transition-all ${isDark ? "bg-stone-900 border-stone-800 text-white focus:border-[#fcd34d]" : "bg-stone-50 border-stone-100 text-stone-900 focus:border-stone-400"
+  const inputClasses = `w-full border rounded-2xl px-6 py-4 text-sm font-bold outline-none transition-all ${isDark ? "bg-stone-900 border-stone-800 text-white focus:border-[#ccff00]" : "bg-stone-50 border-stone-100 text-stone-900 focus:border-stone-400"
     }`;
 
   return (
@@ -300,7 +300,7 @@ function InfoTab({ data, onSave, isSaving, theme }: any) {
         <button
           onClick={() => onSave(formData)}
           disabled={isSaving}
-          className={`px-12 py-5 rounded-2xl text-xs font-black tracking-[0.2em] uppercase transition-all ${isDark ? "bg-[#fcd34d] text-stone-950 hover:scale-[1.02]" : "bg-stone-900 text-white hover:shadow-xl"
+          className={`px-12 py-5 rounded-2xl text-xs font-black tracking-[0.2em] uppercase transition-all ${isDark ? "bg-[#ccff00] text-stone-950 hover:scale-[1.02]" : "bg-stone-900 text-white hover:shadow-xl"
             }`}
         >
           {isSaving ? "Saving..." : "Save All Changes"}
@@ -382,7 +382,7 @@ function BrandingTab({ data, onSave, isSaving, theme, tenantId, isGlobalView }: 
     }
   };
 
-  const colorPresets = ["#fcd34d", "#4f6b28", "#000000", "#ffffff", "#3b82f6", "#ef4444"];
+  const colorPresets = ["#ccff00", "#4f6b28", "#000000", "#ffffff", "#3b82f6", "#ef4444"];
 
   return (
     <div className="space-y-12">
@@ -392,7 +392,7 @@ function BrandingTab({ data, onSave, isSaving, theme, tenantId, isGlobalView }: 
             <input
               value={formData.name || ""}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              className={`w-full border rounded-2xl px-6 py-4 text-sm font-bold outline-none transition-all ${isDark ? "bg-stone-900 border-stone-800 text-white focus:border-[#fcd34d]" : "bg-stone-50 border-stone-100 text-stone-900 focus:border-stone-400"
+              className={`w-full border rounded-2xl px-6 py-4 text-sm font-bold outline-none transition-all ${isDark ? "bg-stone-900 border-stone-800 text-white focus:border-[#ccff00]" : "bg-stone-50 border-stone-100 text-stone-900 focus:border-stone-400"
                 }`}
               placeholder="Enter company name"
             />
@@ -414,8 +414,8 @@ function BrandingTab({ data, onSave, isSaving, theme, tenantId, isGlobalView }: 
               onDragLeave={handleDragLeave}
               onDrop={handleDrop}
               className={`h-64 rounded-[40px] border-2 border-dashed flex flex-col items-center justify-center gap-6 transition-all cursor-pointer relative overflow-hidden group max-w-2xl ${isDragging
-                  ? (isDark ? "border-[#fcd34d] bg-[#fcd34d]/10 scale-[1.02]" : "border-stone-900 bg-stone-100 scale-[1.02]")
-                  : (isDark ? "border-stone-800 hover:border-[#fcd34d]/50 bg-stone-900/50" : "border-stone-200 hover:border-stone-400 bg-stone-50/50")
+                  ? (isDark ? "border-[#ccff00] bg-[#ccff00]/10 scale-[1.02]" : "border-stone-900 bg-stone-100 scale-[1.02]")
+                  : (isDark ? "border-stone-800 hover:border-[#ccff00]/50 bg-stone-900/50" : "border-stone-200 hover:border-stone-400 bg-stone-50/50")
                 }`}
             >
               {formData.logo_url ? (
@@ -447,7 +447,7 @@ function BrandingTab({ data, onSave, isSaving, theme, tenantId, isGlobalView }: 
         <button
           onClick={() => onSave(formData)}
           disabled={isSaving}
-          className={`px-12 py-5 rounded-2xl text-xs font-black tracking-[0.2em] uppercase transition-all ${isDark ? "bg-[#fcd34d] text-stone-950 hover:scale-[1.02]" : "bg-stone-900 text-white hover:shadow-xl"
+          className={`px-12 py-5 rounded-2xl text-xs font-black tracking-[0.2em] uppercase transition-all ${isDark ? "bg-[#ccff00] text-stone-950 hover:scale-[1.02]" : "bg-stone-900 text-white hover:shadow-xl"
             }`}
         >
           {isSaving ? "Saving..." : "Apply Branding"}
@@ -562,7 +562,7 @@ function EmailTab({ data, onSave, isSaving, theme, tenantId, isGlobalView }: any
     }
   };
 
-  const inputClasses = `w-full border rounded-2xl px-6 py-4 text-sm font-bold outline-none transition-all ${isDark ? "bg-stone-900 border-stone-800 text-white focus:border-[#fcd34d]" : "bg-stone-50 border-stone-100 text-stone-900 focus:border-stone-400"
+  const inputClasses = `w-full border rounded-2xl px-6 py-4 text-sm font-bold outline-none transition-all ${isDark ? "bg-stone-900 border-stone-800 text-white focus:border-[#ccff00]" : "bg-stone-50 border-stone-100 text-stone-900 focus:border-stone-400"
     }`;
 
   return (
@@ -624,7 +624,7 @@ function EmailTab({ data, onSave, isSaving, theme, tenantId, isGlobalView }: any
               <button
                 onClick={() => setFormData({ ...formData, delivery_method: "API" })}
                 className={`flex-1 py-3 px-4 rounded-xl text-[10px] font-black tracking-widest uppercase transition-all ${formData.delivery_method === "API"
-                    ? (isDark ? "bg-[#fcd34d] text-stone-950 shadow-lg shadow-[#fcd34d]/10" : "bg-white text-stone-900 shadow-sm")
+                    ? (isDark ? "bg-[#ccff00] text-stone-950 shadow-lg shadow-[#ccff00]/10" : "bg-white text-stone-900 shadow-sm")
                     : (isDark ? "text-stone-300 hover:text-white" : "text-stone-950 hover:text-stone-900")
                   }`}
               >
@@ -633,7 +633,7 @@ function EmailTab({ data, onSave, isSaving, theme, tenantId, isGlobalView }: any
               <button
                 onClick={() => setFormData({ ...formData, delivery_method: "SMTP" })}
                 className={`flex-1 py-3 px-4 rounded-xl text-[10px] font-black tracking-widest uppercase transition-all relative ${formData.delivery_method === "SMTP"
-                    ? (isDark ? "bg-[#fcd34d] text-stone-950 shadow-lg shadow-[#fcd34d]/10" : "bg-stone-900 text-white shadow-lg")
+                    ? (isDark ? "bg-[#ccff00] text-stone-950 shadow-lg shadow-[#ccff00]/10" : "bg-stone-900 text-white shadow-lg")
                     : (isDark ? "text-stone-300 hover:text-white" : "text-stone-950 hover:text-stone-900")
                   }`}
               >
@@ -647,7 +647,7 @@ function EmailTab({ data, onSave, isSaving, theme, tenantId, isGlobalView }: any
 
           <div className={`p-10 rounded-[40px] space-y-6 transition-all ${isDark ? "bg-stone-900/30 border border-stone-800" : "bg-stone-100/50 border border-stone-200"}`}>
             <div className="flex gap-4">
-              <div className={`w-10 h-10 rounded-full flex items-center justify-center ${isDark ? "bg-[#fcd34d]/10 text-[#fcd34d]" : "bg-green-100 text-green-700"}`}>
+              <div className={`w-10 h-10 rounded-full flex items-center justify-center ${isDark ? "bg-[#ccff00]/10 text-[#ccff00]" : "bg-green-100 text-green-700"}`}>
                 <span className="material-symbols-outlined text-xl">send</span>
               </div>
               <div className="space-y-1">
@@ -668,18 +668,18 @@ function EmailTab({ data, onSave, isSaving, theme, tenantId, isGlobalView }: any
             {verificationStatus && (
               <div className={`rounded-2xl text-[10px] overflow-hidden ${
                 verificationStatus.type === "SUCCESS"
-                  ? (isDark ? "bg-[#fcd34d]/10 border border-[#fcd34d]/20" : "bg-green-50 border border-green-200")
+                  ? (isDark ? "bg-[#ccff00]/10 border border-[#ccff00]/20" : "bg-green-50 border border-green-200")
                   : (isDark ? "bg-red-500/10 border border-red-500/20" : "bg-red-50 border border-red-200")
               }`}>
                 <div className="flex items-start gap-3 p-4">
                   <span className={`material-symbols-outlined text-base mt-0.5 shrink-0 ${
-                    verificationStatus.type === "SUCCESS" ? (isDark ? "text-[#fcd34d]" : "text-green-600") : (isDark ? "text-red-400" : "text-red-600")
+                    verificationStatus.type === "SUCCESS" ? (isDark ? "text-[#ccff00]" : "text-green-600") : (isDark ? "text-red-400" : "text-red-600")
                   }`}>
                     {verificationStatus.type === "SUCCESS" ? "check_circle" : "error"}
                   </span>
                   <div className="space-y-1.5 min-w-0">
                     <p className={`font-black uppercase tracking-widest leading-tight ${
-                      verificationStatus.type === "SUCCESS" ? (isDark ? "text-[#fcd34d]" : "text-green-700") : (isDark ? "text-red-400" : "text-red-700")
+                      verificationStatus.type === "SUCCESS" ? (isDark ? "text-[#ccff00]" : "text-green-700") : (isDark ? "text-red-400" : "text-red-700")
                     }`}>{verificationStatus.message}</p>
                     {verificationStatus.hint && (
                       <p className={`font-medium normal-case tracking-normal leading-relaxed ${
@@ -692,7 +692,7 @@ function EmailTab({ data, onSave, isSaving, theme, tenantId, isGlobalView }: any
                         target="_blank"
                         rel="noopener noreferrer"
                         className={`inline-flex items-center gap-1 font-black uppercase tracking-widest underline underline-offset-2 ${
-                          isDark ? "text-[#fcd34d]" : "text-stone-900"
+                          isDark ? "text-[#ccff00]" : "text-stone-900"
                         }`}
                       >
                         <span className="material-symbols-outlined text-xs">open_in_new</span>
@@ -854,7 +854,7 @@ function EmailTab({ data, onSave, isSaving, theme, tenantId, isGlobalView }: any
         <button
           onClick={() => onSave(formData)}
           disabled={isSaving}
-          className={`px-12 py-5 rounded-2xl text-xs font-black tracking-[0.2em] uppercase transition-all ${isDark ? "bg-[#fcd34d] text-stone-950 hover:scale-[1.02]" : "bg-stone-900 text-white hover:shadow-xl shadow-stone-900/20"
+          className={`px-12 py-5 rounded-2xl text-xs font-black tracking-[0.2em] uppercase transition-all ${isDark ? "bg-[#ccff00] text-stone-950 hover:scale-[1.02]" : "bg-stone-900 text-white hover:shadow-xl shadow-stone-900/20"
             }`}
         >
           {isSaving ? "Saving..." : "Save Email Configuration"}
@@ -875,7 +875,7 @@ function PaymentTab({ data, onSave, isSaving, theme }: any) {
           <div className={`p-8 rounded-[32px] border ${isDark ? "bg-stone-900/50 border-stone-800" : "bg-stone-50 border-stone-100"}`}>
             <div className="flex items-center justify-between mb-8">
               <span className="material-symbols-outlined text-3xl opacity-20">credit_card</span>
-              <span className={`px-4 py-1.5 rounded-full text-[10px] font-black tracking-widest uppercase ${isDark ? "bg-[#fcd34d]/10 text-[#fcd34d]" : "bg-green-100 text-green-700"}`}>Connected</span>
+              <span className={`px-4 py-1.5 rounded-full text-[10px] font-black tracking-widest uppercase ${isDark ? "bg-[#ccff00]/10 text-[#ccff00]" : "bg-green-100 text-green-700"}`}>Connected</span>
             </div>
             <div className="space-y-1">
               <h6 className={`text-sm font-bold tracking-tight ${isDark ? "text-white" : "text-stone-900"}`}>•••• •••• •••• 4242</h6>
@@ -886,7 +886,7 @@ function PaymentTab({ data, onSave, isSaving, theme }: any) {
         </div>
         <div className="space-y-8">
           <FormField label="Currency" theme={theme}>
-            <select className={`w-full border rounded-2xl px-6 py-4 text-sm font-bold outline-none transition-all appearance-none ${isDark ? "bg-stone-900 border-stone-800 text-white focus:border-[#fcd34d]" : "bg-stone-50 border-stone-100 text-stone-900 focus:border-stone-400 shadow-sm"
+            <select className={`w-full border rounded-2xl px-6 py-4 text-sm font-bold outline-none transition-all appearance-none ${isDark ? "bg-stone-900 border-stone-800 text-white focus:border-[#ccff00]" : "bg-stone-50 border-stone-100 text-stone-900 focus:border-stone-400 shadow-sm"
               }`}>
               <option>USD ($) - US Dollar</option>
               <option>EUR (€) - Euro</option>
@@ -907,7 +907,7 @@ function PaymentTab({ data, onSave, isSaving, theme }: any) {
       <button
         onClick={() => onSave(formData)}
         disabled={isSaving}
-        className={`px-12 py-5 rounded-2xl text-xs font-black tracking-[0.2em] uppercase transition-all ${isDark ? "bg-[#fcd34d] text-stone-950 hover:scale-[1.02]" : "bg-stone-900 text-white hover:shadow-xl"
+        className={`px-12 py-5 rounded-2xl text-xs font-black tracking-[0.2em] uppercase transition-all ${isDark ? "bg-[#ccff00] text-stone-950 hover:scale-[1.02]" : "bg-stone-900 text-white hover:shadow-xl"
           }`}
       >
         {isSaving ? "Saving..." : "Update Billing Info"}
@@ -1109,7 +1109,7 @@ function CourtTab({ data, onSave, isSaving, theme, dimensions, tenantId }: any) 
     onSave({ ...data, courts });
   };
 
-  const inputClasses = `w-full border rounded-2xl px-6 py-4 text-sm font-bold outline-none transition-all ${isDark ? "bg-stone-900 border-stone-800 text-white focus:border-[#fcd34d]" : "bg-stone-50 border-stone-100 text-stone-900 focus:border-stone-400"
+  const inputClasses = `w-full border rounded-2xl px-6 py-4 text-sm font-bold outline-none transition-all ${isDark ? "bg-stone-900 border-stone-800 text-white focus:border-[#ccff00]" : "bg-stone-50 border-stone-100 text-stone-900 focus:border-stone-400"
     }`;
 
   return (
@@ -1146,7 +1146,7 @@ function CourtTab({ data, onSave, isSaving, theme, dimensions, tenantId }: any) 
                         );
                         if (statusMatch) setCourtStatus(statusMatch);
                       }}
-                      className={`flex items-center gap-3 p-3 rounded-2xl border transition-all text-left group ${isDark ? "bg-stone-800/40 border-stone-800 hover:border-[#fcd34d]/50" : "bg-white border-stone-100 hover:border-stone-400 shadow-sm"
+                      className={`flex items-center gap-3 p-3 rounded-2xl border transition-all text-left group ${isDark ? "bg-stone-800/40 border-stone-800 hover:border-[#ccff00]/50" : "bg-white border-stone-100 hover:border-stone-400 shadow-sm"
                         }`}
                     >
                       {(dc.url || dc.image_url) ? (
@@ -1221,8 +1221,8 @@ function CourtTab({ data, onSave, isSaving, theme, dimensions, tenantId }: any) 
               onDragLeave={onPhotoDragLeave}
               onDrop={onPhotoDrop}
               className={`h-48 rounded-2xl border-2 border-dashed flex flex-col items-center justify-center gap-4 transition-all cursor-pointer overflow-hidden group relative ${isDraggingPhoto
-                  ? (isDark ? "border-[#fcd34d] bg-[#fcd34d]/10 scale-[1.02]" : "border-stone-900 bg-stone-100 scale-[1.02]")
-                  : (isDark ? "border-stone-800 bg-stone-900/50 hover:border-[#fcd34d]/50" : "border-stone-200 bg-stone-50/50 hover:border-stone-400")
+                  ? (isDark ? "border-[#ccff00] bg-[#ccff00]/10 scale-[1.02]" : "border-stone-900 bg-stone-100 scale-[1.02]")
+                  : (isDark ? "border-stone-800 bg-stone-900/50 hover:border-[#ccff00]/50" : "border-stone-200 bg-stone-50/50 hover:border-stone-400")
                 }`}
             >
               {courtImageUrl ? (
@@ -1262,7 +1262,7 @@ function CourtTab({ data, onSave, isSaving, theme, dimensions, tenantId }: any) 
                 <button
                   type="button"
                   onClick={() => setShowLibraryModal(true)}
-                  className={`mt-3 flex-1 py-4 rounded-xl text-[9px] font-black tracking-[0.2em] uppercase border transition-all ${isDark ? "border-[#fcd34d]/20 text-[#fcd34d] hover:bg-[#fcd34d]/10" : "border-stone-900 text-stone-900 hover:bg-stone-50"
+                  className={`mt-3 flex-1 py-4 rounded-xl text-[9px] font-black tracking-[0.2em] uppercase border transition-all ${isDark ? "border-[#ccff00]/20 text-[#ccff00] hover:bg-[#ccff00]/10" : "border-stone-900 text-stone-900 hover:bg-stone-50"
                     }`}
                 >
                   Pick from Library
@@ -1339,7 +1339,7 @@ function CourtTab({ data, onSave, isSaving, theme, dimensions, tenantId }: any) 
             <button
               onClick={handleSubmitCourt}
               disabled={!courtName.trim() || !courtCondition}
-              className={`px-8 py-4 rounded-2xl text-[10px] font-black tracking-[0.2em] uppercase transition-all disabled:opacity-40 ${isDark ? "bg-[#fcd34d] text-stone-950" : "bg-stone-900 text-white"
+              className={`px-8 py-4 rounded-2xl text-[10px] font-black tracking-[0.2em] uppercase transition-all disabled:opacity-40 ${isDark ? "bg-[#ccff00] text-stone-950" : "bg-stone-900 text-white"
                 }`}
             >
               {editingCourtId ? "Update Court" : "Add Court"}
@@ -1414,7 +1414,7 @@ function CourtTab({ data, onSave, isSaving, theme, dimensions, tenantId }: any) 
                         <span className={`px-2.5 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${isDark ? "bg-stone-800 text-stone-300" : "bg-stone-100 text-stone-950"}`}>
                           {court.condition}
                         </span>
-                        <span className={`px-2.5 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${isAvailable ? (isDark ? "bg-[#fcd34d]/10 text-[#fcd34d] border border-[#fcd34d]/20" : "bg-green-50 text-green-700 border border-green-200") : (isDark ? "bg-red-500/10 text-red-400 border border-red-500/20" : "bg-red-50 text-red-700 border border-red-200")}`}>
+                        <span className={`px-2.5 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${isAvailable ? (isDark ? "bg-[#ccff00]/10 text-[#ccff00] border border-[#ccff00]/20" : "bg-green-50 text-green-700 border border-green-200") : (isDark ? "bg-red-500/10 text-red-400 border border-red-500/20" : "bg-red-50 text-red-700 border border-red-200")}`}>
                           {court.status || "Available"}
                         </span>
                       </div>
@@ -1423,7 +1423,7 @@ function CourtTab({ data, onSave, isSaving, theme, dimensions, tenantId }: any) 
                       <div className={`flex flex-col gap-1.5 px-4 py-3 rounded-2xl ${isDark ? "bg-stone-800/40" : "bg-stone-50/50 border border-stone-100"}`}>
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2">
-                            <span className={`material-symbols-outlined text-[14px] ${isDark ? "text-[#fcd34d]" : "text-stone-500"}`}>schedule</span>
+                            <span className={`material-symbols-outlined text-[14px] ${isDark ? "text-[#ccff00]" : "text-stone-500"}`}>schedule</span>
                             <span className={`text-[9px] font-black uppercase tracking-widest ${isDark ? "text-stone-300" : "text-stone-950"}`}>Operating Hours</span>
                           </div>
                           {!hasHours && (
@@ -1434,14 +1434,14 @@ function CourtTab({ data, onSave, isSaving, theme, dimensions, tenantId }: any) 
                         <div className="flex items-center gap-4">
                           <div className="flex-1">
                             <p className={`text-[8px] font-black uppercase tracking-widest mb-0.5 ${isDark ? "text-stone-500" : "text-stone-400"}`}>Available From</p>
-                            <p className={`text-[11px] font-black tabular-nums ${hasHours ? (isDark ? "text-[#fcd34d]" : "text-stone-900") : (isDark ? "text-stone-700" : "text-stone-300")}`}>
+                            <p className={`text-[11px] font-black tabular-nums ${hasHours ? (isDark ? "text-[#ccff00]" : "text-stone-900") : (isDark ? "text-stone-700" : "text-stone-300")}`}>
                               {fromTime}
                             </p>
                           </div>
                           <div className={`w-[1px] h-6 ${isDark ? "bg-stone-700" : "bg-stone-200"}`} />
                           <div className="flex-1">
                             <p className={`text-[8px] font-black uppercase tracking-widest mb-0.5 ${isDark ? "text-stone-300" : "text-stone-950"}`}>Available To</p>
-                            <p className={`text-[11px] font-black tabular-nums ${hasHours ? (isDark ? "text-[#fcd34d]" : "text-stone-900") : (isDark ? "text-stone-700" : "text-stone-300")}`}>
+                            <p className={`text-[11px] font-black tabular-nums ${hasHours ? (isDark ? "text-[#ccff00]" : "text-stone-900") : (isDark ? "text-stone-700" : "text-stone-300")}`}>
                               {toTime}
                             </p>
                           </div>
@@ -1451,7 +1451,7 @@ function CourtTab({ data, onSave, isSaving, theme, dimensions, tenantId }: any) 
                       {/* Row 4: restrictions (optional) */}
                       {court.restrictions && (
                         <div className="flex items-start gap-1.5">
-                          <span className={`material-symbols-outlined text-sm flex-shrink-0 mt-px ${isDark ? "text-[#fcd34d]" : "text-stone-600"}`}>info</span>
+                          <span className={`material-symbols-outlined text-sm flex-shrink-0 mt-px ${isDark ? "text-[#ccff00]" : "text-stone-600"}`}>info</span>
                           <p className={`text-[10px] font-bold leading-tight ${isDark ? "text-stone-300" : "text-stone-700"}`}>{court.restrictions}</p>
                         </div>
                       )}
@@ -1468,7 +1468,7 @@ function CourtTab({ data, onSave, isSaving, theme, dimensions, tenantId }: any) 
         <button
           onClick={handleSaveCourts}
           disabled={isSaving}
-          className={`px-12 py-5 rounded-2xl text-xs font-black tracking-[0.2em] uppercase transition-all ${isDark ? "bg-[#fcd34d] text-stone-950 hover:scale-[1.02]" : "bg-stone-900 text-white hover:shadow-xl"
+          className={`px-12 py-5 rounded-2xl text-xs font-black tracking-[0.2em] uppercase transition-all ${isDark ? "bg-[#ccff00] text-stone-950 hover:scale-[1.02]" : "bg-stone-900 text-white hover:shadow-xl"
             }`}
         >
           {isSaving ? "Saving..." : (tenantId === "Global" ? "Save Default Court Configuration" : "Save Court Configuration")}
@@ -1499,7 +1499,7 @@ function DefaultCourtsTab({ theme, setNotification }: { theme: string; setNotifi
   };
 
   const inputCls = `w-full border rounded-2xl px-6 py-4 text-sm font-bold outline-none transition-all ${
-    isDark ? "bg-stone-950 border-stone-800 text-white focus:border-[#fcd34d]" : "bg-white border-stone-100 text-stone-900 focus:border-[#fbbf24]"
+    isDark ? "bg-stone-950 border-stone-800 text-white focus:border-[#ccff00]" : "bg-white border-stone-100 text-stone-900 focus:border-[#4f6b28]"
   }`;
 
   return (
@@ -1518,7 +1518,7 @@ function DefaultCourtsTab({ theme, setNotification }: { theme: string; setNotifi
               <div 
                 key={court.id} 
                 className={`group relative aspect-square rounded-[32px] overflow-hidden border transition-all ${
-                  isDark ? "bg-stone-900 border-stone-800 hover:border-[#fcd34d]/50" : "bg-white border-stone-100 hover:border-stone-300 shadow-sm"
+                  isDark ? "bg-stone-900 border-stone-800 hover:border-[#ccff00]/50" : "bg-white border-stone-100 hover:border-stone-300 shadow-sm"
                 }`}
               >
                 <img src={court.url} alt={court.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
@@ -1553,7 +1553,7 @@ function DefaultCourtsTab({ theme, setNotification }: { theme: string; setNotifi
           }`}>
             <div className="space-y-6">
               <div className="flex items-center gap-3">
-                <div className={`w-8 h-8 rounded-xl flex items-center justify-center ${isDark ? "bg-[#fcd34d] text-stone-950" : "bg-stone-900 text-white"}`}>
+                <div className={`w-8 h-8 rounded-xl flex items-center justify-center ${isDark ? "bg-[#ccff00] text-stone-950" : "bg-stone-900 text-white"}`}>
                   <span className="material-symbols-outlined text-sm">add</span>
                 </div>
                 <h5 className={`text-[10px] font-black uppercase tracking-widest ${isDark ? "text-white" : "text-stone-900"}`}>Add New Court</h5>
@@ -1656,12 +1656,12 @@ function DefaultCourtsTab({ theme, setNotification }: { theme: string; setNotifi
                 >
                   {isUploading ? (
                     <div className={`h-10 w-10 animate-spin rounded-full border-4 border-t-transparent ${
-                      isDark ? "border-[#fcd34d]" : "border-[#fbbf24]"
+                      isDark ? "border-[#ccff00]" : "border-[#4f6b28]"
                     }`}></div>
                   ) : (
                     <>
                       <div className={`w-16 h-16 rounded-2xl flex items-center justify-center transition-all ${
-                        isDark ? "bg-stone-900 text-stone-700 group-hover:text-[#fcd34d]" : "bg-stone-100 text-stone-400 group-hover:text-[#d97706]"
+                        isDark ? "bg-stone-900 text-stone-700 group-hover:text-[#ccff00]" : "bg-stone-100 text-stone-400 group-hover:text-[#4f6b28]"
                       }`}>
                         <span className="material-symbols-outlined text-4xl">cloud_upload</span>
                       </div>
@@ -1752,7 +1752,7 @@ function PhotosTab({ theme, setNotification }: { theme: "LIGHT" | "DARK" | "VINT
   };
 
   const inputCls = `w-full border rounded-2xl px-6 py-4 text-sm font-bold outline-none transition-all ${
-    isDark ? "bg-stone-900 border-stone-800 text-white focus:border-[#fcd34d]" : "bg-stone-50 border-stone-100 text-stone-900 focus:border-stone-400"
+    isDark ? "bg-stone-900 border-stone-800 text-white focus:border-[#ccff00]" : "bg-stone-50 border-stone-100 text-stone-900 focus:border-stone-400"
   }`;
 
   return (
@@ -1801,8 +1801,8 @@ function PhotosTab({ theme, setNotification }: { theme: "LIGHT" | "DARK" | "VINT
         <div className="space-y-8">
           <div className={`p-8 rounded-[40px] border-2 border-dashed transition-all relative ${
             isDark 
-              ? "border-stone-800 bg-stone-900/20 hover:border-[#fcd34d]/30" 
-              : "border-stone-200 bg-stone-50/50 hover:border-[#fbbf24]/30"
+              ? "border-stone-800 bg-stone-900/20 hover:border-[#ccff00]/30" 
+              : "border-stone-200 bg-stone-50/50 hover:border-[#4f6b28]/30"
           }`}>
             <h4 className={`text-[10px] font-black uppercase tracking-[0.2em] mb-6 text-center ${isDark ? "text-stone-500" : "text-stone-400"}`}>Add New Default Photo</h4>
             
@@ -1899,12 +1899,12 @@ function PhotosTab({ theme, setNotification }: { theme: "LIGHT" | "DARK" | "VINT
               >
                 {isUploading ? (
                   <div className={`h-10 w-10 animate-spin rounded-full border-4 border-t-transparent ${
-                    isDark ? "border-[#fcd34d]" : "border-[#fbbf24]"
+                    isDark ? "border-[#ccff00]" : "border-[#4f6b28]"
                   }`}></div>
                 ) : (
                   <>
                     <div className={`w-16 h-16 rounded-2xl flex items-center justify-center transition-all ${
-                      isDark ? "bg-stone-900 text-stone-700 group-hover:text-[#fcd34d]" : "bg-stone-100 text-stone-400 group-hover:text-[#d97706]"
+                      isDark ? "bg-stone-900 text-stone-700 group-hover:text-[#ccff00]" : "bg-stone-100 text-stone-400 group-hover:text-[#4f6b28]"
                     }`}>
                       <span className="material-symbols-outlined text-4xl">cloud_upload</span>
                     </div>

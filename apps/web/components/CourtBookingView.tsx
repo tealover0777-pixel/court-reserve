@@ -587,7 +587,7 @@ function BookingForm({
   const btnBase = `flex-1 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all border`;
   const btnActive =
     theme === "LIGHT"
-      ? "bg-[#fbbf24] text-stone-950 border-[#fbbf24]"
+      ? "bg-[#4f6b28] text-white border-[#4f6b28]"
       : theme === "DARK"
       ? "bg-[#00E5FF] text-stone-950 border-[#00E5FF]"
       : "bg-stone-900 text-white border-stone-900";
@@ -709,7 +709,7 @@ function BookingForm({
         disabled={isSubmitting}
         className={`w-full py-4 rounded-2xl text-[10px] font-black tracking-widest transition-all uppercase shadow-lg disabled:opacity-50 hover:opacity-90 ${
           theme === "LIGHT"
-            ? "bg-[#fbbf24] text-stone-950"
+            ? "bg-[#4f6b28] text-white"
             : theme === "DARK"
             ? "bg-[#00E5FF] text-stone-950"
             : "bg-stone-900 text-white"
@@ -772,7 +772,7 @@ function MonthView({ baseDate, selectedDate, allUserBookings, theme, onDayClick,
   }, {});
 
   const accentBg =
-    theme === "LIGHT" ? "bg-[#fbbf24] text-stone-950" :
+    theme === "LIGHT" ? "bg-[#4f6b28] text-white" :
     theme === "DARK"  ? "bg-[#00E5FF] text-stone-950" :
                         "bg-stone-900 text-white";
 
@@ -783,7 +783,7 @@ function MonthView({ baseDate, selectedDate, allUserBookings, theme, onDayClick,
   const cardCls = isDark
     ? "bg-stone-950 border-stone-800"
     : theme === "LIGHT"
-    ? "bg-white border-t-[10px] border-[#fcd34d] shadow-sm"
+    ? "bg-white border-t-[10px] border-[#ccff00] shadow-sm"
     : "bg-white border-stone-100 shadow-sm";
 
   return (
@@ -964,7 +964,7 @@ function MoveConfirmDialog({ booking, targetCourt, targetTime, theme, isMoving, 
   const isDark = theme === "DARK";
   const endTime = addMinutesToTime(targetTime, (booking.duration || 1) * 60);
   const accentCls =
-    theme === "LIGHT" ? "bg-[#fbbf24] text-stone-950" :
+    theme === "LIGHT" ? "bg-[#4f6b28] text-white" :
     theme === "DARK"  ? "bg-[#00E5FF] text-stone-950" :
                         "bg-stone-900 text-white";
   const rowCls = `px-4 py-3 rounded-2xl text-sm font-bold border ${
@@ -1059,7 +1059,7 @@ function ScheduleNavigation({
   }, [showMonthPicker]);
 
   const accentBg =
-    theme === "LIGHT" ? "bg-[#fbbf24] text-stone-950 border-[#fbbf24]"
+    theme === "LIGHT" ? "bg-[#4f6b28] text-white border-[#4f6b28]"
     : theme === "DARK" ? "bg-[#00E5FF] text-stone-950 border-[#00E5FF]"
     : "bg-stone-900 text-white border-stone-900";
 
@@ -1177,7 +1177,7 @@ function ScheduleNavigation({
                 className={`w-28 h-16 rounded-2xl flex flex-col items-center justify-center transition-all relative ${
                   isSelected
                     ? theme === "LIGHT"
-                      ? "bg-[#fbbf24] text-stone-950 scale-110 shadow-xl"
+                      ? "bg-[#4f6b28] text-white scale-110 shadow-xl"
                       : theme === "DARK"
                       ? "bg-[#00E5FF] text-stone-950 scale-110"
                       : "bg-stone-900 text-white scale-110"
@@ -1186,7 +1186,7 @@ function ScheduleNavigation({
               >
                 {isToday && !isSelected && (
                   <span className={`absolute top-2 right-2 w-1.5 h-1.5 rounded-full ${
-                    theme === "LIGHT" ? "bg-[#fbbf24]" : theme === "DARK" ? "bg-[#00E5FF]" : "bg-stone-900"
+                    theme === "LIGHT" ? "bg-[#4f6b28]" : theme === "DARK" ? "bg-[#00E5FF]" : "bg-stone-900"
                   }`} />
                 )}
                 <span className={`text-[8px] font-black uppercase tracking-widest ${isDark ? "opacity-100" : "opacity-60"}`}>
@@ -1344,13 +1344,13 @@ function SlotCell({ status, theme, booking, user, canModify, onDragStart }: { st
   // AVAILABLE — show on hover only
   const hoverCls =
     theme === "LIGHT"
-      ? "group-hover:bg-[#fcd34d]/25 group-hover:border group-hover:border-[#fcd34d]/60"
+      ? "group-hover:bg-[#ccff00]/25 group-hover:border group-hover:border-[#ccff00]/60"
       : theme === "DARK"
       ? "group-hover:bg-[#00E5FF]/10 group-hover:border group-hover:border-[#00E5FF]/25"
       : "group-hover:bg-stone-50 group-hover:border group-hover:border-stone-200";
 
   const textCls =
-    theme === "LIGHT" ? "text-[#d97706]" : theme === "DARK" ? "text-[#00E5FF]" : "text-stone-500";
+    theme === "LIGHT" ? "text-[#4f6b28]" : theme === "DARK" ? "text-[#00E5FF]" : "text-stone-500";
 
   return (
     <div className={`absolute inset-0 m-0.5 rounded-xl flex flex-col items-center justify-center transition-all opacity-0 group-hover:opacity-100 ${hoverCls}`}>

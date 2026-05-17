@@ -110,7 +110,7 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
 
   // Common UI classes
   const inputCls = `w-full border rounded-2xl px-5 py-3.5 text-sm font-bold outline-none transition-all ${
-    theme === "DARK" ? "bg-stone-950 text-white border-stone-800 focus:border-[#fcd34d]" : "bg-white text-stone-900 border-stone-200 focus:border-stone-400 shadow-sm"
+    theme === "DARK" ? "bg-stone-950 text-white border-stone-800 focus:border-[#ccff00]" : "bg-white text-stone-900 border-stone-200 focus:border-stone-400 shadow-sm"
   }`;
   const readonlyCls = `w-full border rounded-2xl px-5 py-3.5 text-sm font-bold transition-colors ${
     theme === "DARK" ? "bg-stone-900 text-stone-200 border-stone-800" : "bg-stone-50 text-stone-800 border-stone-100"
@@ -660,7 +660,7 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
         return (
           <div className="flex flex-col gap-0.5">
             <span className={`text-[11px] font-bold tracking-tight transition-colors duration-500 ${
-              theme === "DARK" ? "text-[#fcd34d]" : 
+              theme === "DARK" ? "text-[#ccff00]" : 
               theme === "VINTAGE" ? "text-stone-900" :
               "text-stone-900"
             }`}>
@@ -741,7 +741,7 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
                 <div key={rid} className="flex flex-col">
                   <span className={`text-[10px] font-black uppercase tracking-tight px-2 py-0.5 rounded-full border transition-colors ${
                     theme === "DARK" 
-                      ? "border-stone-800 text-[#fcd34d] bg-[#fcd34d]/5" 
+                      ? "border-stone-800 text-[#ccff00] bg-[#ccff00]/5" 
                       : "border-stone-200 text-[#6348eb] bg-[#6348eb]/5"
                   }`}>
                     {roleMatch.role_name}
@@ -838,7 +838,7 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
                       setShowMenu(false);
                     }}
                     className={`w-full flex items-center gap-3 px-4 py-2.5 text-[10px] font-black uppercase tracking-widest transition-colors ${
-                      theme === "DARK" ? "text-[#fcd34d] hover:bg-stone-800" : 
+                      theme === "DARK" ? "text-[#ccff00] hover:bg-stone-800" : 
                       "text-[#6348eb] hover:bg-stone-50"
                     }`}
                   >
@@ -880,9 +880,9 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
     return (
       <div className="flex h-64 items-center justify-center">
         <div className={`h-8 w-8 animate-spin rounded-full border-4 border-t-transparent ${
-          theme === "DARK" ? "border-[#fcd34d]" : 
+          theme === "DARK" ? "border-[#ccff00]" : 
           theme === "VINTAGE" ? "border-black" :
-          "border-[#fbbf24]"
+          "border-[#4f6b28]"
         }`}></div>
       </div>
     );
@@ -893,9 +893,9 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
       <div className="flex justify-between items-end mb-10">
         <div>
           <h2 className={`text-5xl font-black italic tracking-tighter uppercase transition-colors duration-500 ${
-            theme === "DARK" ? "text-[#fcd34d]" : 
+            theme === "DARK" ? "text-[#ccff00]" : 
             theme === "VINTAGE" ? "text-black" :
-            "text-[#d97706]"
+            "text-[#4f6b28]"
           }`} style={{ fontFamily: 'Lexend, sans-serif' }}>
             {(!tenantId || tenantId === "Global" || tenantId === "consolidated") ? "Platform Member Admin" : "Member Admin"}
           </h2>
@@ -905,9 +905,9 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
             "text-stone-950"
           }`}>
             Platform Management · <span className={
-              theme === "DARK" ? "text-[#fcd34d]" : 
+              theme === "DARK" ? "text-[#ccff00]" : 
               theme === "VINTAGE" ? "text-black" :
-              "text-[#d97706]"
+              "text-[#4f6b28]"
             }>{filteredUsers.length}</span> Members Active
           </p>
         </div>
@@ -921,10 +921,10 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
               placeholder="Search members..."
               className={`w-full border rounded-full pl-12 pr-6 py-3 text-sm font-medium outline-none transition-all shadow-sm ${
                 theme === "DARK" 
-                  ? "bg-stone-900 border-stone-800 text-white focus:border-[#fcd34d] placeholder:text-stone-500" 
+                  ? "bg-stone-900 border-stone-800 text-white focus:border-[#ccff00] placeholder:text-stone-500" 
                   : theme === "VINTAGE"
                     ? "bg-white border-stone-100 text-black focus:border-black shadow-md placeholder:text-stone-400"
-                    : "bg-white border-stone-200 text-stone-900 focus:border-[#fbbf24] placeholder:text-stone-500"
+                    : "bg-white border-stone-200 text-stone-900 focus:border-[#4f6b28] placeholder:text-stone-500"
               }`}
               onChange={(e) => table.setGlobalFilter(e.target.value)}
             />
@@ -936,10 +936,10 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
             }}
             className={`px-8 py-3 rounded-full font-black text-xs tracking-widest transition-all uppercase shadow-lg flex items-center gap-2 ${
             theme === "DARK"
-              ? "bg-[#fcd34d] text-stone-950 shadow-[#fcd34d]/10 hover:opacity-90"
+              ? "bg-[#ccff00] text-stone-950 shadow-[#ccff00]/10 hover:opacity-90"
               : theme === "VINTAGE"
                 ? "bg-black text-white shadow-black/10 hover:opacity-90"
-                : "bg-[#fbbf24] text-stone-950 shadow-[#fbbf24]/20 hover:opacity-90"
+                : "bg-[#4f6b28] text-white shadow-[#4f6b28]/20 hover:opacity-90"
           }`}>
             <span className="material-symbols-outlined text-sm">person_add</span>
             New Member
@@ -965,7 +965,7 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
                     <th 
                       key={header.id} 
                       className={`px-6 py-4 text-[10px] font-black uppercase tracking-widest relative border-r last:border-r-0 transition-colors duration-500 ${
-                        theme === "DARK" ? "text-[#fcd34d] border-stone-800" : 
+                        theme === "DARK" ? "text-[#ccff00] border-stone-800" : 
                         theme === "VINTAGE" ? "text-black border-stone-100" :
                         "text-black border-stone-900"
                       }`}
@@ -986,7 +986,7 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
                               placeholder="..."
                               className={`w-full border rounded-md px-3 py-1.5 text-xs font-medium outline-none transition-all ${
                                 theme === "DARK" 
-                                  ? "bg-stone-950 border-stone-800 text-white focus:border-[#fcd34d]" 
+                                  ? "bg-stone-950 border-stone-800 text-white focus:border-[#ccff00]" 
                                   : theme === "VINTAGE"
                                     ? "bg-[#f7f9fb] border-transparent text-black focus:border-stone-200"
                                     : "bg-white border-stone-100 text-stone-900 focus:border-stone-400"
@@ -1088,7 +1088,7 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
           <button 
             onClick={() => setShowInviteSuccess(false)}
             className={`w-full py-4 rounded-2xl text-[10px] font-black tracking-widest transition-all uppercase shadow-lg ${
-              theme === "DARK" ? "bg-[#fcd34d] text-stone-950" : "bg-black text-white"
+              theme === "DARK" ? "bg-[#ccff00] text-stone-950" : "bg-black text-white"
             }`}
           >
             Done
@@ -1097,7 +1097,7 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
       >
         <div className="space-y-8 text-center py-4">
           <div className={`w-20 h-20 rounded-3xl flex items-center justify-center mx-auto ${
-            theme === "DARK" ? "bg-[#fcd34d]/10 text-[#fcd34d]" : "bg-green-50 text-green-600"
+            theme === "DARK" ? "bg-[#ccff00]/10 text-[#ccff00]" : "bg-green-50 text-green-600"
           }`}>
             <span className="material-symbols-outlined text-4xl">mark_email_read</span>
           </div>
@@ -1116,7 +1116,7 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
               Direct Password Setup Link
             </div>
             <div className={`p-4 rounded-xl font-mono text-[10px] break-all border transition-colors ${
-              theme === "DARK" ? "bg-stone-950 border-stone-800 text-[#fcd34d]" : "bg-white border-stone-200 text-blue-600"
+              theme === "DARK" ? "bg-stone-950 border-stone-800 text-[#ccff00]" : "bg-white border-stone-200 text-blue-600"
             }`}>
               {invitationLink}
             </div>
@@ -1164,7 +1164,7 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
               onClick={handleSaveUser}
               disabled={isSaving}
               className={`flex-1 py-4 rounded-2xl text-[10px] font-black tracking-widest transition-all uppercase shadow-lg flex items-center justify-center gap-3 ${
-                theme === "DARK" ? "bg-[#fcd34d] text-stone-950 shadow-[#fcd34d]/20" :
+                theme === "DARK" ? "bg-[#ccff00] text-stone-950 shadow-[#ccff00]/20" :
                 "bg-[#6348eb] text-white shadow-[#6348eb]/20"
               } ${isSaving ? "opacity-70 cursor-not-allowed" : "hover:opacity-90"}`}
             >
@@ -1183,7 +1183,7 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
         {(() => {
           const isCoach = (formData.roles || []).includes("R10002") || formData.role === "R10002";
           const inputCls = `w-full border rounded-2xl px-5 py-3.5 text-sm font-bold outline-none transition-colors ${
-            theme === "DARK" ? "bg-stone-950 text-white border-stone-800 focus:border-[#fcd34d]" : "bg-white text-stone-900 border-stone-200 focus:border-stone-400"
+            theme === "DARK" ? "bg-stone-950 text-white border-stone-800 focus:border-[#ccff00]" : "bg-white text-stone-900 border-stone-200 focus:border-stone-400"
           }`;
           const readonlyCls = `w-full border rounded-2xl px-5 py-3.5 text-sm font-bold transition-colors ${
             theme === "DARK" ? "bg-stone-900 text-stone-200 border-stone-800" : "bg-stone-50 text-stone-800 border-stone-100"
@@ -1292,8 +1292,8 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
                     onClick={() => setShowPortraitSelectorModal(true)}
                     className={`text-[9px] font-black tracking-[0.2em] uppercase transition-all flex items-center gap-2 px-4 py-2 rounded-full border ${
                       theme === "DARK" 
-                        ? "border-[#fcd34d]/20 text-[#fcd34d] hover:bg-[#fcd34d]/10" 
-                        : "border-[#fbbf24]/20 text-[#d97706] hover:bg-[#fbbf24]/10"
+                        ? "border-[#ccff00]/20 text-[#ccff00] hover:bg-[#ccff00]/10" 
+                        : "border-[#4f6b28]/20 text-[#4f6b28] hover:bg-[#4f6b28]/10"
                     }`}
                   >
                     <span className="material-symbols-outlined text-xs">auto_fix_high</span>
@@ -1376,7 +1376,7 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
                           }}
                           className={`px-4 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest border-2 transition-all flex items-center gap-2 ${
                             active
-                              ? (theme === "DARK" ? "bg-[#fcd34d] text-stone-950 border-[#fcd34d]" : "bg-[#6348eb] text-white border-[#6348eb]")
+                              ? (theme === "DARK" ? "bg-[#ccff00] text-stone-950 border-[#ccff00]" : "bg-[#6348eb] text-white border-[#6348eb]")
                               : (theme === "DARK" ? "border-stone-800 text-stone-200 hover:border-stone-600" : "border-stone-200 text-stone-950 hover:border-stone-400")
                           }`}
                         >
@@ -1451,7 +1451,7 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
                     <span className={`text-[10px] font-black uppercase tracking-[0.2em] ${theme === "DARK" ? "text-stone-200" : "text-stone-950"}`}>Coach Details</span>
                     {isCoach && (
                       <span className={`text-[8px] font-black px-2 py-0.5 rounded-full uppercase tracking-widest ${
-                        theme === "DARK" ? "bg-[#fcd34d]/10 text-[#fcd34d]" : "bg-[#6348eb]/10 text-[#6348eb]"
+                        theme === "DARK" ? "bg-[#ccff00]/10 text-[#ccff00]" : "bg-[#6348eb]/10 text-[#6348eb]"
                       }`}>Coach Role Active</span>
                     )}
                   </div>
@@ -1503,7 +1503,7 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
                             onClick={() => setFormData({ ...formData, tennis_hand: hand })}
                             className={`flex-1 py-3.5 rounded-2xl text-xs font-black uppercase tracking-widest border-2 transition-all ${
                               formData.tennis_hand === hand
-                                ? (theme === "DARK" ? "bg-[#fcd34d] text-stone-950 border-[#fcd34d]" : "bg-[#6348eb] text-white border-[#6348eb]")
+                                ? (theme === "DARK" ? "bg-[#ccff00] text-stone-950 border-[#ccff00]" : "bg-[#6348eb] text-white border-[#6348eb]")
                                 : (theme === "DARK" ? "border-stone-800 text-stone-200 hover:border-stone-600" : "border-stone-200 text-stone-950 hover:border-stone-400")
                             }`}
                           >
@@ -1528,7 +1528,7 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
                               onClick={() => toggleCoachingFor(group)}
                               className={`px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest border-2 transition-all ${
                                 active
-                                  ? (theme === "DARK" ? "bg-[#fcd34d] text-stone-950 border-[#fcd34d]" : "bg-[#6348eb] text-white border-[#6348eb]")
+                                  ? (theme === "DARK" ? "bg-[#ccff00] text-stone-950 border-[#ccff00]" : "bg-[#6348eb] text-white border-[#6348eb]")
                                   : (theme === "DARK" ? "border-stone-800 text-stone-200 hover:border-stone-600" : "border-stone-200 text-stone-950 hover:border-stone-400")
                               }`}
                             >
@@ -1545,7 +1545,7 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
                         <label className="flex items-center gap-2 cursor-pointer group">
                           <div className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-all ${
                             formData.availability_enabled 
-                              ? (theme === "DARK" ? "bg-[#fcd34d] border-[#fcd34d]" : "bg-[#6348eb] border-[#6348eb]") 
+                              ? (theme === "DARK" ? "bg-[#ccff00] border-[#ccff00]" : "bg-[#6348eb] border-[#6348eb]") 
                               : (theme === "DARK" ? "border-stone-800" : "border-stone-200")
                           }`}>
                             {formData.availability_enabled && <span className={`material-symbols-outlined text-sm ${theme === "DARK" ? "text-stone-950" : "text-white"}`}>check</span>}
@@ -1558,7 +1558,7 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
                           />
                           <span className={`text-[10px] font-black uppercase tracking-widest ${
                             formData.availability_enabled 
-                              ? (theme === "DARK" ? "text-[#fcd34d]" : "text-[#6348eb]") 
+                              ? (theme === "DARK" ? "text-[#ccff00]" : "text-[#6348eb]") 
                               : (theme === "DARK" ? "text-stone-200" : "text-stone-950")
                           }`}>Enable Dates</span>
                         </label>
@@ -1617,7 +1617,7 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
                                     onClick={() => toggleAvailability(day, slot)}
                                     className={`w-7 h-7 rounded-lg border-2 flex items-center justify-center transition-all ${
                                       active
-                                        ? (theme === "DARK" ? "bg-[#fcd34d] border-[#fcd34d]" : "bg-[#6348eb] border-[#6348eb]")
+                                        ? (theme === "DARK" ? "bg-[#ccff00] border-[#ccff00]" : "bg-[#6348eb] border-[#6348eb]")
                                         : (theme === "DARK" ? "border-stone-700 hover:border-stone-500" : "border-stone-200 hover:border-stone-400")
                                     }`}
                                   >
@@ -1668,7 +1668,7 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
               onClick={handleCreateUser}
               disabled={isSaving}
               className={`flex-1 py-4 rounded-2xl text-[10px] font-black tracking-widest transition-all uppercase shadow-lg flex items-center justify-center gap-3 ${
-                theme === "DARK" ? "bg-[#fcd34d] text-stone-950 shadow-[#fcd34d]/20" : 
+                theme === "DARK" ? "bg-[#ccff00] text-stone-950 shadow-[#ccff00]/20" : 
                 "bg-[#6348eb] text-white shadow-[#6348eb]/20"
               } ${isSaving ? "opacity-70 cursor-not-allowed" : "hover:opacity-90"}`}
             >
@@ -1773,7 +1773,7 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
                       onClick={() => setShowPortraitSelectorModal(true)}
                       className={`text-[9px] font-black tracking-[0.2em] uppercase transition-all flex items-center gap-2 px-4 py-2 rounded-full border ${
                         theme === "DARK" 
-                          ? "border-[#fcd34d]/20 text-[#fcd34d] hover:bg-[#fcd34d]/10" 
+                          ? "border-[#ccff00]/20 text-[#ccff00] hover:bg-[#ccff00]/10" 
                           : "border-[#6348eb]/20 text-[#6348eb] hover:bg-[#6348eb]/10"
                       }`}
                     >
@@ -1851,7 +1851,7 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
                             }}
                             className={`px-4 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest border-2 transition-all flex items-center gap-2 ${
                               active
-                                ? (theme === "DARK" ? "bg-[#fcd34d] text-stone-950 border-[#fcd34d]" : "bg-[#6348eb] text-white border-[#6348eb]")
+                                ? (theme === "DARK" ? "bg-[#ccff00] text-stone-950 border-[#ccff00]" : "bg-[#6348eb] text-white border-[#6348eb]")
                                 : (theme === "DARK" ? "border-stone-800 text-stone-200 hover:border-stone-600" : "border-stone-200 text-stone-950 hover:border-stone-400")
                             }`}
                           >
@@ -1870,7 +1870,7 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
                     <label className="flex items-center gap-4 cursor-pointer group mt-2">
                       <div className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all ${
                         formData.invite_user 
-                          ? (theme === "DARK" ? "bg-[#fcd34d] border-[#fcd34d]" : "bg-[#6348eb] border-[#6348eb]") 
+                          ? (theme === "DARK" ? "bg-[#ccff00] border-[#ccff00]" : "bg-[#6348eb] border-[#6348eb]") 
                           : (theme === "DARK" ? "border-stone-800" : "border-stone-200 shadow-sm")
                       }`}>
                         {formData.invite_user && <span className={`material-symbols-outlined text-lg ${theme === "DARK" ? "text-stone-950" : "text-white"}`}>check</span>}
@@ -1934,7 +1934,7 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
                       <span className={`text-[10px] font-black uppercase tracking-[0.2em] ${theme === "DARK" ? "text-stone-200" : "text-stone-950"}`}>Coach Details</span>
                       {isCoach && (
                         <span className={`text-[8px] font-black px-2 py-0.5 rounded-full uppercase tracking-widest ${
-                          theme === "DARK" ? "bg-[#fcd34d]/10 text-[#fcd34d]" : "bg-[#6348eb]/10 text-[#6348eb]"
+                          theme === "DARK" ? "bg-[#ccff00]/10 text-[#ccff00]" : "bg-[#6348eb]/10 text-[#6348eb]"
                         }`}>Coach Role Active</span>
                       )}
                     </div>
@@ -1986,7 +1986,7 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
                               onClick={() => setFormData({ ...formData, tennis_hand: hand })}
                               className={`flex-1 py-3.5 rounded-2xl text-xs font-black uppercase tracking-widest border-2 transition-all ${
                                 formData.tennis_hand === hand
-                                  ? (theme === "DARK" ? "bg-[#fcd34d] text-stone-950 border-[#fcd34d]" : "bg-[#6348eb] text-white border-[#6348eb]")
+                                  ? (theme === "DARK" ? "bg-[#ccff00] text-stone-950 border-[#ccff00]" : "bg-[#6348eb] text-white border-[#6348eb]")
                                   : (theme === "DARK" ? "border-stone-800 text-stone-200 hover:border-stone-600" : "border-stone-200 text-stone-950 hover:border-stone-400")
                               }`}
                             >
@@ -2011,7 +2011,7 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
                                 onClick={() => toggleCoachingFor(group)}
                                 className={`px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest border-2 transition-all ${
                                   active
-                                    ? (theme === "DARK" ? "bg-[#fcd34d] text-stone-950 border-[#fcd34d]" : "bg-[#6348eb] text-white border-[#6348eb]")
+                                    ? (theme === "DARK" ? "bg-[#ccff00] text-stone-950 border-[#ccff00]" : "bg-[#6348eb] text-white border-[#6348eb]")
                                     : (theme === "DARK" ? "border-stone-800 text-stone-200 hover:border-stone-600" : "border-stone-200 text-stone-950 hover:border-stone-400")
                                 }`}
                               >
@@ -2028,7 +2028,7 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
                           <label className="flex items-center gap-2 cursor-pointer group">
                             <div className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-all ${
                               formData.availability_enabled 
-                                ? (theme === "DARK" ? "bg-[#fcd34d] border-[#fcd34d]" : "bg-[#6348eb] border-[#6348eb]") 
+                                ? (theme === "DARK" ? "bg-[#ccff00] border-[#ccff00]" : "bg-[#6348eb] border-[#6348eb]") 
                                 : (theme === "DARK" ? "border-stone-800" : "border-stone-200")
                             }`}>
                               {formData.availability_enabled && <span className={`material-symbols-outlined text-sm ${theme === "DARK" ? "text-stone-950" : "text-white"}`}>check</span>}
@@ -2041,7 +2041,7 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
                             />
                             <span className={`text-[10px] font-black uppercase tracking-widest ${
                               formData.availability_enabled 
-                                ? (theme === "DARK" ? "text-[#fcd34d]" : "text-[#6348eb]") 
+                                ? (theme === "DARK" ? "text-[#ccff00]" : "text-[#6348eb]") 
                                 : (theme === "DARK" ? "text-stone-200" : "text-stone-950")
                             }`}>Enable Dates</span>
                           </label>
@@ -2098,7 +2098,7 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
                                       onClick={() => toggleAvailability(day, slot)}
                                       className={`w-7 h-7 rounded-lg border-2 flex items-center justify-center transition-all ${
                                         active
-                                          ? (theme === "DARK" ? "bg-[#fcd34d] border-[#fcd34d]" : "bg-[#6348eb] border-[#6348eb]")
+                                          ? (theme === "DARK" ? "bg-[#ccff00] border-[#ccff00]" : "bg-[#6348eb] border-[#6348eb]")
                                           : (theme === "DARK" ? "border-stone-700 hover:border-stone-500" : "border-stone-200 hover:border-stone-400")
                                       }`}
                                     >
@@ -2144,9 +2144,9 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
                 }}
                 className={`group relative aspect-square rounded-[32px] overflow-hidden border-4 transition-all hover:scale-105 active:scale-95 ${
                   theme === "DARK" 
-                    ? "border-stone-900 bg-stone-900 hover:border-[#fcd34d]" 
-                    : "border-white bg-white hover:border-[#fbbf24] shadow-md hover:shadow-xl"
-                } ${formData.portrait_url === portrait.url ? (theme === "DARK" ? "border-[#fcd34d]" : "border-[#fbbf24]") : ""}`}
+                    ? "border-stone-900 bg-stone-900 hover:border-[#ccff00]" 
+                    : "border-white bg-white hover:border-[#4f6b28] shadow-md hover:shadow-xl"
+                } ${formData.portrait_url === portrait.url ? (theme === "DARK" ? "border-[#ccff00]" : "border-[#4f6b28]") : ""}`}
               >
                 <img 
                   src={portrait.url} 
@@ -2160,7 +2160,7 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
                 </div>
                 {formData.portrait_url === portrait.url && (
                   <div className={`absolute top-3 right-3 w-8 h-8 rounded-full flex items-center justify-center shadow-lg animate-in zoom-in-50 duration-300 ${
-                    theme === "DARK" ? "bg-[#fcd34d] text-stone-950" : "bg-[#fbbf24] text-stone-950"
+                    theme === "DARK" ? "bg-[#ccff00] text-stone-950" : "bg-[#4f6b28] text-white"
                   }`}>
                     <span className="material-symbols-outlined text-sm font-black">check</span>
                   </div>
@@ -2182,7 +2182,7 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
           }`}>
             <div className="flex items-center gap-4">
               <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${
-                theme === "DARK" ? "bg-stone-800 text-[#fcd34d]" : "bg-white text-[#d97706] shadow-sm"
+                theme === "DARK" ? "bg-stone-800 text-[#ccff00]" : "bg-white text-[#4f6b28] shadow-sm"
               }`}>
                 <span className="material-symbols-outlined">info</span>
               </div>
@@ -2207,7 +2207,7 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
         <div className="fixed top-8 left-1/2 -translate-x-1/2 z-[9999] animate-in fade-in slide-in-from-top-4 duration-300">
           <div className={`px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-4 border ${
             notification.type === "SUCCESS" 
-              ? (theme === "DARK" ? "bg-[#fcd34d] text-stone-950 border-[#fcd34d]" : "bg-green-600 text-white border-green-500")
+              ? (theme === "DARK" ? "bg-[#ccff00] text-stone-950 border-[#ccff00]" : "bg-green-600 text-white border-green-500")
               : notification.type === "ERROR"
               ? "bg-red-600 text-white border-red-500"
               : (theme === "DARK" ? "bg-stone-800 text-white border-stone-700" : "bg-white text-stone-900 border-stone-200")

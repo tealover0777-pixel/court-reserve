@@ -329,7 +329,7 @@ export default function SchedulesAdminView({ theme }: { theme: "LIGHT" | "DARK" 
                     <th 
                       key={header.id} 
                       className={`px-6 py-4 text-[10px] font-black uppercase tracking-widest relative border-r last:border-r-0 transition-colors duration-500 ${
-                        isDark ? "text-[#fcd34d] border-stone-800 bg-stone-900" : 
+                        isDark ? "text-[#ccff00] border-stone-800 bg-stone-900" : 
                         theme === "VINTAGE" ? "text-black border-stone-100 bg-white" :
                         "text-black border-stone-900 bg-stone-100"
                       }`}
@@ -356,7 +356,7 @@ export default function SchedulesAdminView({ theme }: { theme: "LIGHT" | "DARK" 
                               placeholder={`Filter...`}
                               className={`w-full border rounded-md px-3 py-1.5 text-xs font-medium outline-none transition-all ${
                                 isDark 
-                                  ? "bg-stone-950 border-stone-800 text-white focus:border-[#fcd34d]" 
+                                  ? "bg-stone-950 border-stone-800 text-white focus:border-[#ccff00]" 
                                   : theme === "VINTAGE"
                                     ? "bg-[#f7f9fb] border-transparent text-black focus:border-stone-200"
                                     : "bg-white border-stone-100 text-stone-900 focus:border-stone-400"
@@ -527,7 +527,7 @@ function ScheduleSettings({ config, tenantId, theme, onClose }: any) {
       <button
         onClick={handleSave}
         disabled={isSaving}
-        className="w-full py-5 rounded-2xl bg-stone-900 text-white dark:bg-[#fcd34d] dark:text-stone-950 text-[11px] font-black uppercase tracking-widest transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50"
+        className="w-full py-5 rounded-2xl bg-stone-900 text-white dark:bg-[#ccff00] dark:text-stone-950 text-[11px] font-black uppercase tracking-widest transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50"
       >
         {isSaving ? "Saving Policy..." : "Update Schedule Policy"}
       </button>

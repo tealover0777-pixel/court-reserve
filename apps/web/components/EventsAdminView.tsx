@@ -149,7 +149,7 @@ export default function EventsAdminView({ theme = "LIGHT", tenantId, allTenants 
   const [categories, setCategories] = useState<string[]>([]);
 
   // Common UI classes
-  const inputCls = `w-full border rounded-2xl px-5 py-3.5 text-sm font-bold outline-none transition-all ${theme === "DARK" ? "bg-stone-950 text-white border-stone-800 focus:border-[#fcd34d]" : "bg-white text-stone-900 border-stone-200 focus:border-stone-400 shadow-sm"
+  const inputCls = `w-full border rounded-2xl px-5 py-3.5 text-sm font-bold outline-none transition-all ${theme === "DARK" ? "bg-stone-950 text-white border-stone-800 focus:border-[#ccff00]" : "bg-white text-stone-900 border-stone-200 focus:border-stone-400 shadow-sm"
     }`;
   const labelCls = `text-[10px] font-black tracking-widest uppercase mb-2 block ${theme === "DARK" ? "text-stone-200" : "text-stone-950"
     }`;
@@ -485,7 +485,7 @@ export default function EventsAdminView({ theme = "LIGHT", tenantId, allTenants 
       cell: (info: any) => (
         <span className={`px-2 py-1 rounded text-[10px] font-black uppercase ${
           info.getValue() === "regular" 
-            ? "bg-[#fcd34d] text-stone-900" 
+            ? "bg-[#ccff00] text-stone-900" 
             : (theme === "DARK" ? "bg-stone-800 text-stone-400" : "bg-stone-900 text-white")
         }`}>
           {info.getValue()}
@@ -499,7 +499,7 @@ export default function EventsAdminView({ theme = "LIGHT", tenantId, allTenants 
         <div className="flex items-center gap-2">
           <div className="w-16 h-1.5 bg-stone-100 dark:bg-stone-800 rounded-full overflow-hidden">
             <div 
-              className="h-full bg-[#fcd34d]" 
+              className="h-full bg-[#ccff00]" 
               style={{ width: `${Math.min(100, (info.getValue()?.length || 0) / (info.row.original.max_participants || 1) * 100)}%` }}
             />
           </div>
@@ -560,7 +560,7 @@ export default function EventsAdminView({ theme = "LIGHT", tenantId, allTenants 
         <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-8">
           <div className="space-y-4">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-1.5 bg-[#fcd34d] rounded-full" />
+              <div className="w-12 h-1.5 bg-[#ccff00] rounded-full" />
               <span className="text-[10px] font-black tracking-[0.2em] uppercase opacity-40">Admin Control</span>
             </div>
             <h1 className={`text-7xl md:text-8xl font-black tracking-tighter uppercase leading-[0.85] ${theme === "DARK" ? "text-white" : "text-stone-900"}`}>
@@ -582,7 +582,7 @@ export default function EventsAdminView({ theme = "LIGHT", tenantId, allTenants 
                 placeholder="SEARCH EVENTS..."
                 className={`w-full pl-14 pr-6 py-4 rounded-2xl text-[10px] font-black tracking-widest uppercase outline-none transition-all border ${
                   theme === "DARK" 
-                    ? "bg-stone-950 border-stone-800 focus:border-[#fcd34d] focus:ring-4 focus:ring-[#fcd34d]/10" 
+                    ? "bg-stone-950 border-stone-800 focus:border-[#ccff00] focus:ring-4 focus:ring-[#ccff00]/10" 
                     : "bg-white border-stone-200 focus:border-stone-400 focus:ring-4 focus:ring-stone-100 shadow-sm"
                 }`}
               />
@@ -595,10 +595,10 @@ export default function EventsAdminView({ theme = "LIGHT", tenantId, allTenants 
               }}
               className={`w-full sm:w-auto px-8 py-4 rounded-2xl text-[10px] font-black tracking-widest uppercase transition-all shadow-2xl flex items-center justify-center gap-3 ${
                 theme === "DARK" 
-                  ? "bg-[#fcd34d] text-stone-950 hover:scale-[1.02] active:scale-[0.98] shadow-[#fcd34d]/20" 
+                  ? "bg-[#ccff00] text-stone-950 hover:scale-[1.02] active:scale-[0.98] shadow-[#ccff00]/20" 
                   : theme === "VINTAGE"
                     ? "bg-black text-white hover:bg-stone-800 shadow-black/20"
-                    : "bg-[#fcd34d] text-[#d97706] hover:brightness-105 active:scale-95 shadow-[#fcd34d]/10"
+                    : "bg-[#ccff00] text-[#4f6b28] hover:brightness-105 active:scale-95 shadow-[#ccff00]/10"
               }`}
             >
               <span className="material-symbols-outlined text-lg">add_circle</span>
@@ -695,10 +695,10 @@ export default function EventsAdminView({ theme = "LIGHT", tenantId, allTenants 
               disabled={isSaving}
               className={`flex-1 py-4 rounded-2xl text-[10px] font-black tracking-widest uppercase transition-all shadow-xl flex items-center justify-center gap-3 ${
                 theme === "DARK" 
-                  ? "bg-[#fcd34d] text-stone-950 shadow-[#fcd34d]/20" 
+                  ? "bg-[#ccff00] text-stone-950 shadow-[#ccff00]/20" 
                   : theme === "VINTAGE" 
                     ? "bg-black text-white shadow-black/20"
-                    : "bg-[#fcd34d] text-[#d97706] shadow-[#fcd34d]/10 hover:brightness-105 active:scale-95"
+                    : "bg-[#ccff00] text-[#4f6b28] shadow-[#ccff00]/10 hover:brightness-105 active:scale-95"
                 }`}
             >
               {isSaving ? "SAVING..." : "SAVE EVENT"}
@@ -798,7 +798,7 @@ export default function EventsAdminView({ theme = "LIGHT", tenantId, allTenants 
                     checked={formData.save_to_schedules}
                     onChange={(e) => setFormData({ ...formData, save_to_schedules: e.target.checked })}
                   />
-                  <div className="w-11 h-6 bg-stone-200 peer-focus:outline-none rounded-full peer dark:bg-stone-800 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-[#fcd34d]"></div>
+                  <div className="w-11 h-6 bg-stone-200 peer-focus:outline-none rounded-full peer dark:bg-stone-800 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-[#ccff00]"></div>
                 </label>
               </div>
 
@@ -931,7 +931,7 @@ export default function EventsAdminView({ theme = "LIGHT", tenantId, allTenants 
                       setFormData({ ...formData, event_leaders: newLeaders });
                     }}
                     className={`flex items-center gap-2 px-3 py-1.5 rounded-xl transition-all border ${isSelected
-                        ? (theme === "DARK" ? "bg-[#fcd34d] border-[#fcd34d] text-stone-900" : "bg-stone-900 border-stone-900 text-white")
+                        ? (theme === "DARK" ? "bg-[#ccff00] border-[#ccff00] text-stone-900" : "bg-stone-900 border-stone-900 text-white")
                         : (theme === "DARK" ? "bg-stone-900 border-stone-800 text-stone-400" : "bg-white border-stone-200 text-stone-600")
                       }`}
                   >
@@ -1074,7 +1074,7 @@ export default function EventsAdminView({ theme = "LIGHT", tenantId, allTenants 
             </button>
             <button
               onClick={() => handleSaveEvent(true)}
-              className="flex-1 py-4 rounded-xl text-[10px] font-black tracking-widest uppercase bg-[#fcd34d] text-stone-900 shadow-lg shadow-[#fcd34d]/20"
+              className="flex-1 py-4 rounded-xl text-[10px] font-black tracking-widest uppercase bg-[#ccff00] text-stone-900 shadow-lg shadow-[#ccff00]/20"
             >
               NOTIFY & CANCEL ALL
             </button>

@@ -7,8 +7,8 @@
 
 :root {
   /* Vantage Sport - Light Mode (Default) */
-  --primary: #fbbf24;
-  --on-primary: #0c0a09;
+  --primary: #556d00;
+  --on-primary: #ffffff;
   --primary-container: #f1f5e9;
   --on-primary-container: #1b2000;
   --secondary: #5c647a;
@@ -53,8 +53,8 @@
 
 .theme-dark {
   /* Vantage Noir - Dark Mode */
-  --primary: #fcd34d;
-  --on-primary: #0c0a09;
+  --primary: #81ecff;
+  --on-primary: #005762;
   --primary-container: #00e3fd;
   --on-primary-container: #004d57;
   --secondary: #d7e5ec;

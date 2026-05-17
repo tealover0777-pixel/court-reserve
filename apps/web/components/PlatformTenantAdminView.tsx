@@ -537,9 +537,9 @@ export default function PlatformTenantAdminView({ theme = "LIGHT" }: { theme?: "
                     }}
                     disabled={isInviting || isSaving}
                     className={`w-full flex items-center gap-3 px-4 py-2.5 text-[10px] font-black uppercase tracking-widest transition-colors border-b ${(isInviting || isSaving) ? "opacity-30 cursor-not-allowed" :
-                        theme === "DARK" ? "text-[#fcd34d] border-stone-800 hover:bg-stone-800" :
+                        theme === "DARK" ? "text-[#ccff00] border-stone-800 hover:bg-stone-800" :
                           theme === "VINTAGE" ? "text-black border-stone-50 hover:bg-stone-50" :
-                            "text-[#d97706] border-stone-50 hover:bg-stone-50"
+                            "text-[#4f6b28] border-stone-50 hover:bg-stone-50"
                       }`}
                   >
                     <span className="material-symbols-outlined text-base">mail</span>
@@ -598,9 +598,9 @@ export default function PlatformTenantAdminView({ theme = "LIGHT" }: { theme?: "
   if (loading) {
     return (
       <div className="flex h-64 items-center justify-center">
-        <div className={`h-8 w-8 animate-spin rounded-full border-4 border-t-transparent ${theme === "DARK" ? "border-[#fcd34d]" :
+        <div className={`h-8 w-8 animate-spin rounded-full border-4 border-t-transparent ${theme === "DARK" ? "border-[#ccff00]" :
             theme === "VINTAGE" ? "border-black" :
-              "border-[#fbbf24]"
+              "border-[#4f6b28]"
           }`}></div>
       </div>
     );
@@ -610,9 +610,9 @@ export default function PlatformTenantAdminView({ theme = "LIGHT" }: { theme?: "
     <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
       <div className="flex justify-between items-end mb-10">
         <div>
-          <h2 className={`text-5xl font-black italic tracking-tighter uppercase transition-colors duration-500 ${theme === "DARK" ? "text-[#fcd34d]" :
+          <h2 className={`text-5xl font-black italic tracking-tighter uppercase transition-colors duration-500 ${theme === "DARK" ? "text-[#ccff00]" :
               theme === "VINTAGE" ? "text-black" :
-                "text-[#d97706]"
+                "text-[#4f6b28]"
             }`} style={{ fontFamily: 'Lexend, sans-serif' }}>
             PLATFORM Tenant Admin
           </h2>
@@ -621,9 +621,9 @@ export default function PlatformTenantAdminView({ theme = "LIGHT" }: { theme?: "
                 "text-stone-900"
             }`}>
             Platform Infrastructure · <span className={
-              theme === "DARK" ? "text-[#fcd34d]" :
+              theme === "DARK" ? "text-[#ccff00]" :
                 theme === "VINTAGE" ? "text-black" :
-                  "text-[#d97706]"
+                  "text-[#4f6b28]"
             }>{tenants.length}</span> Registered Tenants
           </p>
         </div>
@@ -634,10 +634,10 @@ export default function PlatformTenantAdminView({ theme = "LIGHT" }: { theme?: "
               type="text"
               placeholder="Search tenants..."
               className={`w-full border rounded-full pl-12 pr-6 py-3 text-sm font-medium outline-none transition-all shadow-sm ${theme === "DARK"
-                  ? "bg-stone-900 border-stone-800 text-white focus:border-[#fcd34d]"
+                  ? "bg-stone-900 border-stone-800 text-white focus:border-[#ccff00]"
                   : theme === "VINTAGE"
                     ? "bg-white border-stone-100 text-black focus:border-stone-400 shadow-md"
-                    : "bg-white border-stone-200 text-stone-900 focus:border-[#fbbf24]"
+                    : "bg-white border-stone-200 text-stone-900 focus:border-[#4f6b28]"
                 }`}
               onChange={(e) => table.setGlobalFilter(e.target.value)}
             />
@@ -649,10 +649,10 @@ export default function PlatformTenantAdminView({ theme = "LIGHT" }: { theme?: "
               setShowNewModal(true);
             }}
             className={`px-8 py-3 rounded-full font-black text-xs tracking-widest transition-all uppercase shadow-lg flex items-center gap-2 ${theme === "DARK"
-                ? "bg-[#fcd34d] text-stone-950 shadow-[#fcd34d]/10 hover:opacity-90"
+                ? "bg-[#ccff00] text-stone-950 shadow-[#ccff00]/10 hover:opacity-90"
                 : theme === "VINTAGE"
                   ? "bg-black text-white shadow-black/10 hover:opacity-90"
-                  : "bg-[#fbbf24] text-stone-950 shadow-[#fbbf24]/20 hover:opacity-90"
+                  : "bg-[#4f6b28] text-white shadow-[#4f6b28]/20 hover:opacity-90"
               }`}
           >
             <span className="material-symbols-outlined text-sm">add_business</span>
@@ -665,9 +665,9 @@ export default function PlatformTenantAdminView({ theme = "LIGHT" }: { theme?: "
         <div className="fixed inset-0 z-[300] flex items-center justify-center bg-stone-950/20 backdrop-blur-sm animate-in fade-in duration-300">
           <div className={`p-8 rounded-3xl shadow-2xl flex flex-col items-center gap-4 transition-colors ${theme === "DARK" ? "bg-stone-900 border border-stone-800" : "bg-white border border-stone-100"
             }`}>
-            <div className={`h-12 w-12 animate-spin rounded-full border-4 border-t-transparent ${theme === "DARK" ? "border-[#fcd34d]" :
+            <div className={`h-12 w-12 animate-spin rounded-full border-4 border-t-transparent ${theme === "DARK" ? "border-[#ccff00]" :
                 theme === "VINTAGE" ? "border-black" :
-                  "border-[#fbbf24]"
+                  "border-[#4f6b28]"
               }`}></div>
             <p className={`text-[10px] font-black uppercase tracking-[0.2em] animate-pulse ${theme === "DARK" ? "text-stone-400" : "text-stone-500"
               }`}>
@@ -692,7 +692,7 @@ export default function PlatformTenantAdminView({ theme = "LIGHT" }: { theme?: "
                   {headerGroup.headers.map(header => (
                     <th
                       key={header.id}
-                      className={`px-4 py-2 text-[10px] font-black uppercase tracking-widest relative border-r last:border-r-0 transition-colors duration-500 ${theme === "DARK" ? "text-[#fcd34d] border-stone-800 bg-stone-900" :
+                      className={`px-4 py-2 text-[10px] font-black uppercase tracking-widest relative border-r last:border-r-0 transition-colors duration-500 ${theme === "DARK" ? "text-[#ccff00] border-stone-800 bg-stone-900" :
                           theme === "VINTAGE" ? "text-black border-stone-100 bg-white" :
                             "text-black border-stone-900 bg-stone-100"
                         }`}
@@ -712,7 +712,7 @@ export default function PlatformTenantAdminView({ theme = "LIGHT" }: { theme?: "
                               onChange={(e) => header.column.setFilterValue(e.target.value)}
                               placeholder="..."
                               className={`w-full border rounded-md px-3 py-1.5 text-xs font-medium outline-none transition-all ${theme === "DARK"
-                                  ? "bg-stone-950 border-stone-800 text-white focus:border-[#fcd34d]"
+                                  ? "bg-stone-950 border-stone-800 text-white focus:border-[#ccff00]"
                                   : theme === "VINTAGE"
                                     ? "bg-[#f7f9fb] border-transparent text-black focus:border-stone-200"
                                     : "bg-white border-stone-100 text-stone-900 focus:border-stone-400"
@@ -771,7 +771,7 @@ export default function PlatformTenantAdminView({ theme = "LIGHT" }: { theme?: "
               disabled={!table.getCanPreviousPage()}
               className={`p-2 rounded-lg border transition-all ${!table.getCanPreviousPage()
                   ? "opacity-30 cursor-not-allowed"
-                  : theme === "DARK" ? "hover:bg-stone-900 border-stone-800 text-[#fcd34d]" : "hover:bg-stone-50 border-stone-100 text-black"
+                  : theme === "DARK" ? "hover:bg-stone-900 border-stone-800 text-[#ccff00]" : "hover:bg-stone-50 border-stone-100 text-black"
                 }`}
             >
               <span className="material-symbols-outlined text-base">chevron_left</span>
@@ -781,7 +781,7 @@ export default function PlatformTenantAdminView({ theme = "LIGHT" }: { theme?: "
               disabled={!table.getCanNextPage()}
               className={`p-2 rounded-lg border transition-all ${!table.getCanNextPage()
                   ? "opacity-30 cursor-not-allowed"
-                  : theme === "DARK" ? "hover:bg-stone-900 border-stone-800 text-[#fcd34d]" : "hover:bg-stone-50 border-stone-100 text-black"
+                  : theme === "DARK" ? "hover:bg-stone-900 border-stone-800 text-[#ccff00]" : "hover:bg-stone-50 border-stone-100 text-black"
                 }`}
             >
               <span className="material-symbols-outlined text-base">chevron_right</span>
@@ -838,7 +838,7 @@ export default function PlatformTenantAdminView({ theme = "LIGHT" }: { theme?: "
         footer={
           <button
             onClick={() => setShowInviteSuccess(false)}
-            className={`w-full py-4 rounded-2xl text-[10px] font-black tracking-widest transition-all uppercase shadow-lg ${theme === "DARK" ? "bg-[#fcd34d] text-stone-950" : "bg-black text-white"
+            className={`w-full py-4 rounded-2xl text-[10px] font-black tracking-widest transition-all uppercase shadow-lg ${theme === "DARK" ? "bg-[#ccff00] text-stone-950" : "bg-black text-white"
               }`}
           >
             Done
@@ -846,7 +846,7 @@ export default function PlatformTenantAdminView({ theme = "LIGHT" }: { theme?: "
         }
       >
         <div className="space-y-8 text-center py-4">
-          <div className={`w-20 h-20 rounded-3xl flex items-center justify-center mx-auto ${theme === "DARK" ? "bg-[#fcd34d]/10 text-[#fcd34d]" : "bg-green-50 text-green-600"
+          <div className={`w-20 h-20 rounded-3xl flex items-center justify-center mx-auto ${theme === "DARK" ? "bg-[#ccff00]/10 text-[#ccff00]" : "bg-green-50 text-green-600"
             }`}>
             <span className="material-symbols-outlined text-4xl">mark_email_read</span>
           </div>
@@ -863,7 +863,7 @@ export default function PlatformTenantAdminView({ theme = "LIGHT" }: { theme?: "
             <div className={`text-[10px] font-black uppercase tracking-widest ${theme === "DARK" ? "text-stone-500" : "text-stone-400"}`}>
               Direct Password Setup Link for Owner
             </div>
-            <div className={`p-4 rounded-xl font-mono text-[10px] break-all border transition-colors ${theme === "DARK" ? "bg-stone-950 border-stone-800 text-[#fcd34d]" : "bg-white border-stone-200 text-blue-600"
+            <div className={`p-4 rounded-xl font-mono text-[10px] break-all border transition-colors ${theme === "DARK" ? "bg-stone-950 border-stone-800 text-[#ccff00]" : "bg-white border-stone-200 text-blue-600"
               }`}>
               {invitationLink}
             </div>
@@ -908,9 +908,9 @@ export default function PlatformTenantAdminView({ theme = "LIGHT" }: { theme?: "
               onClick={handleSave}
               disabled={isSaving}
               className={`flex-1 py-4 rounded-2xl text-[10px] font-black tracking-widest transition-all uppercase shadow-lg flex items-center justify-center gap-3 ${isSaving ? "opacity-70 cursor-not-allowed" : "hover:opacity-90"
-                } ${theme === "DARK" ? "bg-[#fcd34d] text-stone-950 shadow-[#fcd34d]/20" :
+                } ${theme === "DARK" ? "bg-[#ccff00] text-stone-950 shadow-[#ccff00]/20" :
                   theme === "VINTAGE" ? "bg-black text-white shadow-black/20" :
-                    "bg-[#fbbf24] text-stone-950 shadow-[#fbbf24]/20"
+                    "bg-[#4f6b28] text-white shadow-[#4f6b28]/20"
                 }`}
             >
               {isSaving ? (
@@ -1011,7 +1011,7 @@ export default function PlatformTenantAdminView({ theme = "LIGHT" }: { theme?: "
               readOnly={!!editingTenantId}
               placeholder="e.g. U10001"
               className={`w-full border rounded-2xl px-6 py-4 text-sm font-bold placeholder:text-stone-200 outline-none transition-colors ${theme === "DARK"
-                  ? (editingTenantId ? "bg-stone-900 text-stone-500 border-stone-800" : "bg-stone-950 text-white border-stone-800 focus:border-[#fcd34d]")
+                  ? (editingTenantId ? "bg-stone-900 text-stone-500 border-stone-800" : "bg-stone-950 text-white border-stone-800 focus:border-[#ccff00]")
                   : (editingTenantId ? "bg-stone-50 text-stone-400 border-stone-100" : "bg-white text-stone-900 border-stone-200 focus:border-stone-400")
                 }`}
             />
@@ -1064,7 +1064,7 @@ export default function PlatformTenantAdminView({ theme = "LIGHT" }: { theme?: "
 
           <label className="flex items-center gap-4 cursor-pointer group">
             <div className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all ${formData.invite_user
-                ? (theme === "DARK" ? "bg-[#fcd34d] border-[#fcd34d]" : "bg-black border-black")
+                ? (theme === "DARK" ? "bg-[#ccff00] border-[#ccff00]" : "bg-black border-black")
                 : (theme === "DARK" ? "border-stone-800" : "border-stone-200")
               }`}>
               {formData.invite_user && <span className="material-symbols-outlined text-white text-lg">check</span>}
@@ -1095,7 +1095,7 @@ export default function PlatformTenantAdminView({ theme = "LIGHT" }: { theme?: "
       {notification && (
         <div className="fixed top-8 left-1/2 -translate-x-1/2 z-[9999] animate-in fade-in slide-in-from-top-4 duration-300">
           <div className={`px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-4 border ${notification.type === "SUCCESS"
-              ? (theme === "DARK" ? "bg-[#fcd34d] text-stone-950 border-[#fcd34d]" : "bg-green-600 text-white border-green-500")
+              ? (theme === "DARK" ? "bg-[#ccff00] text-stone-950 border-[#ccff00]" : "bg-green-600 text-white border-green-500")
               : notification.type === "ERROR"
                 ? "bg-red-600 text-white border-red-500"
                 : (theme === "DARK" ? "bg-stone-800 text-white border-stone-700" : "bg-white text-stone-900 border-stone-200")
@@ -1125,8 +1125,8 @@ function FormField({ label, children, theme }: { label: string; children: React.
 }
 
 const inputClasses = (theme: string) => `w-full border-none rounded-2xl px-6 py-4 text-sm font-bold placeholder:text-stone-200 outline-none transition-colors ${theme === "DARK"
-    ? "bg-stone-900 text-white focus:ring-2 focus:ring-[#fcd34d]"
+    ? "bg-stone-900 text-white focus:ring-2 focus:ring-[#ccff00]"
     : theme === "VINTAGE"
       ? "bg-[#f7f9fb] text-black focus:ring-2 focus:ring-black"
-      : "bg-stone-50 text-stone-900 focus:ring-2 focus:ring-[#fbbf24]"
+      : "bg-stone-50 text-stone-900 focus:ring-2 focus:ring-[#4f6b28]"
   }`;
