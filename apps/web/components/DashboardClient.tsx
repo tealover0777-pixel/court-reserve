@@ -1291,13 +1291,25 @@ function ProgramsView({ theme, tenantId }: { theme: "LIGHT" | "DARK" | "VINTAGE"
     return () => unsubscribe();
   }, [tenantId]);
 
-  const featuredPrograms = config?.featuredPrograms || [
+  const rawFeatured = config?.featuredPrograms || [
     {
       headline: config?.heroHeadline || "CHAMPIONSHIP CLINIC 2024",
       description: config?.heroDescription || "Intensive technical refinement for competitive players. Lead by ITF-certified master professionals.",
-      imageUrl: config?.heroImageUrl || "/images/programs_hero.png"
+      imageUrl: config?.heroImageUrl || "/images/programs_hero.png",
+      sidebarHeadline: config?.sidebarHeadline || "PRO-FOCUS WEEKEND",
+      sidebarDescription: config?.sidebarDescription || "Join Coach Marcus for a 48-hour immersion into strategy and bio-mechanics. Limited to 8 participants.",
+      sidebarButtonText: config?.sidebarButtonText || "VIEW COACH BIO",
+      sidebarThemeColors: config?.sidebarThemeColors || {}
     }
   ];
+
+  const featuredPrograms = rawFeatured.map((item: any) => ({
+    ...item,
+    sidebarHeadline: item.sidebarHeadline || config?.sidebarHeadline || "PRO-FOCUS WEEKEND",
+    sidebarDescription: item.sidebarDescription || config?.sidebarDescription || "Join Coach Marcus for a 48-hour immersion into strategy and bio-mechanics. Limited to 8 participants.",
+    sidebarButtonText: item.sidebarButtonText || config?.sidebarButtonText || "VIEW COACH BIO",
+    sidebarThemeColors: item.sidebarThemeColors || config?.sidebarThemeColors || {}
+  }));
   
   const sidebarHeadline = config?.sidebarHeadline || "PRO-FOCUS WEEKEND";
   const sidebarDescription = config?.sidebarDescription || "Join Coach Marcus for a 48-hour immersion into strategy and bio-mechanics. Limited to 8 participants.";
@@ -1363,65 +1375,76 @@ function ProgramsView({ theme, tenantId }: { theme: "LIGHT" | "DARK" | "VINTAGE"
         </div>
       </div>
 
-      {/* Hero Section */}
+      {/* Featured Programs Stack (Single Package) */}
       {(showHero || showSidebar) && (
-        <div className="grid grid-cols-12 gap-8">
-          {showHero && (
-            <div className={`${showSidebar ? 'col-span-12 lg:col-span-8' : 'col-span-12'} flex flex-col gap-6`}>
-              {featuredPrograms.map((prog: any, idx: number) => (
-                <div key={idx} className="group relative h-[450px] overflow-hidden rounded-[40px] shadow-2xl border border-outline/10">
-                  <img
-                    src={prog.imageUrl || "/images/programs_hero.png"}
-                    alt={prog.headline}
-                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent"></div>
-                  <div className="absolute inset-0 p-12 flex flex-col justify-end max-w-2xl">
-                    <h3 className="text-5xl sm:text-6xl lg:text-7xl font-black text-white leading-[0.9] tracking-tighter mb-6 uppercase">
-                      {prog.headline}
-                    </h3>
-                    <p className="text-white/80 text-lg font-medium leading-relaxed">
-                      {prog.description}
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
+        <div className="space-y-8">
+          {featuredPrograms.map((prog: any, idx: number) => {
+            const hasHero = showHero;
+            const hasSidebar = showSidebar;
 
-          {showSidebar && (
-            <div 
-              className={`${showHero ? 'col-span-12 lg:col-span-4' : 'col-span-12'} rounded-[40px] p-10 flex flex-col justify-between shadow-xl transition-colors border bg-surface-container-low border-outline/10`}
-              style={{
-                backgroundColor: customSidebarBgColor || undefined,
-              }}
-            >
-              <div>
-                <h4 
-                  className={`text-3xl font-black leading-tight mb-4 uppercase transition-colors ${customSidebarTextColor ? '' : 'text-primary'}`}
-                  style={customSidebarTextColor ? { color: customSidebarTextColor } : undefined}
-                >
-                  {sidebarHeadline}
-                </h4>
-                <p 
-                  className={`font-medium leading-relaxed transition-colors ${customSidebarTextColor ? '' : 'text-on-surface-variant'}`}
-                  style={customSidebarTextColor ? { color: customSidebarTextColor, opacity: 0.8 } : undefined}
-                >
-                  {sidebarDescription}
-                </p>
+            // Determine custom colors for the side spotlight of this specific program
+            const sidebarBg = prog.sidebarThemeColors?.[theme]?.bgColor || customSidebarBgColor;
+            const sidebarText = prog.sidebarThemeColors?.[theme]?.textColor || customSidebarTextColor;
+
+            return (
+              <div key={idx} className="grid grid-cols-12 gap-8">
+                {hasHero && (
+                  <div className={`${hasSidebar ? 'col-span-12 lg:col-span-8' : 'col-span-12'} flex flex-col`}>
+                    <div className="group relative h-[450px] overflow-hidden rounded-[40px] shadow-2xl border border-outline/10 flex-1">
+                      <img
+                        src={prog.imageUrl || "/images/programs_hero.png"}
+                        alt={prog.headline}
+                        className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent"></div>
+                      <div className="absolute inset-0 p-12 flex flex-col justify-end max-w-2xl">
+                        <h3 className="text-5xl sm:text-6xl lg:text-7xl font-black text-white leading-[0.9] tracking-tighter mb-6 uppercase">
+                          {prog.headline}
+                        </h3>
+                        <p className="text-white/80 text-lg font-medium leading-relaxed">
+                          {prog.description}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {hasSidebar && (
+                  <div 
+                    className={`${hasHero ? 'col-span-12 lg:col-span-4' : 'col-span-12'} rounded-[40px] p-10 flex flex-col justify-between shadow-xl transition-colors border bg-surface-container-low border-outline/10 h-[450px]`}
+                    style={{
+                      backgroundColor: sidebarBg || undefined,
+                    }}
+                  >
+                    <div>
+                      <h4 
+                        className={`text-3xl font-black leading-tight mb-4 uppercase transition-colors ${sidebarText ? '' : 'text-primary'}`}
+                        style={sidebarText ? { color: sidebarText } : undefined}
+                      >
+                        {prog.sidebarHeadline}
+                      </h4>
+                      <p 
+                        className={`font-medium leading-relaxed transition-colors ${sidebarText ? '' : 'text-on-surface-variant'}`}
+                        style={sidebarText ? { color: sidebarText, opacity: 0.8 } : undefined}
+                      >
+                        {prog.sidebarDescription}
+                      </p>
+                    </div>
+                    <button 
+                      className="w-full py-4 border-2 rounded-full text-[10px] font-black tracking-[0.2em] transition-all uppercase border-primary text-primary hover:bg-primary hover:text-on-primary"
+                      style={sidebarText ? {
+                        borderColor: sidebarText,
+                        color: sidebarText,
+                        backgroundColor: 'transparent'
+                      } : undefined}
+                    >
+                      {prog.sidebarButtonText}
+                    </button>
+                  </div>
+                )}
               </div>
-              <button 
-                className="w-full py-4 border-2 rounded-full text-[10px] font-black tracking-[0.2em] transition-all uppercase border-primary text-primary hover:bg-primary hover:text-on-primary"
-                style={customSidebarTextColor ? {
-                  borderColor: customSidebarTextColor,
-                  color: customSidebarTextColor,
-                  backgroundColor: 'transparent'
-                } : undefined}
-              >
-                {sidebarButtonText}
-              </button>
-            </div>
-          )}
+            );
+          })}
         </div>
       )}
 

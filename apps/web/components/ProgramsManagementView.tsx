@@ -35,6 +35,14 @@ interface FeaturedProgramItem {
   headline: string;
   description: string;
   imageUrl: string;
+  sidebarHeadline?: string;
+  sidebarDescription?: string;
+  sidebarButtonText?: string;
+  sidebarThemeColors?: {
+    LIGHT?: ThemeColors;
+    DARK?: ThemeColors;
+    VINTAGE?: ThemeColors;
+  };
 }
 
 interface ProgramsConfig {
@@ -81,7 +89,15 @@ const DEFAULT_CONFIG: ProgramsConfig = {
     {
       headline: "CHAMPIONSHIP CLINIC 2024",
       description: "Intensive technical refinement for competitive players. Lead by ITF-certified master professionals.",
-      imageUrl: "/images/programs_hero.png"
+      imageUrl: "/images/programs_hero.png",
+      sidebarHeadline: "PRO-FOCUS WEEKEND",
+      sidebarDescription: "Join Coach Marcus for a 48-hour immersion into strategy and bio-mechanics. Limited to 8 participants.",
+      sidebarButtonText: "VIEW COACH BIO",
+      sidebarThemeColors: {
+        LIGHT: { bgColor: "", textColor: "" },
+        DARK: { bgColor: "", textColor: "" },
+        VINTAGE: { bgColor: "", textColor: "" }
+      }
     }
   ],
   
@@ -223,6 +239,41 @@ export default function ProgramsManagementView({ theme, tenantId }: { theme: str
       };
     });
   };
+
+  const handleUpdateFeaturedSidebarThemeColor = (
+    index: number,
+    key: 'bgColor' | 'textColor',
+    value: string
+  ) => {
+    setConfig(prev => {
+      const newFeatured = [...(prev.featuredPrograms || [])];
+      const originalItem = newFeatured[index];
+      if (!originalItem) return prev;
+      const item = { ...originalItem };
+      const sidebarThemeColors = { ...(item.sidebarThemeColors || {}) };
+      const currentThemeOverride = { ...(sidebarThemeColors[activeTheme] || {}) };
+
+      if (value === "") {
+        delete currentThemeOverride[key];
+      } else {
+        currentThemeOverride[key] = value;
+      }
+
+      if (Object.keys(currentThemeOverride).length === 0) {
+        delete sidebarThemeColors[activeTheme];
+      } else {
+        sidebarThemeColors[activeTheme] = currentThemeOverride;
+      }
+
+      item.sidebarThemeColors = sidebarThemeColors;
+      newFeatured[index] = item;
+
+      return {
+        ...prev,
+        featuredPrograms: newFeatured
+      };
+    });
+  };
   
   const heroInputRef = useRef<HTMLInputElement>(null);
   const bottomInputRef = useRef<HTMLInputElement>(null);
@@ -234,13 +285,24 @@ export default function ProgramsManagementView({ theme, tenantId }: { theme: str
     const unsubscribe = onSnapshot(configRef, (docSnap) => {
       if (docSnap.exists()) {
         const data = docSnap.data() as ProgramsConfig;
-        const featuredPrograms = data.featuredPrograms || [
+        const rawFeatured = data.featuredPrograms || [
           {
             headline: data.heroHeadline || "CHAMPIONSHIP CLINIC 2024",
             description: data.heroDescription || "Intensive technical refinement for competitive players. Lead by ITF-certified master professionals.",
-            imageUrl: data.heroImageUrl || "/images/programs_hero.png"
+            imageUrl: data.heroImageUrl || "/images/programs_hero.png",
+            sidebarHeadline: data.sidebarHeadline || "PRO-FOCUS WEEKEND",
+            sidebarDescription: data.sidebarDescription || "Join Coach Marcus for a 48-hour immersion into strategy and bio-mechanics. Limited to 8 participants.",
+            sidebarButtonText: data.sidebarButtonText || "VIEW COACH BIO",
+            sidebarThemeColors: data.sidebarThemeColors || {}
           }
         ];
+        const featuredPrograms = rawFeatured.map((item: any) => ({
+          ...item,
+          sidebarHeadline: item.sidebarHeadline || data.sidebarHeadline || "PRO-FOCUS WEEKEND",
+          sidebarDescription: item.sidebarDescription || data.sidebarDescription || "Join Coach Marcus for a 48-hour immersion into strategy and bio-mechanics. Limited to 8 participants.",
+          sidebarButtonText: item.sidebarButtonText || data.sidebarButtonText || "VIEW COACH BIO",
+          sidebarThemeColors: item.sidebarThemeColors || data.sidebarThemeColors || {}
+        }));
         setConfig({ ...DEFAULT_CONFIG, ...data, featuredPrograms });
       } else {
         setConfig(DEFAULT_CONFIG);
@@ -363,17 +425,17 @@ export default function ProgramsManagementView({ theme, tenantId }: { theme: str
         </div>
       </div>
 
-      <div className="grid grid-cols-12 gap-8">
-        <div className="col-span-12 lg:col-span-8 space-y-6">
-          {/* Featured Programs Editor */}
-          <div className="rounded-[2.5rem] p-10 border transition-colors bg-surface-container-low border-outline/10 space-y-8">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <span className="material-symbols-outlined text-primary">workspace_premium</span>
-                <h3 className="text-xl font-black uppercase tracking-widest">Featured Programs</h3>
-              </div>
+      <div className="space-y-8">
+        {/* Featured Programs Editor */}
+        <div className="rounded-[2.5rem] p-10 border transition-colors bg-surface-container-low border-outline/10 space-y-8">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <span className="material-symbols-outlined text-primary">campaign</span>
+              <h3 className="text-xl font-black uppercase tracking-widest">Featured Programs Package</h3>
+            </div>
+            <div className="flex items-center gap-6">
               <div className="flex items-center gap-2">
-                <span className="text-[9px] font-black uppercase tracking-widest opacity-40">Display</span>
+                <span className="text-[9px] font-black uppercase tracking-widest opacity-40">Show Hero</span>
                 <button
                   onClick={() => setConfig({ ...config, showHero: !config.showHero })}
                   className={`w-10 h-5 rounded-full transition-all relative ${config.showHero ? 'bg-primary' : 'bg-surface-container-highest'}`}
@@ -381,33 +443,50 @@ export default function ProgramsManagementView({ theme, tenantId }: { theme: str
                   <div className={`absolute top-1 w-3 h-3 rounded-full bg-white transition-all ${config.showHero ? 'left-6' : 'left-1'}`}></div>
                 </button>
               </div>
+              <div className="flex items-center gap-2">
+                <span className="text-[9px] font-black uppercase tracking-widest opacity-40">Show Spotlight</span>
+                <button
+                  onClick={() => setConfig({ ...config, showSidebar: !config.showSidebar })}
+                  className={`w-10 h-5 rounded-full transition-all relative ${config.showSidebar ? 'bg-primary' : 'bg-surface-container-highest'}`}
+                >
+                  <div className={`absolute top-1 w-3 h-3 rounded-full bg-white transition-all ${config.showSidebar ? 'left-6' : 'left-1'}`}></div>
+                </button>
+              </div>
             </div>
-            
-            <div className="space-y-10">
-              {config.featuredPrograms?.map((item, idx) => (
-                <div key={idx} className="p-8 rounded-[2rem] bg-surface-container space-y-6 relative overflow-hidden">
-                  <div className="flex justify-between items-center">
-                    <span className="px-4 py-1 rounded-full text-[8px] font-black uppercase tracking-widest bg-primary/10 text-primary">
-                      Featured Program 0{idx + 1}
-                    </span>
-                    {config.featuredPrograms && config.featuredPrograms.length > 1 && (
-                      <button
-                        onClick={() => {
-                          setConfig(prev => {
-                            const newFeatured = [...(prev.featuredPrograms || [])];
-                            newFeatured.splice(idx, 1);
-                            return { ...prev, featuredPrograms: newFeatured };
-                          });
-                        }}
-                        className="flex items-center gap-1 text-[8px] font-black uppercase tracking-widest text-error hover:underline transition-all"
-                      >
-                        <span className="material-symbols-outlined text-sm">delete</span>
-                        Remove
-                      </button>
-                    )}
-                  </div>
+          </div>
+          
+          <div className="space-y-10">
+            {config.featuredPrograms?.map((item, idx) => (
+              <div key={idx} className="p-8 rounded-[2rem] bg-surface-container space-y-6 relative overflow-hidden">
+                <div className="flex justify-between items-center pb-4 border-b border-outline/5">
+                  <span className="px-4 py-1 rounded-full text-[8px] font-black uppercase tracking-widest bg-primary/10 text-primary">
+                    Featured Program Package 0{idx + 1}
+                  </span>
+                  {config.featuredPrograms && config.featuredPrograms.length > 1 && (
+                    <button
+                      onClick={() => {
+                        setConfig(prev => {
+                          const newFeatured = [...(prev.featuredPrograms || [])];
+                          newFeatured.splice(idx, 1);
+                          return { ...prev, featuredPrograms: newFeatured };
+                        });
+                      }}
+                      className="flex items-center gap-1 text-[8px] font-black uppercase tracking-widest text-error hover:underline transition-all"
+                    >
+                      <span className="material-symbols-outlined text-sm">delete</span>
+                      Remove Package
+                    </button>
+                  )}
+                </div>
 
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  {/* Left Column: Featured Card */}
                   <div className="space-y-4">
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="material-symbols-outlined text-sm text-primary">campaign</span>
+                      <span className="text-[10px] font-black uppercase tracking-wider text-primary">Featured Card Config</span>
+                    </div>
+                    
                     <div className="space-y-1">
                       <label className="text-[9px] font-black uppercase tracking-widest opacity-40">Headline</label>
                       <input
@@ -417,9 +496,7 @@ export default function ProgramsManagementView({ theme, tenantId }: { theme: str
                           const val = e.target.value;
                           setConfig(prev => {
                             const newFeatured = [...(prev.featuredPrograms || [])];
-                            if (newFeatured[idx]) {
-                              newFeatured[idx] = { ...newFeatured[idx], headline: val };
-                            }
+                            if (newFeatured[idx]) newFeatured[idx] = { ...newFeatured[idx], headline: val };
                             return { ...prev, featuredPrograms: newFeatured };
                           });
                         }}
@@ -434,9 +511,7 @@ export default function ProgramsManagementView({ theme, tenantId }: { theme: str
                           const val = e.target.value;
                           setConfig(prev => {
                             const newFeatured = [...(prev.featuredPrograms || [])];
-                            if (newFeatured[idx]) {
-                              newFeatured[idx] = { ...newFeatured[idx], description: val };
-                            }
+                            if (newFeatured[idx]) newFeatured[idx] = { ...newFeatured[idx], description: val };
                             return { ...prev, featuredPrograms: newFeatured };
                           });
                         }}
@@ -465,81 +540,283 @@ export default function ProgramsManagementView({ theme, tenantId }: { theme: str
                       </div>
                     </div>
                   </div>
-                </div>
-              ))}
 
+                  {/* Right Column: Side Spotlight */}
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="material-symbols-outlined text-sm text-primary">star</span>
+                      <span className="text-[10px] font-black uppercase tracking-wider text-primary">Side Spotlight Config</span>
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="text-[9px] font-black uppercase tracking-widest opacity-40">Spotlight Headline</label>
+                      <input
+                        type="text"
+                        value={item.sidebarHeadline || ""}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          setConfig(prev => {
+                            const newFeatured = [...(prev.featuredPrograms || [])];
+                            if (newFeatured[idx]) newFeatured[idx] = { ...newFeatured[idx], sidebarHeadline: val };
+                            return { ...prev, featuredPrograms: newFeatured };
+                          });
+                        }}
+                        className="w-full px-4 py-3 rounded-xl bg-surface border-none text-[10px] font-bold"
+                        placeholder="e.g. PRO-FOCUS WEEKEND"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-[9px] font-black uppercase tracking-widest opacity-40">Spotlight Description</label>
+                      <textarea
+                        value={item.sidebarDescription || ""}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          setConfig(prev => {
+                            const newFeatured = [...(prev.featuredPrograms || [])];
+                            if (newFeatured[idx]) newFeatured[idx] = { ...newFeatured[idx], sidebarDescription: val };
+                            return { ...prev, featuredPrograms: newFeatured };
+                          });
+                        }}
+                        className="w-full px-4 py-3 rounded-xl bg-surface border-none text-[10px] font-bold min-h-[80px]"
+                        placeholder="e.g. Join Coach Marcus for a 48-hour immersion into strategy."
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-[9px] font-black uppercase tracking-widest opacity-40">Button Text</label>
+                      <input
+                        type="text"
+                        value={item.sidebarButtonText || ""}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          setConfig(prev => {
+                            const newFeatured = [...(prev.featuredPrograms || [])];
+                            if (newFeatured[idx]) newFeatured[idx] = { ...newFeatured[idx], sidebarButtonText: val };
+                            return { ...prev, featuredPrograms: newFeatured };
+                          });
+                        }}
+                        className="w-full px-4 py-3 rounded-xl bg-surface border-none text-[10px] font-bold"
+                        placeholder="e.g. VIEW COACH BIO"
+                      />
+                    </div>
+
+                    {/* Spotlight Custom Colors */}
+                    <div className="grid grid-cols-2 gap-4 bg-surface/30 p-4 rounded-2xl border border-outline/10 mt-2">
+                      {/* Background Color Customizer */}
+                      <div className="space-y-1.5">
+                        <div className="flex items-center justify-between">
+                          <label className="text-[8px] font-black uppercase tracking-wider opacity-45">Bg ({activeThemeName})</label>
+                          {item.sidebarThemeColors?.[activeTheme]?.bgColor && (
+                            <button
+                              onClick={() => handleUpdateFeaturedSidebarThemeColor(idx, "bgColor", "")}
+                              className="text-[7px] font-black uppercase text-error hover:underline"
+                            >
+                              Reset
+                            </button>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-2 bg-surface px-2 py-1 rounded-xl">
+                          <input
+                            type="color"
+                            value={item.sidebarThemeColors?.[activeTheme]?.bgColor || "#ffffff"}
+                            onChange={(e) => handleUpdateFeaturedSidebarThemeColor(idx, "bgColor", e.target.value)}
+                            className="w-6 h-6 rounded-lg border-0 cursor-pointer overflow-hidden bg-transparent"
+                          />
+                          <input
+                            type="text"
+                            placeholder="Auto"
+                            value={item.sidebarThemeColors?.[activeTheme]?.bgColor || ""}
+                            onChange={(e) => handleUpdateFeaturedSidebarThemeColor(idx, "bgColor", e.target.value)}
+                            className="flex-1 bg-transparent border-none text-[9px] font-bold outline-none uppercase placeholder:text-stone-500 w-full"
+                          />
+                        </div>
+                        <div className="flex flex-wrap gap-1 pt-1">
+                          {PRESET_COLORS.map((preset) => (
+                            <button
+                              key={preset.name}
+                              onClick={() => handleUpdateFeaturedSidebarThemeColor(idx, "bgColor", preset.value)}
+                              className={`w-4 h-4 rounded-full border transition-all hover:scale-115 cursor-pointer ${
+                                item.sidebarThemeColors?.[activeTheme]?.bgColor === preset.value ? "ring-1 ring-primary scale-110" : "border-outline/15 hover:border-outline/35"
+                              }`}
+                              style={{ backgroundColor: preset.value }}
+                              title={preset.name}
+                            />
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Font Color Customizer */}
+                      <div className="space-y-1.5">
+                        <div className="flex items-center justify-between">
+                          <label className="text-[8px] font-black uppercase tracking-wider opacity-45">Font ({activeThemeName})</label>
+                          {item.sidebarThemeColors?.[activeTheme]?.textColor && (
+                            <button
+                              onClick={() => handleUpdateFeaturedSidebarThemeColor(idx, "textColor", "")}
+                              className="text-[7px] font-black uppercase text-error hover:underline"
+                            >
+                              Reset
+                            </button>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-2 bg-surface px-2 py-1 rounded-xl">
+                          <input
+                            type="color"
+                            value={item.sidebarThemeColors?.[activeTheme]?.textColor || "#000000"}
+                            onChange={(e) => handleUpdateFeaturedSidebarThemeColor(idx, "textColor", e.target.value)}
+                            className="w-6 h-6 rounded-lg border-0 cursor-pointer overflow-hidden bg-transparent"
+                          />
+                          <input
+                            type="text"
+                            placeholder="Auto"
+                            value={item.sidebarThemeColors?.[activeTheme]?.textColor || ""}
+                            onChange={(e) => handleUpdateFeaturedSidebarThemeColor(idx, "textColor", e.target.value)}
+                            className="flex-1 bg-transparent border-none text-[9px] font-bold outline-none uppercase placeholder:text-stone-500 w-full"
+                          />
+                        </div>
+                        <div className="flex flex-wrap gap-1 pt-1">
+                          {PRESET_COLORS.map((preset) => (
+                            <button
+                              key={preset.name}
+                              onClick={() => handleUpdateFeaturedSidebarThemeColor(idx, "textColor", preset.value)}
+                              className={`w-4 h-4 rounded-full border transition-all hover:scale-115 cursor-pointer ${
+                                item.sidebarThemeColors?.[activeTheme]?.textColor === preset.value ? "ring-1 ring-primary scale-110" : "border-outline/15 hover:border-outline/35"
+                              }`}
+                              style={{ backgroundColor: preset.value }}
+                              title={preset.name}
+                            />
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+
+            <button
+              onClick={() => {
+                setConfig(prev => ({
+                  ...prev,
+                  featuredPrograms: [
+                    ...(prev.featuredPrograms || []),
+                    {
+                      headline: "CHAMPIONSHIP CLINIC 2024",
+                      description: "Intensive technical refinement for competitive players. Lead by ITF-certified master professionals.",
+                      imageUrl: "",
+                      sidebarHeadline: "PRO-FOCUS WEEKEND",
+                      sidebarDescription: "Join Coach Marcus for a 48-hour immersion into strategy and bio-mechanics. Limited to 8 participants.",
+                      sidebarButtonText: "VIEW COACH BIO",
+                      sidebarThemeColors: {
+                        LIGHT: { bgColor: "", textColor: "" },
+                        DARK: { bgColor: "", textColor: "" },
+                        VINTAGE: { bgColor: "", textColor: "" }
+                      }
+                    }
+                  ]
+                }));
+              }}
+              className="w-full py-4 border-2 border-dashed border-primary/30 rounded-2xl text-[10px] font-black tracking-widest text-primary hover:border-primary hover:bg-primary/5 transition-all uppercase flex items-center justify-center gap-2"
+            >
+              <span className="material-symbols-outlined text-lg">add</span>
+              Add Featured Program Package
+            </button>
+          </div>
+        </div>
+
+        {/* Training Tracks Editor */}
+        <div className="rounded-[2.5rem] p-10 border transition-colors bg-surface-container-low border-outline/10">
+          <div className="flex items-center justify-between mb-8">
+            <div className="flex items-center gap-3">
+              <span className="material-symbols-outlined text-primary">dynamic_feed</span>
+              <h3 className="text-xl font-black uppercase tracking-widest">Training Tracks</h3>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-[9px] font-black uppercase tracking-widest opacity-40">Display</span>
               <button
-                onClick={() => {
-                  setConfig(prev => ({
-                    ...prev,
-                    featuredPrograms: [
-                      ...(prev.featuredPrograms || []),
-                      { headline: "CHAMPIONSHIP CLINIC 2024", description: "Intensive technical refinement for competitive players.", imageUrl: "" }
-                    ]
-                  }));
-                }}
-                className="w-full py-4 border-2 border-dashed border-primary/30 rounded-2xl text-[10px] font-black tracking-widest text-primary hover:border-primary hover:bg-primary/5 transition-all uppercase flex items-center justify-center gap-2"
+                onClick={() => setConfig({ ...config, showTracks: !config.showTracks })}
+                className={`w-10 h-5 rounded-full transition-all relative ${config.showTracks ? 'bg-primary' : 'bg-surface-container-highest'}`}
               >
-                <span className="material-symbols-outlined text-lg">add</span>
-                Add Featured Program
+                <div className={`absolute top-1 w-3 h-3 rounded-full bg-white transition-all ${config.showTracks ? 'left-6' : 'left-1'}`}></div>
               </button>
             </div>
           </div>
 
-          {/* Training Tracks Editor */}
-          <div className="rounded-[2.5rem] p-10 border transition-colors bg-surface-container-low border-outline/10">
-             <div className="flex items-center justify-between mb-8">
-              <div className="flex items-center gap-3">
-                <span className="material-symbols-outlined text-primary">dynamic_feed</span>
-                <h3 className="text-xl font-black uppercase tracking-widest">Training Tracks</h3>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="text-[9px] font-black uppercase tracking-widest opacity-40">Display</span>
-                <button
-                  onClick={() => setConfig({ ...config, showTracks: !config.showTracks })}
-                  className={`w-10 h-5 rounded-full transition-all relative ${config.showTracks ? 'bg-primary' : 'bg-surface-container-highest'}`}
-                >
-                  <div className={`absolute top-1 w-3 h-3 rounded-full bg-white transition-all ${config.showTracks ? 'left-6' : 'left-1'}`}></div>
-                </button>
-              </div>
-            </div>
-
-            <div className="space-y-12">
-              {config.tracks.map((track, idx) => (
-                <div key={idx} className="p-8 rounded-[2rem] bg-surface-container space-y-6 relative overflow-hidden">
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="px-4 py-1 rounded-full text-[8px] font-black uppercase tracking-widest bg-primary/10 text-primary">Track 0{idx + 1}</span>
-                    {config.tracks.length > 1 && (
-                      <button
-                        onClick={() => {
+          <div className="space-y-12">
+            {config.tracks.map((track, idx) => (
+              <div key={idx} className="p-8 rounded-[2rem] bg-surface-container space-y-6 relative overflow-hidden">
+                <div className="flex justify-between items-center mb-2">
+                  <span className="px-4 py-1 rounded-full text-[8px] font-black uppercase tracking-widest bg-primary/10 text-primary">Track 0{idx + 1}</span>
+                  {config.tracks.length > 1 && (
+                    <button
+                      onClick={() => {
+                        setConfig(prev => {
+                          const newTracks = [...prev.tracks];
+                          newTracks.splice(idx, 1);
+                          return { ...prev, tracks: newTracks };
+                        });
+                      }}
+                      className="flex items-center gap-1 text-[8px] font-black uppercase tracking-widest text-error hover:underline transition-all"
+                    >
+                      <span className="material-symbols-outlined text-sm">delete</span>
+                      Remove Track
+                    </button>
+                  )}
+                </div>
+                
+                <div className="grid grid-cols-2 gap-6">
+                  <div className="space-y-4">
+                    <div className="space-y-1">
+                      <label className="text-[9px] font-black uppercase tracking-widest opacity-40">Title</label>
+                      <input
+                        type="text"
+                        value={track.title}
+                        onChange={(e) => {
+                          const val = e.target.value;
                           setConfig(prev => {
                             const newTracks = [...prev.tracks];
-                            newTracks.splice(idx, 1);
+                            const trackObj = newTracks[idx];
+                            if (trackObj) {
+                              newTracks[idx] = { ...trackObj, title: val };
+                            }
                             return { ...prev, tracks: newTracks };
                           });
                         }}
-                        className="flex items-center gap-1 text-[8px] font-black uppercase tracking-widest text-error hover:underline transition-all"
-                      >
-                        <span className="material-symbols-outlined text-sm">delete</span>
-                        Remove Track
-                      </button>
-                    )}
+                        className="w-full px-4 py-3 rounded-xl bg-surface border-none text-[10px] font-bold"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-[9px] font-black uppercase tracking-widest opacity-40">Description</label>
+                      <textarea
+                        value={track.description}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          setConfig(prev => {
+                            const newTracks = [...prev.tracks];
+                            const trackObj = newTracks[idx];
+                            if (trackObj) {
+                              newTracks[idx] = { ...trackObj, description: val };
+                            }
+                            return { ...prev, tracks: newTracks };
+                          });
+                        }}
+                        className="w-full px-4 py-3 rounded-xl bg-surface border-none text-[10px] font-bold min-h-[80px]"
+                      />
+                    </div>
                   </div>
                   
-                  <div className="grid grid-cols-2 gap-6">
-                    <div className="space-y-4">
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-1">
-                        <label className="text-[9px] font-black uppercase tracking-widest opacity-40">Title</label>
+                        <label className="text-[9px] font-black uppercase tracking-widest opacity-40">Stat Label</label>
                         <input
                           type="text"
-                          value={track.title}
+                          value={track.priceLabel}
                           onChange={(e) => {
                             const val = e.target.value;
                             setConfig(prev => {
                               const newTracks = [...prev.tracks];
                               const trackObj = newTracks[idx];
                               if (trackObj) {
-                                newTracks[idx] = { ...trackObj, title: val };
+                                newTracks[idx] = { ...trackObj, priceLabel: val };
                               }
                               return { ...prev, tracks: newTracks };
                             });
@@ -548,347 +825,168 @@ export default function ProgramsManagementView({ theme, tenantId }: { theme: str
                         />
                       </div>
                       <div className="space-y-1">
-                        <label className="text-[9px] font-black uppercase tracking-widest opacity-40">Description</label>
-                        <textarea
-                          value={track.description}
+                        <label className="text-[9px] font-black uppercase tracking-widest opacity-40">Stat Value</label>
+                        <input
+                          type="text"
+                          value={track.priceValue}
                           onChange={(e) => {
                             const val = e.target.value;
                             setConfig(prev => {
                               const newTracks = [...prev.tracks];
                               const trackObj = newTracks[idx];
                               if (trackObj) {
-                                newTracks[idx] = { ...trackObj, description: val };
+                                newTracks[idx] = { ...trackObj, priceValue: val };
                               }
                               return { ...prev, tracks: newTracks };
                             });
                           }}
-                          className="w-full px-4 py-3 rounded-xl bg-surface border-none text-[10px] font-bold min-h-[80px]"
+                          className="w-full px-4 py-3 rounded-xl bg-surface border-none text-[10px] font-bold"
                         />
                       </div>
                     </div>
-                    
-                    <div className="space-y-4">
-                      <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-1">
-                          <label className="text-[9px] font-black uppercase tracking-widest opacity-40">Stat Label</label>
-                          <input
-                            type="text"
-                            value={track.priceLabel}
-                            onChange={(e) => {
-                              const val = e.target.value;
-                              setConfig(prev => {
-                                const newTracks = [...prev.tracks];
-                                const trackObj = newTracks[idx];
-                                if (trackObj) {
-                                  newTracks[idx] = { ...trackObj, priceLabel: val };
-                                }
-                                return { ...prev, tracks: newTracks };
-                              });
-                            }}
-                            className="w-full px-4 py-3 rounded-xl bg-surface border-none text-[10px] font-bold"
-                          />
-                        </div>
-                        <div className="space-y-1">
-                          <label className="text-[9px] font-black uppercase tracking-widest opacity-40">Stat Value</label>
-                          <input
-                            type="text"
-                            value={track.priceValue}
-                            onChange={(e) => {
-                              const val = e.target.value;
-                              setConfig(prev => {
-                                const newTracks = [...prev.tracks];
-                                const trackObj = newTracks[idx];
-                                if (trackObj) {
-                                  newTracks[idx] = { ...trackObj, priceValue: val };
-                                }
-                                return { ...prev, tracks: newTracks };
-                              });
-                            }}
-                            className="w-full px-4 py-3 rounded-xl bg-surface border-none text-[10px] font-bold"
-                          />
-                        </div>
-                      </div>
 
-                      <div className="space-y-1">
-                        <label className="text-[9px] font-black uppercase tracking-widest opacity-40">Track Image</label>
-                        <div 
-                          onClick={() => triggerImageUpload('track', idx)}
-                          className="group relative h-24 rounded-xl overflow-hidden cursor-pointer border-2 border-dashed border-outline/10 hover:border-primary/50 transition-all flex items-center justify-center bg-surface"
+                    <div className="space-y-1">
+                      <label className="text-[9px] font-black uppercase tracking-widest opacity-40">Track Image</label>
+                      <div 
+                        onClick={() => triggerImageUpload('track', idx)}
+                        className="group relative h-24 rounded-xl overflow-hidden cursor-pointer border-2 border-dashed border-outline/10 hover:border-primary/50 transition-all flex items-center justify-center bg-surface"
+                      >
+                        {track.imageUrl ? (
+                          <>
+                            <img src={track.imageUrl} className="absolute inset-0 w-full h-full object-cover opacity-30" alt="Track" />
+                            <span className="relative z-10 material-symbols-outlined text-xl text-primary">image</span>
+                          </>
+                        ) : (
+                          <span className="material-symbols-outlined text-xl opacity-20">add_photo_alternate</span>
+                        )}
+                        {uploading === `track_${idx}` && (
+                          <div className="absolute inset-0 bg-black/60 flex items-center justify-center z-20">
+                            <div className="w-4 h-4 border border-white border-t-transparent rounded-full animate-spin"></div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Track Theme Custom Color Pickers */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-surface/30 p-4 rounded-2xl border border-outline/10 mt-4">
+                  <div className="space-y-1">
+                    <div className="flex items-center justify-between">
+                      <label className="text-[8px] font-black uppercase tracking-widest opacity-40">
+                        Background ({activeThemeName})
+                      </label>
+                      {track.themeColors?.[activeTheme]?.bgColor && (
+                        <button
+                          onClick={() => handleUpdateTrackThemeColor(idx, "bgColor", "")}
+                          className="text-[7px] font-black uppercase text-error hover:underline"
                         >
-                          {track.imageUrl ? (
-                            <>
-                              <img src={track.imageUrl} className="absolute inset-0 w-full h-full object-cover opacity-30" alt="Track" />
-                              <span className="relative z-10 material-symbols-outlined text-xl text-primary">image</span>
-                            </>
-                          ) : (
-                            <span className="material-symbols-outlined text-xl opacity-20">add_photo_alternate</span>
-                          )}
-                          {uploading === `track_${idx}` && (
-                            <div className="absolute inset-0 bg-black/60 flex items-center justify-center z-20">
-                              <div className="w-4 h-4 border border-white border-t-transparent rounded-full animate-spin"></div>
-                            </div>
-                          )}
-                        </div>
-                      </div>
+                          Reset
+                        </button>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-2 bg-surface px-2 py-1.5 rounded-xl">
+                      <input
+                        type="color"
+                        value={track.themeColors?.[activeTheme]?.bgColor || "#ffffff"}
+                        onChange={(e) => handleUpdateTrackThemeColor(idx, "bgColor", e.target.value)}
+                        className="w-6 h-6 rounded-lg border-0 cursor-pointer overflow-hidden bg-transparent"
+                      />
+                      <input
+                        type="text"
+                        placeholder="Auto"
+                        value={track.themeColors?.[activeTheme]?.bgColor || ""}
+                        onChange={(e) => handleUpdateTrackThemeColor(idx, "bgColor", e.target.value)}
+                        className="flex-1 bg-transparent border-none text-[9px] font-bold outline-none uppercase placeholder:text-stone-500 w-full"
+                      />
+                    </div>
+                    <div className="flex flex-wrap gap-1 pt-1">
+                      {PRESET_COLORS.map((preset) => (
+                        <button
+                          key={preset.name}
+                          onClick={() => handleUpdateTrackThemeColor(idx, "bgColor", preset.value)}
+                          className={`w-4 h-4 rounded-full border transition-all hover:scale-115 cursor-pointer ${
+                            track.themeColors?.[activeTheme]?.bgColor === preset.value ? "ring-1 ring-primary scale-110" : "border-outline/15 hover:border-outline/35"
+                          }`}
+                          style={{ backgroundColor: preset.value }}
+                          title={preset.name}
+                        />
+                      ))}
                     </div>
                   </div>
 
-                  {/* Track Theme Custom Color Pickers */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-surface/30 p-4 rounded-2xl border border-outline/10 mt-4">
-                    <div className="space-y-1">
-                      <div className="flex items-center justify-between">
-                        <label className="text-[8px] font-black uppercase tracking-widest opacity-40">
-                          Background ({activeThemeName})
-                        </label>
-                        {track.themeColors?.[activeTheme]?.bgColor && (
-                          <button
-                            onClick={() => handleUpdateTrackThemeColor(idx, "bgColor", "")}
-                            className="text-[7px] font-black uppercase text-error hover:underline"
-                          >
-                            Reset
-                          </button>
-                        )}
-                      </div>
-                      <div className="flex items-center gap-2 bg-surface px-2 py-1.5 rounded-xl">
-                        <input
-                          type="color"
-                          value={track.themeColors?.[activeTheme]?.bgColor || "#ffffff"}
-                          onChange={(e) => handleUpdateTrackThemeColor(idx, "bgColor", e.target.value)}
-                          className="w-6 h-6 rounded-lg border-0 cursor-pointer overflow-hidden bg-transparent"
-                        />
-                        <input
-                          type="text"
-                          placeholder="Auto"
-                          value={track.themeColors?.[activeTheme]?.bgColor || ""}
-                          onChange={(e) => handleUpdateTrackThemeColor(idx, "bgColor", e.target.value)}
-                          className="flex-1 bg-transparent border-none text-[9px] font-bold outline-none uppercase placeholder:text-stone-500 w-full"
-                        />
-                      </div>
-                      <div className="flex flex-wrap gap-1 pt-1">
-                        {PRESET_COLORS.map((preset) => (
-                          <button
-                            key={preset.name}
-                            onClick={() => handleUpdateTrackThemeColor(idx, "bgColor", preset.value)}
-                            className={`w-4 h-4 rounded-full border transition-all hover:scale-115 cursor-pointer ${
-                              track.themeColors?.[activeTheme]?.bgColor === preset.value ? "ring-1 ring-primary scale-110" : "border-outline/15 hover:border-outline/35"
-                            }`}
-                            style={{ backgroundColor: preset.value }}
-                            title={preset.name}
-                          />
-                        ))}
-                      </div>
+                  <div className="space-y-1">
+                    <div className="flex items-center justify-between">
+                      <label className="text-[8px] font-black uppercase tracking-widest opacity-40">
+                        Font Color ({activeThemeName})
+                      </label>
+                      {track.themeColors?.[activeTheme]?.textColor && (
+                        <button
+                          onClick={() => handleUpdateTrackThemeColor(idx, "textColor", "")}
+                          className="text-[7px] font-black uppercase text-error hover:underline"
+                        >
+                          Reset
+                        </button>
+                      )}
                     </div>
-
-                    <div className="space-y-1">
-                      <div className="flex items-center justify-between">
-                        <label className="text-[8px] font-black uppercase tracking-widest opacity-40">
-                          Font Color ({activeThemeName})
-                        </label>
-                        {track.themeColors?.[activeTheme]?.textColor && (
-                          <button
-                            onClick={() => handleUpdateTrackThemeColor(idx, "textColor", "")}
-                            className="text-[7px] font-black uppercase text-error hover:underline"
-                          >
-                            Reset
-                          </button>
-                        )}
-                      </div>
-                      <div className="flex items-center gap-2 bg-surface px-2 py-1.5 rounded-xl">
-                        <input
-                          type="color"
-                          value={track.themeColors?.[activeTheme]?.textColor || "#000000"}
-                          onChange={(e) => handleUpdateTrackThemeColor(idx, "textColor", e.target.value)}
-                          className="w-6 h-6 rounded-lg border-0 cursor-pointer overflow-hidden bg-transparent"
+                    <div className="flex items-center gap-2 bg-surface px-2 py-1.5 rounded-xl">
+                      <input
+                        type="color"
+                        value={track.themeColors?.[activeTheme]?.textColor || "#000000"}
+                        onChange={(e) => handleUpdateTrackThemeColor(idx, "textColor", e.target.value)}
+                        className="w-6 h-6 rounded-lg border-0 cursor-pointer overflow-hidden bg-transparent"
+                      />
+                      <input
+                        type="text"
+                        placeholder="Auto"
+                        value={track.themeColors?.[activeTheme]?.textColor || ""}
+                        onChange={(e) => handleUpdateTrackThemeColor(idx, "textColor", e.target.value)}
+                        className="flex-1 bg-transparent border-none text-[9px] font-bold outline-none uppercase placeholder:text-stone-500 w-full"
+                      />
+                    </div>
+                    <div className="flex flex-wrap gap-1 pt-1">
+                      {PRESET_COLORS.map((preset) => (
+                        <button
+                          key={preset.name}
+                          onClick={() => handleUpdateTrackThemeColor(idx, "textColor", preset.value)}
+                          className={`w-4 h-4 rounded-full border transition-all hover:scale-115 cursor-pointer ${
+                            track.themeColors?.[activeTheme]?.textColor === preset.value ? "ring-1 ring-primary scale-110" : "border-outline/15 hover:border-outline/35"
+                          }`}
+                          style={{ backgroundColor: preset.value }}
+                          title={preset.name}
                         />
-                        <input
-                          type="text"
-                          placeholder="Auto"
-                          value={track.themeColors?.[activeTheme]?.textColor || ""}
-                          onChange={(e) => handleUpdateTrackThemeColor(idx, "textColor", e.target.value)}
-                          className="flex-1 bg-transparent border-none text-[9px] font-bold outline-none uppercase placeholder:text-stone-500 w-full"
-                        />
-                      </div>
-                      <div className="flex flex-wrap gap-1 pt-1">
-                        {PRESET_COLORS.map((preset) => (
-                          <button
-                            key={preset.name}
-                            onClick={() => handleUpdateTrackThemeColor(idx, "textColor", preset.value)}
-                            className={`w-4 h-4 rounded-full border transition-all hover:scale-115 cursor-pointer ${
-                              track.themeColors?.[activeTheme]?.textColor === preset.value ? "ring-1 ring-primary scale-110" : "border-outline/15 hover:border-outline/35"
-                            }`}
-                            style={{ backgroundColor: preset.value }}
-                            title={preset.name}
-                          />
-                        ))}
-                      </div>
+                      ))}
                     </div>
                   </div>
                 </div>
-              ))}
+              </div>
+            ))}
 
-              <button
-                onClick={() => {
-                  setConfig(prev => ({
-                    ...prev,
-                    tracks: [
-                      ...prev.tracks,
-                      { 
-                        title: "NEW TRAINING TRACK", 
-                        description: "Track details and scheduling information...", 
-                        imageUrl: "",
-                        priceLabel: "STARTS AT",
-                        priceValue: "$50/HR",
-                        icon: "fitness_center"
-                      }
-                    ]
-                  }));
-                }}
-                className="w-full py-4 border-2 border-dashed border-primary/30 rounded-2xl text-[10px] font-black tracking-widest text-primary hover:border-primary hover:bg-primary/5 transition-all uppercase flex items-center justify-center gap-2"
-              >
-                <span className="material-symbols-outlined text-lg">add</span>
-                Add Training Track
-              </button>
-            </div>
+            <button
+              onClick={() => {
+                setConfig(prev => ({
+                  ...prev,
+                  tracks: [
+                    ...prev.tracks,
+                    { 
+                      title: "NEW TRAINING TRACK", 
+                      description: "Track details and scheduling information...", 
+                      imageUrl: "",
+                      priceLabel: "STARTS AT",
+                      priceValue: "$50/HR",
+                      icon: "fitness_center"
+                    }
+                  ]
+                }));
+              }}
+              className="w-full py-4 border-2 border-dashed border-primary/30 rounded-2xl text-[10px] font-black tracking-widest text-primary hover:border-primary hover:bg-primary/5 transition-all uppercase flex items-center justify-center gap-2"
+            >
+              <span className="material-symbols-outlined text-lg">add</span>
+              Add Training Track
+            </button>
           </div>
         </div>
-
-        <div className="col-span-12 lg:col-span-4 space-y-6">
-          {/* Sidebar Editor */}
-          <div className="rounded-[2.5rem] p-10 border transition-colors bg-surface-container-low border-outline/10">
-            <div className="flex items-center justify-between mb-8">
-              <h3 className="text-xl font-black uppercase tracking-widest">Side Spotlight</h3>
-              <button
-                onClick={() => setConfig({ ...config, showSidebar: !config.showSidebar })}
-                className={`w-10 h-5 rounded-full transition-all relative ${config.showSidebar ? 'bg-primary' : 'bg-surface-container-highest'}`}
-              >
-                <div className={`absolute top-1 w-3 h-3 rounded-full bg-white transition-all ${config.showSidebar ? 'left-6' : 'left-1'}`}></div>
-              </button>
-            </div>
-            <div className="space-y-4">
-              <div className="space-y-1">
-                <label className="text-[9px] font-black uppercase tracking-widest opacity-40">Headline</label>
-                <input
-                  type="text"
-                  value={config.sidebarHeadline}
-                  onChange={(e) => setConfig({ ...config, sidebarHeadline: e.target.value })}
-                  className="w-full px-4 py-3 rounded-xl bg-surface-container border-none text-[10px] font-bold"
-                />
-              </div>
-              <div className="space-y-1">
-                <label className="text-[9px] font-black uppercase tracking-widest opacity-40">Description</label>
-                <textarea
-                  value={config.sidebarDescription}
-                  onChange={(e) => setConfig({ ...config, sidebarDescription: e.target.value })}
-                  className="w-full px-4 py-3 rounded-xl bg-surface-container border-none text-[10px] font-bold min-h-[80px]"
-                />
-              </div>
-              <div className="space-y-1">
-                <label className="text-[9px] font-black uppercase tracking-widest opacity-40">Button Text</label>
-                <input
-                  type="text"
-                  value={config.sidebarButtonText}
-                  onChange={(e) => setConfig({ ...config, sidebarButtonText: e.target.value })}
-                  className="w-full px-4 py-3 rounded-xl bg-surface-container border-none text-[10px] font-bold"
-                />
-              </div>
-            </div>
-
-              {/* Side Spotlight Custom Colors */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-surface/30 p-5 rounded-3xl border border-outline/10 mt-6">
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <label className="text-[9px] font-black uppercase tracking-[0.2em] opacity-40 ml-1">
-                      Background ({activeThemeName})
-                    </label>
-                    {activeSidebarBgColor && (
-                      <button
-                        onClick={() => handleUpdateThemeColor("sidebar", "bgColor", "")}
-                        className="text-[8px] font-black uppercase text-error hover:underline"
-                      >
-                        Reset
-                      </button>
-                    )}
-                  </div>
-                  <div className="flex items-center gap-3 bg-surface p-2.5 rounded-2xl">
-                    <input
-                      type="color"
-                      value={activeSidebarBgColor || "#ffffff"}
-                      onChange={(e) => handleUpdateThemeColor("sidebar", "bgColor", e.target.value)}
-                      className="w-8 h-8 rounded-xl border-0 cursor-pointer overflow-hidden bg-transparent"
-                    />
-                    <input
-                      type="text"
-                      placeholder="Auto"
-                      value={activeSidebarBgColor || ""}
-                      onChange={(e) => handleUpdateThemeColor("sidebar", "bgColor", e.target.value)}
-                      className="flex-1 bg-transparent border-none text-[11px] font-bold outline-none uppercase placeholder:text-stone-500 w-full"
-                    />
-                  </div>
-                  {/* Predefined Swatches */}
-                  <div className="flex flex-wrap gap-1.5 pt-2 ml-1">
-                    {PRESET_COLORS.map((preset) => (
-                      <button
-                        key={preset.name}
-                        onClick={() => handleUpdateThemeColor("sidebar", "bgColor", preset.value)}
-                        className={`w-5 h-5 rounded-full border transition-all hover:scale-115 cursor-pointer ${
-                          activeSidebarBgColor === preset.value ? "ring-2 ring-primary scale-110" : "border-outline/15 hover:border-outline/35"
-                        }`}
-                        style={{ backgroundColor: preset.value }}
-                        title={preset.name}
-                      />
-                    ))}
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <label className="text-[9px] font-black uppercase tracking-[0.2em] opacity-40 ml-1">
-                      Font Color ({activeThemeName})
-                    </label>
-                    {activeSidebarTextColor && (
-                      <button
-                        onClick={() => handleUpdateThemeColor("sidebar", "textColor", "")}
-                        className="text-[8px] font-black uppercase text-error hover:underline"
-                      >
-                        Reset
-                      </button>
-                    )}
-                  </div>
-                  <div className="flex items-center gap-3 bg-surface p-2.5 rounded-2xl">
-                    <input
-                      type="color"
-                      value={activeSidebarTextColor || "#000000"}
-                      onChange={(e) => handleUpdateThemeColor("sidebar", "textColor", e.target.value)}
-                      className="w-8 h-8 rounded-xl border-0 cursor-pointer overflow-hidden bg-transparent"
-                    />
-                    <input
-                      type="text"
-                      placeholder="Auto"
-                      value={activeSidebarTextColor || ""}
-                      onChange={(e) => handleUpdateThemeColor("sidebar", "textColor", e.target.value)}
-                      className="flex-1 bg-transparent border-none text-[11px] font-bold outline-none uppercase placeholder:text-stone-500 w-full"
-                    />
-                  </div>
-                  {/* Predefined Swatches */}
-                  <div className="flex flex-wrap gap-1.5 pt-2 ml-1">
-                    {PRESET_COLORS.map((preset) => (
-                      <button
-                        key={preset.name}
-                        onClick={() => handleUpdateThemeColor("sidebar", "textColor", preset.value)}
-                        className={`w-5 h-5 rounded-full border transition-all hover:scale-115 cursor-pointer ${
-                          activeSidebarTextColor === preset.value ? "ring-2 ring-primary scale-110" : "border-outline/15 hover:border-outline/35"
-                        }`}
-                        style={{ backgroundColor: preset.value }}
-                        title={preset.name}
-                      />
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-        </div>
+      </div>
 
       {/* Bottom Banner Editor */}
       <div className="rounded-[2.5rem] p-10 border transition-colors bg-surface-container-low border-outline/10">
