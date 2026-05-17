@@ -45,8 +45,16 @@ export default function MembershipManagementView({ theme, tenantId }: { theme: s
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [activePlanIdx, setActivePlanIdx] = useState<number | null>(0);
-  const [previewTheme, setPreviewTheme] = useState<"LIGHT" | "DARK" | "VINTAGE">("DARK");
+  const [previewTheme, setPreviewTheme] = useState<"LIGHT" | "DARK" | "VINTAGE">(
+    theme === "DARK" || theme === "VINTAGE" || theme === "LIGHT" ? (theme as any) : "LIGHT"
+  );
   const { showNotification } = useNotification();
+
+  useEffect(() => {
+    if (theme === "DARK" || theme === "VINTAGE" || theme === "LIGHT") {
+      setPreviewTheme(theme as any);
+    }
+  }, [theme]);
 
   useEffect(() => {
     if (!tenantId) return;
@@ -208,7 +216,7 @@ export default function MembershipManagementView({ theme, tenantId }: { theme: s
         ? "bg-stone-100 text-white"
         : isVintage
           ? "bg-white text-black"
-          : "bg-[#ccff00] text-[#4f6b28]";
+          : "bg-[#ccff00] text-black";
     } else {
       return isDark
         ? "border-2 border-stone-200 text-white hover:bg-stone-200 hover:text-stone-950"
@@ -503,33 +511,34 @@ export default function MembershipManagementView({ theme, tenantId }: { theme: s
                 <h3 className="text-xl font-black uppercase tracking-widest">Dynamic Preview</h3>
               </div>
               <div className="flex items-center gap-1 bg-surface-container p-1 rounded-2xl">
-                {(["LIGHT", "DARK", "VINTAGE"] as const).map((t) => (
-                  <button
-                    key={t}
-                    onClick={() => setPreviewTheme(t)}
-                    className={`px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${
-                      previewTheme === t
-                        ? "bg-primary text-on-primary shadow-md"
-                        : "text-on-surface-variant hover:bg-surface-container-high"
-                    }`}
-                  >
-                    {t}
-                  </button>
-                ))}
+                {(["LIGHT", "DARK", "VINTAGE"] as const).map((t) => {
+                  const label = t === "LIGHT" ? "KINETIC" : t === "VINTAGE" ? "LIGHT" : "DARK";
+                  return (
+                    <button
+                      key={t}
+                      onClick={() => setPreviewTheme(t)}
+                      className={`px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${
+                        previewTheme === t
+                          ? "bg-primary text-on-primary shadow-md"
+                          : "text-on-surface-variant hover:bg-surface-container-high"
+                      }`}
+                    >
+                      {label}
+                    </button>
+                  );
+                })}
               </div>
             </div>
 
             {/* Simulated Device Screen Container */}
-            <div className={`flex-1 rounded-[2rem] p-8 transition-colors duration-500 overflow-y-auto min-h-[450px] flex flex-col justify-center ${
+            <div className={`flex-1 rounded-[2rem] p-8 transition-colors duration-500 overflow-y-auto min-h-[450px] flex flex-col justify-center theme-${previewTheme.toLowerCase()} bg-background text-on-background ${
               previewTheme === "DARK"
-                ? "bg-black text-white"
-                : previewTheme === "VINTAGE"
-                  ? "bg-[#faf9f5] text-black"
-                  : "bg-white text-stone-900 border border-outline/10"
+                ? "border border-stone-800"
+                : "border border-outline/10"
             }`}>
-              <div className="space-y-8 max-w-md mx-auto w-full">
+              <div className="space-y-8 max-w-md mx-auto w-full animate-in fade-in duration-300">
                 <h4 className={`text-2xl font-black tracking-tighter uppercase text-center ${
-                  previewTheme === "DARK" ? "text-white" : previewTheme === "LIGHT" ? "text-[#4f6b28]" : "text-black"
+                  previewTheme === "LIGHT" ? "text-[#4f6b28]" : "text-on-background"
                 }`} style={{ fontFamily: 'Lexend, sans-serif' }}>
                   MEMBERSHIP PLANS
                 </h4>
