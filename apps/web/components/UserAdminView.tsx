@@ -293,7 +293,14 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
   }, []);
 
   const filteredUsers = useMemo(() => {
-    return users;
+    return users.filter(u => {
+      const roleIds = u.roles || [];
+      const singleRole = u.role;
+      const allRoles = (roleIds.length > 0 ? roleIds : (singleRole ? [singleRole] : [])).map(r => r.toUpperCase());
+      
+      const isMember = allRoles.some(r => r === "R10001" || r === "MEMBER" || r === "PLAYER");
+      return !isMember;
+    });
   }, [users]);
 
   useEffect(() => {
@@ -984,7 +991,7 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
               theme === "DARK" ? "text-[#ccff00]" :
                 theme === "VINTAGE" ? "text-black" :
                   "text-[#4f6b28]"
-            }>{users.length}</span> Users Active
+            }>{filteredUsers.length}</span> Users Active
           </p>
         </div>
         <div className="flex gap-4">
