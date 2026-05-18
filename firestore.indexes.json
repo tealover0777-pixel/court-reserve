@@ -72,6 +72,14 @@
       "fieldPath": "user_id",
       "indexes": [
         {
+          "queryScope": "COLLECTION",
+          "order": "ASCENDING"
+        },
+        {
+          "queryScope": "COLLECTION",
+          "order": "DESCENDING"
+        },
+        {
           "queryScope": "COLLECTION_GROUP",
           "order": "ASCENDING"
         },
@@ -86,6 +94,14 @@
       "fieldPath": "auth_uid",
       "indexes": [
         {
+          "queryScope": "COLLECTION",
+          "order": "ASCENDING"
+        },
+        {
+          "queryScope": "COLLECTION",
+          "order": "DESCENDING"
+        },
+        {
           "queryScope": "COLLECTION_GROUP",
           "order": "ASCENDING"
         },
@@ -99,6 +115,14 @@
       "collectionGroup": "users",
       "fieldPath": "email",
       "indexes": [
+        {
+          "queryScope": "COLLECTION",
+          "order": "ASCENDING"
+        },
+        {
+          "queryScope": "COLLECTION",
+          "order": "DESCENDING"
+        },
         {
           "queryScope": "COLLECTION_GROUP",
           "order": "ASCENDING"
