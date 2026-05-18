@@ -72,98 +72,75 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
         const uid = firebaseUser.uid;
 
-        const attachProfile = (docRef: DocumentReference, extraData: Partial<UserProfile> = {}) => {
-          return onSnapshot(docRef, (snap: DocumentSnapshot) => {
-              if (!snap.exists()) {
-                setProfile(null);
+        let unsubGlobal: (() => void) | null = null;
+        let unsubTenantGroup: (() => void) | null = null;
+
+        const setupListeners = async () => {
+          try {
+            // 1. Listen to global_users in real-time
+            const globalQ = query(collection(db, "global_users"), where("auth_uid", "==", uid), limit(1));
+            unsubGlobal = onSnapshot(globalQ, (snap) => {
+              if (!snap.empty && snap.docs[0]) {
+                const docSnap = snap.docs[0];
+                const data = docSnap.data() as UserProfile;
+                console.log("[AuthContext] Real-time profile resolved from global_users:", data.email);
+                setProfile({ ...data, id: docSnap.id });
                 setLoading(false);
-                return;
+                
+                if (data.status === "Invited") {
+                  updateDoc(docSnap.ref, {
+                    status: "Active",
+                    last_login: new Date().toISOString(),
+                  }).catch((err: unknown) => console.error("Failed to auto-activate user:", err));
+                }
               }
-              const data = snap.data() as UserProfile;
-              // Clean extraData of undefined values to avoid overwriting valid fields
-              const cleanExtra = Object.fromEntries(
-                Object.entries(extraData).filter(([_, v]) => v !== undefined)
-              );
-              
-              console.log("[AuthContext] Setting profile:", data.email, "from path:", snap.ref.path, "extra:", cleanExtra);
-              setProfile({ ...data, ...cleanExtra, id: snap.id });
+            }, (err) => {
+              console.error("Global real-time listener error:", err);
+            });
 
-              if (data.status === "Invited") {
-                updateDoc(snap.ref, {
-                  status: "Active",
-                  last_login: new Date().toISOString(),
-                }).catch((err: unknown) => console.error("Failed to auto-activate user:", err));
-              }
-              setLoading(false);
-            },
-            (error) => {
-              console.error("Profile fetch error:", error);
-              setLoading(false);
-            }
-          );
-        };
-
-        try {
-          const globalQ = query(collection(db, "global_users"), where("auth_uid", "==", uid));
-          const globalSnap = await getDocs(globalQ);
-          if (!globalSnap.empty) {
-            const first = globalSnap.docs[0];
-            if (first) {
-              console.log("[AuthContext] Found global user:", first.id);
-              unsubscribeProfileRef.current = attachProfile(first.ref) as () => void;
-            }
-          } else {
-            // Fallback: Check custom claims if collectionGroup query might fail or return empty
-            const tokenResult = await firebaseUser.getIdTokenResult();
-            const claimTenantId = tokenResult.claims.tenantId as string;
-            
-            if (claimTenantId) {
-              // Search within the specific tenant's users
-              const tenantSpecificQ = query(
-                collection(db, "tenants", claimTenantId, "users"),
-                where("auth_uid", "==", uid),
-                limit(1)
-              );
-              const tsSnap = await getDocs(tenantSpecificQ);
-              if (!tsSnap.empty && tsSnap.docs[0]) {
-                // Ensure tenant_id is set in profile even if missing in document
-                unsubscribeProfileRef.current = attachProfile(tsSnap.docs[0].ref, { tenant_id: claimTenantId }) as () => void;
-                return;
-              }
-            }
-
-            // Original collectionGroup fallback
-            const tenantQ = query(
-              collectionGroup(db, "users"),
-              where("auth_uid", "==", uid),
-              limit(1)
-            );
-            const tenantSnap = await getDocs(tenantQ);
-            if (!tenantSnap.empty) {
-              const firstT = tenantSnap.docs[0];
-              if (firstT) {
-                // Try to extract tenant_id from path if missing
-                const pathParts = firstT.ref.path.split("/");
+            // 2. Listen to collectionGroup("users") in real-time
+            const tenantQ = query(collectionGroup(db, "users"), where("auth_uid", "==", uid), limit(1));
+            unsubTenantGroup = onSnapshot(tenantQ, (snap) => {
+              if (!snap.empty && snap.docs[0]) {
+                const docSnap = snap.docs[0];
+                const data = docSnap.data() as UserProfile;
+                const pathParts = docSnap.ref.path.split("/");
                 let detectedTenantId = "";
                 if (pathParts[0] === "tenants" && pathParts[1]) {
                   detectedTenantId = pathParts[1];
                 }
-                console.log("[AuthContext] Found tenant user via collectionGroup:", firstT.ref.path, "Detected Tenant:", detectedTenantId);
-                unsubscribeProfileRef.current = attachProfile(firstT.ref, detectedTenantId ? { tenant_id: detectedTenantId } : {}) as () => void;
-              } else {
-                setProfile(null);
+                console.log("[AuthContext] Real-time profile resolved from collectionGroup users:", docSnap.ref.path, "Tenant:", detectedTenantId);
+                setProfile({ ...data, tenant_id: data.tenant_id || detectedTenantId, id: docSnap.id });
                 setLoading(false);
+
+                if (data.status === "Invited") {
+                  updateDoc(docSnap.ref, {
+                    status: "Active",
+                    last_login: new Date().toISOString(),
+                  }).catch((err: unknown) => console.error("Failed to auto-activate user:", err));
+                }
               }
-            } else {
-              setProfile(null);
+            }, (err) => {
+              console.error("Tenant collectionGroup real-time listener error:", err);
+            });
+
+            // After a short timeout, if neither has resolved, allow dashboard rendering with fallback values
+            setTimeout(() => {
               setLoading(false);
-            }
+            }, 1000);
+
+          } catch (err) {
+            console.error("Setup listeners failed:", err);
+            setLoading(false);
           }
-        } catch (e) {
-          console.error("Profile resolve error:", e);
-          setProfile(null);
-          setLoading(false);
-        }
+        };
+
+        setupListeners();
+
+        unsubscribeProfileRef.current = () => {
+          if (unsubGlobal) unsubGlobal();
+          if (unsubTenantGroup) unsubTenantGroup();
+        };
       } else {
         setProfile(null);
         const u = unsubscribeProfileRef.current;
