@@ -297,11 +297,12 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
     return users.filter(u => {
       const roleIds = u.roles || [];
       const singleRole = u.role;
-      const allRoleIds = roleIds.length > 0 ? roleIds : (singleRole ? [singleRole] : []);
+      const allRoleIds = (roleIds.length > 0 ? roleIds : (singleRole ? [singleRole] : [])).map(r => r.toUpperCase());
       
-      // Check if any role matches "Member"
+      // Check if any role is standard Member or matches role_name "member"
       return allRoleIds.some(rid => {
-        const roleMatch = roles.find(r => r.role_id === rid || r.id === rid);
+        if (rid === "R10001" || rid === "MEMBER" || rid === "PLAYER") return true;
+        const roleMatch = roles.find(r => r.role_id?.toUpperCase() === rid || r.id?.toUpperCase() === rid);
         return roleMatch?.role_name?.toLowerCase() === "member";
       });
     });
@@ -373,6 +374,7 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
         portrait_url: url,
         updated_at: new Date().toISOString()
       }, { merge: true });
+      setFormData(prev => ({ ...prev, portrait_url: url }));
       showAppMessage("Profile photo synchronized.", "SUCCESS");
     } catch (err) {
       console.error("Failed to sync portrait:", err);

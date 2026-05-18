@@ -447,3 +447,80 @@ exports.seedFreeMemberships = functions.https.onRequest(async (req, res) => {
     res.status(500).json({ success: false, error: error.message });
   }
 });
+
+/**
+ * Callable Cloud Function to sync/set custom user claims from Firestore to Firebase Auth.
+ * Invoked client-side during registration or auth state resolution.
+ */
+exports.syncUserClaims = functions.https.onCall(async (data, context) => {
+  const { email, uid } = data;
+
+  if (!uid) {
+    throw new functions.https.HttpsError("invalid-argument", "Missing required field: uid");
+  }
+
+  const targetEmail = email ? String(email).trim().toLowerCase() : "";
+
+  try {
+    let tenantId = "";
+    let role = "";
+
+    // 1. Search tenant-scoped users first
+    let queryRef = db.collectionGroup("users").where("auth_uid", "==", uid);
+    let snap = await queryRef.get();
+
+    if (snap.empty && targetEmail) {
+      queryRef = db.collectionGroup("users").where("email", "==", targetEmail);
+      snap = await queryRef.get();
+    }
+
+    if (!snap.empty) {
+      const userDoc = snap.docs[0];
+      const userData = userDoc.data();
+      tenantId = userData.tenantId || userData.tenant_id || "";
+      role = userData.role || (userData.roles && userData.roles[0]) || "R10001";
+      
+      // Keep auth_uid in sync
+      if (userData.auth_uid !== uid) {
+        await userDoc.ref.update({ auth_uid: uid });
+      }
+    } else {
+      // 2. Search global platform users
+      let globalRef = db.collection("global_users").where("auth_uid", "==", uid);
+      let globalSnap = await globalRef.get();
+
+      if (globalSnap.empty && targetEmail) {
+        globalRef = db.collection("global_users").where("email", "==", targetEmail);
+        globalSnap = await globalRef.get();
+      }
+
+      if (!globalSnap.empty) {
+        const userDoc = globalSnap.docs[0];
+        const userData = userDoc.data();
+        tenantId = "Global";
+        role = userData.role || "PlatformAdmin";
+
+        if (userData.auth_uid !== uid) {
+          await userDoc.ref.update({ auth_uid: uid });
+        }
+      }
+    }
+
+    if (!tenantId) {
+      return { status: "not-found", message: `No user record found to set claims for.` };
+    }
+
+    // Set custom claims
+    await admin.auth().setCustomUserClaims(uid, { tenantId, role });
+    console.log(`Successfully synced custom claims for ${targetEmail || uid}: tenantId=${tenantId}, role=${role}`);
+
+    return {
+      status: "success",
+      claims: { tenantId, role }
+    };
+
+  } catch (error) {
+    console.error("Error in syncUserClaims:", error);
+    throw new functions.https.HttpsError("internal", error.message);
+  }
+});

@@ -31,6 +31,11 @@ service cloud.firestore {
       allow read, write: if true;
     }
 
+    // Explicit rule for users collection group
+    match /{path=**}/users/{userId} {
+      allow read, write: if true;
+    }
+
     // Fallback rule for shared collections
     match /{path=**} {
       allow read, write: if request.auth != null && (resource == null || request.auth.token.tenantId == resource.data.tenantId || isAdmin());

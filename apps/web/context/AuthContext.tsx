@@ -95,9 +95,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
               console.log(`[AuthContext] Resolved profile from ${isGlobal ? 'global_users' : 'collectionGroup users'}:`, data.email);
               
               // Resolve combined profile
+              const resolvedTenantId = data.tenant_id || detectedTenantId || undefined;
               setProfile({ 
                 ...data, 
-                tenant_id: data.tenant_id || detectedTenantId || undefined, 
+                tenant_id: resolvedTenantId, 
                 id: docSnap.id 
               });
               setLoading(false);
@@ -120,6 +121,39 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
                   console.error("[AuthContext] Failed to heal user document:", updateErr);
                 }
               }
+
+              // Validate and self-heal Custom Claims if missing or out of sync
+              try {
+                const tokenResult = await firebaseUser.getIdTokenResult();
+                const currentClaims = tokenResult.claims;
+                const correctTenantId = resolvedTenantId || "";
+                const correctRole = data.role || (data.roles && data.roles[0]) || "R10001";
+
+                if (
+                  !currentClaims.tenantId || 
+                  currentClaims.tenantId !== correctTenantId || 
+                  !currentClaims.role || 
+                  currentClaims.role !== correctRole
+                ) {
+                  console.log(`[AuthContext] Custom claims missing or out-of-sync. Current:`, currentClaims, `Expected:`, { tenantId: correctTenantId, role: correctRole });
+                  console.log(`[AuthContext] Triggering syncUserClaims cloud function...`);
+                  
+                  const { functions } = await import("../lib/firebase");
+                  const { httpsCallable } = await import("firebase/functions");
+                  const syncClaimsFn = httpsCallable(functions, "syncUserClaims");
+                  const syncRes: any = await syncClaimsFn({ email: firebaseUser.email, uid: firebaseUser.uid });
+                  
+                  if (syncRes && syncRes.data && syncRes.data.status === "success") {
+                    console.log(`[AuthContext] Custom claims synced successfully. Force refreshing ID token...`);
+                    await firebaseUser.getIdToken(true);
+                    console.log(`[AuthContext] ID token refreshed successfully with active claims.`);
+                  } else {
+                    console.warn(`[AuthContext] syncUserClaims returned non-success:`, syncRes);
+                  }
+                }
+              } catch (claimsErr) {
+                console.error("[AuthContext] Failed to sync or verify custom claims:", claimsErr);
+              }
             };
 
             // 1. Concurrently listen to global_users by auth_uid or email
@@ -128,6 +162,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
               if (!snap.empty && snap.docs[0]) {
                 handleUserDoc(snap.docs[0], true);
               }
+            }, (err) => {
+              console.error("[AuthContext] globalUidQ listener error:", err);
             });
             unsubs.push(unsubGlobalUid);
 
@@ -137,6 +173,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
                 if (!snap.empty && snap.docs[0]) {
                   handleUserDoc(snap.docs[0], true);
                 }
+              }, (err) => {
+                console.error("[AuthContext] globalEmailQ listener error:", err);
               });
               unsubs.push(unsubGlobalEmail);
             }
@@ -147,6 +185,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
               if (!snap.empty && snap.docs[0]) {
                 handleUserDoc(snap.docs[0], false);
               }
+            }, (err) => {
+              console.error("[AuthContext] tenantUidQ listener error:", err);
             });
             unsubs.push(unsubTenantUid);
 
@@ -156,6 +196,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
                 if (!snap.empty && snap.docs[0]) {
                   handleUserDoc(snap.docs[0], false);
                 }
+              }, (err) => {
+                console.error("[AuthContext] tenantEmailQ listener error:", err);
               });
               unsubs.push(unsubTenantEmail);
             }
