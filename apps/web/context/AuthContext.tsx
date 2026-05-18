@@ -67,62 +67,98 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           getDocs,
           onSnapshot,
           updateDoc,
+          setDoc,
           doc,
         } = await import("firebase/firestore");
 
         const uid = firebaseUser.uid;
 
-        let unsubGlobal: (() => void) | null = null;
-        let unsubTenantGroup: (() => void) | null = null;
+        let unsubs: (() => void)[] = [];
 
         const setupListeners = async () => {
           try {
-            // 1. Listen to global_users in real-time
-            const globalQ = query(collection(db, "global_users"), where("auth_uid", "==", uid), limit(1));
-            unsubGlobal = onSnapshot(globalQ, (snap) => {
-              if (!snap.empty && snap.docs[0]) {
-                const docSnap = snap.docs[0];
-                const data = docSnap.data() as UserProfile;
-                console.log("[AuthContext] Real-time profile resolved from global_users:", data.email);
-                setProfile({ ...data, id: docSnap.id });
-                setLoading(false);
-                
-                if (data.status === "Invited") {
-                  updateDoc(docSnap.ref, {
-                    status: "Active",
-                    last_login: new Date().toISOString(),
-                  }).catch((err: unknown) => console.error("Failed to auto-activate user:", err));
-                }
-              }
-            }, (err) => {
-              console.error("Global real-time listener error:", err);
-            });
-
-            // 2. Listen to collectionGroup("users") in real-time
-            const tenantQ = query(collectionGroup(db, "users"), where("auth_uid", "==", uid), limit(1));
-            unsubTenantGroup = onSnapshot(tenantQ, (snap) => {
-              if (!snap.empty && snap.docs[0]) {
-                const docSnap = snap.docs[0];
-                const data = docSnap.data() as UserProfile;
+            const userEmail = firebaseUser.email;
+            
+            const handleUserDoc = async (docSnap: any, isGlobal: boolean) => {
+              if (!docSnap || !docSnap.exists()) return;
+              const data = docSnap.data() as UserProfile;
+              
+              // Extract tenant_id from path if tenant-scoped user and missing
+              let detectedTenantId = "";
+              if (!isGlobal) {
                 const pathParts = docSnap.ref.path.split("/");
-                let detectedTenantId = "";
                 if (pathParts[0] === "tenants" && pathParts[1]) {
                   detectedTenantId = pathParts[1];
                 }
-                console.log("[AuthContext] Real-time profile resolved from collectionGroup users:", docSnap.ref.path, "Tenant:", detectedTenantId);
-                setProfile({ ...data, tenant_id: data.tenant_id || detectedTenantId, id: docSnap.id });
-                setLoading(false);
+              }
 
-                if (data.status === "Invited") {
-                  updateDoc(docSnap.ref, {
-                    status: "Active",
-                    last_login: new Date().toISOString(),
-                  }).catch((err: unknown) => console.error("Failed to auto-activate user:", err));
+              console.log(`[AuthContext] Resolved profile from ${isGlobal ? 'global_users' : 'collectionGroup users'}:`, data.email);
+              
+              // Resolve combined profile
+              setProfile({ 
+                ...data, 
+                tenant_id: data.tenant_id || detectedTenantId || undefined, 
+                id: docSnap.id 
+              });
+              setLoading(false);
+
+              // Perform self-healing and auto-activation
+              const updates: any = {};
+              if (data.status === "Invited") {
+                updates.status = "Active";
+                updates.last_login = new Date().toISOString();
+              }
+              if (!data.auth_uid || data.auth_uid !== uid) {
+                updates.auth_uid = uid;
+              }
+
+              if (Object.keys(updates).length > 0) {
+                try {
+                  await setDoc(docSnap.ref, updates, { merge: true });
+                  console.log(`[AuthContext] Self-healed & updated user document fields:`, updates);
+                } catch (updateErr) {
+                  console.error("[AuthContext] Failed to heal user document:", updateErr);
                 }
               }
-            }, (err) => {
-              console.error("Tenant collectionGroup real-time listener error:", err);
+            };
+
+            // 1. Concurrently listen to global_users by auth_uid or email
+            const globalUidQ = query(collection(db, "global_users"), where("auth_uid", "==", uid), limit(1));
+            const unsubGlobalUid = onSnapshot(globalUidQ, (snap) => {
+              if (!snap.empty && snap.docs[0]) {
+                handleUserDoc(snap.docs[0], true);
+              }
             });
+            unsubs.push(unsubGlobalUid);
+
+            if (userEmail) {
+              const globalEmailQ = query(collection(db, "global_users"), where("email", "==", userEmail), limit(1));
+              const unsubGlobalEmail = onSnapshot(globalEmailQ, (snap) => {
+                if (!snap.empty && snap.docs[0]) {
+                  handleUserDoc(snap.docs[0], true);
+                }
+              });
+              unsubs.push(unsubGlobalEmail);
+            }
+
+            // 2. Concurrently listen to collectionGroup("users") by auth_uid or email
+            const tenantUidQ = query(collectionGroup(db, "users"), where("auth_uid", "==", uid), limit(1));
+            const unsubTenantUid = onSnapshot(tenantUidQ, (snap) => {
+              if (!snap.empty && snap.docs[0]) {
+                handleUserDoc(snap.docs[0], false);
+              }
+            });
+            unsubs.push(unsubTenantUid);
+
+            if (userEmail) {
+              const tenantEmailQ = query(collectionGroup(db, "users"), where("email", "==", userEmail), limit(1));
+              const unsubTenantEmail = onSnapshot(tenantEmailQ, (snap) => {
+                if (!snap.empty && snap.docs[0]) {
+                  handleUserDoc(snap.docs[0], false);
+                }
+              });
+              unsubs.push(unsubTenantEmail);
+            }
 
             // After a short timeout, if neither has resolved, allow dashboard rendering with fallback values
             setTimeout(() => {
@@ -138,8 +174,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         setupListeners();
 
         unsubscribeProfileRef.current = () => {
-          if (unsubGlobal) unsubGlobal();
-          if (unsubTenantGroup) unsubTenantGroup();
+          unsubs.forEach(unsub => unsub());
         };
       } else {
         setProfile(null);

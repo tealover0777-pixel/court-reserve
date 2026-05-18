@@ -7,10 +7,10 @@
 
   Creating an optimized production build ...
 ✓ Compiled successfully in 3.8s
-  Finished TypeScript in 4.6s    ✓ Finished TypeScript in 4.6s 
-  Collecting page data using 7 workers in 315ms    ✓ Collecting page data using 7 workers in 315ms 
-✓ Generating static pages using 7 workers (6/6) in 459ms
-  Finalizing page optimization in 526ms    ✓ Finalizing page optimization in 526ms 
+  Finished TypeScript in 4.2s    ✓ Finished TypeScript in 4.2s 
+  Collecting page data using 7 workers in 417ms    ✓ Collecting page data using 7 workers in 417ms 
+✓ Generating static pages using 7 workers (6/6) in 443ms
+  Finalizing page optimization in 524ms    ✓ Finalizing page optimization in 524ms 
 
 Route (app)
 ┌ ○ /

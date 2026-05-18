@@ -178,7 +178,8 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
       // Global User Admin View: show all tenant-scoped users across the platform
       qTenantScoped = query(collectionGroup(db, "users"), orderBy("user_id", "asc"));
     } else if (typeof tenantId === "string" && tenantId) {
-      // Tenant-specific view: show only this tenant's users
+      // Tenant-specific view: show both global users of this tenant and scoped users of this tenant
+      qGlobal = query(collection(db, "global_users"), where("tenant_id", "==", tenantId), orderBy("user_id", "asc"));
       qTenantScoped = query(collection(db, "tenants", tenantId, "users"), orderBy("user_id", "asc"));
     }
 
