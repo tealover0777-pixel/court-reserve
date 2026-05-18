@@ -704,8 +704,13 @@ export default function LoginView() {
                 onPortraitUpload={handlePortraitUpload}
                 showPortraitSelector={showPortraitSelector}
                 setShowPortraitSelector={setShowPortraitSelector}
-                defaultPortraits={defaultPortraits}
-                genderOptions={genderDimensionItems}
+                defaultPortraits={defaultPortraits.length > 0 ? defaultPortraits : [
+                  { id: 'DEF_1', label: 'Male Light', url: '/images/defaults/male_light.png' },
+                  { id: 'DEF_2', label: 'Female Light', url: '/images/defaults/female_light.png' },
+                  { id: 'DEF_3', label: 'Male Dark', url: '/images/defaults/male_dark.png' },
+                  { id: 'DEF_4', label: 'Female Dark', url: '/images/defaults/female_dark.png' },
+                ]}
+                genderOptions={genderDimensionItems.length > 0 ? genderDimensionItems : ["Male", "Female", "Non-binary", "Prefer not to say"]}
                 onCreateAccount={handleCreateAccount}
                 onBack={() => {
                   setRegStep("credentials");
