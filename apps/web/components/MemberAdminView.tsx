@@ -189,7 +189,7 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
     }
 
     const unsubGlobal = onSnapshot(qGlobal, (snap: any) => {
-      setGlobalUsers(snap.docs.map((d: any) => ({ id: d.id, ...d.data() } as User)));
+      setGlobalUsers(snap.docs.map((d: any) => ({ id: d.id, ...d.data(), is_global: true } as User)));
     }, (error) => {
       console.error("Error fetching global users:", error);
     });
@@ -197,14 +197,30 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
     let unsubTenant = () => {};
     if (qTenantScoped) {
       unsubTenant = onSnapshot(qTenantScoped, (snap: any) => {
-        setScopedUsers(snap.docs.map((d: any) => ({ id: d.id, ...d.data() } as User)));
+        setScopedUsers(snap.docs.map((d: any) => {
+          const data = d.data();
+          return {
+            id: d.id,
+            ...data,
+            is_global: false,
+            tenant_id: data.tenant_id || d.ref.parent.parent.id
+          } as User;
+        }));
       }, (error) => {
         console.warn("Snapshot error in MemberAdminView (likely missing index for collectionGroup orderBy):", error);
         // Fallback to un-ordered query for consolidated view
         if (tenantId === "consolidated") {
           const fallbackQ = query(collectionGroup(db, "users"));
           unsubTenant = onSnapshot(fallbackQ, (snap: any) => {
-            setScopedUsers(snap.docs.map((d: any) => ({ id: d.id, ...d.data() } as User)));
+            setScopedUsers(snap.docs.map((d: any) => {
+              const data = d.data();
+              return {
+                id: d.id,
+                ...data,
+                is_global: false,
+                tenant_id: data.tenant_id || d.ref.parent.parent?.id
+              } as User;
+            }));
           });
         }
       });
@@ -222,9 +238,12 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
   const [scopedUsers, setScopedUsers] = useState<User[]>([]);
   
   useEffect(() => {
-    // Merge and deduplicate
+    // Merge and deduplicate using globally unique keys
     const all = [...globalUsers, ...scopedUsers];
-    const unique = Array.from(new Map(all.map(u => [u.id, u])).values());
+    const unique = Array.from(new Map(all.map((u: User) => {
+      const key = u.is_global ? `global_${u.id}` : `scoped_${u.tenant_id}_${u.id}`;
+      return [key, u];
+    })).values());
     setUsers(unique.sort((a, b) => (a.user_id || "").localeCompare(b.user_id || "")));
     setLoading(false);
   }, [globalUsers, scopedUsers]);
@@ -346,7 +365,10 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
   const handlePortraitSync = async (url: string) => {
     if (!editingUser) return;
     try {
-      const userRef = doc(db, "global_users", editingUser.id);
+      const isGlobal = editingUser.is_global;
+      const userRef = isGlobal
+        ? doc(db, "global_users", editingUser.id)
+        : doc(db, "tenants", (editingUser as any).tenantId || editingUser.tenant_id || "Global", "users", editingUser.id);
       await setDoc(userRef, { 
         portrait_url: url,
         updated_at: new Date().toISOString()
@@ -384,12 +406,14 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
     if (!editingUser) return;
     setIsSaving(true);
     try {
-      // Use the exact document ID from the editing user
-      const userRef = doc(db, "global_users", editingUser.id);
+      const isGlobal = editingUser.is_global;
+      const userRef = isGlobal
+        ? doc(db, "global_users", editingUser.id)
+        : doc(db, "tenants", (editingUser as any).tenantId || editingUser.tenant_id || "Global", "users", editingUser.id);
       
       // Destructure to exclude fields that shouldn't be saved to the database
       // @ts-ignore
-      const { invite_user, ...savableData } = formData;
+      const { invite_user, is_global, ...savableData } = formData;
       
       const updateData = {
         ...savableData,
