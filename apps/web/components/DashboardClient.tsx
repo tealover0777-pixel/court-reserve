@@ -1794,13 +1794,15 @@ function ProfileView({ theme, profile, roles }: { theme: "LIGHT" | "DARK" | "VIN
       const photoURL = await getDownloadURL(storageRef);
       console.log("Download URL obtained:", photoURL);
 
-      // Update global_users doc
+      // Update user doc
       if (!profile.id) throw new Error("Missing profile Firestore ID");
-      const userRef = doc(db, "global_users", profile.id);
-      await updateDoc(userRef, {
+      const userRef = profile.tenant_id && profile.tenant_id !== "Global"
+        ? doc(db, "tenants", profile.tenant_id, "users", profile.id)
+        : doc(db, "global_users", profile.id);
+      await setDoc(userRef, {
         portrait_url: photoURL,
-        updated_at: serverTimestamp()
-      });
+        updated_at: new Date().toISOString()
+      }, { merge: true });
       console.log("Firestore updated");
 
       // Update auth profile
@@ -1822,11 +1824,13 @@ function ProfileView({ theme, profile, roles }: { theme: "LIGHT" | "DARK" | "VIN
     if (!profile || !profile.id) return;
     setIsUploading(true);
     try {
-      const userRef = doc(db, "global_users", profile.id);
-      await updateDoc(userRef, {
+      const userRef = profile.tenant_id && profile.tenant_id !== "Global"
+        ? doc(db, "tenants", profile.tenant_id, "users", profile.id)
+        : doc(db, "global_users", profile.id);
+      await setDoc(userRef, {
         portrait_url: url,
-        updated_at: serverTimestamp()
-      });
+        updated_at: new Date().toISOString()
+      }, { merge: true });
 
       if (auth.currentUser) {
         await updateProfile(auth.currentUser, { photoURL: url });
@@ -1868,14 +1872,17 @@ function ProfileView({ theme, profile, roles }: { theme: "LIGHT" | "DARK" | "VIN
   }, [profile]);
 
   const handleSaveProfile = async () => {
-    if (!profile?.user_id) return;
+    const uid = profile?.user_id || profile?.id;
+    if (!uid) return;
     setIsSaving(true);
     try {
-      const userRef = doc(db, "global_users", profile.user_id);
-      await updateDoc(userRef, {
+      const userRef = profile.tenant_id && profile.tenant_id !== "Global"
+        ? doc(db, "tenants", profile.tenant_id, "users", uid)
+        : doc(db, "global_users", uid);
+      await setDoc(userRef, {
         ...formData,
-        updated_at: serverTimestamp()
-      });
+        updated_at: new Date().toISOString()
+      }, { merge: true });
       setShowEditModal(false);
       showNotification("Profile updated successfully!");
     } catch (err) {
