@@ -409,9 +409,15 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
     setIsSaving(true);
     try {
       const isGlobal = editingUser.is_global;
+      
+      let resolvedTenantId = (editingUser as any).tenantId || editingUser.tenant_id;
+      if (resolvedTenantId === "consolidated" || resolvedTenantId === "Global" || !resolvedTenantId) {
+        resolvedTenantId = "kinetic";
+      }
+
       const userRef = isGlobal
         ? doc(db, "global_users", editingUser.id)
-        : doc(db, "tenants", (editingUser as any).tenantId || editingUser.tenant_id || "Global", "users", editingUser.id);
+        : doc(db, "tenants", resolvedTenantId, "users", editingUser.id);
       
       // Destructure to exclude fields that shouldn't be saved to the database
       // @ts-ignore
@@ -426,6 +432,13 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
       const cleanUpdateData = Object.fromEntries(
         Object.entries(updateData).filter(([_, v]) => v !== undefined)
       );
+
+      if (cleanUpdateData.tenant_id === "consolidated" || cleanUpdateData.tenant_id === "Global" || !cleanUpdateData.tenant_id) {
+        cleanUpdateData.tenant_id = "kinetic";
+      }
+      if (cleanUpdateData.tenantId === "consolidated" || cleanUpdateData.tenantId === "Global" || !cleanUpdateData.tenantId) {
+        cleanUpdateData.tenantId = "kinetic";
+      }
 
       await setDoc(userRef, cleanUpdateData, { merge: true });
       
@@ -473,12 +486,19 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
     setIsSaving(true);
     try {
       const newUserId = nextUserId;
-      const compositeId = `${formData.tenant_id}_${newUserId}`;
+      
+      let targetTenantId = formData.tenant_id;
+      if (targetTenantId === "consolidated" || targetTenantId === "Global" || !targetTenantId) {
+        targetTenantId = "kinetic";
+      }
+
+      const compositeId = `${targetTenantId}_${newUserId}`;
       const userRef = doc(db, "global_users", compositeId);
       
       const userData = {
         user_id: newUserId,
-        tenant_id: formData.tenant_id || "Global",
+        tenant_id: targetTenantId,
+        tenantId: targetTenantId,
         first_name: formData.first_name,
         last_name: formData.last_name,
         email: formData.email,
