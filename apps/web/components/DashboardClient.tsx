@@ -1853,7 +1853,8 @@ function ProfileView({ theme, profile, roles }: { theme: "LIGHT" | "DARK" | "VIN
     address_street_2: profile?.address_street_2 || "",
     address_city: profile?.address_city || "",
     address_state: profile?.address_state || "",
-    address_zip: profile?.address_zip || ""
+    address_zip: profile?.address_zip || "",
+    company_user_id: profile?.company_user_id || ""
   });
 
   React.useEffect(() => {
@@ -1866,7 +1867,8 @@ function ProfileView({ theme, profile, roles }: { theme: "LIGHT" | "DARK" | "VIN
         address_street_2: profile.address_street_2 || "",
         address_city: profile.address_city || "",
         address_state: profile.address_state || "",
-        address_zip: profile.address_zip || ""
+        address_zip: profile.address_zip || "",
+        company_user_id: profile.company_user_id || ""
       });
     }
   }, [profile]);
@@ -1987,6 +1989,9 @@ function ProfileView({ theme, profile, roles }: { theme: "LIGHT" | "DARK" | "VIN
               { label: "REGISTERED EMAIL", value: profile?.email || "NOT PROVIDED" },
               { label: "PHONE VERIFIED", value: profile?.phone || "NOT PROVIDED" },
               { label: "MAILING ADDRESS", value: (profile?.address_street_1 || profile?.address_street) ? `${profile?.address_street_1 || profile?.address_street}${profile?.address_street_2 ? `, ${profile.address_street_2}` : ""}, ${profile.address_city}, ${profile.address_state} ${profile.address_zip}` : "NOT PROVIDED" },
+              { label: "COMPANY USER ID", value: profile?.company_user_id || "None" },
+              { label: "MEMBERSHIP PLAN", value: (profile?.membership || "FREE").toUpperCase() },
+              { label: "ACCOUNT STATUS", value: (profile?.status || "ACTIVE").toUpperCase() },
               { label: "INTERNAL ID", value: profile?.user_id || "NOT PROVIDED" },
             ].map((item, i) => (
               <div key={i} className={item.label === "MAILING ADDRESS" ? "col-span-2" : ""}>
@@ -2087,6 +2092,15 @@ function ProfileView({ theme, profile, roles }: { theme: "LIGHT" | "DARK" | "VIN
                 value={formData.phone}
                 onChange={e => setFormData({ ...formData, phone: e.target.value })}
                 placeholder="+1 (555) 000-0000"
+                className={`w-full bg-transparent border-b-2 py-4 text-lg font-bold outline-none transition-colors placeholder:text-stone-200 ${theme === "DARK" ? "border-stone-200 focus:border-[#ccff00] text-white" : theme === "LIGHT" ? "border-stone-200 focus:border-[#4f6b28] text-[#4f6b28]" : "border-stone-100 focus:border-stone-900 text-stone-900"}`}
+              />
+            </div>
+            <div>
+              <label className={`text-[10px] font-black uppercase tracking-widest mb-3 block ${theme === "DARK" ? "text-white" : theme === "LIGHT" ? "text-[#4f6b28]/60" : "text-stone-600"}`}>Company User ID</label>
+              <input
+                value={formData.company_user_id}
+                onChange={e => setFormData({ ...formData, company_user_id: e.target.value })}
+                placeholder="e.g. EMP-0042"
                 className={`w-full bg-transparent border-b-2 py-4 text-lg font-bold outline-none transition-colors placeholder:text-stone-200 ${theme === "DARK" ? "border-stone-200 focus:border-[#ccff00] text-white" : theme === "LIGHT" ? "border-stone-200 focus:border-[#4f6b28] text-[#4f6b28]" : "border-stone-100 focus:border-stone-900 text-stone-900"}`}
               />
             </div>
