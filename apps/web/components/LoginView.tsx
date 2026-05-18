@@ -313,6 +313,7 @@ export default function LoginView() {
         role: "R10001",
         roles: ["R10001"], // Default to Member
         status: "Active",
+        membership: "FREE",
         tenant_id: selectedTenant?.tenant_id || regTenantId,
         tenantId: regTenantId,
         tenant_name: selectedTenant?.name || "",
