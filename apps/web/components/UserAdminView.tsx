@@ -185,8 +185,13 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
 
     let unsubGlobal = () => {};
     if (qGlobal) {
+      console.log("[UserAdminView] Subscribing to qGlobal query...", qGlobal);
       unsubGlobal = onSnapshot(qGlobal, (snap: any) => {
-        setGlobalUsers(snap.docs.map((d: any) => ({ id: d.id, ...d.data(), is_global: true } as User)));
+        const data = snap.docs.map((d: any) => ({ id: d.id, ...d.data(), is_global: true } as User));
+        console.log("[UserAdminView] onSnapshot globalUsers success count:", data.length, data);
+        setGlobalUsers(data);
+      }, (error) => {
+        console.error("[UserAdminView] onSnapshot globalUsers error:", error);
       });
     } else {
       setGlobalUsers([]);
@@ -194,8 +199,9 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
 
     let unsubTenant = () => {};
     if (qTenantScoped) {
+      console.log("[UserAdminView] Subscribing to qTenantScoped query...", qTenantScoped);
       unsubTenant = onSnapshot(qTenantScoped, (snap: any) => {
-        setScopedUsers(snap.docs.map((d: any) => {
+        const data = snap.docs.map((d: any) => {
           const data = d.data();
           return { 
             id: d.id, 
@@ -204,14 +210,16 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
             // Ensure tenant_id is available even if not in document data
             tenant_id: data.tenant_id || d.ref.parent.parent.id 
           } as User;
-        }));
+        });
+        console.log("[UserAdminView] onSnapshot scopedUsers success count:", data.length, data);
+        setScopedUsers(data);
       }, (error) => {
-        console.warn("Snapshot error (likely missing index for collectionGroup orderBy):", error);
+        console.error("[UserAdminView] onSnapshot scopedUsers error:", error);
         // Fallback to un-ordered query
         if (tenantId === "" || tenantId === "consolidated" || tenantId === "Global") {
           const fallbackQ = query(collectionGroup(db, "users"));
           unsubTenant = onSnapshot(fallbackQ, (snap: any) => {
-            setScopedUsers(snap.docs.map((d: any) => {
+            const fbData = snap.docs.map((d: any) => {
               const data = d.data();
               return { 
                 id: d.id, 
@@ -219,7 +227,9 @@ export default function UserAdminView({ theme = "LIGHT", tenantId }: { theme?: "
                 is_global: false,
                 tenant_id: data.tenant_id || d.ref.parent.parent?.id 
               } as User;
-            }));
+            });
+            console.log("[UserAdminView] onSnapshot fallback scopedUsers success count:", fbData.length, fbData);
+            setScopedUsers(fbData);
           });
         }
       });

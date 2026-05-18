@@ -74,14 +74,35 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         const uid = firebaseUser.uid;
 
         let unsubs: (() => void)[] = [];
+        let docListenerUnsub: (() => void) | null = null;
 
         const setupListeners = async () => {
           try {
             const userEmail = firebaseUser.email;
             
+            // Fetch custom claims first to do direct subcollection query if tenantId is available
+            const idTokenResult = await firebaseUser.getIdTokenResult();
+            const claimTenantId = idTokenResult.claims.tenantId as string;
+            console.log("[AuthContext] Loaded custom claims tenantId:", claimTenantId);
+            
+            let resolvedDocId: string | null = null;
+
             const handleUserDoc = async (docSnap: any, isGlobal: boolean) => {
               if (!docSnap || !docSnap.exists()) return;
-              const data = docSnap.data() as UserProfile;
+              
+              // Prevent duplicate setup/listener storm for the same document
+              if (resolvedDocId === docSnap.id) return;
+              resolvedDocId = docSnap.id;
+
+              console.log(`[AuthContext] User found: ${docSnap.ref.path}. Unsubscribing temporary search queries...`);
+              
+              // Unsubscribe search queries immediately to stop concurrent operations
+              unsubs.forEach(unsub => {
+                try { unsub(); } catch (e) {}
+              });
+              unsubs = [];
+
+              const initialData = docSnap.data() as UserProfile;
               
               // Extract tenant_id from path if tenant-scoped user and missing
               let detectedTenantId = "";
@@ -91,43 +112,50 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
                   detectedTenantId = pathParts[1];
                 }
               }
+              const resolvedTenantId = initialData.tenant_id || detectedTenantId || undefined;
 
-              console.log(`[AuthContext] Resolved profile from ${isGlobal ? 'global_users' : 'collectionGroup users'}:`, data.email);
-              
-              // Resolve combined profile
-              const resolvedTenantId = data.tenant_id || detectedTenantId || undefined;
-              setProfile({ 
-                ...data, 
-                tenant_id: resolvedTenantId, 
-                id: docSnap.id 
-              });
-              setLoading(false);
+              // Start a single, dedicated listener for real-time document updates to prevent SDK assertion crash
+              console.log("[AuthContext] Starting dedicated document listener for:", docSnap.ref.path);
+              docListenerUnsub = onSnapshot(docSnap.ref, async (latestSnap: any) => {
+                if (!latestSnap.exists()) return;
+                const latestData = latestSnap.data() as UserProfile;
+                
+                // Update profile state
+                setProfile({ 
+                  ...latestData, 
+                  tenant_id: resolvedTenantId, 
+                  id: latestSnap.id 
+                });
+                setLoading(false);
 
-              // Perform self-healing and auto-activation
-              const updates: any = {};
-              if (data.status === "Invited") {
-                updates.status = "Active";
-                updates.last_login = new Date().toISOString();
-              }
-              if (!data.auth_uid || data.auth_uid !== uid) {
-                updates.auth_uid = uid;
-              }
-
-              if (Object.keys(updates).length > 0) {
-                try {
-                  await setDoc(docSnap.ref, updates, { merge: true });
-                  console.log(`[AuthContext] Self-healed & updated user document fields:`, updates);
-                } catch (updateErr) {
-                  console.error("[AuthContext] Failed to heal user document:", updateErr);
+                // Perform self-healing and auto-activation safely on the single active listener
+                const updates: any = {};
+                if (latestData.status === "Invited") {
+                  updates.status = "Active";
+                  updates.last_login = new Date().toISOString();
                 }
-              }
+                if (!latestData.auth_uid || latestData.auth_uid !== uid) {
+                  updates.auth_uid = uid;
+                }
 
-              // Validate and self-heal Custom Claims if missing or out of sync
+                if (Object.keys(updates).length > 0) {
+                  try {
+                    await setDoc(latestSnap.ref, updates, { merge: true });
+                    console.log(`[AuthContext] Self-healed & updated user document fields:`, updates);
+                  } catch (updateErr) {
+                    console.error("[AuthContext] Failed to heal user document:", updateErr);
+                  }
+                }
+              }, (err) => {
+                console.error("[AuthContext] Dedicated document listener error:", err);
+              });
+
+              // Validate and self-heal Custom Claims if missing or out of sync (asynchronously)
               try {
                 const tokenResult = await firebaseUser.getIdTokenResult();
                 const currentClaims = tokenResult.claims;
                 const correctTenantId = resolvedTenantId || "";
-                const correctRole = data.role || (data.roles && data.roles[0]) || "R10001";
+                const correctRole = initialData.role || (initialData.roles && initialData.roles[0]) || "R10001";
 
                 if (
                   !currentClaims.tenantId || 
@@ -156,7 +184,33 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
               }
             };
 
-            // 1. Concurrently listen to global_users by auth_uid or email
+            // 1. Direct subcollection queries under specific tenant if claimTenantId exists
+            if (claimTenantId) {
+              console.log(`[AuthContext] Subscribing to direct tenant ${claimTenantId} queries...`);
+              const directUidQ = query(collection(db, "tenants", claimTenantId, "users"), where("auth_uid", "==", uid), limit(1));
+              const unsubDirectUid = onSnapshot(directUidQ, (snap) => {
+                if (!snap.empty && snap.docs[0]) {
+                  handleUserDoc(snap.docs[0], false);
+                }
+              }, (err) => {
+                console.error("[AuthContext] directUidQ listener error:", err);
+              });
+              unsubs.push(unsubDirectUid);
+
+              if (userEmail) {
+                const directEmailQ = query(collection(db, "tenants", claimTenantId, "users"), where("email", "==", userEmail), limit(1));
+                const unsubDirectEmail = onSnapshot(directEmailQ, (snap) => {
+                  if (!snap.empty && snap.docs[0]) {
+                    handleUserDoc(snap.docs[0], false);
+                  }
+                }, (err) => {
+                  console.error("[AuthContext] directEmailQ listener error:", err);
+                });
+                unsubs.push(unsubDirectEmail);
+              }
+            }
+
+            // 2. Concurrently listen to global_users by auth_uid or email
             const globalUidQ = query(collection(db, "global_users"), where("auth_uid", "==", uid), limit(1));
             const unsubGlobalUid = onSnapshot(globalUidQ, (snap) => {
               if (!snap.empty && snap.docs[0]) {
@@ -179,7 +233,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
               unsubs.push(unsubGlobalEmail);
             }
 
-            // 2. Concurrently listen to collectionGroup("users") by auth_uid or email
+            // 3. Concurrently listen to collectionGroup("users") by auth_uid or email (as fallback)
             const tenantUidQ = query(collectionGroup(db, "users"), where("auth_uid", "==", uid), limit(1));
             const unsubTenantUid = onSnapshot(tenantUidQ, (snap) => {
               if (!snap.empty && snap.docs[0]) {
@@ -217,6 +271,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
         unsubscribeProfileRef.current = () => {
           unsubs.forEach(unsub => unsub());
+          if (docListenerUnsub) {
+            try { docListenerUnsub(); } catch (e) {}
+          }
         };
       } else {
         setProfile(null);

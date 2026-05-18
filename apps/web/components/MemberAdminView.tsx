@@ -189,15 +189,18 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
     }
 
     const unsubGlobal = onSnapshot(qGlobal, (snap: any) => {
-      setGlobalUsers(snap.docs.map((d: any) => ({ id: d.id, ...d.data(), is_global: true } as User)));
+      const data = snap.docs.map((d: any) => ({ id: d.id, ...d.data(), is_global: true } as User));
+      console.log("[MemberAdminView] onSnapshot globalUsers success count:", data.length, data);
+      setGlobalUsers(data);
     }, (error) => {
-      console.error("Error fetching global users:", error);
+      console.error("[MemberAdminView] Error fetching global users:", error);
     });
 
     let unsubTenant = () => {};
     if (qTenantScoped) {
+      console.log("[MemberAdminView] Subscribing to qTenantScoped query...", qTenantScoped);
       unsubTenant = onSnapshot(qTenantScoped, (snap: any) => {
-        setScopedUsers(snap.docs.map((d: any) => {
+        const data = snap.docs.map((d: any) => {
           const data = d.data();
           return {
             id: d.id,
@@ -205,14 +208,16 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
             is_global: false,
             tenant_id: data.tenant_id || d.ref.parent.parent.id
           } as User;
-        }));
+        });
+        console.log("[MemberAdminView] onSnapshot scopedUsers success count:", data.length, data);
+        setScopedUsers(data);
       }, (error) => {
-        console.warn("Snapshot error in MemberAdminView (likely missing index for collectionGroup orderBy):", error);
+        console.error("[MemberAdminView] Snapshot error in MemberAdminView:", error);
         // Fallback to un-ordered query for consolidated view
         if (tenantId === "consolidated") {
           const fallbackQ = query(collectionGroup(db, "users"));
           unsubTenant = onSnapshot(fallbackQ, (snap: any) => {
-            setScopedUsers(snap.docs.map((d: any) => {
+            const fbData = snap.docs.map((d: any) => {
               const data = d.data();
               return {
                 id: d.id,
@@ -220,7 +225,9 @@ export default function MemberAdminView({ theme = "LIGHT", tenantId }: { theme?:
                 is_global: false,
                 tenant_id: data.tenant_id || d.ref.parent.parent?.id
               } as User;
-            }));
+            });
+            console.log("[MemberAdminView] onSnapshot fallback scopedUsers success count:", fbData.length, fbData);
+            setScopedUsers(fbData);
           });
         }
       });
